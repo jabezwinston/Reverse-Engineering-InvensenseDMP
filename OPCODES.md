@@ -516,5 +516,6 @@ bc bd be bf d1 da db dc  crash at every immediate tested             [C]
 ```
 
 **No instruction that writes a register has been found** across 1- and 2-byte forms at two
-program sites. **`f4` is a confirmed forward branch** (bench round 16); the earlier claim that it
-is not a branch is withdrawn.
+program sites. **`f4` is a confirmed forward branch** (bench rounds 16-17), distance >=4 bytes and not yet
+measured; no backward branch found across 64 immediates. The round-9 claim that it is not a
+branch is withdrawn.

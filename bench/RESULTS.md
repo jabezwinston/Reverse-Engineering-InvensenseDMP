@@ -948,3 +948,51 @@ Every prior statement that "no branch, loop, call or return has been found" is *
 forward branch is confirmed. Whether it can be made to jump backwards, and how far it reaches,
 determines whether loops are expressible — and therefore whether arbitrary computation is
 possible at all. That is now the single most important open question in the project.
+
+---
+
+# Round 17 — branch characterisation
+
+Site 1867 (`f4` at 1867, immediate at 1868, four emits at 1869-1872). Control 54; four emits with
+no branch 70, i.e. 4.0 B per emit.
+
+| immediate | outcome |
+|---|---|
+| `00`-`03` | crash |
+| **`04`-`1d`** (26 values) | **branch — all four emits skipped**, plen 54 |
+| `1e`-`3f` | crash |
+
+## Distance: not resolvable here
+
+Every working immediate skips **all four** trailing emits, so distance is ≥4 bytes in all cases
+and the immediate's contribution cannot be separated. Four bytes is the largest safe landing zone
+at this site — beyond 1872 lies code the knockout sweep marked critical.
+
+Distance is **not** simply the immediate: under `target = pc + imm` an immediate of `04` would
+land inside the emit run and skip only part of it, which never happens.
+
+An attempt to use the 10-NOP run at 1879-1888 as a larger landing zone failed for a different
+reason: `f4` **crashes at 1879** though it works at 1867/1868 — position dependence again.
+
+> A previous note claimed that region showed "only 4 of 8 emits firing". That was an arithmetic
+> error on my part: `f2` at 1878 sets 16-bit width, so the emits there produce 2 bytes each. All
+> eight fired. Corrected.
+
+## No backward branch
+
+Across all 64 immediates, **no packet exceeded the 70-byte no-branch baseline.** A backward jump
+would cause re-execution and inflate the packet; nothing of the sort was observed.
+
+## Standing
+
+`f4` is a **forward branch of unmeasured distance ≥4 bytes**, with a working immediate window of
+`0x04`-`0x1d` in this context. No backward branch, loop, call or return exists in any evidence
+collected so far.
+
+**Loops therefore remain unexpressible**, and the toolchain ceiling stands: the DMP can be
+reconfigured, not programmed. The difference from round 9 is that this is now a measured
+conclusion — 64 immediates, an explicit backward-jump detector — rather than an artifact of
+testing a branch with NOPs after it.
+
+`dmpasm.py` deliberately still has **no `branch` mnemonic**: the instruction is confirmed but its
+distance semantics are not, and the assembler only emits what is verified. Use `.db 0xf4, imm`.

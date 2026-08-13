@@ -67,8 +67,9 @@ pass, later confirmed on hardware by exact constants (`40000000` = +1.0, `600000
 ## Limits
 
 - **No register-write instruction** has been found — every confirmed instruction reads.
-- **`f4` is a confirmed forward branch** (round 16). No loop, call, return or backward branch
-  has been found; branch distance is not yet measured.
+- **`f4` is a confirmed forward branch** (rounds 16-17), distance >=4 bytes, unmeasured.
+  **No backward branch** — 64 immediates tested with an explicit re-execution detector, none
+  found. No loop, call or return. Loops are therefore not expressible.
 - Free RAM above the image is addressable but **unreachable as code**.
 
 So the DMP can be *reconfigured* — what it computes into the FIFO, which features run, at what
