@@ -1,0 +1,749 @@
+{
+ "records": [
+  {
+   "sha256": "d79e55736bb5ea919dc34bf0f3d8db16c0449cddfab0517010e84248cf12c799",
+   "size": 1929,
+   "symbol": "dmpMemory",
+   "era": "_external",
+   "path": "i2cdev_MPU6050_6Axis_MotionApps20.cpp"
+  },
+  {
+   "sha256": "fcbb7309391e6bbf27aca374489c599f8f7ecfe426c801f65e3a933a9812e6c8",
+   "size": 14301,
+   "symbol": "(bare fragment)",
+   "era": "_external",
+   "path": "sparkfun_icm20948_img.dmp3a.h"
+  },
+  {
+   "sha256": "fab8d4c6fcf535c65fe4b29ce313384c8ace11da386bd5e4664c9e59526b53f7",
+   "size": 1962,
+   "symbol": "dmpMemory",
+   "era": "_external",
+   "path": "i2cdev_MPU6050_9Axis_MotionApps41.cpp"
+  },
+  {
+   "sha256": "ae42d0be801847e53e77a96ca74961d3063a21f1c0006c556b13d0e305a3c1ec",
+   "size": 3062,
+   "symbol": "dmpMemory",
+   "era": "_external",
+   "path": "i2cdev_MPU6050_6Axis_MotionApps612.cpp"
+  },
+  {
+   "sha256": "2e40b3ba8a7227f9fb3aca867f15f3b5a3de77bd8a0a76b4448ff31738f7818f",
+   "size": 1923,
+   "symbol": "dmpMemory",
+   "era": "ics-mr1",
+   "path": "mlsdk/mllite/dmpDefaultMantis.c"
+  },
+  {
+   "sha256": "4952db90a63f577a0c054cf1ee6886f7c4b8d2ef81743c287c0ab3f60290c4b2",
+   "size": 1024,
+   "symbol": "dmpMemory",
+   "era": "ics-mr1",
+   "path": "mlsdk/mllite/dmpDefault.c"
+  },
+  {
+   "sha256": "2e40b3ba8a7227f9fb3aca867f15f3b5a3de77bd8a0a76b4448ff31738f7818f",
+   "size": 1923,
+   "symbol": "dmpMemory",
+   "era": "kitkat-release",
+   "path": "60xx/mlsdk/mllite/dmpDefaultMantis.c"
+  },
+  {
+   "sha256": "4952db90a63f577a0c054cf1ee6886f7c4b8d2ef81743c287c0ab3f60290c4b2",
+   "size": 1024,
+   "symbol": "dmpMemory",
+   "era": "kitkat-release",
+   "path": "60xx/mlsdk/mllite/dmpDefault.c"
+  },
+  {
+   "sha256": "5c1076c42206c4753e64fa99b507cc1403b865e7a9fcafe06e994bd214c5b784",
+   "size": 3065,
+   "symbol": "dmpMemory",
+   "era": "kitkat-release",
+   "path": "60xx/libsensors_iio/software/core/mllite/linux/ml_load_dmp.c"
+  },
+  {
+   "sha256": "98d3bcdc05754faa8312f4c0f70496e871ead755743bff596ffd0f005c7f3382",
+   "size": 2634,
+   "symbol": "dmpMemory",
+   "era": "kitkat-release",
+   "path": "65xx/libsensors_iio/software/core/mllite/linux/ml_load_dmp.c"
+  },
+  {
+   "sha256": "e44be467e5454eb6c903c52aec45bb8310e92ba430e55a56a92e329e5c47df22",
+   "size": 3035,
+   "symbol": "dmpMemory",
+   "era": "oreo-release",
+   "path": "6515/libsensors_iio/software/core/mllite/linux/ml_load_dmp.c"
+  },
+  {
+   "sha256": "f80d502b66daab2f9a08ae6c746d3c66497fb2853db114af9ab85aa2c12300f5",
+   "size": 2639,
+   "symbol": "dmpMemory",
+   "era": "oreo-release",
+   "path": "65xx/libsensors_iio/software/core/mllite/linux/ml_load_dmp.c"
+  },
+  {
+   "sha256": "e44be467e5454eb6c903c52aec45bb8310e92ba430e55a56a92e329e5c47df22",
+   "size": 3035,
+   "symbol": "dmpMemory",
+   "era": "oreo-mr1-release",
+   "path": "6515/libsensors_iio/software/core/mllite/linux/ml_load_dmp.c"
+  },
+  {
+   "sha256": "f80d502b66daab2f9a08ae6c746d3c66497fb2853db114af9ab85aa2c12300f5",
+   "size": 2639,
+   "symbol": "dmpMemory",
+   "era": "oreo-mr1-release",
+   "path": "65xx/libsensors_iio/software/core/mllite/linux/ml_load_dmp.c"
+  },
+  {
+   "sha256": "2e40b3ba8a7227f9fb3aca867f15f3b5a3de77bd8a0a76b4448ff31738f7818f",
+   "size": 1923,
+   "symbol": "dmpMemory",
+   "era": "jb-mr2.0-release",
+   "path": "mlsdk/mllite/dmpDefaultMantis.c"
+  },
+  {
+   "sha256": "4952db90a63f577a0c054cf1ee6886f7c4b8d2ef81743c287c0ab3f60290c4b2",
+   "size": 1024,
+   "symbol": "dmpMemory",
+   "era": "jb-mr2.0-release",
+   "path": "mlsdk/mllite/dmpDefault.c"
+  },
+  {
+   "sha256": "5c1076c42206c4753e64fa99b507cc1403b865e7a9fcafe06e994bd214c5b784",
+   "size": 3065,
+   "symbol": "dmpMemory",
+   "era": "jb-mr2.0-release",
+   "path": "libsensors_iio/software/core/mllite/linux/ml_load_dmp.c"
+  },
+  {
+   "sha256": "e44be467e5454eb6c903c52aec45bb8310e92ba430e55a56a92e329e5c47df22",
+   "size": 3035,
+   "symbol": "dmpMemory",
+   "era": "marshmallow-mr1-release",
+   "path": "6515/libsensors_iio/software/core/mllite/linux/ml_load_dmp.c"
+  },
+  {
+   "sha256": "f80d502b66daab2f9a08ae6c746d3c66497fb2853db114af9ab85aa2c12300f5",
+   "size": 2639,
+   "symbol": "dmpMemory",
+   "era": "marshmallow-mr1-release",
+   "path": "65xx/libsensors_iio/software/core/mllite/linux/ml_load_dmp.c"
+  },
+  {
+   "sha256": "e44be467e5454eb6c903c52aec45bb8310e92ba430e55a56a92e329e5c47df22",
+   "size": 3035,
+   "symbol": "dmpMemory",
+   "era": "marshmallow-release",
+   "path": "6515/libsensors_iio/software/core/mllite/linux/ml_load_dmp.c"
+  },
+  {
+   "sha256": "f80d502b66daab2f9a08ae6c746d3c66497fb2853db114af9ab85aa2c12300f5",
+   "size": 2639,
+   "symbol": "dmpMemory",
+   "era": "marshmallow-release",
+   "path": "65xx/libsensors_iio/software/core/mllite/linux/ml_load_dmp.c"
+  },
+  {
+   "sha256": "e44be467e5454eb6c903c52aec45bb8310e92ba430e55a56a92e329e5c47df22",
+   "size": 3035,
+   "symbol": "dmpMemory",
+   "era": "marshmallow-mr3-release",
+   "path": "6515/libsensors_iio/software/core/mllite/linux/ml_load_dmp.c"
+  },
+  {
+   "sha256": "f80d502b66daab2f9a08ae6c746d3c66497fb2853db114af9ab85aa2c12300f5",
+   "size": 2639,
+   "symbol": "dmpMemory",
+   "era": "marshmallow-mr3-release",
+   "path": "65xx/libsensors_iio/software/core/mllite/linux/ml_load_dmp.c"
+  },
+  {
+   "sha256": "2e40b3ba8a7227f9fb3aca867f15f3b5a3de77bd8a0a76b4448ff31738f7818f",
+   "size": 1923,
+   "symbol": "dmpMemory",
+   "era": "jb-mr2-release",
+   "path": "mlsdk/mllite/dmpDefaultMantis.c"
+  },
+  {
+   "sha256": "4952db90a63f577a0c054cf1ee6886f7c4b8d2ef81743c287c0ab3f60290c4b2",
+   "size": 1024,
+   "symbol": "dmpMemory",
+   "era": "jb-mr2-release",
+   "path": "mlsdk/mllite/dmpDefault.c"
+  },
+  {
+   "sha256": "5c1076c42206c4753e64fa99b507cc1403b865e7a9fcafe06e994bd214c5b784",
+   "size": 3065,
+   "symbol": "dmpMemory",
+   "era": "jb-mr2-release",
+   "path": "libsensors_iio/software/core/mllite/linux/ml_load_dmp.c"
+  },
+  {
+   "sha256": "e44be467e5454eb6c903c52aec45bb8310e92ba430e55a56a92e329e5c47df22",
+   "size": 3035,
+   "symbol": "dmpMemory",
+   "era": "android14-release",
+   "path": "6515/libsensors_iio/software/core/mllite/linux/ml_load_dmp.c"
+  },
+  {
+   "sha256": "f80d502b66daab2f9a08ae6c746d3c66497fb2853db114af9ab85aa2c12300f5",
+   "size": 2639,
+   "symbol": "dmpMemory",
+   "era": "android14-release",
+   "path": "65xx/libsensors_iio/software/core/mllite/linux/ml_load_dmp.c"
+  },
+  {
+   "sha256": "e44be467e5454eb6c903c52aec45bb8310e92ba430e55a56a92e329e5c47df22",
+   "size": 3035,
+   "symbol": "dmpMemory",
+   "era": "android16-release",
+   "path": "6515/libsensors_iio/software/core/mllite/linux/ml_load_dmp.c"
+  },
+  {
+   "sha256": "f80d502b66daab2f9a08ae6c746d3c66497fb2853db114af9ab85aa2c12300f5",
+   "size": 2639,
+   "symbol": "dmpMemory",
+   "era": "android16-release",
+   "path": "65xx/libsensors_iio/software/core/mllite/linux/ml_load_dmp.c"
+  },
+  {
+   "sha256": "2e40b3ba8a7227f9fb3aca867f15f3b5a3de77bd8a0a76b4448ff31738f7818f",
+   "size": 1923,
+   "symbol": "dmpMemory",
+   "era": "ics-mr0",
+   "path": "mlsdk/mllite/dmpDefaultMantis.c"
+  },
+  {
+   "sha256": "4952db90a63f577a0c054cf1ee6886f7c4b8d2ef81743c287c0ab3f60290c4b2",
+   "size": 1024,
+   "symbol": "dmpMemory",
+   "era": "ics-mr0",
+   "path": "mlsdk/mllite/dmpDefault.c"
+  },
+  {
+   "sha256": "e44be467e5454eb6c903c52aec45bb8310e92ba430e55a56a92e329e5c47df22",
+   "size": 3035,
+   "symbol": "dmpMemory",
+   "era": "android12-release",
+   "path": "6515/libsensors_iio/software/core/mllite/linux/ml_load_dmp.c"
+  },
+  {
+   "sha256": "f80d502b66daab2f9a08ae6c746d3c66497fb2853db114af9ab85aa2c12300f5",
+   "size": 2639,
+   "symbol": "dmpMemory",
+   "era": "android12-release",
+   "path": "65xx/libsensors_iio/software/core/mllite/linux/ml_load_dmp.c"
+  },
+  {
+   "sha256": "e44be467e5454eb6c903c52aec45bb8310e92ba430e55a56a92e329e5c47df22",
+   "size": 3035,
+   "symbol": "dmpMemory",
+   "era": "android11-release",
+   "path": "6515/libsensors_iio/software/core/mllite/linux/ml_load_dmp.c"
+  },
+  {
+   "sha256": "f80d502b66daab2f9a08ae6c746d3c66497fb2853db114af9ab85aa2c12300f5",
+   "size": 2639,
+   "symbol": "dmpMemory",
+   "era": "android11-release",
+   "path": "65xx/libsensors_iio/software/core/mllite/linux/ml_load_dmp.c"
+  },
+  {
+   "sha256": "e44be467e5454eb6c903c52aec45bb8310e92ba430e55a56a92e329e5c47df22",
+   "size": 3035,
+   "symbol": "dmpMemory",
+   "era": "pie-release",
+   "path": "6515/libsensors_iio/software/core/mllite/linux/ml_load_dmp.c"
+  },
+  {
+   "sha256": "f80d502b66daab2f9a08ae6c746d3c66497fb2853db114af9ab85aa2c12300f5",
+   "size": 2639,
+   "symbol": "dmpMemory",
+   "era": "pie-release",
+   "path": "65xx/libsensors_iio/software/core/mllite/linux/ml_load_dmp.c"
+  },
+  {
+   "sha256": "2e40b3ba8a7227f9fb3aca867f15f3b5a3de77bd8a0a76b4448ff31738f7818f",
+   "size": 1923,
+   "symbol": "dmpMemory",
+   "era": "kitkat-mr2.2-release",
+   "path": "60xx/mlsdk/mllite/dmpDefaultMantis.c"
+  },
+  {
+   "sha256": "4952db90a63f577a0c054cf1ee6886f7c4b8d2ef81743c287c0ab3f60290c4b2",
+   "size": 1024,
+   "symbol": "dmpMemory",
+   "era": "kitkat-mr2.2-release",
+   "path": "60xx/mlsdk/mllite/dmpDefault.c"
+  },
+  {
+   "sha256": "5c1076c42206c4753e64fa99b507cc1403b865e7a9fcafe06e994bd214c5b784",
+   "size": 3065,
+   "symbol": "dmpMemory",
+   "era": "kitkat-mr2.2-release",
+   "path": "60xx/libsensors_iio/software/core/mllite/linux/ml_load_dmp.c"
+  },
+  {
+   "sha256": "98d3bcdc05754faa8312f4c0f70496e871ead755743bff596ffd0f005c7f3382",
+   "size": 2634,
+   "symbol": "dmpMemory",
+   "era": "kitkat-mr2.2-release",
+   "path": "65xx/libsensors_iio/software/core/mllite/linux/ml_load_dmp.c"
+  },
+  {
+   "sha256": "2e40b3ba8a7227f9fb3aca867f15f3b5a3de77bd8a0a76b4448ff31738f7818f",
+   "size": 1923,
+   "symbol": "dmpMemory",
+   "era": "kitkat-mr1-release",
+   "path": "60xx/mlsdk/mllite/dmpDefaultMantis.c"
+  },
+  {
+   "sha256": "4952db90a63f577a0c054cf1ee6886f7c4b8d2ef81743c287c0ab3f60290c4b2",
+   "size": 1024,
+   "symbol": "dmpMemory",
+   "era": "kitkat-mr1-release",
+   "path": "60xx/mlsdk/mllite/dmpDefault.c"
+  },
+  {
+   "sha256": "5c1076c42206c4753e64fa99b507cc1403b865e7a9fcafe06e994bd214c5b784",
+   "size": 3065,
+   "symbol": "dmpMemory",
+   "era": "kitkat-mr1-release",
+   "path": "60xx/libsensors_iio/software/core/mllite/linux/ml_load_dmp.c"
+  },
+  {
+   "sha256": "98d3bcdc05754faa8312f4c0f70496e871ead755743bff596ffd0f005c7f3382",
+   "size": 2634,
+   "symbol": "dmpMemory",
+   "era": "kitkat-mr1-release",
+   "path": "65xx/libsensors_iio/software/core/mllite/linux/ml_load_dmp.c"
+  },
+  {
+   "sha256": "e44be467e5454eb6c903c52aec45bb8310e92ba430e55a56a92e329e5c47df22",
+   "size": 3035,
+   "symbol": "dmpMemory",
+   "era": "nougat-release",
+   "path": "6515/libsensors_iio/software/core/mllite/linux/ml_load_dmp.c"
+  },
+  {
+   "sha256": "f80d502b66daab2f9a08ae6c746d3c66497fb2853db114af9ab85aa2c12300f5",
+   "size": 2639,
+   "symbol": "dmpMemory",
+   "era": "nougat-release",
+   "path": "65xx/libsensors_iio/software/core/mllite/linux/ml_load_dmp.c"
+  },
+  {
+   "sha256": "e44be467e5454eb6c903c52aec45bb8310e92ba430e55a56a92e329e5c47df22",
+   "size": 3035,
+   "symbol": "dmpMemory",
+   "era": "android10-release",
+   "path": "6515/libsensors_iio/software/core/mllite/linux/ml_load_dmp.c"
+  },
+  {
+   "sha256": "f80d502b66daab2f9a08ae6c746d3c66497fb2853db114af9ab85aa2c12300f5",
+   "size": 2639,
+   "symbol": "dmpMemory",
+   "era": "android10-release",
+   "path": "65xx/libsensors_iio/software/core/mllite/linux/ml_load_dmp.c"
+  },
+  {
+   "sha256": "e44be467e5454eb6c903c52aec45bb8310e92ba430e55a56a92e329e5c47df22",
+   "size": 3035,
+   "symbol": "dmpMemory",
+   "era": "android15-release",
+   "path": "6515/libsensors_iio/software/core/mllite/linux/ml_load_dmp.c"
+  },
+  {
+   "sha256": "f80d502b66daab2f9a08ae6c746d3c66497fb2853db114af9ab85aa2c12300f5",
+   "size": 2639,
+   "symbol": "dmpMemory",
+   "era": "android15-release",
+   "path": "65xx/libsensors_iio/software/core/mllite/linux/ml_load_dmp.c"
+  },
+  {
+   "sha256": "eabe2b79d93565358cca83864fece47d7dca5d5826bfbdab2d79ed75996076aa",
+   "size": 2943,
+   "symbol": "dmpMemory",
+   "era": "lollipop-release",
+   "path": "6515/libsensors_iio/software/core/mllite/linux/ml_load_dmp.c"
+  },
+  {
+   "sha256": "2e40b3ba8a7227f9fb3aca867f15f3b5a3de77bd8a0a76b4448ff31738f7818f",
+   "size": 1923,
+   "symbol": "dmpMemory",
+   "era": "lollipop-release",
+   "path": "60xx/mlsdk/mllite/dmpDefaultMantis.c"
+  },
+  {
+   "sha256": "4952db90a63f577a0c054cf1ee6886f7c4b8d2ef81743c287c0ab3f60290c4b2",
+   "size": 1024,
+   "symbol": "dmpMemory",
+   "era": "lollipop-release",
+   "path": "60xx/mlsdk/mllite/dmpDefault.c"
+  },
+  {
+   "sha256": "5c1076c42206c4753e64fa99b507cc1403b865e7a9fcafe06e994bd214c5b784",
+   "size": 3065,
+   "symbol": "dmpMemory",
+   "era": "lollipop-release",
+   "path": "60xx/libsensors_iio/software/core/mllite/linux/ml_load_dmp.c"
+  },
+  {
+   "sha256": "f80d502b66daab2f9a08ae6c746d3c66497fb2853db114af9ab85aa2c12300f5",
+   "size": 2639,
+   "symbol": "dmpMemory",
+   "era": "lollipop-release",
+   "path": "65xx/libsensors_iio/software/core/mllite/linux/ml_load_dmp.c"
+  },
+  {
+   "sha256": "2e40b3ba8a7227f9fb3aca867f15f3b5a3de77bd8a0a76b4448ff31738f7818f",
+   "size": 1923,
+   "symbol": "dmpMemory",
+   "era": "jb-mr1.1-release",
+   "path": "mlsdk/mllite/dmpDefaultMantis.c"
+  },
+  {
+   "sha256": "4952db90a63f577a0c054cf1ee6886f7c4b8d2ef81743c287c0ab3f60290c4b2",
+   "size": 1024,
+   "symbol": "dmpMemory",
+   "era": "jb-mr1.1-release",
+   "path": "mlsdk/mllite/dmpDefault.c"
+  },
+  {
+   "sha256": "52e30e671d7badbc8acbe53a54b76fb998435b6844c3406c8090cbc959aba874",
+   "size": 3065,
+   "symbol": "dmpMemory",
+   "era": "jb-mr1.1-release",
+   "path": "libsensors_iio/software/core/mllite/linux/ml_load_dmp.c"
+  },
+  {
+   "sha256": "e44be467e5454eb6c903c52aec45bb8310e92ba430e55a56a92e329e5c47df22",
+   "size": 3035,
+   "symbol": "dmpMemory",
+   "era": "main",
+   "path": "6515/libsensors_iio/software/core/mllite/linux/ml_load_dmp.c"
+  },
+  {
+   "sha256": "f80d502b66daab2f9a08ae6c746d3c66497fb2853db114af9ab85aa2c12300f5",
+   "size": 2639,
+   "symbol": "dmpMemory",
+   "era": "main",
+   "path": "65xx/libsensors_iio/software/core/mllite/linux/ml_load_dmp.c"
+  },
+  {
+   "sha256": "eabe2b79d93565358cca83864fece47d7dca5d5826bfbdab2d79ed75996076aa",
+   "size": 2943,
+   "symbol": "dmpMemory",
+   "era": "lollipop-mr1-release",
+   "path": "6515/libsensors_iio/software/core/mllite/linux/ml_load_dmp.c"
+  },
+  {
+   "sha256": "2e40b3ba8a7227f9fb3aca867f15f3b5a3de77bd8a0a76b4448ff31738f7818f",
+   "size": 1923,
+   "symbol": "dmpMemory",
+   "era": "lollipop-mr1-release",
+   "path": "60xx/mlsdk/mllite/dmpDefaultMantis.c"
+  },
+  {
+   "sha256": "4952db90a63f577a0c054cf1ee6886f7c4b8d2ef81743c287c0ab3f60290c4b2",
+   "size": 1024,
+   "symbol": "dmpMemory",
+   "era": "lollipop-mr1-release",
+   "path": "60xx/mlsdk/mllite/dmpDefault.c"
+  },
+  {
+   "sha256": "5c1076c42206c4753e64fa99b507cc1403b865e7a9fcafe06e994bd214c5b784",
+   "size": 3065,
+   "symbol": "dmpMemory",
+   "era": "lollipop-mr1-release",
+   "path": "60xx/libsensors_iio/software/core/mllite/linux/ml_load_dmp.c"
+  },
+  {
+   "sha256": "f80d502b66daab2f9a08ae6c746d3c66497fb2853db114af9ab85aa2c12300f5",
+   "size": 2639,
+   "symbol": "dmpMemory",
+   "era": "lollipop-mr1-release",
+   "path": "65xx/libsensors_iio/software/core/mllite/linux/ml_load_dmp.c"
+  },
+  {
+   "sha256": "e44be467e5454eb6c903c52aec45bb8310e92ba430e55a56a92e329e5c47df22",
+   "size": 3035,
+   "symbol": "dmpMemory",
+   "era": "nougat-mr1-release",
+   "path": "6515/libsensors_iio/software/core/mllite/linux/ml_load_dmp.c"
+  },
+  {
+   "sha256": "f80d502b66daab2f9a08ae6c746d3c66497fb2853db114af9ab85aa2c12300f5",
+   "size": 2639,
+   "symbol": "dmpMemory",
+   "era": "nougat-mr1-release",
+   "path": "65xx/libsensors_iio/software/core/mllite/linux/ml_load_dmp.c"
+  },
+  {
+   "sha256": "2e40b3ba8a7227f9fb3aca867f15f3b5a3de77bd8a0a76b4448ff31738f7818f",
+   "size": 1923,
+   "symbol": "dmpMemory",
+   "era": "jb-dev",
+   "path": "mlsdk/mllite/dmpDefaultMantis.c"
+  },
+  {
+   "sha256": "4952db90a63f577a0c054cf1ee6886f7c4b8d2ef81743c287c0ab3f60290c4b2",
+   "size": 1024,
+   "symbol": "dmpMemory",
+   "era": "jb-dev",
+   "path": "mlsdk/mllite/dmpDefault.c"
+  },
+  {
+   "sha256": "e44be467e5454eb6c903c52aec45bb8310e92ba430e55a56a92e329e5c47df22",
+   "size": 3035,
+   "symbol": "dmpMemory",
+   "era": "android13-release",
+   "path": "6515/libsensors_iio/software/core/mllite/linux/ml_load_dmp.c"
+  },
+  {
+   "sha256": "f80d502b66daab2f9a08ae6c746d3c66497fb2853db114af9ab85aa2c12300f5",
+   "size": 2639,
+   "symbol": "dmpMemory",
+   "era": "android13-release",
+   "path": "65xx/libsensors_iio/software/core/mllite/linux/ml_load_dmp.c"
+  },
+  {
+   "sha256": "2e40b3ba8a7227f9fb3aca867f15f3b5a3de77bd8a0a76b4448ff31738f7818f",
+   "size": 1923,
+   "symbol": "dmpMemory",
+   "era": "jb-mr1-release",
+   "path": "mlsdk/mllite/dmpDefaultMantis.c"
+  },
+  {
+   "sha256": "4952db90a63f577a0c054cf1ee6886f7c4b8d2ef81743c287c0ab3f60290c4b2",
+   "size": 1024,
+   "symbol": "dmpMemory",
+   "era": "jb-mr1-release",
+   "path": "mlsdk/mllite/dmpDefault.c"
+  },
+  {
+   "sha256": "52e30e671d7badbc8acbe53a54b76fb998435b6844c3406c8090cbc959aba874",
+   "size": 3065,
+   "symbol": "dmpMemory",
+   "era": "jb-mr1-release",
+   "path": "libsensors_iio/software/core/mllite/linux/ml_load_dmp.c"
+  }
+ ],
+ "unique": {
+  "d79e55736bb5ea919dc34bf0f3d8db16c0449cddfab0517010e84248cf12c799": {
+   "size": 1929,
+   "symbols": [
+    "dmpMemory"
+   ],
+   "eras": [
+    "_external"
+   ],
+   "paths": [
+    "i2cdev_MPU6050_6Axis_MotionApps20.cpp"
+   ]
+  },
+  "fcbb7309391e6bbf27aca374489c599f8f7ecfe426c801f65e3a933a9812e6c8": {
+   "size": 14301,
+   "symbols": [
+    "(bare fragment)"
+   ],
+   "eras": [
+    "_external"
+   ],
+   "paths": [
+    "sparkfun_icm20948_img.dmp3a.h"
+   ]
+  },
+  "fab8d4c6fcf535c65fe4b29ce313384c8ace11da386bd5e4664c9e59526b53f7": {
+   "size": 1962,
+   "symbols": [
+    "dmpMemory"
+   ],
+   "eras": [
+    "_external"
+   ],
+   "paths": [
+    "i2cdev_MPU6050_9Axis_MotionApps41.cpp"
+   ]
+  },
+  "ae42d0be801847e53e77a96ca74961d3063a21f1c0006c556b13d0e305a3c1ec": {
+   "size": 3062,
+   "symbols": [
+    "dmpMemory"
+   ],
+   "eras": [
+    "_external"
+   ],
+   "paths": [
+    "i2cdev_MPU6050_6Axis_MotionApps612.cpp"
+   ]
+  },
+  "2e40b3ba8a7227f9fb3aca867f15f3b5a3de77bd8a0a76b4448ff31738f7818f": {
+   "size": 1923,
+   "symbols": [
+    "dmpMemory"
+   ],
+   "eras": [
+    "ics-mr0",
+    "ics-mr1",
+    "jb-dev",
+    "jb-mr1-release",
+    "jb-mr1.1-release",
+    "jb-mr2-release",
+    "jb-mr2.0-release",
+    "kitkat-mr1-release",
+    "kitkat-mr2.2-release",
+    "kitkat-release",
+    "lollipop-mr1-release",
+    "lollipop-release"
+   ],
+   "paths": [
+    "60xx/mlsdk/mllite/dmpDefaultMantis.c",
+    "mlsdk/mllite/dmpDefaultMantis.c"
+   ]
+  },
+  "4952db90a63f577a0c054cf1ee6886f7c4b8d2ef81743c287c0ab3f60290c4b2": {
+   "size": 1024,
+   "symbols": [
+    "dmpMemory"
+   ],
+   "eras": [
+    "ics-mr0",
+    "ics-mr1",
+    "jb-dev",
+    "jb-mr1-release",
+    "jb-mr1.1-release",
+    "jb-mr2-release",
+    "jb-mr2.0-release",
+    "kitkat-mr1-release",
+    "kitkat-mr2.2-release",
+    "kitkat-release",
+    "lollipop-mr1-release",
+    "lollipop-release"
+   ],
+   "paths": [
+    "60xx/mlsdk/mllite/dmpDefault.c",
+    "mlsdk/mllite/dmpDefault.c"
+   ]
+  },
+  "5c1076c42206c4753e64fa99b507cc1403b865e7a9fcafe06e994bd214c5b784": {
+   "size": 3065,
+   "symbols": [
+    "dmpMemory"
+   ],
+   "eras": [
+    "jb-mr2-release",
+    "jb-mr2.0-release",
+    "kitkat-mr1-release",
+    "kitkat-mr2.2-release",
+    "kitkat-release",
+    "lollipop-mr1-release",
+    "lollipop-release"
+   ],
+   "paths": [
+    "60xx/libsensors_iio/software/core/mllite/linux/ml_load_dmp.c",
+    "libsensors_iio/software/core/mllite/linux/ml_load_dmp.c"
+   ]
+  },
+  "98d3bcdc05754faa8312f4c0f70496e871ead755743bff596ffd0f005c7f3382": {
+   "size": 2634,
+   "symbols": [
+    "dmpMemory"
+   ],
+   "eras": [
+    "kitkat-mr1-release",
+    "kitkat-mr2.2-release",
+    "kitkat-release"
+   ],
+   "paths": [
+    "65xx/libsensors_iio/software/core/mllite/linux/ml_load_dmp.c"
+   ]
+  },
+  "e44be467e5454eb6c903c52aec45bb8310e92ba430e55a56a92e329e5c47df22": {
+   "size": 3035,
+   "symbols": [
+    "dmpMemory"
+   ],
+   "eras": [
+    "android10-release",
+    "android11-release",
+    "android12-release",
+    "android13-release",
+    "android14-release",
+    "android15-release",
+    "android16-release",
+    "main",
+    "marshmallow-mr1-release",
+    "marshmallow-mr3-release",
+    "marshmallow-release",
+    "nougat-mr1-release",
+    "nougat-release",
+    "oreo-mr1-release",
+    "oreo-release",
+    "pie-release"
+   ],
+   "paths": [
+    "6515/libsensors_iio/software/core/mllite/linux/ml_load_dmp.c"
+   ]
+  },
+  "f80d502b66daab2f9a08ae6c746d3c66497fb2853db114af9ab85aa2c12300f5": {
+   "size": 2639,
+   "symbols": [
+    "dmpMemory"
+   ],
+   "eras": [
+    "android10-release",
+    "android11-release",
+    "android12-release",
+    "android13-release",
+    "android14-release",
+    "android15-release",
+    "android16-release",
+    "lollipop-mr1-release",
+    "lollipop-release",
+    "main",
+    "marshmallow-mr1-release",
+    "marshmallow-mr3-release",
+    "marshmallow-release",
+    "nougat-mr1-release",
+    "nougat-release",
+    "oreo-mr1-release",
+    "oreo-release",
+    "pie-release"
+   ],
+   "paths": [
+    "65xx/libsensors_iio/software/core/mllite/linux/ml_load_dmp.c"
+   ]
+  },
+  "eabe2b79d93565358cca83864fece47d7dca5d5826bfbdab2d79ed75996076aa": {
+   "size": 2943,
+   "symbols": [
+    "dmpMemory"
+   ],
+   "eras": [
+    "lollipop-mr1-release",
+    "lollipop-release"
+   ],
+   "paths": [
+    "6515/libsensors_iio/software/core/mllite/linux/ml_load_dmp.c"
+   ]
+  },
+  "52e30e671d7badbc8acbe53a54b76fb998435b6844c3406c8090cbc959aba874": {
+   "size": 3065,
+   "symbols": [
+    "dmpMemory"
+   ],
+   "eras": [
+    "jb-mr1-release",
+    "jb-mr1.1-release"
+   ],
+   "paths": [
+    "libsensors_iio/software/core/mllite/linux/ml_load_dmp.c"
+   ]
+  }
+ }
+}
