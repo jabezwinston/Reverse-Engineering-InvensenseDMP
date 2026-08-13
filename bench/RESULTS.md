@@ -1055,3 +1055,65 @@ contents already suggests — writes to it are invisible to every oracle on this
 amount of sweeping will find them.
 
 That, rather than more sweeping, is the honest boundary of what this rig can determine.
+
+---
+
+# Round 19 — Priority 2: context matrix. Negative, and a methodology lesson.
+
+`bench/contextscan.py` repeats the write scan across three contexts, requiring an address to
+change in **both** of two trials before counting it.
+
+## Raw output looked like a large positive
+
+| context | opcodes with "reproducible" change | crashes |
+|---|---:|---:|
+| A / bank `0x9d`, site 1868 | 67 | 0 |
+| A / bank `0x9a`, site 1868 | 10 | 0 |
+| B / bank `0x99`, site 1905 | 84 | 0 |
+
+In context A, **65 consecutive opcodes (`0xbf`-`0xff`) reported the byte-identical address set**
+`[24 25 26 27 28 29 325]`.
+
+## It is an artifact
+
+Sixty-five unrelated opcodes producing identical state changes is not semantics, and it directly
+contradicts round 18, where `c1` in this same context gave 0/5. Re-testing in a **fresh session**:
+
+```
+trial  elapsed   null a3 vs a3                c1 vs a3
+    0       3s   [148,156,383,451,452,460]    [90]
+    1       6s   []                           []
+    2       8s   []                           []
+    3      11s   []                           []
+    4      14s   [205]                        []
+```
+
+Neither the null nor `c1` ever touches `{24..29, 325}`. The signature appears only **late in a
+long sweep**. Across all contexts, addresses 24-29 occur in **133** opcode results — they are
+`DMP_INVGSFH` / `DMP_INVGSFL` / `DMP_1H` in the vendor map, a slowly advancing counter.
+
+## The lesson: reproducibility does not defeat systematic drift
+
+This round's design required a change in both trials specifically to kill the false positives of
+round 18. It failed, and the reason is worth stating plainly:
+
+> **Requiring reproducibility filters *random* noise. It does nothing against a *systematic*
+> confound.** A monotonically advancing counter changes in every trial, reproducibly, forever.
+
+The correct control is a **time-matched null**: a null candidate run at the same session age as
+the candidate, so drift affects both equally. The interleaved control does this for the
+*immediately preceding* step but the mask itself was built at session start and goes stale.
+
+## Standing result
+
+**No opcode-specific state change was found in any of the three contexts.** Combined with round
+18, no register write has been detected across 128 opcodes, 3 contexts, the full 3072-byte
+address space, single- and two-byte forms.
+
+Zero crashes in all three contexts under single-step, versus 16 crashes at site B under
+free-running execution (round 11) — single-stepping is more forgiving, so "crash" in the earlier
+rounds meant loss of FIFO framing rather than a halted core.
+
+The observability caveat from round 18 stands and is now the dominant hypothesis: the DMP's
+working registers are likely **not RAM-mapped**, so writes to them are invisible to every
+instrument on this bench.
