@@ -495,8 +495,11 @@ Verified linearly: with `f2` in scope, 1/2/3 emits produce +2/+4/+6 FIFO bytes; 
 Operand rules, where known:
 
 - `f5 f6 f7` consume the operand iff `imm & 3 == 1`, otherwise it executes as an EMIT.
-- `f4` consumed at bit5 = 0 under coarse (step-4) sampling; a step-1 sweep is pending to
-  determine whether its field genuinely differs.
+- `f4` consumes the operand when bits [6:5] are `00` or `10`; `01` crashes and `11` emits at
+  32-bit. Confirmed at step-1 resolution. Its field genuinely differs from `f5 f6 f7`, and the
+  family `b0` bit does not explain the split (`f6` shares `b0` with `f4` but follows the `f5`
+  rule). Operand *format* is therefore per-opcode. `1d` and `1e` crash inside an otherwise
+  swallowing quadrant and are unexplained.
 
 ## Instruction model, current
 

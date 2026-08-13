@@ -869,3 +869,30 @@ hardware measurement.
 `f5/f6/f7` rule none should have been swallowed, yet `f4` swallowed for bit5 = 0. Either `f4`
 genuinely uses a different operand field, or the round-13 partition is an artifact of coarse
 sampling. A step-1 sweep of `f4` resolves it.
+
+---
+
+# Round 15 — f4 operand field resolved
+
+Step-1 sweep of `f4` over the full low-byte range:
+
+| operand | count | behaviour |
+|---|---:|---|
+| `00`-`1c`, `1f`, `40`-`5f` | 62 | **swallowed** (2-byte instruction) |
+| `1d`, `1e`, `20`-`3f` | 34 | **crash** |
+| `60`-`7f` | 32 | **emitted at 32-bit** |
+
+Partition by bits [6:5]:
+
+- `00` -> swallowed (except `1d`,`1e`)
+- `01` -> crash
+- `10` -> swallowed
+- `11` -> emitted, not consumed
+
+This confirms the coarse round-13 result at full resolution and settles the open question:
+**`f4` genuinely uses a different operand field from `f5 f6 f7`.** `f4` keys on bits [6:5];
+`f5 f6 f7` key on `imm & 3`. The family's `b0` bit does not explain the split — `f6` has `b0 = 0`
+like `f4` yet follows the `f5` rule — so operand *format* is per-opcode, while the family-level
+encoding (`b2` = takes operand, `b1` = width) holds for all seven.
+
+`1d` and `1e` crash inside an otherwise-swallowing quadrant and remain unexplained.
