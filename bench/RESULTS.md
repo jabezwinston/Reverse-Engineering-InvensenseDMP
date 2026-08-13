@@ -1117,3 +1117,66 @@ rounds meant loss of FIFO framing rather than a halted core.
 The observability caveat from round 18 stands and is now the dominant hypothesis: the DMP's
 working registers are likely **not RAM-mapped**, so writes to them are invisible to every
 instrument on this bench.
+
+---
+
+# Round 20 — Priority 4: input injection. Negative. Project closed.
+
+The last experiment whose result did not depend on the not-RAM-mapped hypothesis, because it
+observes through the **FIFO** rather than RAM.
+
+Method: halt, sensors in standby so hardware cannot overwrite DMP RAM, write a known pattern into
+a candidate location, single-step, read the emitted packet.
+
+## First pass looked like a total positive
+
+Every one of 32 injected locations changed the packet by ~24 bytes. Pattern write/readback
+confirmed the injection survived until the step.
+
+## The null control kills it
+
+```
+consecutive single-step packets, NO injection:
+  step 0: differs from baseline in 23 bytes
+  step 1: 24     step 2: 24     step 3: 23     step 4: 24
+```
+
+Packet-to-packet drift alone accounts for ~24 of 42 bytes. Paired test with a null measured
+immediately before each injection:
+
+| addr | null-vs-inject | null-vs-null | verdict |
+|---|---:|---:|---|
+| 0 | 20 | 20 | indistinguishable |
+| 8 | 20 | 20 | indistinguishable |
+| 64 | 19 | 18 | indistinguishable |
+| 200 | 21 | 18 | indistinguishable |
+
+**Injection produces no signal above the drift floor.** The DMP's computation is not a detectable
+function of injectable RAM values, so operands cannot be supplied and arithmetic cannot be
+identified this way.
+
+This is the third round in a row where an unvalidated first pass looked like a large positive and
+a null control reduced it to nothing. That consistency is itself the finding: the bench is at the
+edge of its sensitivity, and further sweeping of this kind will keep producing artifacts rather
+than instructions.
+
+# Closing position
+
+**Achieved.** A working subset of the DMP instruction set, recovered and verified on silicon; a
+disassembler, an assembler, and custom DMP programs running on an MPU-6050 with behaviour
+predicted in advance and confirmed byte-for-byte.
+
+**Not achieved.** Arbitrary computation. Two measured limits:
+
+- no backward branch across 64 immediates with a re-execution detector -> no loops
+- no register write across 128 opcodes, 3 contexts, the full 3072-byte space, 1- and 2-byte forms
+
+**Why it stops here.** The dominant hypothesis is that the DMP's working registers are not
+RAM-mapped. Every instrument on this bench observes RAM or the FIFO; if the register file lives
+outside that window, writes are structurally invisible and no amount of further sweeping will
+find them. Rounds 18, 19 and 20 are three independent confirmations of that boundary.
+
+**What would reopen it.** An MPU-6500/6515 breakout runs the 2639 image, whose hammerhead symbol
+table names ~166 locations and validates 3/3 against the driver's own patch values. That is
+ground truth this project never had, and it would seed instruction identification instead of
+blind sweeping.

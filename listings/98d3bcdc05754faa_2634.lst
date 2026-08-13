@@ -1,0 +1,1578 @@
+; corpus/images/98d3bcdc05754faa_2634.bin  2634 B   lineage=mantis   block base 0xf0, emit 0xf1
+; code region [1024:2634]   [C]onfirmed [P]robable [?]unknown
+
+   1024  d8                   [P] D.8   ; family 0xd0
+   1025  b0                   [P] Cm.0   ; family 0xb0
+   1026  b5                   [P] Cm.5   ; family 0xb0
+   1027  b9                   [P] Cm.9   ; family 0xb0
+   1028  f3                   [P] F.3   ; DINAF8+3; not required for emission (round 10)
+   1029  a6                   [P] fa0.6   ; family 0xa0
+   1030  f8                   [P] F.8   ; family 0xf0
+   1031  f9                   [P] F.9   ; family 0xf0
+   1032  d1                   [P] D.1   ; family 0xd0
+   1033  d9                   [P] D.9   ; family 0xd0
+   1034  81                   [P] f80.1   ; family 0x80
+   1035  96                   [C] SELBANK 0x96   ; DINA90+6
+   1036  f8                   [P] F.8   ; family 0xf0
+   1037  f7                   [P] F.7   ; DINAF8+7; not required for emission (round 10)
+   1038  3e                   [C] EMIT r7.z   ; bit1 set -> reads zero, inert
+   1039  d8                   [P] D.8   ; family 0xd0
+   1040  f3                   [P] F.3   ; DINAF8+3; not required for emission (round 10)
+   1041  b1                   [P] Cm.1   ; family 0xb0
+   1042  86                   [P] f80.6   ; family 0x80
+   1043  96                   [C] SELBANK 0x96   ; DINA90+6
+   1044  a3                   [C] NOP   ; DINAA0+3; filler / disables code in place
+   1045  31                   [C] EMIT r6   ; 4 B -> FIFO
+   1046  d1                   [P] D.1   ; family 0xd0
+   1047  da                   [P] D.10   ; family 0xd0
+   1048  f1                   [P] F.1   ; DINAF8+1; not required for emission (round 10)
+   1049  ff                   [C] DISABLE   ; block disable (CFG_PED_ENABLE off)
+   1050  d8                   [P] D.8   ; family 0xd0
+   1051  b3                   [P] Cm.3   ; family 0xb0
+   1052  b7                   [P] Cm.7   ; family 0xb0
+   1053  bb                   [P] Cm.11   ; family 0xb0
+   1054  8e                   [P] f80.14   ; family 0x80
+   1055  9e                   [C] SELBANK 0x9e   ; DINA90+14
+   1056  ae                   [P] fa0.14   ; family 0xa0
+   1057  f1                   [P] F.1   ; DINAF8+1; not required for emission (round 10)
+   1058  32                   [C] EMIT r6.z   ; bit1 set -> reads zero, inert
+   1059  f5                   [P] F.5   ; DINAF8+5; not required for emission (round 10)
+   1060  1b                   [C] EMIT r3.z   ; bit1 set -> reads zero, inert
+   1061  f1                   [P] F.1   ; DINAF8+1; not required for emission (round 10)
+   1062  b4                   [P] Cm.4   ; family 0xb0
+   1063  b8                   [P] Cm.8   ; family 0xb0
+   1064  b0                   [P] Cm.0   ; family 0xb0
+   1065  80                   [P] f80.0   ; family 0x80
+   1066  97                   [C] SELBANK 0x97   ; DINA90+7
+   1067  f1                   [P] F.1   ; DINAF8+1; not required for emission (round 10)
+   1068  a9                   [P] fa0.9   ; family 0xa0
+   1069  df                   [P] D.15   ; family 0xd0
+   1070  df                   [P] D.15   ; family 0xd0
+   1071  df                   [P] D.15   ; family 0xd0
+   1072  aa                   [P] fa0.10   ; family 0xa0
+   1073  df                   [P] D.15   ; family 0xd0
+   1074  df                   [P] D.15   ; family 0xd0
+   1075  df                   [P] D.15   ; family 0xd0
+   1076  f2                   [P] F.2   ; DINAF8+2; not required for emission (round 10)
+   1077  aa                   [P] fa0.10   ; family 0xa0
+   1078  c5                   [P] C.5   ; family 0xc0
+   1079  cd                   [P] C.13   ; family 0xc0
+   1080  c7                   [P] C.7   ; family 0xc0
+   1081  a9                   [P] fa0.9   ; family 0xa0
+   1082  0c                   [C] EMIT r1   ; 4 B -> FIFO
+   1083  c9                   [P] C.9   ; family 0xc0
+   1084  2c                   [C] EMIT r5   ; 4 B -> FIFO
+   1085  97                   [C] SELBANK 0x97   ; DINA90+7
+   1086  f1                   [P] F.1   ; DINAF8+1; not required for emission (round 10)
+   1087  a9                   [P] fa0.9   ; family 0xa0
+   1088  89                   [P] f80.9   ; family 0x80
+   1089  26                   [C] EMIT r4.z   ; bit1 set -> reads zero, inert
+   1090  46                   [C] EMIT r8.z   ; bit1 set -> reads zero, inert
+   1091  66                   [C] EMIT r12.z   ; bit1 set -> reads zero, inert
+   1092  b2                   [P] Cm.2   ; family 0xb0
+   1093  89                   [P] f80.9   ; family 0x80
+   1094  99                   [C] SELBANK 0x99   ; DINA90+9 (mapped)
+   1095  a9                   [P] fa0.9   ; family 0xa0
+   1096  2d                   [C] EMIT accel_x   ; 4 B -> FIFO
+   1097  55                   [C] EMIT r10   ; 4 B -> FIFO
+   1098  7d                   [C] EMIT r15   ; 4 B -> FIFO
+   1099  b0                   [P] Cm.0   ; family 0xb0
+   1100  8a                   [P] f80.10   ; family 0x80
+   1101  a8                   [P] fa0.8   ; family 0xa0
+   1102  96                   [C] SELBANK 0x96   ; DINA90+6
+   1103  36                   [C] EMIT r6.z   ; bit1 set -> reads zero, inert
+   1104  56                   [C] EMIT r10.z   ; bit1 set -> reads zero, inert
+   1105  76                   [C] EMIT r14.z   ; bit1 set -> reads zero, inert
+   1106  f1                   [P] F.1   ; DINAF8+1; not required for emission (round 10)
+   1107  ba                   [P] Cm.10   ; family 0xb0
+   1108  a3                   [C] NOP   ; DINAA0+3; filler / disables code in place
+   1109  b4                   [P] Cm.4   ; family 0xb0
+   1110  b2                   [P] Cm.2   ; family 0xb0
+   1111  80                   [P] f80.0   ; family 0x80
+   1112  c0                   [P] C.0   ; family 0xc0
+   1113  b8                   [P] Cm.8   ; family 0xb0
+   1114  a8                   [P] fa0.8   ; family 0xa0
+   1115  97                   [C] SELBANK 0x97   ; DINA90+7
+   1116  11                   [C] EMIT r2   ; 4 B -> FIFO
+   1117  b2                   [P] Cm.2   ; family 0xb0
+   1118  83                   [P] f80.3   ; family 0x80
+   1119  98                   [C] SELBANK 0x98   ; DINA90+8 (mapped)
+   1120  ba                   [P] Cm.10   ; family 0xb0
+   1121  a3                   [C] NOP   ; DINAA0+3; filler / disables code in place
+   1122  f0                   [P] F.0   ; DINAF8+0; not required for emission (round 10)
+   1123  24                   [C] EMIT r4   ; 4 B -> FIFO
+   1124  08                   [C] EMIT r1   ; 4 B -> FIFO
+   1125  44                   [C] EMIT r8   ; 4 B -> FIFO
+   1126  10                   [C] EMIT r2   ; 4 B -> FIFO
+   1127  64                   [C] EMIT r12   ; 4 B -> FIFO
+   1128  18                   [C] EMIT r3   ; 4 B -> FIFO
+   1129  b2                   [P] Cm.2   ; family 0xb0
+   1130  b9                   [P] Cm.9   ; family 0xb0
+   1131  b4                   [P] Cm.4   ; family 0xb0
+   1132  98                   [C] SELBANK 0x98   ; DINA90+8 (mapped)
+   1133  83                   [P] f80.3   ; family 0x80
+   1134  f1                   [P] F.1   ; DINAF8+1; not required for emission (round 10)
+   1135  a3                   [C] NOP   ; DINAA0+3; filler / disables code in place
+   1136  29                   [C] EMIT delay_t   ; 4 B -> FIFO
+   1137  55                   [C] EMIT r10   ; 4 B -> FIFO
+   1138  7d                   [C] EMIT r15   ; 4 B -> FIFO
+   1139  ba                   [P] Cm.10   ; family 0xb0
+   1140  b5                   [P] Cm.5   ; family 0xb0
+   1141  b1                   [P] Cm.1   ; family 0xb0
+   1142  a3                   [C] NOP   ; DINAA0+3; filler / disables code in place
+   1143  83                   [P] f80.3   ; family 0x80
+   1144  93                   [C] SELBANK 0x93   ; DINA90+3
+   1145  f0                   [P] F.0   ; DINAF8+0; not required for emission (round 10)
+   1146  00                   [C] EMIT r0   ; 4 B -> FIFO
+   1147  28                   [C] EMIT r5   ; 4 B -> FIFO
+   1148  50                   [C] EMIT r10   ; 4 B -> FIFO
+   1149  f5                   [P] F.5   ; DINAF8+5; not required for emission (round 10)
+   1150  b2                   [P] Cm.2   ; family 0xb0
+   1151  b6                   [P] Cm.6   ; family 0xb0
+   1152  aa                   [P] fa0.10   ; family 0xa0
+   1153  83                   [P] f80.3   ; family 0x80
+   1154  93                   [C] SELBANK 0x93   ; DINA90+3
+   1155  28                   [C] EMIT r5   ; 4 B -> FIFO
+   1156  54                   [C] EMIT r10   ; 4 B -> FIFO
+   1157  7c                   [C] EMIT r15   ; 4 B -> FIFO
+   1158  f1                   [P] F.1   ; DINAF8+1; not required for emission (round 10)
+   1159  b9                   [P] Cm.9   ; family 0xb0
+   1160  a3                   [C] NOP   ; DINAA0+3; filler / disables code in place
+   1161  82                   [P] f80.2   ; family 0x80
+   1162  93                   [C] SELBANK 0x93   ; DINA90+3
+   1163  61                   [C] EMIT r12   ; 4 B -> FIFO
+   1164  ba                   [P] Cm.10   ; family 0xb0
+   1165  a2                   [P] fa0.2   ; family 0xa0
+   1166  da                   [P] D.10   ; family 0xd0
+   1167  de                   [P] D.14   ; family 0xd0
+   1168  df                   [P] D.15   ; family 0xd0
+   1169  db                   [P] D.11   ; family 0xd0
+   1170  81                   [P] f80.1   ; family 0x80
+   1171  9a                   [C] SELBANK 0x9a   ; DINA90+10 (mapped)
+   1172  b9                   [P] Cm.9   ; family 0xb0
+   1173  ae                   [P] fa0.14   ; family 0xa0
+   1174  f5                   [P] F.5   ; DINAF8+5; not required for emission (round 10)
+   1175  60                   [C] EMIT r12   ; 4 B -> FIFO
+   1176  68                   [C] EMIT r13   ; 4 B -> FIFO
+   1177  70                   [C] EMIT r14   ; 4 B -> FIFO
+   1178  f1                   [P] F.1   ; DINAF8+1; not required for emission (round 10)
+   1179  da                   [P] D.10   ; family 0xd0
+   1180  ba                   [P] Cm.10   ; family 0xb0
+   1181  a2                   [P] fa0.2   ; family 0xa0
+   1182  df                   [P] D.15   ; family 0xd0
+   1183  d9                   [P] D.9   ; family 0xd0
+   1184  ba                   [P] Cm.10   ; family 0xb0
+   1185  a2                   [P] fa0.2   ; family 0xa0
+   1186  fa                   [P] F.10   ; family 0xf0
+   1187  b9                   [P] Cm.9   ; family 0xb0
+   1188  a3                   [C] NOP   ; DINAA0+3; filler / disables code in place
+   1189  82                   [P] f80.2   ; family 0x80
+   1190  92                   [C] SELBANK 0x92   ; DINA90+2
+   1191  db                   [P] D.11   ; family 0xd0
+   1192  31                   [C] EMIT r6   ; 4 B -> FIFO
+   1193  ba                   [P] Cm.10   ; family 0xb0
+   1194  a2                   [P] fa0.2   ; family 0xa0
+   1195  d9                   [P] D.9   ; family 0xd0
+   1196  ba                   [P] Cm.10   ; family 0xb0
+   1197  a2                   [P] fa0.2   ; family 0xa0
+   1198  f8                   [P] F.8   ; family 0xf0
+   1199  df                   [P] D.15   ; family 0xd0
+   1200  b9                   [P] Cm.9   ; family 0xb0
+   1201  a3                   [C] NOP   ; DINAA0+3; filler / disables code in place
+   1202  a3                   [C] NOP   ; DINAA0+3; filler / disables code in place
+   1203  a3                   [C] NOP   ; DINAA0+3; filler / disables code in place
+   1204  a3                   [C] NOP   ; DINAA0+3; filler / disables code in place
+   1205  a3                   [C] NOP   ; DINAA0+3; filler / disables code in place
+   1206  b8                   [P] Cm.8   ; family 0xb0
+   1207  a2                   [P] fa0.2   ; family 0xa0
+   1208  df                   [P] D.15   ; family 0xd0
+   1209  df                   [P] D.15   ; family 0xd0
+   1210  df                   [P] D.15   ; family 0xd0
+   1211  ba                   [P] Cm.10   ; family 0xb0
+   1212  a0                   [P] fa0.0   ; family 0xa0
+   1213  df                   [P] D.15   ; family 0xd0
+   1214  df                   [P] D.15   ; family 0xd0
+   1215  df                   [P] D.15   ; family 0xd0
+   1216  d8                   [P] D.8   ; family 0xd0
+   1217  f1                   [P] F.1   ; DINAF8+1; not required for emission (round 10)
+   1218  b9                   [P] Cm.9   ; family 0xb0
+   1219  a1                   [P] fa0.1   ; family 0xa0
+   1220  b2                   [P] Cm.2   ; family 0xb0
+   1221  80                   [P] f80.0   ; family 0x80
+   1222  c0                   [P] C.0   ; family 0xc0
+   1223  b0                   [P] Cm.0   ; family 0xb0
+   1224  89                   [P] f80.9   ; family 0x80
+   1225  a0                   [P] fa0.0   ; family 0xa0
+   1226  c3                   [P] C.3   ; family 0xc0
+   1227  c5                   [P] C.5   ; family 0xc0
+   1228  c7                   [P] C.7   ; family 0xc0
+   1229  b1                   [P] Cm.1   ; family 0xb0
+   1230  81                   [P] f80.1   ; family 0x80
+   1231  b4                   [P] Cm.4   ; family 0xb0
+   1232  97                   [C] SELBANK 0x97   ; DINA90+7
+   1233  a0                   [P] fa0.0   ; family 0xa0
+   1234  11                   [C] EMIT r2   ; 4 B -> FIFO
+   1235  b5                   [P] Cm.5   ; family 0xb0
+   1236  90                   [C] SELBANK 0x90   ; DINA90+0
+   1237  a1                   [P] fa0.1   ; family 0xa0
+   1238  f0                   [P] F.0   ; DINAF8+0; not required for emission (round 10)
+   1239  24                   [C] EMIT r4   ; 4 B -> FIFO
+   1240  08                   [C] EMIT r1   ; 4 B -> FIFO
+   1241  44                   [C] EMIT r8   ; 4 B -> FIFO
+   1242  10                   [C] EMIT r2   ; 4 B -> FIFO
+   1243  64                   [C] EMIT r12   ; 4 B -> FIFO
+   1244  18                   [C] EMIT r3   ; 4 B -> FIFO
+   1245  f1                   [P] F.1   ; DINAF8+1; not required for emission (round 10)
+   1246  90                   [C] SELBANK 0x90   ; DINA90+0
+   1247  81                   [P] f80.1   ; family 0x80
+   1248  a0                   [P] fa0.0   ; family 0xa0
+   1249  2d                   [C] EMIT r5   ; 4 B -> FIFO
+   1250  55                   [C] EMIT r10   ; 4 B -> FIFO
+   1251  3d                   [C] EMIT r7   ; 4 B -> FIFO
+   1252  f2                   [P] F.2   ; DINAF8+2; not required for emission (round 10)
+   1253  a5                   [P] fa0.5   ; family 0xa0
+   1254  d0                   [P] D.0   ; family 0xd0
+   1255  f8                   [P] F.8   ; family 0xf0
+   1256  f9                   [P] F.9   ; family 0xf0
+   1257  d1                   [P] D.1   ; family 0xd0
+   1258  d9                   [P] D.9   ; family 0xd0
+   1259  f8                   [P] F.8   ; family 0xf0
+   1260  f1                   [P] F.1   ; DINAF8+1; not required for emission (round 10)
+   1261  80                   [P] f80.0   ; family 0x80
+   1262  a2                   [P] fa0.2   ; family 0xa0
+   1263  c3                   [P] C.3   ; family 0xc0
+   1264  c5                   [P] C.5   ; family 0xc0
+   1265  c7                   [P] C.7   ; family 0xc0
+   1266  d8                   [P] D.8   ; family 0xd0
+   1267  f3                   [P] F.3   ; DINAF8+3; not required for emission (round 10)
+   1268  a2                   [P] fa0.2   ; family 0xa0
+   1269  de                   [P] D.14   ; family 0xd0
+   1270  f1                   [P] F.1   ; DINAF8+1; not required for emission (round 10)
+   1271  82                   [P] f80.2   ; family 0x80
+   1272  90                   [C] SELBANK 0x90   ; DINA90+0
+   1273  a4                   [P] fa0.4   ; family 0xa0
+   1274  2d                   [C] EMIT r5   ; 4 B -> FIFO
+   1275  55                   [C] EMIT r10   ; 4 B -> FIFO
+   1276  7d                   [C] EMIT r15   ; 4 B -> FIFO
+   1277  84                   [P] f80.4   ; family 0x80
+   1278  94                   [C] SELBANK 0x94   ; DINA90+4
+   1279  f5                   [P] F.5   ; DINAF8+5; not required for emission (round 10)
+   1280  a1                   [P] fa0.1   ; family 0xa0
+   1281  20                   [C] EMIT r4   ; 4 B -> FIFO
+   1282  d9                   [P] D.9   ; family 0xd0
+   1283  f3                   [P] F.3   ; DINAF8+3; not required for emission (round 10)
+   1284  a2                   [P] fa0.2   ; family 0xa0
+   1285  f8                   [P] F.8   ; family 0xf0
+   1286  d8                   [P] D.8   ; family 0xd0
+   1287  f5                   [P] F.5   ; DINAF8+5; not required for emission (round 10)
+   1288  a1                   [P] fa0.1   ; family 0xa0
+   1289  40                   [C] EMIT r8   ; 4 B -> FIFO
+   1290  d9                   [P] D.9   ; family 0xd0
+   1291  f3                   [P] F.3   ; DINAF8+3; not required for emission (round 10)
+   1292  a2                   [P] fa0.2   ; family 0xa0
+   1293  f8                   [P] F.8   ; family 0xf0
+   1294  d8                   [P] D.8   ; family 0xd0
+   1295  f5                   [P] F.5   ; DINAF8+5; not required for emission (round 10)
+   1296  a1                   [P] fa0.1   ; family 0xa0
+   1297  60                   [C] EMIT r12   ; 4 B -> FIFO
+   1298  d9                   [P] D.9   ; family 0xd0
+   1299  f3                   [P] F.3   ; DINAF8+3; not required for emission (round 10)
+   1300  a2                   [P] fa0.2   ; family 0xa0
+   1301  f8                   [P] F.8   ; family 0xf0
+   1302  d8                   [P] D.8   ; family 0xd0
+   1303  f2                   [P] F.2   ; DINAF8+2; not required for emission (round 10)
+   1304  b9                   [P] Cm.9   ; family 0xb0
+   1305  a2                   [P] fa0.2   ; family 0xa0
+   1306  f8                   [P] F.8   ; family 0xf0
+   1307  f9                   [P] F.9   ; family 0xf0
+   1308  d1                   [P] D.1   ; family 0xd0
+   1309  d9                   [P] D.9   ; family 0xd0
+   1310  a6                   [P] fa0.6   ; family 0xa0
+   1311  de                   [P] D.14   ; family 0xd0
+   1312  a5                   [P] fa0.5   ; family 0xa0
+   1313  d0                   [P] D.0   ; family 0xd0
+   1314  de                   [P] D.14   ; family 0xd0
+   1315  f4 1a                [?] f4.imm 0x1a   ; 2-byte; immediate alters output composition; NOT a branch
+   1317  d8                   [P] D.8   ; family 0xd0
+   1318  f2                   [P] F.2   ; DINAF8+2; not required for emission (round 10)
+   1319  86                   [P] f80.6   ; family 0x80
+   1320  96                   [C] SELBANK 0x96   ; DINA90+6
+   1321  a1                   [P] fa0.1   ; family 0xa0
+   1322  09                   [C] EMIT r1   ; 4 B -> FIFO
+   1323  d1                   [P] D.1   ; family 0xd0
+   1324  db                   [P] D.11   ; family 0xd0
+   1325  f4 11                [?] f4.imm 0x11   ; 2-byte; immediate alters output composition; NOT a branch
+   1327  d8                   [P] D.8   ; family 0xd0
+   1328  f2                   [P] F.2   ; DINAF8+2; not required for emission (round 10)
+   1329  11                   [C] EMIT r2   ; 4 B -> FIFO
+   1330  d1                   [P] D.1   ; family 0xd0
+   1331  db                   [P] D.11   ; family 0xd0
+   1332  f4 1c                [?] f4.imm 0x1c   ; 2-byte; immediate alters output composition; NOT a branch
+   1334  d8                   [P] D.8   ; family 0xd0
+   1335  f2                   [P] F.2   ; DINAF8+2; not required for emission (round 10)
+   1336  19                   [C] EMIT r3   ; 4 B -> FIFO
+   1337  d1                   [P] D.1   ; family 0xd0
+   1338  db                   [P] D.11   ; family 0xd0
+   1339  f4 14                [?] f4.imm 0x14   ; 2-byte; immediate alters output composition; NOT a branch
+   1341  d8                   [P] D.8   ; family 0xd0
+   1342  f4 10                [?] f4.imm 0x10   ; 2-byte; immediate alters output composition; NOT a branch
+   1344  d8                   [P] D.8   ; family 0xd0
+   1345  f3                   [P] F.3   ; DINAF8+3; not required for emission (round 10)
+   1346  a2                   [P] fa0.2   ; family 0xa0
+   1347  f8                   [P] F.8   ; family 0xf0
+   1348  f9                   [P] F.9   ; family 0xf0
+   1349  d1                   [P] D.1   ; family 0xd0
+   1350  da                   [P] D.10   ; family 0xd0
+   1351  f2                   [P] F.2   ; DINAF8+2; not required for emission (round 10)
+   1352  a6                   [P] fa0.6   ; family 0xa0
+   1353  f8                   [P] F.8   ; family 0xf0
+   1354  f1                   [P] F.1   ; DINAF8+1; not required for emission (round 10)
+   1355  a5                   [P] fa0.5   ; family 0xa0
+   1356  de                   [P] D.14   ; family 0xd0
+   1357  d8                   [P] D.8   ; family 0xd0
+   1358  f4 a1                [?] f4.imm 0xa1   ; 2-byte; immediate alters output composition; NOT a branch
+   1360  16                   [C] EMIT r2.z   ; bit1 set -> reads zero, inert
+   1361  16                   [C] EMIT r2.z   ; bit1 set -> reads zero, inert
+   1362  d8                   [P] D.8   ; family 0xd0
+   1363  f1                   [P] F.1   ; DINAF8+1; not required for emission (round 10)
+   1364  a5                   [P] fa0.5   ; family 0xa0
+   1365  f8                   [P] F.8   ; family 0xf0
+   1366  a1                   [P] fa0.1   ; family 0xa0
+   1367  85                   [P] f80.5   ; family 0x80
+   1368  95                   [C] SRCSEL.5   ; DINA90+5; CFG_GYRO_SOURCE
+   1369  09                   [C] EMIT r1   ; 4 B -> FIFO
+   1370  d9                   [P] D.9   ; family 0xd0
+   1371  f1                   [P] F.1   ; DINAF8+1; not required for emission (round 10)
+   1372  a5                   [P] fa0.5   ; family 0xa0
+   1373  de                   [P] D.14   ; family 0xd0
+   1374  f2                   [P] F.2   ; DINAF8+2; not required for emission (round 10)
+   1375  a5                   [P] fa0.5   ; family 0xa0
+   1376  d0                   [P] D.0   ; family 0xd0
+   1377  de                   [P] D.14   ; family 0xd0
+   1378  a6                   [P] fa0.6   ; family 0xa0
+   1379  f8                   [P] F.8   ; family 0xf0
+   1380  d8                   [P] D.8   ; family 0xd0
+   1381  f4 a1                [?] f4.imm 0xa1   ; 2-byte; immediate alters output composition; NOT a branch
+   1383  09                   [C] EMIT r1   ; 4 B -> FIFO
+   1384  d8                   [P] D.8   ; family 0xd0
+   1385  f3                   [P] F.3   ; DINAF8+3; not required for emission (round 10)
+   1386  a2                   [P] fa0.2   ; family 0xa0
+   1387  f8                   [P] F.8   ; family 0xf0
+   1388  f9                   [P] F.9   ; family 0xf0
+   1389  d1                   [P] D.1   ; family 0xd0
+   1390  f4 d9                [?] f4.imm 0xd9   ; 2-byte; immediate alters output composition; NOT a branch
+   1392  08                   [C] EMIT r1   ; 4 B -> FIFO
+   1393  19                   [C] EMIT r3   ; 4 B -> FIFO
+   1394  da                   [P] D.10   ; family 0xd0
+   1395  42                   [C] EMIT r8.z   ; bit1 set -> reads zero, inert
+   1396  f2                   [P] F.2   ; DINAF8+2; not required for emission (round 10)
+   1397  a2                   [P] fa0.2   ; family 0xa0
+   1398  de                   [P] D.14   ; family 0xd0
+   1399  f4 0b                [?] f4.imm 0x0b   ; 2-byte; immediate alters output composition; NOT a branch
+   1401  d8                   [P] D.8   ; family 0xd0
+   1402  f1                   [P] F.1   ; DINAF8+1; not required for emission (round 10)
+   1403  a5                   [P] fa0.5   ; family 0xa0
+   1404  f8                   [P] F.8   ; family 0xf0
+   1405  a1                   [P] fa0.1   ; family 0xa0
+   1406  85                   [P] f80.5   ; family 0x80
+   1407  95                   [C] SRCSEL.5   ; DINA90+5; CFG_GYRO_SOURCE
+   1408  19                   [C] EMIT r3   ; 4 B -> FIFO
+   1409  da                   [P] D.10   ; family 0xd0
+   1410  f4 07                [?] f4.imm 0x07   ; 2-byte; immediate alters output composition; NOT a branch
+   1412  d8                   [P] D.8   ; family 0xd0
+   1413  f2                   [P] F.2   ; DINAF8+2; not required for emission (round 10)
+   1414  a6                   [P] fa0.6   ; family 0xa0
+   1415  de                   [P] D.14   ; family 0xd0
+   1416  a5                   [P] fa0.5   ; family 0xa0
+   1417  d0                   [P] D.0   ; family 0xd0
+   1418  de                   [P] D.14   ; family 0xd0
+   1419  d8                   [P] D.8   ; family 0xd0
+   1420  f1                   [P] F.1   ; DINAF8+1; not required for emission (round 10)
+   1421  b8                   [P] Cm.8   ; family 0xb0
+   1422  aa                   [P] fa0.10   ; family 0xa0
+   1423  b3                   [P] Cm.3   ; family 0xb0
+   1424  8d                   [P] f80.13   ; family 0x80
+   1425  b4                   [P] Cm.4   ; family 0xb0
+   1426  98                   [C] SELBANK 0x98   ; DINA90+8 (mapped)
+   1427  0d                   [C] EMIT r1   ; 4 B -> FIFO
+   1428  35                   [C] EMIT r6   ; 4 B -> FIFO
+   1429  5d                   [C] EMIT r11   ; 4 B -> FIFO
+   1430  b2                   [P] Cm.2   ; family 0xb0
+   1431  b6                   [P] Cm.6   ; family 0xb0
+   1432  ba                   [P] Cm.10   ; family 0xb0
+   1433  af                   [P] fa0.15   ; family 0xa0
+   1434  8c                   [P] f80.12   ; family 0x80
+   1435  96                   [C] SELBANK 0x96   ; DINA90+6
+   1436  19                   [C] EMIT r3   ; 4 B -> FIFO
+   1437  8f                   [P] f80.15   ; family 0x80
+   1438  9f                   [C] SELBANK 0x9f   ; DINA90+15
+   1439  a7                   [P] fa0.7   ; family 0xa0
+   1440  0e                   [C] EMIT r1.z   ; bit1 set -> reads zero, inert
+   1441  16                   [C] EMIT r2.z   ; bit1 set -> reads zero, inert
+   1442  1e                   [C] EMIT r3.z   ; bit1 set -> reads zero, inert
+   1443  b4                   [P] Cm.4   ; family 0xb0
+   1444  9a                   [C] SELBANK 0x9a   ; DINA90+10 (mapped)
+   1445  b8                   [P] Cm.8   ; family 0xb0
+   1446  aa                   [P] fa0.10   ; family 0xa0
+   1447  87                   [P] f80.7   ; family 0x80
+   1448  2c                   [C] EMIT gyro_x   ; 4 B -> FIFO
+   1449  54                   [C] EMIT r10   ; 4 B -> FIFO
+   1450  7c                   [C] EMIT r15   ; 4 B -> FIFO
+   1451  ba                   [P] Cm.10   ; family 0xb0
+   1452  a4                   [P] fa0.4   ; family 0xa0
+   1453  b0                   [P] Cm.0   ; family 0xb0
+   1454  8a                   [P] f80.10   ; family 0x80
+   1455  b6                   [P] Cm.6   ; family 0xb0
+   1456  91                   [C] SELBANK 0x91   ; DINA90+1
+   1457  32                   [C] EMIT r6.z   ; bit1 set -> reads zero, inert
+   1458  56                   [C] EMIT r10.z   ; bit1 set -> reads zero, inert
+   1459  76                   [C] EMIT r14.z   ; bit1 set -> reads zero, inert
+   1460  b2                   [P] Cm.2   ; family 0xb0
+   1461  84                   [P] f80.4   ; family 0x80
+   1462  94                   [C] SELBANK 0x94   ; DINA90+4
+   1463  a4                   [P] fa0.4   ; family 0xa0
+   1464  d0                   [P] D.0   ; family 0xd0
+   1465  cd                   [P] C.13   ; family 0xc0
+   1466  a4                   [P] fa0.4   ; family 0xa0
+   1467  d0                   [P] D.0   ; family 0xd0
+   1468  c8                   [P] C.8   ; family 0xc0
+   1469  30                   [C] EMIT r6   ; 4 B -> FIFO
+   1470  d8                   [P] D.8   ; family 0xd0
+   1471  b8                   [P] Cm.8   ; family 0xb0
+   1472  b4                   [P] Cm.4   ; family 0xb0
+   1473  b0                   [P] Cm.0   ; family 0xb0
+   1474  f1                   [P] F.1   ; DINAF8+1; not required for emission (round 10)
+   1475  99                   [C] SELBANK 0x99   ; DINA90+9 (mapped)
+   1476  82                   [P] f80.2   ; family 0x80
+   1477  a8                   [P] fa0.8   ; family 0xa0
+   1478  2d                   [C] EMIT accel_x   ; 4 B -> FIFO
+   1479  55                   [C] EMIT r10   ; 4 B -> FIFO
+   1480  7d                   [C] EMIT r15   ; 4 B -> FIFO
+   1481  98                   [C] SELBANK 0x98   ; DINA90+8 (mapped)
+   1482  a8                   [P] fa0.8   ; family 0xa0
+   1483  0e                   [C] EMIT r1.z   ; bit1 set -> reads zero, inert
+   1484  16                   [C] EMIT r2.z   ; bit1 set -> reads zero, inert
+   1485  1e                   [C] EMIT r3.z   ; bit1 set -> reads zero, inert
+   1486  a2                   [P] fa0.2   ; family 0xa0
+   1487  2c                   [C] EMIT delay_t   ; 4 B -> FIFO
+   1488  54                   [C] EMIT r10   ; 4 B -> FIFO
+   1489  7c                   [C] EMIT r15   ; 4 B -> FIFO
+   1490  a8                   [P] fa0.8   ; family 0xa0
+   1491  92                   [C] SELBANK 0x92   ; DINA90+2
+   1492  f5                   [P] F.5   ; DINAF8+5; not required for emission (round 10)
+   1493  2c                   [C] EMIT r5   ; 4 B -> FIFO
+   1494  54                   [C] EMIT r10   ; 4 B -> FIFO
+   1495  88                   [P] f80.8   ; family 0x80
+   1496  98                   [C] SELBANK 0x98   ; DINA90+8 (mapped)
+   1497  f1                   [P] F.1   ; DINAF8+1; not required for emission (round 10)
+   1498  35                   [C] EMIT r6   ; 4 B -> FIFO
+   1499  d9                   [P] D.9   ; family 0xd0
+   1500  f4 0c                [?] f4.imm 0x0c   ; 2-byte; immediate alters output composition; NOT a branch
+   1502  d8                   [P] D.8   ; family 0xd0
+   1503  f1                   [P] F.1   ; DINAF8+1; not required for emission (round 10)
+   1504  a4                   [P] fa0.4   ; family 0xa0
+   1505  d0                   [P] D.0   ; family 0xd0
+   1506  b2                   [P] Cm.2   ; family 0xb0
+   1507  86                   [P] f80.6   ; family 0x80
+   1508  86                   [P] f80.6   ; family 0x80
+   1509  b0                   [P] Cm.0   ; family 0xb0
+   1510  88                   [P] f80.8   ; family 0x80
+   1511  a8                   [P] fa0.8   ; family 0xa0
+   1512  f4 01                [?] f4.imm 0x01   ; 2-byte; immediate alters output composition; NOT a branch
+   1514  17                   [C] EMIT r2.z   ; bit1 set -> reads zero, inert
+   1515  f1                   [P] F.1   ; DINAF8+1; not required for emission (round 10)
+   1516  a2                   [P] fa0.2   ; family 0xa0
+   1517  d0                   [P] D.0   ; family 0xd0
+   1518  f8                   [P] F.8   ; family 0xf0
+   1519  f9                   [P] F.9   ; family 0xf0
+   1520  a8                   [P] fa0.8   ; family 0xa0
+   1521  84                   [P] f80.4   ; family 0x80
+   1522  d9                   [P] D.9   ; family 0xd0
+   1523  c7                   [P] C.7   ; family 0xc0
+   1524  df                   [P] D.15   ; family 0xd0
+   1525  f8                   [P] F.8   ; family 0xf0
+   1526  f8                   [P] F.8   ; family 0xf0
+   1527  83                   [P] f80.3   ; family 0x80
+   1528  c5                   [P] C.5   ; family 0xc0
+   1529  da                   [P] D.10   ; family 0xd0
+   1530  df                   [P] D.15   ; family 0xd0
+   1531  69                   [C] EMIT r13   ; 4 B -> FIFO
+   1532  df                   [P] D.15   ; family 0xd0
+   1533  83                   [P] f80.3   ; family 0x80
+   1534  c1                   [P] C.1   ; family 0xc0
+   1535  d8                   [P] D.8   ; family 0xd0
+   1536  f4 01                [?] f4.imm 0x01   ; 2-byte; immediate alters output composition; NOT a branch
+   1538  14                   [C] EMIT r2   ; 4 B -> FIFO
+   1539  f1                   [P] F.1   ; DINAF8+1; not required for emission (round 10)
+   1540  a8                   [P] fa0.8   ; family 0xa0
+   1541  82                   [P] f80.2   ; family 0x80
+   1542  4e                   [C] EMIT r9.z   ; bit1 set -> reads zero, inert
+   1543  a8                   [P] fa0.8   ; family 0xa0
+   1544  84                   [P] f80.4   ; family 0x80
+   1545  f3                   [P] F.3   ; DINAF8+3; not required for emission (round 10)
+   1546  11                   [C] EMIT r2   ; 4 B -> FIFO
+   1547  d1                   [P] D.1   ; family 0xd0
+   1548  82                   [P] f80.2   ; family 0x80
+   1549  f5                   [P] F.5   ; DINAF8+5; not required for emission (round 10)
+   1550  d9                   [P] D.9   ; family 0xd0
+   1551  92                   [C] SELBANK 0x92   ; DINA90+2
+   1552  28                   [C] EMIT r5   ; 4 B -> FIFO
+   1553  97                   [C] SELBANK 0x97   ; DINA90+7
+   1554  88                   [P] f80.8   ; family 0x80
+   1555  f1                   [P] F.1   ; DINAF8+1; not required for emission (round 10)
+   1556  09                   [C] EMIT r1   ; 4 B -> FIFO
+   1557  f4 1c                [?] f4.imm 0x1c   ; 2-byte; immediate alters output composition; NOT a branch
+   1559  1c                   [C] EMIT r3   ; 4 B -> FIFO
+   1560  d8                   [P] D.8   ; family 0xd0
+   1561  84                   [P] f80.4   ; family 0x80
+   1562  a8                   [P] fa0.8   ; family 0xa0
+   1563  f3                   [P] F.3   ; DINAF8+3; not required for emission (round 10)
+   1564  c0                   [P] C.0   ; family 0xc0
+   1565  f9                   [P] F.9   ; family 0xf0
+   1566  d1                   [P] D.1   ; family 0xd0
+   1567  d9                   [P] D.9   ; family 0xd0
+   1568  97                   [C] SELBANK 0x97   ; DINA90+7
+   1569  82                   [P] f80.2   ; family 0x80
+   1570  f1                   [P] F.1   ; DINAF8+1; not required for emission (round 10)
+   1571  29                   [C] EMIT r5   ; 4 B -> FIFO
+   1572  f4 0d                [?] f4.imm 0x0d   ; 2-byte; immediate alters output composition; NOT a branch
+   1574  d8                   [P] D.8   ; family 0xd0
+   1575  f3                   [P] F.3   ; DINAF8+3; not required for emission (round 10)
+   1576  f9                   [P] F.9   ; family 0xf0
+   1577  f9                   [P] F.9   ; family 0xf0
+   1578  d1                   [P] D.1   ; family 0xd0
+   1579  d9                   [P] D.9   ; family 0xd0
+   1580  82                   [P] f80.2   ; family 0x80
+   1581  f4 c2                [?] f4.imm 0xc2   ; 2-byte; immediate alters output composition; NOT a branch
+   1583  03                   [C] EMIT r0.z   ; bit1 set -> reads zero, inert
+   1584  d8                   [P] D.8   ; family 0xd0
+   1585  de                   [P] D.14   ; family 0xd0
+   1586  df                   [P] D.15   ; family 0xd0
+   1587  0b                   [C] EMIT r1.z   ; bit1 set -> reads zero, inert
+   1588  f1                   [P] F.1   ; DINAF8+1; not required for emission (round 10)
+   1589  a4                   [P] fa0.4   ; family 0xa0
+   1590  d0                   [P] D.0   ; family 0xd0
+   1591  b2                   [P] Cm.2   ; family 0xb0
+   1592  86                   [P] f80.6   ; family 0x80
+   1593  86                   [P] f80.6   ; family 0x80
+   1594  b0                   [P] Cm.0   ; family 0xb0
+   1595  88                   [P] f80.8   ; family 0x80
+   1596  a8                   [P] fa0.8   ; family 0xa0
+   1597  f4 01                [?] f4.imm 0x01   ; 2-byte; immediate alters output composition; NOT a branch
+   1599  1a                   [C] EMIT r3.z   ; bit1 set -> reads zero, inert
+   1600  d8                   [P] D.8   ; family 0xd0
+   1601  f1                   [P] F.1   ; DINAF8+1; not required for emission (round 10)
+   1602  a2                   [P] fa0.2   ; family 0xa0
+   1603  fa                   [P] F.10   ; family 0xf0
+   1604  f9                   [P] F.9   ; family 0xf0
+   1605  a8                   [P] fa0.8   ; family 0xa0
+   1606  84                   [P] f80.4   ; family 0x80
+   1607  98                   [C] SELBANK 0x98   ; DINA90+8 (mapped)
+   1608  d9                   [P] D.9   ; family 0xd0
+   1609  c7                   [P] C.7   ; family 0xc0
+   1610  df                   [P] D.15   ; family 0xd0
+   1611  f8                   [P] F.8   ; family 0xf0
+   1612  f8                   [P] F.8   ; family 0xf0
+   1613  f8                   [P] F.8   ; family 0xf0
+   1614  83                   [P] f80.3   ; family 0x80
+   1615  c7                   [P] C.7   ; family 0xc0
+   1616  da                   [P] D.10   ; family 0xd0
+   1617  df                   [P] D.15   ; family 0xd0
+   1618  69                   [C] EMIT r13   ; 4 B -> FIFO
+   1619  df                   [P] D.15   ; family 0xd0
+   1620  f8                   [P] F.8   ; family 0xf0
+   1621  83                   [P] f80.3   ; family 0x80
+   1622  c3                   [P] C.3   ; family 0xc0
+   1623  d8                   [P] D.8   ; family 0xd0
+   1624  f4 01                [?] f4.imm 0x01   ; 2-byte; immediate alters output composition; NOT a branch
+   1626  14                   [C] EMIT r2   ; 4 B -> FIFO
+   1627  f1                   [P] F.1   ; DINAF8+1; not required for emission (round 10)
+   1628  98                   [C] SELBANK 0x98   ; DINA90+8 (mapped)
+   1629  a8                   [P] fa0.8   ; family 0xa0
+   1630  82                   [P] f80.2   ; family 0x80
+   1631  2e                   [C] EMIT delay_t.z   ; bit1 set -> reads zero, inert
+   1632  a8                   [P] fa0.8   ; family 0xa0
+   1633  84                   [P] f80.4   ; family 0x80
+   1634  f3                   [P] F.3   ; DINAF8+3; not required for emission (round 10)
+   1635  11                   [C] EMIT r2   ; 4 B -> FIFO
+   1636  d1                   [P] D.1   ; family 0xd0
+   1637  82                   [P] f80.2   ; family 0x80
+   1638  f5                   [P] F.5   ; DINAF8+5; not required for emission (round 10)
+   1639  d9                   [P] D.9   ; family 0xd0
+   1640  92                   [C] SELBANK 0x92   ; DINA90+2
+   1641  50                   [C] EMIT r10   ; 4 B -> FIFO
+   1642  97                   [C] SELBANK 0x97   ; DINA90+7
+   1643  88                   [P] f80.8   ; family 0x80
+   1644  f1                   [P] F.1   ; DINAF8+1; not required for emission (round 10)
+   1645  09                   [C] EMIT r1   ; 4 B -> FIFO
+   1646  f4 1c                [?] f4.imm 0x1c   ; 2-byte; immediate alters output composition; NOT a branch
+   1648  d8                   [P] D.8   ; family 0xd0
+   1649  84                   [P] f80.4   ; family 0x80
+   1650  a8                   [P] fa0.8   ; family 0xa0
+   1651  f3                   [P] F.3   ; DINAF8+3; not required for emission (round 10)
+   1652  c0                   [P] C.0   ; family 0xc0
+   1653  f8                   [P] F.8   ; family 0xf0
+   1654  f9                   [P] F.9   ; family 0xf0
+   1655  d1                   [P] D.1   ; family 0xd0
+   1656  d9                   [P] D.9   ; family 0xd0
+   1657  97                   [C] SELBANK 0x97   ; DINA90+7
+   1658  82                   [P] f80.2   ; family 0x80
+   1659  f1                   [P] F.1   ; DINAF8+1; not required for emission (round 10)
+   1660  49                   [C] EMIT r9   ; 4 B -> FIFO
+   1661  f4 0d                [?] f4.imm 0x0d   ; 2-byte; immediate alters output composition; NOT a branch
+   1663  d8                   [P] D.8   ; family 0xd0
+   1664  f3                   [P] F.3   ; DINAF8+3; not required for emission (round 10)
+   1665  f9                   [P] F.9   ; family 0xf0
+   1666  f9                   [P] F.9   ; family 0xf0
+   1667  d1                   [P] D.1   ; family 0xd0
+   1668  d9                   [P] D.9   ; family 0xd0
+   1669  82                   [P] f80.2   ; family 0x80
+   1670  f4 c4                [?] f4.imm 0xc4   ; 2-byte; immediate alters output composition; NOT a branch
+   1672  03                   [C] EMIT r0.z   ; bit1 set -> reads zero, inert
+   1673  d8                   [P] D.8   ; family 0xd0
+   1674  de                   [P] D.14   ; family 0xd0
+   1675  df                   [P] D.15   ; family 0xd0
+   1676  d8                   [P] D.8   ; family 0xd0
+   1677  f1                   [P] F.1   ; DINAF8+1; not required for emission (round 10)
+   1678  ad                   [P] fa0.13   ; family 0xa0
+   1679  88                   [P] f80.8   ; family 0x80
+   1680  98                   [C] SELBANK 0x98   ; DINA90+8 (mapped)
+   1681  cc                   [P] C.12   ; family 0xc0
+   1682  a8                   [P] fa0.8   ; family 0xa0
+   1683  09                   [C] EMIT r1   ; 4 B -> FIFO
+   1684  f9                   [P] F.9   ; family 0xf0
+   1685  d9                   [P] D.9   ; family 0xd0
+   1686  82                   [P] f80.2   ; family 0x80
+   1687  92                   [C] SELBANK 0x92   ; DINA90+2
+   1688  a4                   [P] fa0.4   ; family 0xa0
+   1689  f0                   [P] F.0   ; DINAF8+0; not required for emission (round 10)
+   1690  2c                   [C] EMIT r5   ; 4 B -> FIFO
+   1691  50                   [C] EMIT r10   ; 4 B -> FIFO
+   1692  78                   [C] EMIT r15   ; 4 B -> FIFO
+   1693  a8                   [P] fa0.8   ; family 0xa0
+   1694  82                   [P] f80.2   ; family 0x80
+   1695  f5                   [P] F.5   ; DINAF8+5; not required for emission (round 10)
+   1696  7c                   [C] EMIT r15   ; 4 B -> FIFO
+   1697  f1                   [P] F.1   ; DINAF8+1; not required for emission (round 10)
+   1698  88                   [P] f80.8   ; family 0x80
+   1699  3a                   [C] EMIT r7.z   ; bit1 set -> reads zero, inert
+   1700  cf                   [P] C.15   ; family 0xc0
+   1701  94                   [C] SELBANK 0x94   ; DINA90+4
+   1702  4a                   [C] EMIT r9.z   ; bit1 set -> reads zero, inert
+   1703  6e                   [C] EMIT r13.z   ; bit1 set -> reads zero, inert
+   1704  98                   [C] SELBANK 0x98   ; DINA90+8 (mapped)
+   1705  db                   [P] D.11   ; family 0xd0
+   1706  69                   [C] EMIT r13   ; 4 B -> FIFO
+   1707  31                   [C] EMIT r6   ; 4 B -> FIFO
+   1708  d9                   [P] D.9   ; family 0xd0
+   1709  84                   [P] f80.4   ; family 0x80
+   1710  c4                   [P] C.4   ; family 0xc0
+   1711  cd                   [P] C.13   ; family 0xc0
+   1712  fc                   [P] F.12   ; family 0xf0
+   1713  db                   [P] D.11   ; family 0xd0
+   1714  6d                   [C] EMIT r13   ; 4 B -> FIFO
+   1715  d9                   [P] D.9   ; family 0xd0
+   1716  a8                   [P] fa0.8   ; family 0xa0
+   1717  fc                   [P] F.12   ; family 0xf0
+   1718  db                   [P] D.11   ; family 0xd0
+   1719  25                   [C] EMIT r4   ; 4 B -> FIFO
+   1720  da                   [P] D.10   ; family 0xd0
+   1721  ad                   [P] fa0.13   ; family 0xa0
+   1722  f2                   [P] F.2   ; DINAF8+2; not required for emission (round 10)
+   1723  de                   [P] D.14   ; family 0xd0
+   1724  f9                   [P] F.9   ; family 0xf0
+   1725  d8                   [P] D.8   ; family 0xd0
+   1726  8d                   [P] f80.13   ; family 0x80
+   1727  9d                   [C] SELBANK 0x9d   ; DINA90+13
+   1728  ad                   [P] fa0.13   ; family 0xa0
+   1729  f1                   [P] F.1   ; DINAF8+1; not required for emission (round 10)
+   1730  c8                   [P] C.8   ; family 0xc0
+   1731  f3                   [P] F.3   ; DINAF8+3; not required for emission (round 10)
+   1732  ad                   [P] fa0.13   ; family 0xa0
+   1733  f8                   [P] F.8   ; family 0xf0
+   1734  d1                   [P] D.1   ; family 0xd0
+   1735  d9                   [P] D.9   ; family 0xd0
+   1736  f9                   [P] F.9   ; family 0xf0
+   1737  f4 11                [?] f4.imm 0x11   ; 2-byte; immediate alters output composition; NOT a branch
+   1739  d8                   [P] D.8   ; family 0xd0
+   1740  f3                   [P] F.3   ; DINAF8+3; not required for emission (round 10)
+   1741  f9                   [P] F.9   ; family 0xf0
+   1742  84                   [P] f80.4   ; family 0x80
+   1743  a8                   [P] fa0.8   ; family 0xa0
+   1744  01                   [C] EMIT r0   ; 4 B -> FIFO
+   1745  d1                   [P] D.1   ; family 0xd0
+   1746  d9                   [P] D.9   ; family 0xd0
+   1747  f4 07                [?] f4.imm 0x07   ; 2-byte; immediate alters output composition; NOT a branch
+   1749  d8                   [P] D.8   ; family 0xd0
+   1750  f1                   [P] F.1   ; DINAF8+1; not required for emission (round 10)
+   1751  a4                   [P] fa0.4   ; family 0xa0
+   1752  8d                   [P] f80.13   ; family 0x80
+   1753  c0                   [P] C.0   ; family 0xc0
+   1754  f4 41                [?] f4.imm 0x41   ; 2-byte; immediate alters output composition; NOT a branch
+   1756  f1                   [P] F.1   ; DINAF8+1; not required for emission (round 10)
+   1757  d8                   [P] D.8   ; family 0xd0
+   1758  b8                   [P] Cm.8   ; family 0xb0
+   1759  b4                   [P] Cm.4   ; family 0xb0
+   1760  b0                   [P] Cm.0   ; family 0xb0
+   1761  97                   [C] SELBANK 0x97   ; DINA90+7
+   1762  86                   [P] f80.6   ; family 0x80
+   1763  a8                   [P] fa0.8   ; family 0xa0
+   1764  31                   [C] EMIT r6   ; 4 B -> FIFO
+   1765  9b                   [C] SELBANK 0x9b   ; DINA90+11
+   1766  06                   [C] EMIT r0.z   ; bit1 set -> reads zero, inert
+   1767  99                   [C] SELBANK 0x99   ; DINA90+9 (mapped)
+   1768  07                   [C] EMIT r0.z   ; bit1 set -> reads zero, inert
+   1769  ab                   [P] fa0.11   ; family 0xa0
+   1770  97                   [C] SELBANK 0x97   ; DINA90+7
+   1771  28                   [C] EMIT r5   ; 4 B -> FIFO
+   1772  88                   [P] f80.8   ; family 0x80
+   1773  9b                   [C] SELBANK 0x9b   ; DINA90+11
+   1774  f0                   [P] F.0   ; DINAF8+0; not required for emission (round 10)
+   1775  0c                   [C] EMIT r1   ; 4 B -> FIFO
+   1776  20                   [C] EMIT r4   ; 4 B -> FIFO
+   1777  14                   [C] EMIT r2   ; 4 B -> FIFO
+   1778  40                   [C] EMIT r8   ; 4 B -> FIFO
+   1779  b0                   [P] Cm.0   ; family 0xb0
+   1780  b4                   [P] Cm.4   ; family 0xb0
+   1781  b8                   [P] Cm.8   ; family 0xb0
+   1782  f0                   [P] F.0   ; DINAF8+0; not required for emission (round 10)
+   1783  a8                   [P] fa0.8   ; family 0xa0
+   1784  8a                   [P] f80.10   ; family 0x80
+   1785  9a                   [C] SELBANK 0x9a   ; DINA90+10 (mapped)
+   1786  28                   [C] EMIT gyro_x   ; 4 B -> FIFO
+   1787  50                   [C] EMIT r10   ; 4 B -> FIFO
+   1788  78                   [C] EMIT r15   ; 4 B -> FIFO
+   1789  b7                   [P] Cm.7   ; family 0xb0
+   1790  9b                   [C] SELBANK 0x9b   ; DINA90+11
+   1791  a8                   [P] fa0.8   ; family 0xa0
+   1792  29                   [C] EMIT r5   ; 4 B -> FIFO
+   1793  51                   [C] EMIT r10   ; 4 B -> FIFO
+   1794  79                   [C] EMIT r15   ; 4 B -> FIFO
+   1795  24                   [C] EMIT r4   ; 4 B -> FIFO
+   1796  70                   [C] EMIT r14   ; 4 B -> FIFO
+   1797  59                   [C] EMIT r11   ; 4 B -> FIFO
+   1798  44                   [C] EMIT r8   ; 4 B -> FIFO
+   1799  69                   [C] EMIT r13   ; 4 B -> FIFO
+   1800  38                   [C] EMIT r7   ; 4 B -> FIFO
+   1801  64                   [C] EMIT r12   ; 4 B -> FIFO
+   1802  48                   [C] EMIT r9   ; 4 B -> FIFO
+   1803  31                   [C] EMIT r6   ; 4 B -> FIFO
+   1804  f1                   [P] F.1   ; DINAF8+1; not required for emission (round 10)
+   1805  bb                   [P] Cm.11   ; family 0xb0
+   1806  ab                   [P] fa0.11   ; family 0xa0
+   1807  88                   [P] f80.8   ; family 0x80
+   1808  00                   [C] EMIT r0   ; 4 B -> FIFO
+   1809  2c                   [C] EMIT r5   ; 4 B -> FIFO
+   1810  54                   [C] EMIT r10   ; 4 B -> FIFO
+   1811  7c                   [C] EMIT r15   ; 4 B -> FIFO
+   1812  f0                   [P] F.0   ; DINAF8+0; not required for emission (round 10)
+   1813  b3                   [P] Cm.3   ; family 0xb0
+   1814  8b                   [P] f80.11   ; family 0x80
+   1815  b8                   [P] Cm.8   ; family 0xb0
+   1816  a8                   [P] fa0.8   ; family 0xa0
+   1817  04                   [C] EMIT r0   ; 4 B -> FIFO
+   1818  28                   [C] EMIT r5   ; 4 B -> FIFO
+   1819  50                   [C] EMIT r10   ; 4 B -> FIFO
+   1820  78                   [C] EMIT r15   ; 4 B -> FIFO
+   1821  f1                   [P] F.1   ; DINAF8+1; not required for emission (round 10)
+   1822  b0                   [P] Cm.0   ; family 0xb0
+   1823  88                   [P] f80.8   ; family 0x80
+   1824  b4                   [P] Cm.4   ; family 0xb0
+   1825  97                   [C] SELBANK 0x97   ; DINA90+7
+   1826  26                   [C] EMIT r4.z   ; bit1 set -> reads zero, inert
+   1827  a8                   [P] fa0.8   ; family 0xa0
+   1828  59                   [C] EMIT r11   ; 4 B -> FIFO
+   1829  98                   [C] SELBANK 0x98   ; DINA90+8 (mapped)
+   1830  bb                   [P] Cm.11   ; family 0xb0
+   1831  ab                   [P] fa0.11   ; family 0xa0
+   1832  b3                   [P] Cm.3   ; family 0xb0
+   1833  8b                   [P] f80.11   ; family 0x80
+   1834  02                   [C] EMIT r0.z   ; bit1 set -> reads zero, inert
+   1835  26                   [C] EMIT r4.z   ; bit1 set -> reads zero, inert
+   1836  46                   [C] EMIT r8.z   ; bit1 set -> reads zero, inert
+   1837  66                   [C] EMIT r12.z   ; bit1 set -> reads zero, inert
+   1838  b0                   [P] Cm.0   ; family 0xb0
+   1839  b8                   [P] Cm.8   ; family 0xb0
+   1840  f0                   [P] F.0   ; DINAF8+0; not required for emission (round 10)
+   1841  8a                   [P] f80.10   ; family 0x80
+   1842  9c                   [C] SELBANK 0x9c   ; DINA90+12 (mapped)
+   1843  a8                   [P] fa0.8   ; family 0xa0
+   1844  29                   [C] EMIT quat_x   ; 4 B -> FIFO
+   1845  51                   [C] EMIT r10   ; 4 B -> FIFO
+   1846  79                   [C] EMIT r15   ; 4 B -> FIFO
+   1847  8b                   [P] f80.11   ; family 0x80
+   1848  29                   [C] EMIT quat_x   ; 4 B -> FIFO
+   1849  51                   [C] EMIT r10   ; 4 B -> FIFO
+   1850  79                   [C] EMIT r15   ; 4 B -> FIFO
+   1851  8a                   [P] f80.10   ; family 0x80
+   1852  24                   [C] EMIT quat_w   ; 4 B -> FIFO
+   1853  70                   [C] EMIT r14   ; 4 B -> FIFO
+   1854  59                   [C] EMIT r11   ; 4 B -> FIFO
+   1855  8b                   [P] f80.11   ; family 0x80
+   1856  20                   [C] EMIT quat_w   ; 4 B -> FIFO
+   1857  58                   [C] EMIT r11   ; 4 B -> FIFO
+   1858  71                   [C] EMIT r14   ; 4 B -> FIFO
+   1859  8a                   [P] f80.10   ; family 0x80
+   1860  44                   [C] EMIT r8   ; 4 B -> FIFO
+   1861  69                   [C] EMIT r13   ; 4 B -> FIFO
+   1862  38                   [C] EMIT quat_z   ; 4 B -> FIFO
+   1863  8b                   [P] f80.11   ; family 0x80
+   1864  39                   [C] EMIT quat_z   ; 4 B -> FIFO
+   1865  40                   [C] EMIT r8   ; 4 B -> FIFO
+   1866  68                   [C] EMIT r13   ; 4 B -> FIFO
+   1867  8a                   [P] f80.10   ; family 0x80
+   1868  64                   [C] EMIT r12   ; 4 B -> FIFO
+   1869  48                   [C] EMIT r9   ; 4 B -> FIFO
+   1870  31                   [C] EMIT quat_y   ; 4 B -> FIFO
+   1871  8b                   [P] f80.11   ; family 0x80
+   1872  30                   [C] EMIT quat_y   ; 4 B -> FIFO
+   1873  49                   [C] EMIT r9   ; 4 B -> FIFO
+   1874  60                   [C] EMIT r12   ; 4 B -> FIFO
+   1875  88                   [P] f80.8   ; family 0x80
+   1876  f1                   [P] F.1   ; DINAF8+1; not required for emission (round 10)
+   1877  ac                   [P] fa0.12   ; family 0xa0
+   1878  00                   [C] EMIT r0   ; 4 B -> FIFO
+   1879  2c                   [C] EMIT quat_x   ; 4 B -> FIFO
+   1880  54                   [C] EMIT r10   ; 4 B -> FIFO
+   1881  7c                   [C] EMIT r15   ; 4 B -> FIFO
+   1882  f0                   [P] F.0   ; DINAF8+0; not required for emission (round 10)
+   1883  8c                   [P] f80.12   ; family 0x80
+   1884  a8                   [P] fa0.8   ; family 0xa0
+   1885  04                   [C] EMIT r0   ; 4 B -> FIFO
+   1886  28                   [C] EMIT quat_x   ; 4 B -> FIFO
+   1887  50                   [C] EMIT r10   ; 4 B -> FIFO
+   1888  78                   [C] EMIT r15   ; 4 B -> FIFO
+   1889  f1                   [P] F.1   ; DINAF8+1; not required for emission (round 10)
+   1890  88                   [P] f80.8   ; family 0x80
+   1891  97                   [C] SELBANK 0x97   ; DINA90+7
+   1892  26                   [C] EMIT r4.z   ; bit1 set -> reads zero, inert
+   1893  a8                   [P] fa0.8   ; family 0xa0
+   1894  59                   [C] EMIT r11   ; 4 B -> FIFO
+   1895  98                   [C] SELBANK 0x98   ; DINA90+8 (mapped)
+   1896  ac                   [P] fa0.12   ; family 0xa0
+   1897  8c                   [P] f80.12   ; family 0x80
+   1898  02                   [C] EMIT r0.z   ; bit1 set -> reads zero, inert
+   1899  26                   [C] EMIT r4.z   ; bit1 set -> reads zero, inert
+   1900  46                   [C] EMIT r8.z   ; bit1 set -> reads zero, inert
+   1901  66                   [C] EMIT r12.z   ; bit1 set -> reads zero, inert
+   1902  f0                   [P] F.0   ; DINAF8+0; not required for emission (round 10)
+   1903  89                   [P] f80.9   ; family 0x80
+   1904  9c                   [C] SELBANK 0x9c   ; DINA90+12 (mapped)
+   1905  a8                   [P] fa0.8   ; family 0xa0
+   1906  29                   [C] EMIT quat_x   ; 4 B -> FIFO
+   1907  51                   [C] EMIT r10   ; 4 B -> FIFO
+   1908  79                   [C] EMIT r15   ; 4 B -> FIFO
+   1909  24                   [C] EMIT quat_w   ; 4 B -> FIFO
+   1910  70                   [C] EMIT r14   ; 4 B -> FIFO
+   1911  59                   [C] EMIT r11   ; 4 B -> FIFO
+   1912  44                   [C] EMIT r8   ; 4 B -> FIFO
+   1913  69                   [C] EMIT r13   ; 4 B -> FIFO
+   1914  38                   [C] EMIT quat_z   ; 4 B -> FIFO
+   1915  64                   [C] EMIT r12   ; 4 B -> FIFO
+   1916  48                   [C] EMIT r9   ; 4 B -> FIFO
+   1917  31                   [C] EMIT quat_y   ; 4 B -> FIFO
+   1918  a9                   [P] fa0.9   ; family 0xa0
+   1919  88                   [P] f80.8   ; family 0x80
+   1920  09                   [C] EMIT r1   ; 4 B -> FIFO
+   1921  20                   [C] EMIT quat_w   ; 4 B -> FIFO
+   1922  59                   [C] EMIT r11   ; 4 B -> FIFO
+   1923  70                   [C] EMIT r14   ; 4 B -> FIFO
+   1924  ab                   [P] fa0.11   ; family 0xa0
+   1925  11                   [C] EMIT r2   ; 4 B -> FIFO
+   1926  38                   [C] EMIT quat_z   ; 4 B -> FIFO
+   1927  40                   [C] EMIT r8   ; 4 B -> FIFO
+   1928  69                   [C] EMIT r13   ; 4 B -> FIFO
+   1929  a8                   [P] fa0.8   ; family 0xa0
+   1930  19                   [C] EMIT r3   ; 4 B -> FIFO
+   1931  31                   [C] EMIT quat_y   ; 4 B -> FIFO
+   1932  48                   [C] EMIT r9   ; 4 B -> FIFO
+   1933  60                   [C] EMIT r12   ; 4 B -> FIFO
+   1934  8c                   [P] f80.12   ; family 0x80
+   1935  a8                   [P] fa0.8   ; family 0xa0
+   1936  3c                   [C] EMIT quat_z   ; 4 B -> FIFO
+   1937  41                   [C] EMIT r8   ; 4 B -> FIFO
+   1938  5c                   [C] EMIT r11   ; 4 B -> FIFO
+   1939  20                   [C] EMIT quat_w   ; 4 B -> FIFO
+   1940  7c                   [C] EMIT r15   ; 4 B -> FIFO
+   1941  00                   [C] EMIT r0   ; 4 B -> FIFO
+   1942  f1                   [P] F.1   ; DINAF8+1; not required for emission (round 10)
+   1943  87                   [P] f80.7   ; family 0x80
+   1944  98                   [C] SELBANK 0x98   ; DINA90+8 (mapped)
+   1945  19                   [C] EMIT r3   ; 4 B -> FIFO
+   1946  86                   [P] f80.6   ; family 0x80
+   1947  a8                   [P] fa0.8   ; family 0xa0
+   1948  6e                   [C] EMIT r13.z   ; bit1 set -> reads zero, inert
+   1949  76                   [C] EMIT r14.z   ; bit1 set -> reads zero, inert
+   1950  7e                   [C] EMIT r15.z   ; bit1 set -> reads zero, inert
+   1951  a9                   [P] fa0.9   ; family 0xa0
+   1952  99                   [C] SELBANK 0x99   ; DINA90+9 (mapped)
+   1953  88                   [P] f80.8   ; family 0x80
+   1954  2d                   [C] EMIT accel_x   ; 4 B -> FIFO
+   1955  55                   [C] EMIT r10   ; 4 B -> FIFO
+   1956  7d                   [C] EMIT r15   ; 4 B -> FIFO
+   1957  d8                   [P] D.8   ; family 0xd0
+   1958  f1                   [P] F.1   ; DINAF8+1; not required for emission (round 10)
+   1959  b3                   [P] Cm.3   ; family 0xb0
+   1960  8b                   [P] f80.11   ; family 0x80
+   1961  b4                   [P] Cm.4   ; family 0xb0
+   1962  97                   [C] SELBANK 0x97   ; DINA90+7
+   1963  bb                   [P] Cm.11   ; family 0xb0
+   1964  ab                   [P] fa0.11   ; family 0xa0
+   1965  f8                   [P] F.8   ; family 0xf0
+   1966  f9                   [P] F.9   ; family 0xf0
+   1967  b9                   [P] Cm.9   ; family 0xb0
+   1968  a3                   [C] NOP   ; DINAA0+3; filler / disables code in place
+   1969  da                   [P] D.10   ; family 0xd0
+   1970  c3                   [P] C.3   ; family 0xc0
+   1971  c5                   [P] C.5   ; family 0xc0
+   1972  c7                   [P] C.7   ; family 0xc0
+   1973  d9                   [P] D.9   ; family 0xd0
+   1974  2d                   [C] EMIT r5   ; 4 B -> FIFO
+   1975  4d                   [C] EMIT r9   ; 4 B -> FIFO
+   1976  6d                   [C] EMIT r13   ; 4 B -> FIFO
+   1977  d8                   [P] D.8   ; family 0xd0
+   1978  b0                   [P] Cm.0   ; family 0xb0
+   1979  8c                   [P] f80.12   ; family 0x80
+   1980  b8                   [P] Cm.8   ; family 0xb0
+   1981  ac                   [P] fa0.12   ; family 0xa0
+   1982  f8                   [P] F.8   ; family 0xf0
+   1983  f9                   [P] F.9   ; family 0xf0
+   1984  b9                   [P] Cm.9   ; family 0xb0
+   1985  a9                   [P] fa0.9   ; family 0xa0
+   1986  da                   [P] D.10   ; family 0xd0
+   1987  c3                   [P] C.3   ; family 0xc0
+   1988  c5                   [P] C.5   ; family 0xc0
+   1989  c7                   [P] C.7   ; family 0xc0
+   1990  d9                   [P] D.9   ; family 0xd0
+   1991  2d                   [C] EMIT r5   ; 4 B -> FIFO
+   1992  4d                   [C] EMIT r9   ; 4 B -> FIFO
+   1993  6d                   [C] EMIT r13   ; 4 B -> FIFO
+   1994  d8                   [P] D.8   ; family 0xd0
+   1995  f3                   [P] F.3   ; DINAF8+3; not required for emission (round 10)
+   1996  b9                   [P] Cm.9   ; family 0xb0
+   1997  ac                   [P] fa0.12   ; family 0xa0
+   1998  de                   [P] D.14   ; family 0xd0
+   1999  d8                   [P] D.8   ; family 0xd0
+   2000  b1                   [P] Cm.1   ; family 0xb0
+   2001  b6                   [P] Cm.6   ; family 0xb0
+   2002  b9                   [P] Cm.9   ; family 0xb0
+   2003  f1                   [P] F.1   ; DINAF8+1; not required for emission (round 10)
+   2004  a8                   [P] fa0.8   ; family 0xa0
+   2005  f8                   [P] F.8   ; family 0xf0
+   2006  f3                   [P] F.3   ; DINAF8+3; not required for emission (round 10)
+   2007  b9                   [P] Cm.9   ; family 0xb0
+   2008  aa                   [P] fa0.10   ; family 0xa0
+   2009  fa                   [P] F.10   ; family 0xf0
+   2010  f9                   [P] F.9   ; family 0xf0
+   2011  d1                   [P] D.1   ; family 0xd0
+   2012  da                   [P] D.10   ; family 0xd0
+   2013  f2                   [P] F.2   ; DINAF8+2; not required for emission (round 10)
+   2014  8a                   [P] f80.10   ; family 0x80
+   2015  ca                   [P] C.10   ; family 0xc0
+   2016  f4 0e                [?] f4.imm 0x0e   ; 2-byte; immediate alters output composition; NOT a branch
+   2018  f3                   [P] F.3   ; DINAF8+3; not required for emission (round 10)
+   2019  b1                   [P] Cm.1   ; family 0xb0
+   2020  88                   [P] f80.8   ; family 0x80
+   2021  dd                   [P] D.13   ; family 0xd0
+   2022  c2                   [P] C.2   ; family 0xc0
+   2023  c2                   [P] C.2   ; family 0xc0
+   2024  f1                   [P] F.1   ; DINAF8+1; not required for emission (round 10)
+   2025  88                   [P] f80.8   ; family 0x80
+   2026  c0                   [P] C.0   ; family 0xc0
+   2027  dc                   [P] D.12   ; family 0xd0
+   2028  f3                   [P] F.3   ; DINAF8+3; not required for emission (round 10)
+   2029  b9                   [P] Cm.9   ; family 0xb0
+   2030  ac                   [P] fa0.12   ; family 0xa0
+   2031  f8                   [P] F.8   ; family 0xf0
+   2032  d8                   [P] D.8   ; family 0xd0
+   2033  f2                   [P] F.2   ; DINAF8+2; not required for emission (round 10)
+   2034  b2                   [P] Cm.2   ; family 0xb0
+   2035  b6                   [P] Cm.6   ; family 0xb0
+   2036  ba                   [P] Cm.10   ; family 0xb0
+   2037  ad                   [P] fa0.13   ; family 0xa0
+   2038  fa                   [P] F.10   ; family 0xf0
+   2039  8d                   [P] f80.13   ; family 0x80
+   2040  9d                   [C] SELBANK 0x9d   ; DINA90+13
+   2041  ab                   [P] fa0.11   ; family 0xa0
+   2042  39                   [C] EMIT r7   ; 4 B -> FIFO
+   2043  d9                   [P] D.9   ; family 0xd0
+   2044  ad                   [P] fa0.13   ; family 0xa0
+   2045  df                   [P] D.15   ; family 0xd0
+   2046  f4 13                [?] f4.imm 0x13   ; 2-byte; immediate alters output composition; NOT a branch
+   2048  dd                   [P] D.13   ; family 0xd0
+   2049  f2                   [P] F.2   ; DINAF8+2; not required for emission (round 10)
+   2050  b1                   [P] Cm.1   ; family 0xb0
+   2051  87                   [P] f80.7   ; family 0x80
+   2052  b5                   [P] Cm.5   ; family 0xb0
+   2053  9a                   [C] SELBANK 0x9a   ; DINA90+10 (mapped)
+   2054  08                   [C] EMIT r1   ; 4 B -> FIFO
+   2055  08                   [C] EMIT r1   ; 4 B -> FIFO
+   2056  f1                   [P] F.1   ; DINAF8+1; not required for emission (round 10)
+   2057  b1                   [P] Cm.1   ; family 0xb0
+   2058  83                   [P] f80.3   ; family 0x80
+   2059  c2                   [P] C.2   ; family 0xc0
+   2060  c4                   [P] C.4   ; family 0xc0
+   2061  c6                   [P] C.6   ; family 0xc0
+   2062  dc                   [P] D.12   ; family 0xd0
+   2063  f3                   [P] F.3   ; DINAF8+3; not required for emission (round 10)
+   2064  b9                   [P] Cm.9   ; family 0xb0
+   2065  ac                   [P] fa0.12   ; family 0xa0
+   2066  f8                   [P] F.8   ; family 0xf0
+   2067  d8                   [P] D.8   ; family 0xd0
+   2068  f3                   [P] F.3   ; DINAF8+3; not required for emission (round 10)
+   2069  b2                   [P] Cm.2   ; family 0xb0
+   2070  b6                   [P] Cm.6   ; family 0xb0
+   2071  ba                   [P] Cm.10   ; family 0xb0
+   2072  ad                   [P] fa0.13   ; family 0xa0
+   2073  f8                   [P] F.8   ; family 0xf0
+   2074  8d                   [P] f80.13   ; family 0x80
+   2075  9d                   [C] SELBANK 0x9d   ; DINA90+13
+   2076  ab                   [P] fa0.11   ; family 0xa0
+   2077  11                   [C] EMIT r2   ; 4 B -> FIFO
+   2078  d9                   [P] D.9   ; family 0xd0
+   2079  ad                   [P] fa0.13   ; family 0xa0
+   2080  de                   [P] D.14   ; family 0xd0
+   2081  f4 13                [?] f4.imm 0x13   ; 2-byte; immediate alters output composition; NOT a branch
+   2083  dd                   [P] D.13   ; family 0xd0
+   2084  f2                   [P] F.2   ; DINAF8+2; not required for emission (round 10)
+   2085  b1                   [P] Cm.1   ; family 0xb0
+   2086  87                   [P] f80.7   ; family 0x80
+   2087  b5                   [P] Cm.5   ; family 0xb0
+   2088  9a                   [C] SELBANK 0x9a   ; DINA90+10 (mapped)
+   2089  28                   [C] EMIT gyro_x   ; 4 B -> FIFO
+   2090  28                   [C] EMIT gyro_x   ; 4 B -> FIFO
+   2091  f1                   [P] F.1   ; DINAF8+1; not required for emission (round 10)
+   2092  b1                   [P] Cm.1   ; family 0xb0
+   2093  89                   [P] f80.9   ; family 0x80
+   2094  c2                   [P] C.2   ; family 0xc0
+   2095  c4                   [P] C.4   ; family 0xc0
+   2096  c6                   [P] C.6   ; family 0xc0
+   2097  dc                   [P] D.12   ; family 0xd0
+   2098  f3                   [P] F.3   ; DINAF8+3; not required for emission (round 10)
+   2099  b9                   [P] Cm.9   ; family 0xb0
+   2100  ac                   [P] fa0.12   ; family 0xa0
+   2101  f8                   [P] F.8   ; family 0xf0
+   2102  d8                   [P] D.8   ; family 0xd0
+   2103  f3                   [P] F.3   ; DINAF8+3; not required for emission (round 10)
+   2104  b2                   [P] Cm.2   ; family 0xb0
+   2105  b6                   [P] Cm.6   ; family 0xb0
+   2106  ba                   [P] Cm.10   ; family 0xb0
+   2107  ad                   [P] fa0.13   ; family 0xa0
+   2108  fa                   [P] F.10   ; family 0xf0
+   2109  8d                   [P] f80.13   ; family 0x80
+   2110  9d                   [C] SELBANK 0x9d   ; DINA90+13
+   2111  ab                   [P] fa0.11   ; family 0xa0
+   2112  39                   [C] EMIT r7   ; 4 B -> FIFO
+   2113  d9                   [P] D.9   ; family 0xd0
+   2114  ad                   [P] fa0.13   ; family 0xa0
+   2115  df                   [P] D.15   ; family 0xd0
+   2116  f4 12                [?] f4.imm 0x12   ; 2-byte; immediate alters output composition; NOT a branch
+   2118  dd                   [P] D.13   ; family 0xd0
+   2119  f3                   [P] F.3   ; DINAF8+3; not required for emission (round 10)
+   2120  b1                   [P] Cm.1   ; family 0xb0
+   2121  87                   [P] f80.7   ; family 0x80
+   2122  b5                   [P] Cm.5   ; family 0xb0
+   2123  9a                   [C] SELBANK 0x9a   ; DINA90+10 (mapped)
+   2124  08                   [C] EMIT r1   ; 4 B -> FIFO
+   2125  f2                   [P] F.2   ; DINAF8+2; not required for emission (round 10)
+   2126  f2                   [P] F.2   ; DINAF8+2; not required for emission (round 10)
+   2127  88                   [P] f80.8   ; family 0x80
+   2128  c2                   [P] C.2   ; family 0xc0
+   2129  c4                   [P] C.4   ; family 0xc0
+   2130  c6                   [P] C.6   ; family 0xc0
+   2131  dc                   [P] D.12   ; family 0xd0
+   2132  f3                   [P] F.3   ; DINAF8+3; not required for emission (round 10)
+   2133  b9                   [P] Cm.9   ; family 0xb0
+   2134  ac                   [P] fa0.12   ; family 0xa0
+   2135  f8                   [P] F.8   ; family 0xf0
+   2136  d8                   [P] D.8   ; family 0xd0
+   2137  f2                   [P] F.2   ; DINAF8+2; not required for emission (round 10)
+   2138  b2                   [P] Cm.2   ; family 0xb0
+   2139  b6                   [P] Cm.6   ; family 0xb0
+   2140  ba                   [P] Cm.10   ; family 0xb0
+   2141  ae                   [P] fa0.14   ; family 0xa0
+   2142  f8                   [P] F.8   ; family 0xf0
+   2143  8e                   [P] f80.14   ; family 0x80
+   2144  9e                   [C] SELBANK 0x9e   ; DINA90+14
+   2145  ab                   [P] fa0.11   ; family 0xa0
+   2146  11                   [C] EMIT r2   ; 4 B -> FIFO
+   2147  d9                   [P] D.9   ; family 0xd0
+   2148  ae                   [P] fa0.14   ; family 0xa0
+   2149  de                   [P] D.14   ; family 0xd0
+   2150  f4 12                [?] f4.imm 0x12   ; 2-byte; immediate alters output composition; NOT a branch
+   2152  dd                   [P] D.13   ; family 0xd0
+   2153  f3                   [P] F.3   ; DINAF8+3; not required for emission (round 10)
+   2154  b1                   [P] Cm.1   ; family 0xb0
+   2155  87                   [P] f80.7   ; family 0x80
+   2156  b5                   [P] Cm.5   ; family 0xb0
+   2157  9a                   [C] SELBANK 0x9a   ; DINA90+10 (mapped)
+   2158  68                   [C] EMIT r13   ; 4 B -> FIFO
+   2159  f2                   [P] F.2   ; DINAF8+2; not required for emission (round 10)
+   2160  b0                   [P] Cm.0   ; family 0xb0
+   2161  80                   [P] f80.0   ; family 0x80
+   2162  c0                   [P] C.0   ; family 0xc0
+   2163  c8                   [P] C.8   ; family 0xc0
+   2164  c2                   [P] C.2   ; family 0xc0
+   2165  dc                   [P] D.12   ; family 0xd0
+   2166  f3                   [P] F.3   ; DINAF8+3; not required for emission (round 10)
+   2167  b9                   [P] Cm.9   ; family 0xb0
+   2168  ac                   [P] fa0.12   ; family 0xa0
+   2169  f8                   [P] F.8   ; family 0xf0
+   2170  d8                   [P] D.8   ; family 0xd0
+   2171  f2                   [P] F.2   ; DINAF8+2; not required for emission (round 10)
+   2172  b2                   [P] Cm.2   ; family 0xb0
+   2173  b6                   [P] Cm.6   ; family 0xb0
+   2174  ba                   [P] Cm.10   ; family 0xb0
+   2175  ae                   [P] fa0.14   ; family 0xa0
+   2176  fa                   [P] F.10   ; family 0xf0
+   2177  8e                   [P] f80.14   ; family 0x80
+   2178  9e                   [C] SELBANK 0x9e   ; DINA90+14
+   2179  ab                   [P] fa0.11   ; family 0xa0
+   2180  39                   [C] EMIT r7   ; 4 B -> FIFO
+   2181  d9                   [P] D.9   ; family 0xd0
+   2182  ae                   [P] fa0.14   ; family 0xa0
+   2183  df                   [P] D.15   ; family 0xd0
+   2184  f4 12                [?] f4.imm 0x12   ; 2-byte; immediate alters output composition; NOT a branch
+   2186  dd                   [P] D.13   ; family 0xd0
+   2187  f2                   [P] F.2   ; DINAF8+2; not required for emission (round 10)
+   2188  b1                   [P] Cm.1   ; family 0xb0
+   2189  87                   [P] f80.7   ; family 0x80
+   2190  b5                   [P] Cm.5   ; family 0xb0
+   2191  9a                   [C] SELBANK 0x9a   ; DINA90+10 (mapped)
+   2192  68                   [C] EMIT r13   ; 4 B -> FIFO
+   2193  f2                   [P] F.2   ; DINAF8+2; not required for emission (round 10)
+   2194  b0                   [P] Cm.0   ; family 0xb0
+   2195  80                   [P] f80.0   ; family 0x80
+   2196  c4                   [P] C.4   ; family 0xc0
+   2197  cc                   [P] C.12   ; family 0xc0
+   2198  c6                   [P] C.6   ; family 0xc0
+   2199  dc                   [P] D.12   ; family 0xd0
+   2200  f3                   [P] F.3   ; DINAF8+3; not required for emission (round 10)
+   2201  b9                   [P] Cm.9   ; family 0xb0
+   2202  ac                   [P] fa0.12   ; family 0xa0
+   2203  f8                   [P] F.8   ; family 0xf0
+   2204  d8                   [P] D.8   ; family 0xd0
+   2205  f3                   [P] F.3   ; DINAF8+3; not required for emission (round 10)
+   2206  b2                   [P] Cm.2   ; family 0xb0
+   2207  b6                   [P] Cm.6   ; family 0xb0
+   2208  ba                   [P] Cm.10   ; family 0xb0
+   2209  ae                   [P] fa0.14   ; family 0xa0
+   2210  f8                   [P] F.8   ; family 0xf0
+   2211  8e                   [P] f80.14   ; family 0x80
+   2212  9e                   [C] SELBANK 0x9e   ; DINA90+14
+   2213  ab                   [P] fa0.11   ; family 0xa0
+   2214  11                   [C] EMIT r2   ; 4 B -> FIFO
+   2215  d9                   [P] D.9   ; family 0xd0
+   2216  ae                   [P] fa0.14   ; family 0xa0
+   2217  de                   [P] D.14   ; family 0xd0
+   2218  f4 12                [?] f4.imm 0x12   ; 2-byte; immediate alters output composition; NOT a branch
+   2220  dd                   [P] D.13   ; family 0xd0
+   2221  f3                   [P] F.3   ; DINAF8+3; not required for emission (round 10)
+   2222  b1                   [P] Cm.1   ; family 0xb0
+   2223  87                   [P] f80.7   ; family 0x80
+   2224  b5                   [P] Cm.5   ; family 0xb0
+   2225  9a                   [C] SELBANK 0x9a   ; DINA90+10 (mapped)
+   2226  48                   [C] EMIT r9   ; 4 B -> FIFO
+   2227  f2                   [P] F.2   ; DINAF8+2; not required for emission (round 10)
+   2228  b0                   [P] Cm.0   ; family 0xb0
+   2229  81                   [P] f80.1   ; family 0x80
+   2230  c0                   [P] C.0   ; family 0xc0
+   2231  c8                   [P] C.8   ; family 0xc0
+   2232  c2                   [P] C.2   ; family 0xc0
+   2233  dc                   [P] D.12   ; family 0xd0
+   2234  f3                   [P] F.3   ; DINAF8+3; not required for emission (round 10)
+   2235  b9                   [P] Cm.9   ; family 0xb0
+   2236  ac                   [P] fa0.12   ; family 0xa0
+   2237  f8                   [P] F.8   ; family 0xf0
+   2238  d8                   [P] D.8   ; family 0xd0
+   2239  f3                   [P] F.3   ; DINAF8+3; not required for emission (round 10)
+   2240  b2                   [P] Cm.2   ; family 0xb0
+   2241  b6                   [P] Cm.6   ; family 0xb0
+   2242  ba                   [P] Cm.10   ; family 0xb0
+   2243  ae                   [P] fa0.14   ; family 0xa0
+   2244  fa                   [P] F.10   ; family 0xf0
+   2245  8e                   [P] f80.14   ; family 0x80
+   2246  9e                   [C] SELBANK 0x9e   ; DINA90+14
+   2247  ab                   [P] fa0.11   ; family 0xa0
+   2248  39                   [C] EMIT r7   ; 4 B -> FIFO
+   2249  d9                   [P] D.9   ; family 0xd0
+   2250  ae                   [P] fa0.14   ; family 0xa0
+   2251  df                   [P] D.15   ; family 0xd0
+   2252  f4 12                [?] f4.imm 0x12   ; 2-byte; immediate alters output composition; NOT a branch
+   2254  dd                   [P] D.13   ; family 0xd0
+   2255  f2                   [P] F.2   ; DINAF8+2; not required for emission (round 10)
+   2256  b1                   [P] Cm.1   ; family 0xb0
+   2257  87                   [P] f80.7   ; family 0x80
+   2258  b5                   [P] Cm.5   ; family 0xb0
+   2259  9a                   [C] SELBANK 0x9a   ; DINA90+10 (mapped)
+   2260  48                   [C] EMIT r9   ; 4 B -> FIFO
+   2261  f2                   [P] F.2   ; DINAF8+2; not required for emission (round 10)
+   2262  b0                   [P] Cm.0   ; family 0xb0
+   2263  81                   [P] f80.1   ; family 0x80
+   2264  c4                   [P] C.4   ; family 0xc0
+   2265  cc                   [P] C.12   ; family 0xc0
+   2266  c6                   [P] C.6   ; family 0xc0
+   2267  dc                   [P] D.12   ; family 0xd0
+   2268  f3                   [P] F.3   ; DINAF8+3; not required for emission (round 10)
+   2269  b9                   [P] Cm.9   ; family 0xb0
+   2270  ac                   [P] fa0.12   ; family 0xa0
+   2271  f8                   [P] F.8   ; family 0xf0
+   2272  d8                   [P] D.8   ; family 0xd0
+   2273  f2                   [P] F.2   ; DINAF8+2; not required for emission (round 10)
+   2274  b1                   [P] Cm.1   ; family 0xb0
+   2275  89                   [P] f80.9   ; family 0x80
+   2276  b9                   [P] Cm.9   ; family 0xb0
+   2277  a8                   [P] fa0.8   ; family 0xa0
+   2278  c3                   [P] C.3   ; family 0xc0
+   2279  c5                   [P] C.5   ; family 0xc0
+   2280  c7                   [P] C.7   ; family 0xc0
+   2281  d8                   [P] D.8   ; family 0xd0
+   2282  f3                   [P] F.3   ; DINAF8+3; not required for emission (round 10)
+   2283  b9                   [P] Cm.9   ; family 0xb0
+   2284  ac                   [P] fa0.12   ; family 0xa0
+   2285  f8                   [P] F.8   ; family 0xf0
+   2286  f9                   [P] F.9   ; family 0xf0
+   2287  d1                   [P] D.1   ; family 0xd0
+   2288  d9                   [P] D.9   ; family 0xd0
+   2289  f4 1f                [?] f4.imm 0x1f   ; 2-byte; immediate alters output composition; NOT a branch
+   2291  d8                   [P] D.8   ; family 0xd0
+   2292  f1                   [P] F.1   ; DINAF8+1; not required for emission (round 10)
+   2293  b9                   [P] Cm.9   ; family 0xb0
+   2294  aa                   [P] fa0.10   ; family 0xa0
+   2295  df                   [P] D.15   ; family 0xd0
+   2296  f3                   [P] F.3   ; DINAF8+3; not required for emission (round 10)
+   2297  ac                   [P] fa0.12   ; family 0xa0
+   2298  fa                   [P] F.10   ; family 0xf0
+   2299  f9                   [P] F.9   ; family 0xf0
+   2300  d1                   [P] D.1   ; family 0xd0
+   2301  d9                   [P] D.9   ; family 0xd0
+   2302  f4 1a                [?] f4.imm 0x1a   ; 2-byte; immediate alters output composition; NOT a branch
+   2304  d8                   [P] D.8   ; family 0xd0
+   2305  f2                   [P] F.2   ; DINAF8+2; not required for emission (round 10)
+   2306  b1                   [P] Cm.1   ; family 0xb0
+   2307  b5                   [P] Cm.5   ; family 0xb0
+   2308  8c                   [P] f80.12   ; family 0x80
+   2309  ac                   [P] fa0.12   ; family 0xa0
+   2310  f8                   [P] F.8   ; family 0xf0
+   2311  f9                   [P] F.9   ; family 0xf0
+   2312  d1                   [P] D.1   ; family 0xd0
+   2313  d9                   [P] D.9   ; family 0xd0
+   2314  c2                   [P] C.2   ; family 0xc0
+   2315  d8                   [P] D.8   ; family 0xd0
+   2316  f2                   [P] F.2   ; DINAF8+2; not required for emission (round 10)
+   2317  f9                   [P] F.9   ; family 0xf0
+   2318  d9                   [P] D.9   ; family 0xd0
+   2319  de                   [P] D.14   ; family 0xd0
+   2320  f4 09                [?] f4.imm 0x09   ; 2-byte; immediate alters output composition; NOT a branch
+   2322  13                   [C] EMIT r2.z   ; bit1 set -> reads zero, inert
+   2323  da                   [P] D.10   ; family 0xd0
+   2324  f2                   [P] F.2   ; DINAF8+2; not required for emission (round 10)
+   2325  dd                   [P] D.13   ; family 0xd0
+   2326  c6                   [P] C.6   ; family 0xc0
+   2327  dc                   [P] D.12   ; family 0xd0
+   2328  f4 31                [?] f4.imm 0x31   ; 2-byte; immediate alters output composition; NOT a branch
+   2330  11                   [C] EMIT r2   ; 4 B -> FIFO
+   2331  d8                   [P] D.8   ; family 0xd0
+   2332  f2                   [P] F.2   ; DINAF8+2; not required for emission (round 10)
+   2333  ab                   [P] fa0.11   ; family 0xa0
+   2334  fa                   [P] F.10   ; family 0xf0
+   2335  8b                   [P] f80.11   ; family 0x80
+   2336  9b                   [C] SELBANK 0x9b   ; DINA90+11
+   2337  a3                   [C] NOP   ; DINAA0+3; filler / disables code in place
+   2338  49                   [C] EMIT r9   ; 4 B -> FIFO
+   2339  d9                   [P] D.9   ; family 0xd0
+   2340  f4 07                [?] f4.imm 0x07   ; 2-byte; immediate alters output composition; NOT a branch
+   2342  06                   [C] EMIT r0.z   ; bit1 set -> reads zero, inert
+   2343  da                   [P] D.10   ; family 0xd0
+   2344  f2                   [P] F.2   ; DINAF8+2; not required for emission (round 10)
+   2345  b9                   [P] Cm.9   ; family 0xb0
+   2346  ab                   [P] fa0.11   ; family 0xa0
+   2347  df                   [P] D.15   ; family 0xd0
+   2348  fe                   [C] SKIP   ; block disable (CFG_FIFO_INT off)
+   2349  d8                   [P] D.8   ; family 0xd0
+   2350  f1                   [P] F.1   ; DINAF8+1; not required for emission (round 10)
+   2351  bb                   [P] Cm.11   ; family 0xb0
+   2352  b3                   [P] Cm.3   ; family 0xb0
+   2353  b7                   [P] Cm.7   ; family 0xb0
+   2354  aa                   [P] fa0.10   ; family 0xa0
+   2355  f9                   [P] F.9   ; family 0xf0
+   2356  da                   [P] D.10   ; family 0xd0
+   2357  ff                   [C] DISABLE   ; block disable (CFG_PED_ENABLE off)
+   2358  d9                   [P] D.9   ; family 0xd0
+   2359  80                   [P] f80.0   ; family 0x80
+   2360  9a                   [C] SELBANK 0x9a   ; DINA90+10 (mapped)
+   2361  aa                   [P] fa0.10   ; family 0xa0
+   2362  28                   [C] EMIT gyro_x   ; 4 B -> FIFO
+   2363  b4                   [P] Cm.4   ; family 0xb0
+   2364  80                   [P] f80.0   ; family 0x80
+   2365  98                   [C] SELBANK 0x98   ; DINA90+8 (mapped)
+   2366  a7                   [P] fa0.7   ; family 0xa0
+   2367  20                   [C] EMIT r4   ; 4 B -> FIFO
+   2368  b7                   [P] Cm.7   ; family 0xb0
+   2369  97                   [C] SELBANK 0x97   ; DINA90+7
+   2370  87                   [P] f80.7   ; family 0x80
+   2371  a8                   [P] fa0.8   ; family 0xa0
+   2372  66                   [C] EMIT r12.z   ; bit1 set -> reads zero, inert
+   2373  88                   [P] f80.8   ; family 0x80
+   2374  f0                   [P] F.0   ; DINAF8+0; not required for emission (round 10)
+   2375  79                   [C] EMIT r15   ; 4 B -> FIFO
+   2376  51                   [C] EMIT r10   ; 4 B -> FIFO
+   2377  f1                   [P] F.1   ; DINAF8+1; not required for emission (round 10)
+   2378  90                   [C] SELBANK 0x90   ; DINA90+0
+   2379  2c                   [C] EMIT r5   ; 4 B -> FIFO
+   2380  87                   [P] f80.7   ; family 0x80
+   2381  0c                   [C] EMIT r1   ; 4 B -> FIFO
+   2382  a7                   [P] fa0.7   ; family 0xa0
+   2383  81                   [P] f80.1   ; family 0x80
+   2384  97                   [C] SELBANK 0x97   ; DINA90+7
+   2385  62                   [C] EMIT r12.z   ; bit1 set -> reads zero, inert
+   2386  93                   [C] SELBANK 0x93   ; DINA90+3
+   2387  f0                   [P] F.0   ; DINAF8+0; not required for emission (round 10)
+   2388  71                   [C] EMIT r14   ; 4 B -> FIFO
+   2389  71                   [C] EMIT r14   ; 4 B -> FIFO
+   2390  60                   [C] EMIT r12   ; 4 B -> FIFO
+   2391  85                   [P] f80.5   ; family 0x80
+   2392  94                   [C] SELBANK 0x94   ; DINA90+4
+   2393  01                   [C] EMIT r0   ; 4 B -> FIFO
+   2394  29                   [C] EMIT r5   ; 4 B -> FIFO
+   2395  51                   [C] EMIT r10   ; 4 B -> FIFO
+   2396  79                   [C] EMIT r15   ; 4 B -> FIFO
+   2397  90                   [C] SELBANK 0x90   ; DINA90+0
+   2398  a5                   [P] fa0.5   ; family 0xa0
+   2399  f1                   [P] F.1   ; DINAF8+1; not required for emission (round 10)
+   2400  28                   [C] EMIT r5   ; 4 B -> FIFO
+   2401  4c                   [C] EMIT r9   ; 4 B -> FIFO
+   2402  6c                   [C] EMIT r13   ; 4 B -> FIFO
+   2403  87                   [P] f80.7   ; family 0x80
+   2404  0c                   [C] EMIT r1   ; 4 B -> FIFO
+   2405  95                   [C] SRCSEL.5   ; DINA90+5; CFG_GYRO_SOURCE
+   2406  18                   [C] EMIT r3   ; 4 B -> FIFO
+   2407  85                   [P] f80.5   ; family 0x80
+   2408  78                   [C] EMIT r15   ; 4 B -> FIFO
+   2409  a3                   [C] NOP   ; DINAA0+3; filler / disables code in place
+   2410  83                   [P] f80.3   ; family 0x80
+   2411  90                   [C] SELBANK 0x90   ; DINA90+0
+   2412  28                   [C] EMIT r5   ; 4 B -> FIFO
+   2413  4c                   [C] EMIT r9   ; 4 B -> FIFO
+   2414  6c                   [C] EMIT r13   ; 4 B -> FIFO
+   2415  88                   [P] f80.8   ; family 0x80
+   2416  6c                   [C] EMIT r13   ; 4 B -> FIFO
+   2417  d8                   [P] D.8   ; family 0xd0
+   2418  f3                   [P] F.3   ; DINAF8+3; not required for emission (round 10)
+   2419  a2                   [P] fa0.2   ; family 0xa0
+   2420  82                   [P] f80.2   ; family 0x80
+   2421  00                   [C] EMIT r0   ; 4 B -> FIFO
+   2422  f2                   [P] F.2   ; DINAF8+2; not required for emission (round 10)
+   2423  10                   [C] EMIT r2   ; 4 B -> FIFO
+   2424  a8                   [P] fa0.8   ; family 0xa0
+   2425  92                   [C] SELBANK 0x92   ; DINA90+2
+   2426  19                   [C] EMIT r3   ; 4 B -> FIFO
+   2427  80                   [P] f80.0   ; family 0x80
+   2428  a2                   [P] fa0.2   ; family 0xa0
+   2429  f2                   [P] F.2   ; DINAF8+2; not required for emission (round 10)
+   2430  d9                   [P] D.9   ; family 0xd0
+   2431  26                   [C] EMIT r4.z   ; bit1 set -> reads zero, inert
+   2432  d8                   [P] D.8   ; family 0xd0
+   2433  f1                   [P] F.1   ; DINAF8+1; not required for emission (round 10)
+   2434  88                   [P] f80.8   ; family 0x80
+   2435  a8                   [P] fa0.8   ; family 0xa0
+   2436  4d                   [C] EMIT r9   ; 4 B -> FIFO
+   2437  d9                   [P] D.9   ; family 0xd0
+   2438  48                   [C] EMIT r9   ; 4 B -> FIFO
+   2439  d8                   [P] D.8   ; family 0xd0
+   2440  96                   [C] SELBANK 0x96   ; DINA90+6
+   2441  a8                   [P] fa0.8   ; family 0xa0
+   2442  39                   [C] EMIT r7   ; 4 B -> FIFO
+   2443  80                   [P] f80.0   ; family 0x80
+   2444  d9                   [P] D.9   ; family 0xd0
+   2445  3c                   [C] EMIT r7   ; 4 B -> FIFO
+   2446  d8                   [P] D.8   ; family 0xd0
+   2447  95                   [C] SRCSEL.5   ; DINA90+5; CFG_GYRO_SOURCE
+   2448  80                   [P] f80.0   ; family 0x80
+   2449  a8                   [P] fa0.8   ; family 0xa0
+   2450  39                   [C] EMIT r7   ; 4 B -> FIFO
+   2451  a6                   [P] fa0.6   ; family 0xa0
+   2452  86                   [P] f80.6   ; family 0x80
+   2453  98                   [C] SELBANK 0x98   ; DINA90+8 (mapped)
+   2454  d9                   [P] D.9   ; family 0xd0
+   2455  2c                   [C] EMIT delay_t   ; 4 B -> FIFO
+   2456  da                   [P] D.10   ; family 0xd0
+   2457  87                   [P] f80.7   ; family 0x80
+   2458  a7                   [P] fa0.7   ; family 0xa0
+   2459  2c                   [C] EMIT delay_t   ; 4 B -> FIFO
+   2460  d8                   [P] D.8   ; family 0xd0
+   2461  a8                   [P] fa0.8   ; family 0xa0
+   2462  89                   [P] f80.9   ; family 0x80
+   2463  95                   [C] SRCSEL.5   ; DINA90+5; CFG_GYRO_SOURCE
+   2464  19                   [C] EMIT r3   ; 4 B -> FIFO
+   2465  a9                   [P] fa0.9   ; family 0xa0
+   2466  80                   [P] f80.0   ; family 0x80
+   2467  d9                   [P] D.9   ; family 0xd0
+   2468  38                   [C] EMIT delay_t1   ; 4 B -> FIFO
+   2469  d8                   [P] D.8   ; family 0xd0
+   2470  a8                   [P] fa0.8   ; family 0xa0
+   2471  89                   [P] f80.9   ; family 0x80
+   2472  39                   [C] EMIT delay_t1   ; 4 B -> FIFO
+   2473  a9                   [P] fa0.9   ; family 0xa0
+   2474  80                   [P] f80.0   ; family 0x80
+   2475  da                   [P] D.10   ; family 0xd0
+   2476  3c                   [C] EMIT delay_t1   ; 4 B -> FIFO
+   2477  d8                   [P] D.8   ; family 0xd0
+   2478  a8                   [P] fa0.8   ; family 0xa0
+   2479  2e                   [C] EMIT delay_t.z   ; bit1 set -> reads zero, inert
+   2480  85                   [P] f80.5   ; family 0x80
+   2481  f5                   [P] F.5   ; DINAF8+5; not required for emission (round 10)
+   2482  75                   [C] EMIT r14   ; 4 B -> FIFO
+   2483  da                   [P] D.10   ; family 0xd0
+   2484  ff                   [C] DISABLE   ; block disable (CFG_PED_ENABLE off)
+   2485  d8                   [P] D.8   ; family 0xd0
+   2486  71                   [C] EMIT r14   ; 4 B -> FIFO
+   2487  80                   [P] f80.0   ; family 0x80
+   2488  a9                   [P] fa0.9   ; family 0xa0
+   2489  da                   [P] D.10   ; family 0xd0
+   2490  f1                   [P] F.1   ; DINAF8+1; not required for emission (round 10)
+   2491  26                   [C] EMIT r4.z   ; bit1 set -> reads zero, inert
+   2492  ff                   [C] DISABLE   ; block disable (CFG_PED_ENABLE off)
+   2493  d8                   [P] D.8   ; family 0xd0
+   2494  90                   [C] SELBANK 0x90   ; DINA90+0
+   2495  a8                   [P] fa0.8   ; family 0xa0
+   2496  0d                   [C] EMIT r1   ; 4 B -> FIFO
+   2497  89                   [P] f80.9   ; family 0x80
+   2498  99                   [C] SELBANK 0x99   ; DINA90+9 (mapped)
+   2499  a8                   [P] fa0.8   ; family 0xa0
+   2500  10                   [C] EMIT r2   ; 4 B -> FIFO
+   2501  80                   [P] f80.0   ; family 0x80
+   2502  98                   [C] SELBANK 0x98   ; DINA90+8 (mapped)
+   2503  21                   [C] EMIT r4   ; 4 B -> FIFO
+   2504  da                   [P] D.10   ; family 0xd0
+   2505  2e                   [C] EMIT delay_t.z   ; bit1 set -> reads zero, inert
+   2506  d8                   [P] D.8   ; family 0xd0
+   2507  89                   [P] f80.9   ; family 0x80
+   2508  99                   [C] SELBANK 0x99   ; DINA90+9 (mapped)
+   2509  a8                   [P] fa0.8   ; family 0xa0
+   2510  31                   [C] EMIT accel_y   ; 4 B -> FIFO
+   2511  80                   [P] f80.0   ; family 0x80
+   2512  da                   [P] D.10   ; family 0xd0
+   2513  2e                   [C] EMIT accel_x.z   ; bit1 set -> reads zero, inert
+   2514  d8                   [P] D.8   ; family 0xd0
+   2515  a8                   [P] fa0.8   ; family 0xa0
+   2516  86                   [P] f80.6   ; family 0x80
+   2517  96                   [C] SELBANK 0x96   ; DINA90+6
+   2518  31                   [C] EMIT r6   ; 4 B -> FIFO
+   2519  80                   [P] f80.0   ; family 0x80
+   2520  da                   [P] D.10   ; family 0xd0
+   2521  2e                   [C] EMIT r5.z   ; bit1 set -> reads zero, inert
+   2522  d8                   [P] D.8   ; family 0xd0
+   2523  a8                   [P] fa0.8   ; family 0xa0
+   2524  87                   [P] f80.7   ; family 0x80
+   2525  31                   [C] EMIT r6   ; 4 B -> FIFO
+   2526  80                   [P] f80.0   ; family 0x80
+   2527  da                   [P] D.10   ; family 0xd0
+   2528  2e                   [C] EMIT r5.z   ; bit1 set -> reads zero, inert
+   2529  d8                   [P] D.8   ; family 0xd0
+   2530  a8                   [P] fa0.8   ; family 0xa0
+   2531  82                   [P] f80.2   ; family 0x80
+   2532  92                   [C] SELBANK 0x92   ; DINA90+2
+   2533  f3                   [P] F.3   ; DINAF8+3; not required for emission (round 10)
+   2534  41                   [C] EMIT r8   ; 4 B -> FIFO
+   2535  80                   [P] f80.0   ; family 0x80
+   2536  f1                   [P] F.1   ; DINAF8+1; not required for emission (round 10)
+   2537  d9                   [P] D.9   ; family 0xd0
+   2538  2e                   [C] EMIT r5.z   ; bit1 set -> reads zero, inert
+   2539  d8                   [P] D.8   ; family 0xd0
+   2540  a8                   [P] fa0.8   ; family 0xa0
+   2541  82                   [P] f80.2   ; family 0x80
+   2542  f3                   [P] F.3   ; DINAF8+3; not required for emission (round 10)
+   2543  19                   [C] EMIT r3   ; 4 B -> FIFO
+   2544  80                   [P] f80.0   ; family 0x80
+   2545  f1                   [P] F.1   ; DINAF8+1; not required for emission (round 10)
+   2546  d9                   [P] D.9   ; family 0xd0
+   2547  2e                   [C] EMIT r5.z   ; bit1 set -> reads zero, inert
+   2548  d8                   [P] D.8   ; family 0xd0
+   2549  82                   [P] f80.2   ; family 0x80
+   2550  ac                   [P] fa0.12   ; family 0xa0
+   2551  f3                   [P] F.3   ; DINAF8+3; not required for emission (round 10)
+   2552  c0                   [P] C.0   ; family 0xc0
+   2553  a2                   [P] fa0.2   ; family 0xa0
+   2554  80                   [P] f80.0   ; family 0x80
+   2555  22                   [C] EMIT r4.z   ; bit1 set -> reads zero, inert
+   2556  f1                   [P] F.1   ; DINAF8+1; not required for emission (round 10)
+   2557  a6                   [P] fa0.6   ; family 0xa0
+   2558  2e                   [C] EMIT r5.z   ; bit1 set -> reads zero, inert
+   2559  a7                   [P] fa0.7   ; family 0xa0
+   2560  2e                   [C] EMIT r5.z   ; bit1 set -> reads zero, inert
+   2561  a9                   [P] fa0.9   ; family 0xa0
+   2562  22                   [C] EMIT r4.z   ; bit1 set -> reads zero, inert
+   2563  98                   [C] SELBANK 0x98   ; DINA90+8 (mapped)
+   2564  a8                   [P] fa0.8   ; family 0xa0
+   2565  29                   [C] EMIT delay_t   ; 4 B -> FIFO
+   2566  da                   [P] D.10   ; family 0xd0
+   2567  ac                   [P] fa0.12   ; family 0xa0
+   2568  de                   [P] D.14   ; family 0xd0
+   2569  ff                   [C] DISABLE   ; block disable (CFG_PED_ENABLE off)
+   2570  d8                   [P] D.8   ; family 0xd0
+   2571  a2                   [P] fa0.2   ; family 0xa0
+   2572  f2                   [P] F.2   ; DINAF8+2; not required for emission (round 10)
+   2573  2a                   [C] EMIT delay_t.z   ; bit1 set -> reads zero, inert
+   2574  f1                   [P] F.1   ; DINAF8+1; not required for emission (round 10)
+   2575  a9                   [P] fa0.9   ; family 0xa0
+   2576  2e                   [C] EMIT delay_t.z   ; bit1 set -> reads zero, inert
+   2577  82                   [P] f80.2   ; family 0x80
+   2578  92                   [C] SELBANK 0x92   ; DINA90+2
+   2579  a8                   [P] fa0.8   ; family 0xa0
+   2580  f2                   [P] F.2   ; DINAF8+2; not required for emission (round 10)
+   2581  31                   [C] EMIT r6   ; 4 B -> FIFO
+   2582  80                   [P] f80.0   ; family 0x80
+   2583  a6                   [P] fa0.6   ; family 0xa0
+   2584  96                   [C] SELBANK 0x96   ; DINA90+6
+   2585  f1                   [P] F.1   ; DINAF8+1; not required for emission (round 10)
+   2586  d9                   [P] D.9   ; family 0xd0
+   2587  00                   [C] EMIT r0   ; 4 B -> FIFO
+   2588  f1                   [P] F.1   ; DINAF8+1; not required for emission (round 10)
+   2589  f1                   [P] F.1   ; DINAF8+1; not required for emission (round 10)
+   2590  f1                   [P] F.1   ; DINAF8+1; not required for emission (round 10)
+   2591  ac                   [P] fa0.12   ; family 0xa0
+   2592  8c                   [P] f80.12   ; family 0x80
+   2593  9c                   [C] SELBANK 0x9c   ; DINA90+12 (mapped)
+   2594  0c                   [C] EMIT r1   ; 4 B -> FIFO
+   2595  30                   [C] EMIT quat_y   ; 4 B -> FIFO
+   2596  ac                   [P] fa0.12   ; family 0xa0
+   2597  de                   [P] D.14   ; family 0xd0
+   2598  d0                   [P] D.0   ; family 0xd0
+   2599  de                   [P] D.14   ; family 0xd0
+   2600  f3                   [P] F.3   ; DINAF8+3; not required for emission (round 10)
+   2601  f3                   [P] F.3   ; DINAF8+3; not required for emission (round 10)
+   2602  b9                   [P] Cm.9   ; family 0xb0
+   2603  aa                   [P] fa0.10   ; family 0xa0
+   2604  fa                   [P] F.10   ; family 0xf0
+   2605  f1                   [P] F.1   ; DINAF8+1; not required for emission (round 10)
+   2606  ff                   [C] DISABLE   ; block disable (CFG_PED_ENABLE off)
+   2607  d8                   [P] D.8   ; family 0xd0
+   2608  8c                   [P] f80.12   ; family 0x80
+   2609  9c                   [C] SELBANK 0x9c   ; DINA90+12 (mapped)
+   2610  ac                   [P] fa0.12   ; family 0xa0
+   2611  d0                   [P] D.0   ; family 0xd0
+   2612  10                   [C] EMIT r2   ; 4 B -> FIFO
+   2613  ac                   [P] fa0.12   ; family 0xa0
+   2614  de                   [P] D.14   ; family 0xd0
+   2615  80                   [P] f80.0   ; family 0x80
+   2616  92                   [C] SELBANK 0x92   ; DINA90+2
+   2617  a2                   [P] fa0.2   ; family 0xa0
+   2618  f2                   [P] F.2   ; DINAF8+2; not required for emission (round 10)
+   2619  4c                   [C] EMIT r9   ; 4 B -> FIFO
+   2620  82                   [P] f80.2   ; family 0x80
+   2621  a8                   [P] fa0.8   ; family 0xa0
+   2622  f1                   [P] F.1   ; DINAF8+1; not required for emission (round 10)
+   2623  ca                   [P] C.10   ; family 0xc0
+   2624  f2                   [P] F.2   ; DINAF8+2; not required for emission (round 10)
+   2625  35                   [C] EMIT r6   ; 4 B -> FIFO
+   2626  f1                   [P] F.1   ; DINAF8+1; not required for emission (round 10)
+   2627  96                   [C] SELBANK 0x96   ; DINA90+6
+   2628  88                   [P] f80.8   ; family 0x80
+   2629  a6                   [P] fa0.6   ; family 0xa0
+   2630  d9                   [P] D.9   ; family 0xd0
+   2631  00                   [C] EMIT r0   ; 4 B -> FIFO
+   2632  d8                   [P] D.8   ; family 0xd0
+   2633  ff                   [C] DISABLE   ; block disable (CFG_PED_ENABLE off)
+
+; 1573 instructions: 461 confirmed, 1075 probable, 37 unknown   (29.3% verified)
