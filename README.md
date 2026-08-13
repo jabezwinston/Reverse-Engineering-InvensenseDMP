@@ -64,14 +64,16 @@ Register map, verified on silicon (contents are **program-position dependent**):
 Numeric format is **32-bit Q30 fixed point** — inferred from raw image bytes in the first static
 pass, later confirmed on hardware by exact constants (`40000000` = +1.0, `60000000` = +1.5).
 
-## What is not possible
+## Limits
 
-- **No write instruction** has been found — every confirmed instruction reads.
-- **No branch, loop, call or return** has been found. `f4` was the candidate and is not one.
+- **No register-write instruction** has been found — every confirmed instruction reads.
+- **`f4` is a confirmed forward branch** (round 16). No loop, call, return or backward branch
+  has been found; branch distance is not yet measured.
 - Free RAM above the image is addressable but **unreachable as code**.
 
 So the DMP can be *reconfigured* — what it computes into the FIFO, which features run, at what
-width — but arbitrary algorithms cannot currently be expressed. Roughly 12–18 % of instructions
+width. Arbitrary algorithms are not yet expressible, but a forward branch exists, so whether
+loops are reachable is now an open question rather than a closed one. Roughly 12–18 % of instructions
 in a typical image have verified behaviour; the rest are placed in named families but not
 understood.
 
@@ -81,7 +83,7 @@ MPU-6050 on an ESP32 (SDA=D21, SCL=D22, INT=D5), `/dev/ttyUSB0`. The ESP32 runs 
 bridge; all experiment logic is host-side so iteration never needs reflashing. DMP program memory
 is volatile — a power cycle restores stock, and every patch is reverted after use.
 
-See `bench/README.md` for the protocol and `bench/RESULTS.md` for all 14 experiment rounds,
+See `bench/README.md` for the protocol and `bench/RESULTS.md` for all 16 experiment rounds,
 including the corrections and false starts.
 
 ## Method note

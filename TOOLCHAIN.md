@@ -190,9 +190,9 @@ features run, with verification.
 register writes and arithmetic, discovered systematically rather than inferred.
 
 **Genuinely uncertain — the honest ceiling:**
-- **Control flow.** **No branch instruction is known at all** — `f4` was the candidate and it is
-  not one (round 9). No jump, loop, call or return has been observed anywhere. Without any
-  control-flow primitive, arbitrary algorithms are not merely hard, they are unexpressible.
+- **Control flow.** **`f4` is a confirmed forward branch** (round 16, retracting round 9). No
+  loop, call, return or backward branch is known, and branch distance is unmeasured. Whether
+  loops are expressible is open.
 - **Writes.** Every confirmed instruction reads. No instruction is yet known to store a value.
 - **Standalone programs.** Entry is fixed at the host program's start and the DMP is invoked
   per-sample by hardware; we patch an existing program rather than author one from scratch.

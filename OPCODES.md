@@ -515,5 +515,6 @@ c0-cf, d2-d7, de-ef    emit a word themselves; require a trailing
 bc bd be bf d1 da db dc  crash at every immediate tested             [C]
 ```
 
-**No instruction that writes a register, and no branch, has been found** across 1- and 2-byte
-forms at two program sites.
+**No instruction that writes a register has been found** across 1- and 2-byte forms at two
+program sites. **`f4` is a confirmed forward branch** (bench round 16); the earlier claim that it
+is not a branch is withdrawn.

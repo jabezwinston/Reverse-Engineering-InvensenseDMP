@@ -896,3 +896,55 @@ like `f4` yet follows the `f5` rule — so operand *format* is per-opcode, while
 encoding (`b2` = takes operand, `b1` = width) holds for all seven.
 
 `1d` and `1e` crash inside an otherwise-swallowing quadrant and remain unexplained.
+
+---
+
+# Round 16 — f4 IS a branch. Round 9 retracted.
+
+## The test round 9 should have run
+
+Round 9 concluded `f4 <imm>` is **not** a branch, and every document since has repeated that no
+control-flow primitive exists. That conclusion was wrong.
+
+The flaw: round 9 placed **NOPs** after `f4`, so a short forward branch skipped nothing
+observable. Placing **emits** after it instead makes the skip visible, because each skipped emit
+removes 4 bytes from the packet:
+
+```
+28 30 38            plen 66   +12   reference: three emits
+f4 12 28 30 38      plen 54   -12   ALL THREE EMITS SKIPPED  -> BRANCH
+f5 01 28 30 38      plen 66     0   consumed operand only    -> 2-byte instruction
+f6 01 28 30 38      plen 60    -6   consumed operand, 16-bit width
+f7 01 28 30 38      plen 60    -6   same
+```
+
+**`f4` is a forward branch.** `f5 f6 f7` are genuine 2-byte instructions and are *not* branches —
+the trailing emits still execute after them.
+
+This also resolves the round-13/15 ambiguity: "operand swallowed" and "branched over" are
+indistinguishable when only one byte follows. With three, they separate cleanly.
+
+## Immediate behaviour with emits following
+
+| imm | result |
+|---|---|
+| `03`-`1c` | skips all 3 trailing emits |
+| `00 01 02` | crash |
+| `40`-`5f` | crash |
+
+Note this differs from the NOP-padded sweep, where `40`-`5f` appeared to swallow. Context changes
+the outcome, consistent with the position dependence seen throughout.
+
+## Distance not yet measured
+
+3 trailing bytes is not enough range — every working immediate skipped all 3. An attempt using
+the 10-NOP run at 1879-1888 as an 8-byte landing zone was inconclusive: only 4 of 8 emits took
+effect even with no branch present, so that region is not the straight-line space it appears to
+be. Branch distance, and whether the immediate encodes it, remain open.
+
+## What this changes
+
+Every prior statement that "no branch, loop, call or return has been found" is **withdrawn**. One
+forward branch is confirmed. Whether it can be made to jump backwards, and how far it reaches,
+determines whether loops are expressible — and therefore whether arbitrary computation is
+possible at all. That is now the single most important open question in the project.
