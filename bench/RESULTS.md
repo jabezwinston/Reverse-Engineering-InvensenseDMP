@@ -996,3 +996,62 @@ testing a branch with NOPs after it.
 
 `dmpasm.py` deliberately still has **no `branch` mnemonic**: the instruction is confirmed but its
 distance semantics are not, and the assembler only emits what is verified. Use `.db 0xf4, imm`.
+
+---
+
+# Round 18 — Priority 1: write detection. Negative, and well-controlled.
+
+`bench/writescan.py`. Single-step the DMP once per trial, snapshot all **3072** bytes of DMP RAM
+(previous rounds only ever looked at 1024), and compare on provably stable bytes only.
+
+## Building a trustworthy detector took three corrections
+
+1. **Patch site in the mask.** Address 1868 appeared in every result — it is where the candidate
+   is written, so it differs by construction. Site bytes excluded.
+2. **Slow drift.** Masked bytes are stable against fast noise but drift over minutes. Comparing
+   every candidate against one reference taken at the start manufactured a monotonically growing
+   signal: 2, 3, 4, 5 … bytes "changed", ending with **all 128 opcodes reporting the identical
+   328 bytes**. Fixed with a control re-measured immediately before each candidate.
+4. **Single-shot comparison.** Even with mask and interleaving, one trial per candidate is not
+   enough — transient drift produces plausible repeated-looking signatures.
+
+The sweep with fixes 1-2 produced two signatures that looked compelling:
+
+| signature | opcodes |
+|---|---|
+| `359 496 497 500 504 505 508` | 14 (`bf c1`-`cf`) |
+| `6 656 704` | 4 (`a2 a3 a6 ab`) |
+
+Address 6 is `DMP_ZGYR` in the vendor map, and a 16-opcode family sharing one address set is
+exactly what a real write looks like.
+
+## They do not reproduce
+
+Masked A/B, interleaved control, **5 trials each**, with a null control run through the identical
+path:
+
+| candidate | changed per trial | reproducible addresses |
+|---|---|---|
+| `a3` — **null control** | 0, 0, 0, 0, 0 | none |
+| `c1` | 0, 0, 0, 0, 1 | **none** |
+| `c2` | 0, 0, 0, 0, 0 | **none** |
+| `a2` | 1, 0, 0, 0, 0 | **none** |
+
+The null control at 0/5 establishes the detector is clean, so this is a measured negative rather
+than an absence of sensitivity. The sweep signatures were transient drift.
+
+## Conclusion
+
+**No opcode in `0x80`-`0xff` writes to DMP RAM**, at this site, as a single byte, observed across
+the full 3072-byte address space with a validated null control. This is by far the best-controlled
+version of a result that fifteen rounds have hinted at.
+
+### What it does not rule out
+
+The DMP's working registers may simply **not be RAM-mapped**. Every read instrument available here
+(EMIT to FIFO, RAM snapshot) sees only RAM and the FIFO. If the register file lives in
+architectural state outside the 3072-byte window — which the position-dependence of register
+contents already suggests — writes to it are invisible to every oracle on this bench, and no
+amount of sweeping will find them.
+
+That, rather than more sweeping, is the honest boundary of what this rig can determine.
