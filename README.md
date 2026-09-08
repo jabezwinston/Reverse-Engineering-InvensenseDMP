@@ -9,9 +9,9 @@ are not RAM-mapped — was wrong, and the branch encoding is now known. Both wer
 statically from data the project already had, using the methods that resolved the BK3296 core.
 See **[ISA2.md](ISA2.md)** for the findings, the evidence and the plan; `tools/isa/` for the
 reproducible tests; `listings2/` for listings under the new pointer/ALU model; and
-`bench/isa_probe.py` for the queued hardware experiments. **The ALU, result routing, pointer walk and predicates are decoded on silicon** (ISA2.md Findings 6-10; `tools/dmpasm.py` output verified end to end, probe9): `dc`/`dd` route every following result to RAM or the FIFO (sticky; FIFO at rest), `df` walks P2 by one word, `d8`-`db` are single-shot conditional prefixes, and the low byte computes
+`bench/isa_probe.py` for the queued hardware experiments. **The instruction set is decoded on silicon: 98.4% of MPU-6050-family code bytes** (ISA2.md Findings 6-16; `tools/dmpasm.py` output verified end to end, probe9). `dc`/`dd` route results to RAM or the FIFO (sticky; FIFO at rest), `c0`-`cf` are MOV/MOV16 from P0, `f8`-`fb`/`df` are INC/DEC/CLR, `f5` is signed MIN, `d1` is TEST with `d9`/`da` = IF.Z/IF.NZ as single-shot prefixes, `f4` is a 7-bit **forward-only** branch (no loops), and the low byte computes
 `M[P0+4A] op M[P1+4B]` with op in {ADD, B-A, MUL, -MUL} (Q30), `dc` stores the result to
-`M[P2]`, and `f4` is a forward branch. The DMP is a small but complete computer, not just a
+`M[P2]`. The DMP is a small but complete feed-forward computer, not just a
 reconfigurable pipeline. Custom DMP programs written in this
 repo's assembly language still run on real MPU-6050 silicon exactly as described below.
 
