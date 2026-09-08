@@ -34,12 +34,7 @@ def lineage_of(img, start):
 # Bytes with no hardware-confirmed meaning.  These are rendered with a leading "?" so a
 # listing can never pass a guess off as a decode; the evidence and the experiment that would
 # settle each are in UNKNOWNS.md.
-CONJECTURE = {
-    0xF6: "?f6    unidentified; prefix-shaped -- sits in f5's slot, before an ALU op",
-    0xF7: "?f7    unidentified; prefix-shaped -- followed by MUL at 9/31 sites",
-    0xFC: "?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB",
-    0xFD: "?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD",
-}
+CONJECTURE = {}     # nothing in the mantis lineage is conjectural any more (Findings 19-21)
 
 
 class Namer:
@@ -90,7 +85,14 @@ class Decoder:
         if 0xD8 <= b <= 0xDB:
             self.cond = f"{b:02x}"; return 1, {0xD8: "ALWAYS", 0xD9: "IF.Z", 0xDA: "IF.NZ", 0xDB: "IF.3"}[b]
         if b in self.fmode:
-            self.width = b & 3; return 1, f"FMODE.{b&3}   ; 1=32-bit fifo, 2/3=16-bit"
+            self.width = b & 3
+            # probe37, 3 repeats per cell, raw hex.  These are not FIFO-only: they change what a
+            # RAM store writes.  With P2 holding 0x7E7E7E7E and the op computing 1.5:
+            #   f1 -> 0x60000000 (32-bit, same as the default)   f2 -> 0x60007E7E (upper half)
+            #   f3 -> 0x7E7E0000 (lower half)                    f0 -> the A operand contributes 0
+            note = {0: "A operand contributes 0 (single-shot)", 1: "32-bit store",
+                    2: "16-bit store, upper half-word", 3: "16-bit store, lower half-word"}[b & 3]
+            return 1, f"WIDTH.{b&3}   ; {note}  [probe37]"
         if self.L == "mantis" and 0xF8 <= b <= 0xFB:
             if b & 2: self.p2off = (getattr(self, "p2off", 0) + 4) % 16
             verb = "DEC" if b & 1 else "INC"
@@ -101,6 +103,27 @@ class Decoder:
         if b == 0xF5 and self.L == "mantis":
             self.minpfx = True
             return 1, "MIN prefix  next ALU op computes signed min(A,B)  [probe29, 16/16]"
+        if b == 0xF6 and self.L == "mantis":
+            # Same MIN as f5, but the store is 16-bit: only the upper half-word is written and
+            # the destination's low half survives.  probe36, raw hex:
+            #   f5 00 -> 0x20000000     f6 00 -> 0x20007E7E  (7E7E = the seed's low half)
+            self.minpfx = True; self.half = True
+            return 1, "MIN16 prefix  signed min(A,B), 16-bit store (upper half-word)  [probe31/36]"
+        if b == 0xF7 and self.L == "mantis":
+            # probe36 seeded known destinations: 0x12345678 -> 0x12340000, 0x0000FFFF -> 0.
+            # The following ALU op does not store (16/16 sweep cells + 4 seeded cells).
+            self.nostore = True
+            return 1, (f"TRUNC {self.N.name(self.ptr(2))} &= 0xFFFF0000   clear the low half-word"
+                       f"  (the next ALU op does not store)  [probe36]")
+        if b == 0xFC and self.L == "mantis":
+            # probe35: the A field indexes P1 and the B field indexes P0.  32/32 cells over two
+            # independent operand vectors.  Paired with RSUB (B-A) this gets the opposite
+            # subtraction order without reloading a pointer -- 11/19 sites are followed by RSUB.
+            self.swap = True
+            return 1, "SWAP prefix  next ALU op reads A through P1 and B through P0  [probe35, 32/32]"
+        if b == 0xFD and self.L == "mantis":
+            self.nostore = True
+            return 1, "NOSTORE  the following ALU result is not written  [probe31, 16/16]"
         if b == 0xFF:
             return 1, "HALT   disable/terminate (vendor: ends every image)"
         if b == 0xFE:
@@ -141,7 +164,11 @@ class Decoder:
             return 1, CONJECTURE[b] + "  [UNKNOWNS.md]"
         if b < 0x80:
             A, B, op = (b >> 5) & 3, (b >> 3) & 3, b & 7
-            a, bb = self.ptr(0) + 4 * A, self.ptr(1) + 4 * B
+            if getattr(self, "swap", False):          # fc: operand pointers exchanged
+                self.swap = False
+                a, bb = self.ptr(1) + 4 * A, self.ptr(0) + 4 * B
+            else:
+                a, bb = self.ptr(0) + 4 * A, self.ptr(1) + 4 * B
             ALU = {0: "ADD", 1: "RSUB", 2: "MUL", 3: "NMUL"}[op & 3]
             if getattr(self, "minpfx", False):
                 self.minpfx = False
@@ -152,8 +179,16 @@ class Decoder:
             # writes four consecutive words -- that is how QT1..QT4 get updated.
             if op & 4: self.p2off = (getattr(self, 'p2off', 0) + 4) % 16
             d = self.ptr(2)
-            if self.ram: dest = self.N.name(d)
-            else: dest = f"FIFO{ {1: 32, 2: 16, 3: 16}.get(self.width, '') }"
+            if getattr(self, "nostore", False):
+                self.nostore = False
+                dest = "(discarded)"
+            elif self.ram:
+                dest = self.N.name(d)
+                if getattr(self, "half", False) or self.width in (2, 3):
+                    dest += ".hi" if (getattr(self, "half", False) or self.width == 2) else ".lo"
+            else:
+                dest = f"FIFO{ {1: 32, 2: 16, 3: 16}.get(self.width, '') }"
+            self.half = False
             return 1, f"{ALU} A={self.N.name(a):<12} B={self.N.name(bb):<12} -> {dest}"
         return 1, f"{b:02x}"
 

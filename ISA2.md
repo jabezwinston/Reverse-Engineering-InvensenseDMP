@@ -675,6 +675,108 @@ confirmed -- that needs probe16's drained-stream method with a passing bare-emit
 **Coverage: 98.4% -> 99.50%** of MPU-6050-family code bytes (87 of 17297 unexplained).
 Remaining: `f7` (31), `f6` (22), `fc` (19), `fd` (3), and 12 bytes of 3050-lineage `c8`..`cf`.
 
+## Finding 19 — `fc` exchanges the operand pointers (HARDWARE CONFIRMED 2026-09-08)
+
+`bench/probe31.py` swept `fc <alu op0>` over the 4x4 operand grid with P0 = 0x70 =
+{0.5, 0.0, 1.0, 1.5} and P1 = 0x360 loaded from RAM. The result was not any of the twenty
+candidate functions, but it *was* exactly separable, and fitting it gave
+
+    result = A + B + c(Bindex) - c(Aindex),      c = (1.5, 0.0, 0.25, 0.0)      16/16 exact
+
+with the same `c` falling independently out of a row and out of a column. `c` is indexed by the
+operand *word*, not by the operand value, so `bench/probe35.py` re-measured it with a second
+operand vector and searched RAM for it:
+
+| P1 page | fitted c | cells |
+|---|---|---|
+| `[-1.5, -0.5, +0.25, +1.0]` | `[ 1.5, 0.0, 0.25,  0.0 ]` | 16/16 |
+| `[+0.75, -1.25, -0.75, +0.5]` | `[-1.5, 0.0, 0.5, -0.25 ]` | 16/16 |
+
+`c` tracks the data, and `c[j] = M[P0+4j] - M[P1+4j]` in both cases. Substituting that into the
+fitted model collapses it completely:
+
+```
+    result = P0[Ai] + P1[Bi] + (P0[Bi] - P1[Bi]) - (P0[Ai] - P1[Ai])
+           = P1[Ai] + P0[Bi]
+```
+
+**`fc` swaps the operand pointers: the A field indexes P1 and the B field indexes P0.**
+32/32 cells over the two independent operand vectors. No RAM search was needed in the end -- and
+indeed the search found no such constant table, which is consistent.
+
+Why the firmware wants it: the ALU's subtract is `RSUB` = B - A, so the operand order is fixed by
+the encoding. `fc` is how you get the other order without spending two bytes reloading pointers,
+and sure enough **11 of its 19 sites are immediately followed by `RSUB`**.
+
+## Finding 20 — `f6`, `f7` and `fd`: half-word stores and suppressed stores (HARDWARE CONFIRMED)
+
+All three came out of `bench/probe31.py` and were pinned by `bench/probe36.py`, which reports raw
+32-bit hex instead of five decimals.
+
+**`f7` clears the low half-word of the destination.** Seeded destinations settle it outright:
+
+```
+seed 0x60000000 -> 0x60000000        seed 0x12345678 -> 0x12340000
+seed 0x40000000 -> 0x40000000        seed 0x0000FFFF -> 0x00000000
+```
+
+The competing reading, "subtract 0x8000", is refuted by the third row. The ALU byte after `f7`
+does not store (16/16 sweep cells plus the seeded cells above).
+
+**`f6` is `f5` with a 16-bit store.** Both compute signed MIN, but `f6` writes only the upper
+half-word and leaves the destination's low half intact:
+
+```
+f5 00  min(0.5,0.5) -> 0x20000000            f6 00  min(0.5,0.5) -> 0x20007E7E
+f5 50  min(1.0,1.0) -> 0x40000000            f6 50  min(1.0,1.0) -> 0x40007E7E
+```
+
+(`7E7E` is the seed's surviving low half.) This mirrors the `c0`-`c7` / `c8`-`cf` split in the MOV
+family, where the upper half of the pair is the 16-bit form.
+
+**A correction worth recording.** From the sweep alone this looked like `MIN + 2^-15`: every cell
+sat a constant `+0.00003` above the true minimum, and `2^-15 = 0.0000305 = 0x8000` is exactly the
+round-to-nearest constant for a 16-bit truncation, which fitted the half-word story seductively
+well. It was wrong. The offset was the *preserved low half of the sentinel*, `0x7E7E/2^30 =
+0.0000302`, which is indistinguishable from `0x8000` at five decimal places. The sweep printed
+five decimals; identifying a constant from a rounded decimal is not sound, and reporting raw hex
+is what caught it.
+
+**`fd` suppresses stores.** 16/16 "no store" across the grid, and `fd 20 09 71 58` suppressed all
+four ops, so it is not a single-shot prefix.
+
+## Finding 21 — `f0`..`f3` are store-width modes, and they apply to RAM (HARDWARE CONFIRMED)
+
+`f0`-`f3` were read as FIFO word-width selectors (`f1` = 32-bit, `f2`/`f3` = 16-bit) because that
+is how the drivers use them. `bench/probe37.py` shows they also change what a **RAM** store writes.
+Destination seeded to `0x7E7E7E7E`, the ALU op computing 1.5; three repeats per cell, all stable:
+
+| prefix | payload `40` | reading |
+|---|---|---|
+| none | `0x60000000` | 32-bit store |
+| `f1` | `0x60000000` | 32-bit store -- identical to the default |
+| `f2` | `0x60007E7E` | 16-bit store, **upper** half-word; low half survives |
+| `f3` | `0x7E7E0000` | 16-bit store, **lower** half-word (1.5's low half is 0x0000) |
+| `f0` | `0x20000000` | the A operand contributes 0, so the result is just B |
+
+`f2` is sticky across a run (`f2 40 08` -> `0x20007E7E`, so the second store was 16-bit too), while
+`f0` is single-shot (`f0 40` -> 0.5 and `f0 08` -> 0.0, but `f0 40 08` -> 0.5, the second op
+unaffected). `f0`'s two readings -- "A forced to zero" and "A index forced to word 1" -- are
+indistinguishable on this operand page, where word 1 *is* 0.0; separating them needs a P0 page
+whose second word is non-zero.
+
+**A retraction.** `bench/probe34.py` measured `f1 40 08` as -1.500 and `f0 40 08` as +0.238, which
+suggested the mode bytes perturbed ordinary stores and looked like a lead on the same-destination
+run anomaly of Finding 17. Those were single unrepeated cells. probe37 re-ran the identical
+payloads three times each and got `0x20000000` in every case for none/`f0`/`f1`. probe34's values
+were drift. The `f0`-before-runs correlation (47 run starts, zero lone stores) is real in the
+corpus but is **not** an accumulate mechanism, and Finding 17's anomaly stays open.
+
+**Coverage: 99.93%** of MPU-6050-family code bytes are now hardware-confirmed (17285 of 17297).
+The remaining 12 are 3050-lineage `c8`..`cf` in image 1024, rendered as a marked conjecture --
+`DINAC8`..`DINACF` are `0xc8`..`0xcf` in both lineages' headers and the mantis half is MOV16, but
+there is no MPU-3050 here to test it on.
+
 ## Plan
 
 ### P1 — static, no hardware (this session)

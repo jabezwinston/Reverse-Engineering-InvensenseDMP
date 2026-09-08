@@ -29,7 +29,13 @@ big-endian Q30 (2^30 = 1.0), range [-2,+2), addition wraps (modular).
        (probe6: dc precedes the op). This is the RAM-store idiom.
   branch N                           f4 (mantis) / fc (3050); target = here+2+N,
                                      forward only, 0 <= N <= 0x7f (Finding 2)
-  fmode N                            f0..f3: FIFO width/mode (1=32-bit, 2/3=16-bit)
+  fmode N                            f0..f3 store width; applies to RAM as well as the FIFO
+       (Finding 21)  1 = 32-bit, 2 = upper half-word, 3 = lower half-word,
+       0 = the A operand contributes 0 for the next op only
+  min16 A,B[,inc]                    f6 + ALU: signed min, 16-bit store (upper half-word)
+  trunc                              f7: M[P2] &= 0xffff0000, and the next ALU op does not store
+  swap                               fc: the next ALU op reads A through P1 and B through P0
+  nostore                            fd: ALU results are not written
   test                               d1: Z := (last ALU result == 0)
   if z / if nz  (= if 1 / if 2)      d9 / da: run the NEXT instruction only if Z / not Z
   always / if 3                      d8 / db (db: true at rest, meaning open)
@@ -142,6 +148,22 @@ def assemble(text, lineage="mantis"):
                 out.append(_bank_byte(L, "012".index(op[1]), arg))
 
             # --- ALU (compute; emits to FIFO in fifo mode, else use store) ---
+            elif op == "min16":                  # f6 + ALU byte: signed MIN, 16-bit store
+                if lineage == "3050":
+                    raise AsmError("min16 (f6) is mantis-only")
+                out.append(0xF6); out.append(_alu_byte("add", arg))
+            elif op == "trunc":                  # f7: M[P2] &= 0xffff0000 (Finding 20)
+                if lineage == "3050":
+                    raise AsmError("trunc (f7) is mantis-only")
+                out.append(0xF7)
+            elif op == "swap":                   # fc: next ALU op reads A via P1, B via P0
+                if lineage == "3050":
+                    raise AsmError("swap (fc) is mantis-only; fc is the 3050 branch")
+                out.append(0xFC)
+            elif op == "nostore":                # fd: results are not written (Finding 20)
+                if lineage == "3050":
+                    raise AsmError("nostore (fd) is mantis-only")
+                out.append(0xFD)
             elif op == "min":                    # f5 + ALU byte with op field 0
                 out.append(0xF5); out.append(_alu_byte("add", arg))
             elif op in ALU_OPS:
@@ -227,7 +249,7 @@ def assemble(text, lineage="mantis"):
                 raise AsmError(
                     f"unknown mnemonic {op!r} (confirmed: p0page/p1page/p2page, "
                     "p0bank/p1bank/p2bank, add/rsub/mul/nmul, store[.op], p2inc, always, if N, branch, "
-                    "fmode, selbank, emit, nop, skip, disable, .db)")
+                    "fmode, min16, trunc, swap, nostore, selbank, emit, nop, skip, disable, .db)")
         except AsmError as e:
             raise AsmError(f"line {lineno}: {e}") from None
         except ValueError as e:

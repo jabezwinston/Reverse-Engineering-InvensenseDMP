@@ -36,8 +36,9 @@ There are no registers in the usual sense. The entire machine state is:
 | P0, P1, P2 (page + bank) | `8x` / `9x` / `ax`, `bx` |
 | P2 word index, 2 bits mod 4 | `op&4`, `df`, `fa`, `fb`, odd `cx` (+1); `d0` (+2) |
 | Z flag | `d1` (TEST), consumed single-shot by `d9`/`da`/`db` |
-| result routing latch | `dc` -> RAM, `dd` -> FIFO (sticky) |
-| FIFO word width | `f0`..`f3` |
+| result routing latch | `dc` -> RAM, `dd` -> FIFO (sticky); `fd`/`f7` suppress the store |
+| store width | `f1` 32-bit, `f2` upper half-word, `f3` lower half-word (sticky); applies to RAM as well as the FIFO |
+| operand-pointer swap | `fc`, for one ALU op: A reads through P1, B through P0 |
 
 Everything else is data RAM. There are also **no immediate operands** anywhere except the branch
 displacement: every literal the firmware needs comes from the Q30 constant page at `0x70` =
@@ -199,7 +200,10 @@ ACCQD7 = 0 + TEMP29;                       // newest sample in at the top
 ```
 
 `0 + x` is how the machine does a 32-bit move between pages: `MOV` (`cx`) can only read through
-P0, so where the source needs P1 the firmware adds the constant zero instead.
+P0, so where the source needs P1 the firmware adds the constant zero instead. Two other bytes do
+the same job by different means -- `fc` (Finding 19) exchanges the operand pointers for one op, and
+`f0` (Finding 21) makes the A operand contribute zero -- which is why a machine with no move
+instruction still moves data three different ways.
 
 ## 4. The output phase, and how the host configures it
 
@@ -246,9 +250,9 @@ python3 tools/isa/pseudo.py <image> --xref                              # data c
 python3 tools/isa/pseudo.py <image> --check                             # agreement with decode.py
 ```
 
-`pseudo.py` hides pointer-setup instructions by default (`--all` shows them) and renders the
-still-unidentified bytes as comments -- see [UNKNOWNS.md](UNKNOWNS.md) for what each one is
-likely to be and the experiment that would settle it.
+`pseudo.py` hides pointer-setup instructions by default (`--all` shows them). Every byte in the
+MPU-6050-family images now has a hardware-confirmed meaning; the only bytes rendered as a marked
+conjecture are the twelve 3050-lineage `c8`..`cf` in image 1024 -- see [UNKNOWNS.md](UNKNOWNS.md).
 
 ## 6. What this firmware is *not*
 

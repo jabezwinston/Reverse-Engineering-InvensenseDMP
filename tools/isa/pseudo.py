@@ -29,16 +29,7 @@ from decode import Decoder, Namer, lineage_of
 # Bytes with no hardware-confirmed meaning.  Each entry is
 #   byte -> (pseudo-code rendering, one-line rationale)
 # The rationale is the static evidence from the corpus; see UNKNOWNS.md.
-CONJECTURE = {
-    0xF6: ("/* f6: ALU prefix? */",
-           "sits in f5's slot immediately before an ALU op or its operand setup"),
-    0xF7: ("/* f7: ALU prefix? */",
-           "9/31 sites are immediately followed by MUL; 6 are followed by de"),
-    0xFC: ("/* fc: compare/flag? */",
-           "11/19 sites are immediately followed by RSUB, 6 by db (IF.3)"),
-    0xFD: ("/* fd: ? */",
-           "all 3 sites are MOV -> fd -> ADD onto the same biquad output word Y"),
-}
+CONJECTURE = {}     # nothing in the mantis lineage is conjectural any more (Findings 19-21)
 
 
 class Lifter:
@@ -54,7 +45,10 @@ class Lifter:
         self.width = None
         self.cond = None            # pending single-shot predicate
         self.minpfx = False
-        self.pfx = None             # pending conjectural prefix byte
+        self.swap = False           # fc: exchange the operand pointers for one op
+        self.nostore = False        # f7 / fd: the next result is not written
+        self.half = False           # f6: 16-bit store
+        self.pfx = None
         self.reads = collections.Counter()
         self.writes = collections.Counter()
         self.br = 0xF4 if lineage == "mantis" else 0xFC
@@ -138,6 +132,15 @@ class Lifter:
             return 1, g(f"{self.dest()} = {s}{' >> 16' if b & 8 else ''};"), None
         if b == 0xF5 and self.L == "mantis":
             self.minpfx = True; return 1, None, None
+        if b == 0xF6 and self.L == "mantis":            # MIN, 16-bit store (probe31/36)
+            self.minpfx = True; self.half = True; return 1, None, None
+        if b == 0xF7 and self.L == "mantis":            # clear the destination's low half-word
+            self.nostore = True
+            return 1, g(f"{self.dest()} &= 0xFFFF0000;"), None
+        if b == 0xFC and self.L == "mantis":            # exchange the operand pointers (probe35)
+            self.swap = True; return 1, None, None
+        if b == 0xFD and self.L == "mantis":            # results are not written (probe31)
+            self.nostore = True; return 1, None, None
 
         if b in CONJECTURE:
             self.pfx = b
@@ -145,7 +148,11 @@ class Lifter:
 
         if b < 0x80:
             A, B, op = (b >> 5) & 3, (b >> 3) & 3, b & 7
-            a, bb = self.src(0, A), self.src(1, B)
+            if self.swap:                                # fc: operand pointers exchanged
+                self.swap = False
+                a, bb = self.src(1, A), self.src(0, B)
+            else:
+                a, bb = self.src(0, A), self.src(1, B)
             if self.minpfx and op & 3 == 0:
                 self.minpfx = False
                 expr = f"min({a}, {bb})"
@@ -158,8 +165,14 @@ class Lifter:
                 self.pfx = None
             if op & 4:                       # pre-advance the destination word (probe32)
                 self.p2off = (self.p2off + 4) % 16
+            if self.nostore:                 # f7 / fd suppressed this write
+                self.nostore = False
+                return 1, g(f"/* {expr}; discarded */"), None
             if self.ram:
-                return 1, g(f"{self.dest()} = {expr};"), None
+                half = self.half or self.width in (2, 3)
+                self.half = False
+                suffix = "" if not half else (".hi" if self.width != 3 else ".lo")
+                return 1, g(f"{self.dest()}{suffix} = {expr};"), None
             w = {1: 32, 2: 16, 3: 16}.get(self.width, 32)
             return 1, g(f"fifo{w}({expr});"), None
         return 1, g(f"/* {b:02x} */"), None

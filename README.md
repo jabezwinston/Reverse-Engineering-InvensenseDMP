@@ -4,8 +4,9 @@ Reverse engineering the undocumented instruction set of the InvenSense DMP (Digi
 Processor) embedded in MPU-6050/6500/9250 and ICM-20948 IMUs, and building a disassembler and
 assembler for it.
 
-**Status: the ISA is decoded on silicon — 99.5% of MPU-6050-family code bytes**
-(87 of 17297 unexplained). The project's closing conclusion — that the DMP's working registers
+**Status: the ISA is decoded on silicon — 99.93% of MPU-6050-family code bytes**
+(17285 of 17297 hardware-confirmed; the remaining 12 are 3050-lineage `c8`–`cf`, which need an
+MPU-3050 to test and are rendered as a marked conjecture). The project's closing conclusion — that the DMP's working registers
 are not RAM-mapped — was wrong, and everything below follows from reopening it.
 See **[ISA2.md](ISA2.md)** for the findings and the evidence behind each,
 **[FIRMWARE.md](FIRMWARE.md)** for what the shipped firmware actually computes,
@@ -13,7 +14,7 @@ See **[ISA2.md](ISA2.md)** for the findings and the evidence behind each,
 settle each, `tools/isa/` for the decoder and the pseudo-code lifter, `listings2/` for the
 annotated listings, and `bench/` for the hardware probes.
 
-The instruction set (every rule below hardware-confirmed, ISA2.md Findings 6-18):
+The instruction set (every rule below hardware-confirmed, ISA2.md Findings 6-21):
 
 | bytes | meaning |
 |---|---|
@@ -23,10 +24,14 @@ The instruction set (every rule below hardware-confirmed, ISA2.md Findings 6-18)
 | `c0`–`cf` | MOV / MOV16 from P0; odd values pre-advance the destination |
 | `de` / `df` | clear M[P2] in place / advance the word first, then clear |
 | `f8` `f9` / `fa` `fb` | INC / DEC M[P2], in place / after advancing |
-| `f5` | signed MIN |
+| `f5` / `f6` | signed MIN, 32-bit / 16-bit store |
+| `f7` | clear the destination's low half-word |
+| `fc` | exchange the operand pointers for one op (A via P1, B via P0) |
+| `fd` | suppress stores |
+| `f0`–`f3` | store width: `f1` 32-bit, `f2` upper half, `f3` lower half; `f0` makes A contribute 0 |
 | `d1`, `d9` / `da` | TEST `Z := (result == 0)`, then IF.Z / IF.NZ — single-shot |
 | `f4 imm` | 7-bit **forward-only** branch; bit 7 set means the byte executes instead |
-| `f0`–`f3`, `ff` | FIFO word width; halt |
+| `ff` | halt (conditional — it takes a predicate) |
 
 The DMP is a small but complete **feed-forward computer**: no loops are expressible, so every
 image is straight-line code re-run from the top on each sample interrupt. Custom DMP programs
