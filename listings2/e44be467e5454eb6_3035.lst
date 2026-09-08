@@ -239,7 +239,8 @@
  1268  a5      P2.page=5   -> D@336 PVXG
  1269  de      de
  1270  d8      ALWAYS
- 1271  f4 a3   f4 a3   ; imm>=0x80 (unknown form)
+ 1271  f4      NOBR   (f4 with bit7 set in the displacement: no jump)  [probe27]
+ 1272  a3      P2.page=3   -> D@304 TMP1B
  1273  14      ADD A=TMP1B        B=PVZG         -> FIFO32
  1274  14      ADD A=TMP1B        B=PVZG         -> FIFO32
  1275  d8      ALWAYS
@@ -259,7 +260,8 @@
  1289  f8      INC  MNMFLAG by 1  (f8; probe23)
  1290  df      CLR  MNMTM := 0  (P2 word++ first)  (df; probe23)
  1291  d8      ALWAYS
- 1292  f4 a3   f4 a3   ; imm>=0x80 (unknown form)
+ 1292  f4      NOBR   (f4 with bit7 set in the displacement: no jump)  [probe27]
+ 1293  a3      P2.page=3   -> D@304 TMP1B
  1294  09      RSUB A=PVXG         B=PVYG         -> FIFO16
  1295  d8      ALWAYS
  1296  f3      FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
@@ -267,8 +269,9 @@
  1298  f8      INC  TMP13 by 1  (f8; probe23)
  1299  f9      DEC  TMP13 by 1  (f9; probe23)
  1300  d1      TEST  Z := (last ALU result == 0); d9 = IF.Z, da = IF.NZ  [probe19/20]
- 1301  f4 d9   f4 d9   ; imm>=0x80 (unknown form)
- 1303  08      ADD A=PVXG         B=PVYG         -> FIFO16
+ 1301  f4      NOBR   (f4 with bit7 set in the displacement: no jump)  [probe27]
+ 1302  d9      IF.Z
+ 1303  08      [d9] ADD A=PVXG         B=PVYG         -> FIFO16
  1304  17      NMUL A=PVXG         B=PVZG         -> FIFO16
  1305  da      IF.NZ
  1306  42      [da] MUL A=PVZG         B=PVXG         -> FIFO16

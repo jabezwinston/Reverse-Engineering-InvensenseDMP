@@ -338,7 +338,8 @@
  1365  a5      P2.page=5   -> D@336 D_SMD_DELAY_CNTR
  1366  de      de
  1367  d8      ALWAYS
- 1368  f4 a3   f4 a3   ; imm>=0x80 (unknown form)
+ 1368  f4      NOBR   (f4 with bit7 set in the displacement: no jump)  [probe27]
+ 1369  a3      P2.page=3   -> D@304 @304
  1370  14      ADD A=@304         B=D_1_88       -> FIFO32
  1371  14      ADD A=@304         B=D_1_88       -> FIFO32
  1372  d8      ALWAYS
@@ -358,7 +359,8 @@
  1386  f8      INC  D_1_96 by 1  (f8; probe23)
  1387  df      CLR  D_1_98+2 := 0  (P2 word++ first)  (df; probe23)
  1388  d8      ALWAYS
- 1389  f4 a3   f4 a3   ; imm>=0x80 (unknown form)
+ 1389  f4      NOBR   (f4 with bit7 set in the displacement: no jump)  [probe27]
+ 1390  a3      P2.page=3   -> D@304 @304
  1391  09      RSUB A=D_SMD_DELAY_CNTR B=D_SMD_DELAY_THLD -> FIFO16
  1392  d8      ALWAYS
  1393  f3      FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
@@ -366,8 +368,9 @@
  1395  f8      INC  D_SMD_ENABLE by 1  (f8; probe23)
  1396  f9      DEC  D_SMD_ENABLE by 1  (f9; probe23)
  1397  d1      TEST  Z := (last ALU result == 0); d9 = IF.Z, da = IF.NZ  [probe19/20]
- 1398  f4 d9   f4 d9   ; imm>=0x80 (unknown form)
- 1400  08      ADD A=D_SMD_DELAY_CNTR B=D_SMD_DELAY_THLD -> FIFO16
+ 1398  f4      NOBR   (f4 with bit7 set in the displacement: no jump)  [probe27]
+ 1399  d9      IF.Z
+ 1400  08      [d9] ADD A=D_SMD_DELAY_CNTR B=D_SMD_DELAY_THLD -> FIFO16
  1401  17      NMUL A=D_SMD_DELAY_CNTR B=D_1_88       -> FIFO16
  1402  da      IF.NZ
  1403  42      [da] MUL A=D_1_88       B=D_SMD_DELAY_CNTR -> FIFO16

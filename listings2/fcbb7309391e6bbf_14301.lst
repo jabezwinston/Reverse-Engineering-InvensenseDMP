@@ -665,11 +665,12 @@
  4769  a6      P2.page=6   -> D@96 ATC
  4770  80      P0.page=0   -> A@256 PREVPTAT
  4771  c6      MOV   ACCYB+2      -> ATC  (c6; probe25)
- 4772  f4 b0   f4 b0   ; imm>=0x80 (unknown form)
- 4774  81      P0.page=1   -> A@272 1HB
+ 4772  f4      NOBR   (f4 with bit7 set in the displacement: no jump)  [probe27]
+ 4773  b0      P0.bank=0
+ 4774  81      P0.page=1   -> A@16 ADC2
  4775  f3      FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
  4776  a7      P2.page=7   -> D@112 0_5
- 4777  c6      MOV   ASR6         -> 0_5  (c6; probe25)
+ 4777  c6      MOV   1            -> 0_5  (c6; probe25)
  4778  b1      P0.bank=1
  4779  8f      P0.page=f   -> A@496 BLPFNMTC
  4780  97      P1.page=7   -> B@112 0_5
@@ -3132,7 +3133,8 @@
  7301  88      P0.page=8   -> A@128 TMP1A
  7302  9e      P1.page=e   -> B@224 CTRLS1
  7303  08      ADD A=TMP1A        B=CTRLS2       -> FIFO16
- 7304  f4 be   f4 be   ; imm>=0x80 (unknown form)
+ 7304  f4      NOBR   (f4 with bit7 set in the displacement: no jump)  [probe27]
+ 7305  be      bank-sel3 2   ; unknown
  7306  be      bank-sel3 2   ; unknown
  7307  a1      P2.page=1   -> D@16 ADC2
  7308  d0      P2 word += 2 -> D@24 INVGSF  (d0, mod 4; probe20)
@@ -3251,7 +3253,8 @@
  7425  db      IF.3
  7426  49      [db] RSUB A=XACC         B=QT2          -> FIFO32
  7427  51      RSUB A=XACC         B=QT3          -> FIFO32
- 7428  f4 bc   f4 bc   ; imm>=0x80 (unknown form)
+ 7428  f4      NOBR   (f4 with bit7 set in the displacement: no jump)  [probe27]
+ 7429  bc      bank-sel3 0   ; unknown
  7430  1d      RSUB A=PTAT         B=QT4          -> FIFO32
  7431  9c      P1.page=c   -> B@192 QT1
  7432  da      IF.NZ
@@ -4733,7 +4736,8 @@
  8933  f3      FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
  8934  b0      P0.bank=0
  8935  8e      P0.page=e   -> A@224 CTRLS1
- 8936  f4 b8   f4 b8   ; imm>=0x80 (unknown form)
+ 8936  f4      NOBR   (f4 with bit7 set in the displacement: no jump)  [probe27]
+ 8937  b8      P2.bank=0
  8938  a7      P2.page=7   -> D@112 0_5
  8939  d0      P2 word += 2 -> D@120 1_0  (d0, mod 4; probe20)
  8940  c0      MOV   CTRLS1       -> 1_0  (c0; probe25)
@@ -4784,7 +4788,8 @@
  8986  b9      P2.bank=1
  8987  a3      P2.page=3   -> D@304 TMP1B
  8988  df      CLR  TMP2B := 0  (P2 word++ first)  (df; probe23)
- 8989  f4 b1   f4 b1   ; imm>=0x80 (unknown form)
+ 8989  f4      NOBR   (f4 with bit7 set in the displacement: no jump)  [probe27]
+ 8990  b1      P0.bank=1
  8991  8c      P0.page=c   -> A@448 TEMP29
  8992  f3      FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
  8993  af      P2.page=f   -> D@496 BLPFNMTC
@@ -5029,10 +5034,12 @@
  9238  be      bank-sel3 2   ; unknown
  9239  be      bank-sel3 2   ; unknown
  9240  a1      P2.page=1   -> D@528 @528
- 9241  f4 c1   f4 c1   ; imm>=0x80 (unknown form)
+ 9241  f4      NOBR   (f4 with bit7 set in the displacement: no jump)  [probe27]
+ 9242  c1      MOV   @752         -> @532  (P2 word++ first)  (c1; probe25)
  9243  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  9244  a2      P2.page=2   -> D@544 @544
- 9245  f4 c1   f4 c1   ; imm>=0x80 (unknown form)
+ 9245  f4      NOBR   (f4 with bit7 set in the displacement: no jump)  [probe27]
+ 9246  c1      MOV   @752         -> @548  (P2 word++ first)  (c1; probe25)
  9247  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  9248  be      bank-sel3 2   ; unknown
  9249  be      bank-sel3 2   ; unknown
@@ -5040,14 +5047,14 @@
  9251  b4      P1.bank=0
  9252  91      P1.page=1   -> B@16 ADC2
  9253  fc      fc
- 9254  c0      MOV   @752         -> @544  (c0; probe25)
- 9255  04      ADD A=@752         B=ADC2         -> @548
+ 9254  c0      MOV   @752         -> @548  (c0; probe25)
+ 9255  04      ADD A=@752         B=ADC2         -> @552
  9256  db      IF.3
  9257  b6      [db] P1.bank=2
  9258  95      P1.page=5   -> B@592 @592
  9259  fc      fc
- 9260  c1      MOV   @752         -> @548  (P2 word++ first)  (c1; probe25)
- 9261  00      ADD A=@752         B=@592         -> @548
+ 9260  c1      MOV   @752         -> @552  (P2 word++ first)  (c1; probe25)
+ 9261  00      ADD A=@752         B=@592         -> @552
  9262  d9      IF.Z
  9263  af      [d9] P2.page=f   -> D@752 @752
  9264  de      de
@@ -5090,14 +5097,17 @@
  9301  be      bank-sel3 2   ; unknown
  9302  a0      P2.page=0   -> D@512 BLPFNMZL+2
  9303  d0      P2 word += 2 -> D@520 @520  (d0, mod 4; probe20)
- 9304  f4 c1   f4 c1   ; imm>=0x80 (unknown form)
+ 9304  f4      NOBR   (f4 with bit7 set in the displacement: no jump)  [probe27]
+ 9305  c1      MOV   @752         -> @524  (P2 word++ first)  (c1; probe25)
  9306  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  9307  a1      P2.page=1   -> D@528 @528
- 9308  f4 c2   f4 c2   ; imm>=0x80 (unknown form)
+ 9308  f4      NOBR   (f4 with bit7 set in the displacement: no jump)  [probe27]
+ 9309  c2      MOV   @756         -> @528  (c2; probe25)
  9310  c5      MOV   @760         -> @532  (P2 word++ first)  (c5; probe25)
  9311  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  9312  a2      P2.page=2   -> D@544 @544
- 9313  f4 c7   f4 c7   ; imm>=0x80 (unknown form)
+ 9313  f4      NOBR   (f4 with bit7 set in the displacement: no jump)  [probe27]
+ 9314  c7      MOV   @764         -> @548  (P2 word++ first)  (c7; probe25)
  9315  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  9316  be      bank-sel3 2   ; unknown
  9317  be      bank-sel3 2   ; unknown
@@ -5211,33 +5221,37 @@
  9427  89      P0.page=9   -> A@144 XACCW
  9428  ba      P2.bank=2
  9429  a0      P2.page=0   -> D@512 BLPFNMZL+2
- 9430  f4 c0   f4 c0   ; imm>=0x80 (unknown form)
+ 9430  f4      NOBR   (f4 with bit7 set in the displacement: no jump)  [probe27]
+ 9431  c0      MOV   XACCW        -> BLPFNMZL+2  (c0; probe25)
  9432  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  9433  8b      P0.page=b   -> A@176 YACCW
  9434  a1      P2.page=1   -> D@528 @528
  9435  d0      P2 word += 2 -> D@536 @536  (d0, mod 4; probe20)
- 9436  f4 c3   f4 c3   ; imm>=0x80 (unknown form)
+ 9436  f4      NOBR   (f4 with bit7 set in the displacement: no jump)  [probe27]
+ 9437  c3      MOV   AFB1         -> @540  (P2 word++ first)  (c3; probe25)
  9438  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  9439  89      P0.page=9   -> A@144 XACCW
  9440  a2      P2.page=2   -> D@544 @544
- 9441  f4 c2   f4 c2   ; imm>=0x80 (unknown form)
+ 9441  f4      NOBR   (f4 with bit7 set in the displacement: no jump)  [probe27]
+ 9442  c2      MOV   XACCB        -> @544  (c2; probe25)
  9443  c5      MOV   YACCB        -> @548  (P2 word++ first)  (c5; probe25)
  9444  c7      MOV   ZACCB        -> @552  (P2 word++ first)  (c7; probe25)
  9445  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  9446  a3      P2.page=3   -> D@560 @560
- 9447  f4 c7   f4 c7   ; imm>=0x80 (unknown form)
+ 9447  f4      NOBR   (f4 with bit7 set in the displacement: no jump)  [probe27]
+ 9448  c7      MOV   ZACCB        -> @564  (P2 word++ first)  (c7; probe25)
  9449  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  9450  b8      P2.bank=0
  9451  d8      ALWAYS
  9452  9a      P1.page=a   -> B@160 DZ
  9453  fc      fc
- 9454  c0      MOV   XACCW        -> BLPFMTC  (c0; probe25)
- 9455  04      ADD A=XACCW        B=DZ           -> BLPFMX
+ 9454  c0      MOV   XACCW        -> BLPFMX  (c0; probe25)
+ 9455  04      ADD A=XACCW        B=DZ           -> BLPFMY
  9456  db      IF.3
  9457  9b      [db] P1.page=b   -> B@176 YACCW
  9458  fc      fc
- 9459  c0      MOV   XACCW        -> BLPFMTC  (c0; probe25)
- 9460  00      ADD A=XACCW        B=YACCW        -> BLPFMTC
+ 9459  c0      MOV   XACCW        -> BLPFMX  (c0; probe25)
+ 9460  00      ADD A=XACCW        B=YACCW        -> BLPFMX
  9461  d9      IF.Z
  9462  a9      [d9] P2.page=9   -> D@144 XACCW
  9463  de      de
@@ -5261,16 +5275,19 @@
  9481  89      P0.page=9   -> A@144 XACCW
  9482  ba      P2.bank=2
  9483  a0      P2.page=0   -> D@512 BLPFNMZL+2
- 9484  f4 c0   f4 c0   ; imm>=0x80 (unknown form)
+ 9484  f4      NOBR   (f4 with bit7 set in the displacement: no jump)  [probe27]
+ 9485  c0      MOV   XACCW        -> BLPFNMZL+2  (c0; probe25)
  9486  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  9487  8b      P0.page=b   -> A@176 YACCW
  9488  a1      P2.page=1   -> D@528 @528
  9489  d0      P2 word += 2 -> D@536 @536  (d0, mod 4; probe20)
- 9490  f4 c3   f4 c3   ; imm>=0x80 (unknown form)
+ 9490  f4      NOBR   (f4 with bit7 set in the displacement: no jump)  [probe27]
+ 9491  c3      MOV   AFB1         -> @540  (P2 word++ first)  (c3; probe25)
  9492  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  9493  89      P0.page=9   -> A@144 XACCW
  9494  a2      P2.page=2   -> D@544 @544
- 9495  f4 c2   f4 c2   ; imm>=0x80 (unknown form)
+ 9495  f4      NOBR   (f4 with bit7 set in the displacement: no jump)  [probe27]
+ 9496  c2      MOV   XACCB        -> @544  (c2; probe25)
  9497  c5      MOV   YACCB        -> @548  (P2 word++ first)  (c5; probe25)
  9498  c7      MOV   ZACCB        -> @552  (P2 word++ first)  (c7; probe25)
  9499  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit

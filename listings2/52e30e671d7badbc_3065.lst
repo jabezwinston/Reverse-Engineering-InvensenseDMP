@@ -332,7 +332,8 @@
  1358  d1      TEST  Z := (last ALU result == 0); d9 = IF.Z, da = IF.NZ  [probe19/20]
  1359  d9      IF.Z
  1360  82      [d9] P0.page=2   -> A@32 BLPFSTC
- 1361  f4 c2   f4 c2   ; imm>=0x80 (unknown form)
+ 1361  f4      NOBR   (f4 with bit7 set in the displacement: no jump)  [probe27]
+ 1362  c2      MOV   BLPFSX       -> TMP1A  (c2; probe25)
  1363  03      NMUL A=BLPFSTC      B=0_5          -> TMP1A
  1364  d8      ALWAYS
  1365  de      de
@@ -405,7 +406,8 @@
  1435  d1      TEST  Z := (last ALU result == 0); d9 = IF.Z, da = IF.NZ  [probe19/20]
  1436  d9      IF.Z
  1437  82      [d9] P0.page=2   -> A@32 BLPFSTC
- 1438  f4 c4   f4 c4   ; imm>=0x80 (unknown form)
+ 1438  f4      NOBR   (f4 with bit7 set in the displacement: no jump)  [probe27]
+ 1439  c4      MOV   BLPFSY       -> TMP1A  (c4; probe25)
  1440  03      NMUL A=BLPFSTC      B=0_5          -> TMP1A
  1441  d8      ALWAYS
  1442  de      de
@@ -1594,7 +1596,8 @@
  2632  8d      P0.page=d   -> A@720 @720
  2633  61      RSUB A=@732         B=@736         -> @720
  2634  d9      IF.Z
- 2635  f4 f4   [d9] f4 f4   ; imm>=0x80 (unknown form)
+ 2635  f4      [d9] NOBR   (f4 with bit7 set in the displacement: no jump)  [probe27]
+ 2636  f4      NOBR   (f4 with bit7 set in the displacement: no jump)  [probe27]
  2637  ac      P2.page=c   -> D@704 @704
  2638  f5      f5
  2639  9c      P1.page=c   -> B@704 @704

@@ -6,7 +6,8 @@
     ax  P2.page = x
     low byte v = 0 AA BB ooo :  A-word = P0 + 4*AA, B-word = P1 + 4*BB, op = ooo
                                  (bench: emitted value = M[B-word] + M[A-word] in FIFO mode)
-    f4 imm (mantis) / fc imm (3050): branch to site+2+imm   [proven vs eMD labels]
+    f4 imm (mantis) / fc imm (3050): forward branch to site+2+imm, 7-bit displacement.
+        imm>=0x80 does NOT branch and is not an operand: the byte executes  [probe27, HW]
     d1: TEST Z := (result == 0).  d8 always; d9 IF.Z; da IF.NZ; db IF.3 (true at rest):
         single-shot conditional prefixes on the NEXT instruction        [probe10/19/20, HW]
     P2 word index (2 bits, mod 4): df/fa/fb/odd-cx pre-advance 1, d0 += 2; op&4 adds 1 for that op
@@ -59,7 +60,9 @@ class Decoder:
             imm = self.img[i + 1]
             if imm < 0x80:
                 return 2, f"{'B' if self.cond=='d8' else 'B.'+self.cond} -> {i+2+imm}"
-            return 2, f"{self.br:02x} {imm:02x}   ; imm>=0x80 (unknown form)"
+            # bit 7 set: no branch is taken and the next byte executes normally, so f4
+            # consumes only itself here (probe26/27).
+            return 1, "NOBR   (f4 with bit7 set in the displacement: no jump)  [probe27]"
         fam = b >> 4
         if fam == 8: self.page[0] = b & 0xf; return 1, f"P0.page={b&0xf:x}   -> A@{self.ptr(0)} {self.N.name(self.ptr(0))}"
         if fam == 9: self.page[1] = b & 0xf; return 1, f"P1.page={b&0xf:x}   -> B@{self.ptr(1)} {self.N.name(self.ptr(1))}"

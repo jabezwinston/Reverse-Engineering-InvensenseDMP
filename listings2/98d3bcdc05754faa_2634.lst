@@ -328,7 +328,8 @@
  1355  a5      P2.page=5   -> D@336 PVXG
  1356  de      de
  1357  d8      ALWAYS
- 1358  f4 a1   f4 a1   ; imm>=0x80 (unknown form)
+ 1358  f4      NOBR   (f4 with bit7 set in the displacement: no jump)  [probe27]
+ 1359  a1      P2.page=1   -> D@272 1HB
  1360  16      MUL A=MNMFLAG      B=MNMTMTHR     -> FIFO32
  1361  16      MUL A=MNMFLAG      B=MNMTMTHR     -> FIFO32
  1362  d8      ALWAYS
@@ -350,7 +351,8 @@
  1378  a6      P2.page=6   -> D@352 MNMFLAG
  1379  f8      INC  MNMFLAG by 1  (f8; probe23)
  1380  d8      ALWAYS
- 1381  f4 a1   f4 a1   ; imm>=0x80 (unknown form)
+ 1381  f4      NOBR   (f4 with bit7 set in the displacement: no jump)  [probe27]
+ 1382  a1      P2.page=1   -> D@272 1HB
  1383  09      RSUB A=PVXG         B=PVYG         -> FIFO16
  1384  d8      ALWAYS
  1385  f3      FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
@@ -358,8 +360,9 @@
  1387  f8      INC  TMP13 by 1  (f8; probe23)
  1388  f9      DEC  TMP13 by 1  (f9; probe23)
  1389  d1      TEST  Z := (last ALU result == 0); d9 = IF.Z, da = IF.NZ  [probe19/20]
- 1390  f4 d9   f4 d9   ; imm>=0x80 (unknown form)
- 1392  08      ADD A=PVXG         B=PVYG         -> FIFO16
+ 1390  f4      NOBR   (f4 with bit7 set in the displacement: no jump)  [probe27]
+ 1391  d9      IF.Z
+ 1392  08      [d9] ADD A=PVXG         B=PVYG         -> FIFO16
  1393  19      RSUB A=PVXG         B=TMP17+2      -> FIFO16
  1394  da      IF.NZ
  1395  42      [da] MUL A=PVZG         B=PVXG         -> FIFO16
@@ -541,7 +544,8 @@
  1578  d1      TEST  Z := (last ALU result == 0); d9 = IF.Z, da = IF.NZ  [probe19/20]
  1579  d9      IF.Z
  1580  82      [d9] P0.page=2   -> A@32 BLPFSTC
- 1581  f4 c2   f4 c2   ; imm>=0x80 (unknown form)
+ 1581  f4      NOBR   (f4 with bit7 set in the displacement: no jump)  [probe27]
+ 1582  c2      MOV   BLPFSX       -> TMP1A  (c2; probe25)
  1583  03      NMUL A=BLPFSTC      B=0_5          -> FIFO16
  1584  d8      ALWAYS
  1585  de      de
@@ -625,7 +629,8 @@
  1667  d1      TEST  Z := (last ALU result == 0); d9 = IF.Z, da = IF.NZ  [probe19/20]
  1668  d9      IF.Z
  1669  82      [d9] P0.page=2   -> A@32 BLPFSTC
- 1670  f4 c4   f4 c4   ; imm>=0x80 (unknown form)
+ 1670  f4      NOBR   (f4 with bit7 set in the displacement: no jump)  [probe27]
+ 1671  c4      MOV   BLPFSY       -> TMP1A  (c4; probe25)
  1672  03      NMUL A=BLPFSTC      B=0_5          -> FIFO16
  1673  d8      ALWAYS
  1674  de      de

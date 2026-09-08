@@ -480,6 +480,45 @@ should be read as an upper bound on coincidental agreement, not as a decode.
 Remaining in the 6050 family: `de` (186), `f5` (81), `f7` (31), `f4 imm>=0x80` (24),
 `f6` (22), `fc` (19).
 
+## Finding 15 — the branch displacement is 7 bits; there is no backward branch (CONFIRMED)
+
+`f4` with `imm >= 0x80` (24 sites in the 6050 corpus) was the last open control-flow question,
+and the one that would have decided whether the DMP can loop. It does not.
+
+probe26 ran `a4 ba dc f8 f4 <imm>` — INC M[0x240] as a loop body — and swept `imm >= 0x80`,
+watching both the interrupt count (a hang shows up as a collapse) and the INC tally:
+
+    baseline (no branch)  ints 105   1 INC/pass
+    f4 fd (target = the INC, 1 byte back)   ints 105   1 INC/pass   -- no loop at all
+    f4 f8   ints 107   2 INC/pass      f4 ff   ints 28 (collapse)
+    f4 c0   M[0x240] = 20000000        f4 e0   0 INCs
+
+Read as backward branches these are incoherent (a self-loop that does not loop). Read as
+*the next byte simply executing*, every cell is exact: `c0` is MOV P0 word 0 = 0.5 = 0x20000000,
+`ff` is HALT so interrupts collapse, `f8` is a second INC so the tally doubles. probe27 tested
+that directly against the byte alone:
+
+    c0 alone 20000000 | f4 c0 20000000      c8 alone 00002000 | f4 c8 00002000
+    c4 alone 40000000 | f4 c4 40000000      cc alone 00004000 | f4 cc 00004000
+    c6 alone 60000000 | f4 c6 60000000      df alone -> word1 0 | f4 df -> word1 0
+
+Identical in every case, while the forward branch still demonstrably jumps: `c6 c0 c0` leaves
+0.5 (the moves overwrite), but `c6 f4 02 c0 c0` leaves **1.5**, the two `c0` bytes skipped.
+
+**The displacement field is 7 bits (0..127 forward). Bit 7 set means "no branch", and the byte
+is not an operand — it executes.** So `f4` is one byte in that form, which was also a decoder
+length bug: mis-consuming those 24 operands had been corrupting the decode downstream of each.
+
+This confirms rather than overturns the earlier project conclusion that the DMP has forward
+branches only and cannot loop. Combined with Finding 11 (`d1`/`d9`/`da` = TEST / IF.Z / IF.NZ),
+the control flow available to a DMP program is exactly: skip forward over a straight-line block,
+optionally under a zero test. It is a feed-forward machine — enough for conditional sensor
+fusion, and incapable of unbounded iteration, which is a sensible property for firmware that
+must complete inside one sample period.
+
+**Coverage after this fix: 98.0%** of MPU-6050-family code bytes. Remaining: `de` (186),
+`f5` (81), `f7` (31), `f6` (22), `fc` (19).
+
 ## Plan
 
 ### P1 — static, no hardware (this session)

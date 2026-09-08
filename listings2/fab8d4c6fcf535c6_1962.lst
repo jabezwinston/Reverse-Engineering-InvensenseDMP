@@ -1,7 +1,8 @@
 ; lineage=mantis start=768
   768  d8      ALWAYS
   769  dc      ROUTE -> RAM   M[P2..] PTAT  (dc; sticky until dd)
-  770  f4 d8   f4 d8   ; imm>=0x80 (unknown form)
+  770  f4      NOBR   (f4 with bit7 set in the displacement: no jump)  [probe27]
+  771  d8      ALWAYS
   772  b9      P2.bank=1
   773  ab      P2.page=b   -> D@432 SEM1
   774  f3      FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
