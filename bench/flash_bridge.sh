@@ -20,21 +20,17 @@ command -v esptool >/dev/null || { echo "esptool not found: uv tool install espt
 
 echo "== compiling $SKETCH for $FQBN"
 arduino-cli compile --fqbn "$FQBN" --output-dir "$OUT" "$SKETCH"
-MERGED="$OUT/esp32_dmp_bridge.ino.merged.bin"
-if [ ! -f "$MERGED" ]; then
-  echo "no merged image; flashing the four parts instead"
-  CORE_DIR="$(arduino-cli config get directories.data)/packages/esp32/hardware/esp32"
-  BOOT_APP0="$(ls "$CORE_DIR"/*/tools/partitions/boot_app0.bin | head -1)"
-  set -x
-  esptool --chip esp32 --port "$PORT" --baud "$BAUD" --before default_reset --after hard_reset \
-      write-flash -z --flash-mode dio --flash-freq 80m --flash-size detect \
-      0x1000  "$OUT/esp32_dmp_bridge.ino.bootloader.bin" \
-      0x8000  "$OUT/esp32_dmp_bridge.ino.partitions.bin" \
-      0xe000  "$BOOT_APP0" \
-      0x10000 "$OUT/esp32_dmp_bridge.ino.bin"
-  exit
-fi
-echo "== flashing $MERGED to $PORT at $BAUD baud"
-esptool --chip esp32 --port "$PORT" --baud "$BAUD" --before default_reset --after hard_reset \
-    write-flash -z 0x0 "$MERGED"
+APP="$OUT/esp32_dmp_bridge.ino.bin"
+CORE_DIR="$(arduino-cli config get directories.data)/packages/esp32/hardware/esp32"
+BOOT_APP0="$(ls "$CORE_DIR"/*/tools/partitions/boot_app0.bin | head -1)"
+# Four small parts (~350 KB) rather than the padded 4 MB merged image: the tunnel is slow.
+echo "== flashing bootloader/partitions/boot_app0/app to $PORT at $BAUD baud"
+set -x
+esptool --chip esp32 --port "$PORT" --baud "$BAUD" --before default-reset --after hard-reset \
+    write-flash -z --flash-mode dio --flash-freq 80m --flash-size detect \
+    0x1000  "$OUT/esp32_dmp_bridge.ino.bootloader.bin" \
+    0x8000  "$OUT/esp32_dmp_bridge.ino.partitions.bin" \
+    0xe000  "$BOOT_APP0" \
+    0x10000 "$APP"
+set +x
 echo "== done; verify with:  python3 $HERE/check_link.py --port $PORT"
