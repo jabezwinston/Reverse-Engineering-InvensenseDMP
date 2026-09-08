@@ -9,7 +9,8 @@ are not RAM-mapped — was wrong, and the branch encoding is now known. Both wer
 statically from data the project already had, using the methods that resolved the BK3296 core.
 See **[ISA2.md](ISA2.md)** for the findings, the evidence and the plan; `tools/isa/` for the
 reproducible tests; `listings2/` for listings under the new pointer/ALU model; and
-`bench/isa_probe.py` for the queued hardware experiments. Custom DMP programs written in this
+`bench/isa_probe.py` for the queued hardware experiments. **`dc` is now confirmed on silicon as a store instruction** (ISA2.md Finding 6),
+so the DMP is writable after all. Custom DMP programs written in this
 repo's assembly language still run on real MPU-6050 silicon exactly as described below.
 
 ## What works today
