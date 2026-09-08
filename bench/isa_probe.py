@@ -162,23 +162,30 @@ def candidates(av, bv):
 
 
 def cmd_optable(rig, mask, a):
-    print("OP TABLE  P1 <- page 6 (0x60), P2 <- 0x140. Reading D = 0x140 + 4*A (and 4*B as fallback)")
-    pairs = [(2, 3), (3, 1), (0, 2)]          # (A,B): (1.0,0.5) (1.5,1.0) (0.5,0.0436)
+    """Confirmed-store op table. Payload `97 ba a4 <op> dc` at the 5-byte site:
+       97 -> P1.page=7 (P1=0x70), ba a4 -> P2=0x240, <op> ALU byte, dc -> store to M[0x240].
+    P0 stands at 0x70 too, so BOTH operands are the Q30 constant page {0.5,0.0,1.0,1.5}.
+    op byte = (A<<5)|(B<<3)|op ; result read back from 0x240 and matched against A op B."""
+    CONST = {0: 0.5, 1: 0.0, 2: 1.0, 3: 1.5}
+    P2 = 0x240
+    print("OP TABLE via dc: P0=P1=0x70 (Q30 0.5/0.0/1.0/1.5), P2=0x240, payload dc 97 ba a4 <op>")
+    # sanity: op0 A2 B0 = 1.0 + 0.5 should give +1.5
+    pairs = [(2, 0), (2, 1), (0, 0), (3, 1), (2, 3)]   # (A,B): 1.0+0.5, 1.0+0.0, 0.5+0.5, 1.5+0.0, 1.0+1.5
     for op in range(8):
         for A, B in pairs:
             v = (A << 5) | (B << 3) | op
-            payload = [0x96, 0xA4, v]
-            words, snap = measure(rig, mask, payload, a.trials)
-            hits = [w for w in words if 0x140 <= w < 0x150]
-            if not hits or snap is None:
-                print(f"  op{op} A={A} B={B} byte {v:02x}: no write  (changed: {[hex(w) for w in words][:6]})")
-                continue
-            d = 0x140 + 4 * A if 0x140 + 4 * A in hits else hits[0]
-            val = q(word(snap, d))
-            cands = candidates(CONST_A[A], CONST_B[B])
-            best = min(cands.items(), key=lambda kv: abs(kv[1] - val))
-            print(f"  op{op} A={A} B={B} byte {v:02x}: D@{d:#x} = {val:+.6f}  ~ {best[0]}={best[1]:+.6f}"
-                  f"  (err {abs(best[1]-val):.2e}; dest index {'A' if d == 0x140+4*A else 'B' if d == 0x140+4*B else '?'})")
+            rig.b.mem_write(P2, bytes(4))
+            words, snap = measure(rig, mask, [0xDC, 0x97, 0xBA, 0xA4, v], a.trials)
+            if snap is None:
+                print(f"  op{op} A={A}(={CONST[A]}) B={B}(={CONST[B]}) byte {v:02x}: CRASH"); continue
+            val = q(word(snap, P2))
+            av, bv = CONST[A], CONST[B]
+            cand = {"A+B": av+bv, "A-B": av-bv, "B-A": bv-av, "A*B": av*bv, "-A*B": -av*bv,
+                    "A": av, "B": bv, "A&B~and": av if av==bv else 0.0, "0": 0.0}
+            best = min(cand.items(), key=lambda kv: abs(kv[1]-val))
+            wrote = 0x240 in {w for w in words}
+            print(f"  op{op} A={A} B={B} byte {v:02x}: 0x240={word(snap,P2):08x} ({val:+.5f})"
+                  f"  ~ {best[0]}={best[1]:+.5f} (err {abs(best[1]-val):.1e}){'' if wrote else '  [no store]'}")
 
 
 def cmd_pred(rig, mask, a):

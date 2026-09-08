@@ -224,6 +224,43 @@ the 4-aligned-but-not-16-aligned targets in `dmpmap.h` need a finer index this s
 vary), `dc`'s commit timing relative to the pointer bytes, and op values 1-7 with non-zero
 operands (Finding 3 has op6 = MUL from the corpus; confirm with the scrubbed-page detector).
 
+## Finding 7 — the full ALU op field (HARDWARE CONFIRMED 2026-09-08)
+
+`bench/probe7.py` swept all 8 op values with both operands drawn from the Q30 constant page
+(P0 = P1 = 0x70 = {0.5, 0.0, 1.0, 1.5}), payload `dc 97 ba a4 <op>`, reading the P2 word back.
+40 cells, every one reproducible across two trials, zero error against the predicted value:
+
+| op&3 | operation | evidence (A op B, exact) |
+|---|---|---|
+| 0 | **A + B** | 1.0+0.5=1.5, 0.5+0.5=1.0, 1.0+1.5 wraps to -1.5 (modular, not saturating) |
+| 1 | **B - A** | 0.5-1.0=-0.5, 0.0-1.0=-1.0, 1.5-1.0=+0.5 |
+| 2 | **A * B** | 0.5*0.5=0.25, 1.0*1.5=1.5, 1.0*0.0=0.0 (Q30 fixed-point product) |
+| 3 | **-(A * B)** | -(0.5*0.5)=-0.25, -(1.0*1.5)=-1.5 |
+
+Ops 4-7 read 0 at the P2 word; reading the whole page showed why: **op4 writes op0's exact result
+to P2+4 instead of P2+0.** So bit 2 of the op field is a destination-word selector, not a new
+operation:
+
+    op4 A2 B0 -> 0x244 = 60000000 (= op0's +1.5)     op4 A0 B0 -> 0x244 = 40000000 (= op0's +1.0)
+
+**Complete low-byte instruction, hardware-verified end to end:**
+
+```
+low byte v = 0 AA BB o s o'   ...but simpler read as v = A<<5 | B<<3 | op<<0 with op in 0..7:
+    A   = (v>>5) & 3      operand-A word = M[P0 + 4*A]
+    B   = (v>>3) & 3      operand-B word = M[P1 + 4*B]
+    op&3 = 0 ADD  1 RSUB(B-A)  2 MUL  3 NMUL(-A*B)     arithmetic, Q30, adds wrap
+    op&4 = destination word: 0 -> M[P2+0], 1 -> M[P2+4]
+    the result is committed to RAM only when a `dc` runs (Finding 6); without dc it stays in
+    the accumulator (and, in FIFO mode, a following emit sends it to the FIFO)
+```
+
+That resolves both open items from Finding 6: the destination word-offset (op bit 2, giving P2+0
+or P2+4; the two further words of a page presumably need a bit this operand form does not expose)
+and the op semantics. Combined: the DMP is a Q30 fixed-point add/sub/mul machine with a store
+(`dc`), a forward branch (`f4`, Finding 2), and pointer-addressed memory — a small but complete
+computer. `bench/probe7.py` reproduces the whole table.
+
 ## Plan
 
 ### P1 — static, no hardware (this session)

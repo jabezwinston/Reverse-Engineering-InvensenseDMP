@@ -73,7 +73,9 @@ class Decoder:
             A, B, op = (b >> 5) & 3, (b >> 3) & 3, b & 7
             a, bb, d = self.ptr(0) + 4 * A, self.ptr(1) + 4 * B, self.ptr(2) + 4 * B
             pre = "" if self.cond == "d8" else f"[{self.cond}] "
-            return 1, f"{pre}op{op}  A={self.N.name(a):<14} B={self.N.name(bb):<14} (D?={self.N.name(d)})"
+            ALU = {0: "ADD", 1: "RSUB", 2: "MUL", 3: "NMUL"}[op & 3]
+            dst = "P2+4" if op & 4 else "P2"
+            return 1, f"{pre}{ALU} A={self.N.name(a):<12} B={self.N.name(bb):<12} -> {dst} (via dc)"
         return 1, f"{b:02x}"
 
 def run(img, start, end, table):
