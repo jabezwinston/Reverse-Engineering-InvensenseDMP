@@ -18,6 +18,7 @@ big-endian Q30 (2^30 = 1.0), range [-2,+2), addition wraps (modular).
   nmul  A,B[,hi]                    -M[P0+4A] * M[P1+4B]   (op3)
        `hi` sets op&4 -> destination word P2+4 (default P2+0). Use `p2inc` (df)
        to reach words 2,3 of the page.
+  min   A,B[,hi]                     f5 + ALU: signed min(M[P0+4A], M[P1+4B])
   store                              dc: RAM routing ON  (sticky; every following ALU op stores)
   fifo  (alias store.off)            dd: route results to the FIFO (sticky; the at-rest
                                      routing). Vendor packet emit = dd f1 <ALU ops>
@@ -135,6 +136,8 @@ def assemble(text, lineage="mantis"):
                 out.append(_bank_byte(L, "012".index(op[1]), arg))
 
             # --- ALU (compute; emits to FIFO in fifo mode, else use store) ---
+            elif op == "min":                    # f5 + ALU byte with op field 0
+                out.append(0xF5); out.append(_alu_byte("add", arg))
             elif op in ALU_OPS:
                 out.append(_alu_byte(op, arg))
             elif op == "test":                   # d1: Z := (last ALU result == 0)

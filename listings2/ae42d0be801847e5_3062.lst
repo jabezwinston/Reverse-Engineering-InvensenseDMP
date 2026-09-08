@@ -18,8 +18,8 @@
  1040  ae      P2.page=e   -> D@992 D_AUTH_OUT
  1041  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  1042  32      MUL A=D_AUTH_IN    B=D_AUTH_A     -> D_AUTH_OUT
- 1043  f5      f5
- 1044  1b      NMUL A=D_AUTH_OUT   B=D_AUTH_B     -> D_AUTH_OUT
+ 1043  f5      MIN prefix  next ALU op computes signed min(A,B)  [probe29, 16/16]
+ 1044  1b      F5.3 A=D_AUTH_OUT   B=D_AUTH_B     -> D_AUTH_OUT
  1045  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  1046  b4      P1.bank=0
  1047  b8      P2.bank=0
@@ -109,13 +109,13 @@
  1131  00      ADD A=@304         B=@304         -> @560
  1132  28      ADD A=@308         B=@308         -> @560
  1133  50      ADD A=@312         B=@312         -> @560
- 1134  f5      f5
+ 1134  f5      MIN prefix  next ALU op computes signed min(A,B)  [probe29, 16/16]
  1135  b2      P0.bank=2
  1136  b6      P1.bank=2
  1137  aa      P2.page=a   -> D@672 @672
  1138  83      P0.page=3   -> A@560 @560
  1139  93      P1.page=3   -> B@560 @560
- 1140  28      ADD A=CPASS_BIAS_X B=CPASS_BIAS_X -> @672
+ 1140  28      MIN  A=CPASS_BIAS_X B=CPASS_BIAS_X -> @672
  1141  54      ADD A=CPASS_BIAS_Y B=CPASS_BIAS_Y -> @676
  1142  7c      ADD A=CPASS_BIAS_Z B=CPASS_BIAS_Z -> @676
  1143  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
@@ -134,8 +134,8 @@
  1156  9a      P1.page=a   -> B@672 @672
  1157  b9      P2.bank=1
  1158  ae      P2.page=e   -> D@480 @480
- 1159  f5      f5
- 1160  60      ADD A=@540         B=@672         -> @480
+ 1159  f5      MIN prefix  next ALU op computes signed min(A,B)  [probe29, 16/16]
+ 1160  60      MIN  A=@540         B=@672         -> @480
  1161  68      ADD A=@540         B=@676         -> @480
  1162  70      ADD A=@540         B=@680         -> @480
  1163  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
@@ -299,8 +299,8 @@
  1321  82      P0.page=2   -> A@32 @32
  1322  a8      P2.page=8   -> D@128 @128
  1323  92      P1.page=2   -> B@32 @32
- 1324  f5      f5
- 1325  2c      ADD A=D_0_36       B=D_0_36       -> @132
+ 1324  f5      MIN prefix  next ALU op computes signed min(A,B)  [probe29, 16/16]
+ 1325  2c      MIN  A=D_0_36       B=D_0_36       -> @132
  1326  54      ADD A=@40          B=@40          -> @132
  1327  88      P0.page=8   -> A@128 @128
  1328  98      P1.page=8   -> B@128 @128
@@ -342,10 +342,10 @@
  1366  11      RSUB A=D_TILT3_L+2  B=@136         -> @128
  1367  d1      TEST  Z := (last ALU result == 0); d9 = IF.Z, da = IF.NZ  [probe19/20]
  1368  82      P0.page=2   -> A@32 @32
- 1369  f5      f5
+ 1369  f5      MIN prefix  next ALU op computes signed min(A,B)  [probe29, 16/16]
  1370  d9      IF.Z
  1371  92      [d9] P1.page=2   -> B@32 @32
- 1372  28      ADD A=D_0_36       B=D_0_36       -> @128
+ 1372  28      MIN  A=D_0_36       B=D_0_36       -> @128
  1373  97      P1.page=7   -> B@112 @112
  1374  88      P0.page=8   -> A@128 @128
  1375  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
@@ -416,10 +416,10 @@
  1443  11      RSUB A=D_TILT3_L+2  B=@136         -> @128
  1444  d1      TEST  Z := (last ALU result == 0); d9 = IF.Z, da = IF.NZ  [probe19/20]
  1445  82      P0.page=2   -> A@32 @32
- 1446  f5      f5
+ 1446  f5      MIN prefix  next ALU op computes signed min(A,B)  [probe29, 16/16]
  1447  d9      IF.Z
  1448  92      [d9] P1.page=2   -> B@32 @32
- 1449  50      ADD A=@40          B=@40          -> @128
+ 1449  50      MIN  A=@40          B=@40          -> @128
  1450  97      P1.page=7   -> B@112 @112
  1451  88      P0.page=8   -> A@128 @128
  1452  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
@@ -465,8 +465,8 @@
  1494  82      [d9] P0.page=2   -> A@32 @32
  1495  92      P1.page=2   -> B@32 @32
  1496  a8      P2.page=8   -> D@128 @128
- 1497  f5      f5
- 1498  7c      ADD A=@44          B=@44          -> @132
+ 1497  f5      MIN prefix  next ALU op computes signed min(A,B)  [probe29, 16/16]
+ 1498  7c      MIN  A=@44          B=@44          -> @132
  1499  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  1500  88      P0.page=8   -> A@128 @128
  1501  3a      MUL A=@132         B=@44          -> @128
@@ -524,8 +524,8 @@
  1555  c6      MOV   D_0_236      -> @128  (c6; probe25)
  1556  3e      MUL A=D_0_228      B=D_0_236      -> @132
  1557  56      MUL A=D_0_232      B=D_0_232      -> @132
- 1558  f5      f5
- 1559  54      ADD A=D_0_232      B=D_0_232      -> @132
+ 1558  f5      MIN prefix  next ALU op computes signed min(A,B)  [probe29, 16/16]
+ 1559  54      MIN  A=D_0_232      B=D_0_232      -> @132
  1560  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  1561  88      P0.page=8   -> A@128 @128
  1562  72      MUL A=@140         B=D_0_232      -> @128
@@ -536,10 +536,10 @@
  1568  45      RSUB A=@136         B=@128         -> @132
  1569  85      P0.page=5   -> A@80 @80
  1570  6e      MUL A=@92          B=@132         -> @132
- 1571  f5      f5
+ 1571  f5      MIN prefix  next ALU op computes signed min(A,B)  [probe29, 16/16]
  1572  8e      P0.page=e   -> A@224 D_0_224
  1573  9e      P1.page=e   -> B@224 D_0_224
- 1574  04      ADD A=D_0_224      B=D_0_224      -> @132
+ 1574  04      MIN  A=D_0_224      B=D_0_224      -> @132
  1575  88      P0.page=8   -> A@128 @128
  1576  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  1577  42      MUL A=@136         B=D_0_224      -> @128
@@ -558,8 +558,8 @@
  1591  11      RSUB A=@128         B=@136         -> @128
  1592  08      ADD A=@128         B=@132         -> @128
  1593  d0      P2 word += 2 -> D@136 @136  (d0, mod 4; probe20)
- 1594  f5      f5
- 1595  04      ADD A=@128         B=@128         -> @140
+ 1594  f5      MIN prefix  next ALU op computes signed min(A,B)  [probe29, 16/16]
+ 1595  04      MIN  A=@128         B=@128         -> @140
  1596  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  1597  1e      MUL A=@128         B=@140         -> @140
  1598  97      P1.page=7   -> B@112 @112
@@ -593,8 +593,8 @@
  1626  82      P0.page=2   -> A@32 @32
  1627  92      P1.page=2   -> B@32 @32
  1628  a8      P2.page=8   -> D@128 @128
- 1629  f5      f5
- 1630  78      ADD A=@44          B=@44          -> @128
+ 1629  f5      MIN prefix  next ALU op computes signed min(A,B)  [probe29, 16/16]
+ 1630  78      MIN  A=@44          B=@44          -> @128
  1631  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  1632  88      P0.page=8   -> A@128 @128
  1633  1a      MUL A=@128         B=@44          -> @128
@@ -1016,8 +1016,8 @@
  2059  9c      P1.page=c   -> B@448 @448
  2060  a8      P2.page=8   -> D@384 @384
  2061  8c      P0.page=c   -> A@448 @448
- 2062  f5      f5
- 2063  30      ADD A=@452         B=@456         -> @384
+ 2062  f5      MIN prefix  next ALU op computes signed min(A,B)  [probe29, 16/16]
+ 2063  30      MIN  A=@452         B=@456         -> @384
  2064  db      IF.3
  2065  38      [db] ADD A=@452         B=@460         -> @384
  2066  d9      IF.Z
@@ -1573,12 +1573,12 @@
  2619  f4      [d9] NOBR   (f4 with bit7 set in the displacement: no jump)  [probe27]
  2620  f4      NOBR   (f4 with bit7 set in the displacement: no jump)  [probe27]
  2621  ac      P2.page=c   -> D@704 @704
- 2622  f5      f5
+ 2622  f5      MIN prefix  next ALU op computes signed min(A,B)  [probe29, 16/16]
  2623  9c      P1.page=c   -> B@704 @704
  2624  9c      P1.page=c   -> B@704 @704
  2625  8d      P0.page=d   -> A@720 D_2_208
  2626  df      CLR  @708 := 0  (P2 word++ first)  (df; probe23)
- 2627  2b      NMUL A=FLICK_MSG    B=@708         -> @708
+ 2627  2b      F5.3 A=FLICK_MSG    B=@708         -> @708
  2628  ba      P2.bank=2
  2629  b6      P1.bank=2
  2630  ae      P2.page=e   -> D@736 D_2_224

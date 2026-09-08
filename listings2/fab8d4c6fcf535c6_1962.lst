@@ -216,12 +216,12 @@
   982  00      ADD A=TMP1B        B=TMP1B        -> BLPFNMTC
   983  28      ADD A=TMP2B        B=TMP2B        -> BLPFNMTC
   984  50      ADD A=TMP3B        B=TMP3B        -> BLPFNMTC
-  985  f5      f5
+  985  f5      MIN prefix  next ALU op computes signed min(A,B)  [probe29, 16/16]
   986  ba      P2.bank=2
   987  ad      P2.page=d   -> D@720 @720
   988  8f      P0.page=f   -> A@496 BLPFNMTC
   989  9f      P1.page=f   -> B@496 BLPFNMTC
-  990  28      ADD A=BLPFNMX      B=BLPFNMX      -> @720
+  990  28      MIN  A=BLPFNMX      B=BLPFNMX      -> @720
   991  54      ADD A=BLPFNMY      B=BLPFNMY      -> @724
   992  7c      ADD A=BLPFNMZ      B=BLPFNMZ      -> @724
   993  b9      P2.bank=1
@@ -240,8 +240,8 @@
  1006  8e      P0.page=e   -> A@736 @736
  1007  9d      P1.page=d   -> B@720 @720
  1008  ae      P2.page=e   -> D@480 TMP25
- 1009  f5      f5
- 1010  60      ADD A=@748         B=@720         -> TMP25
+ 1009  f5      MIN prefix  next ALU op computes signed min(A,B)  [probe29, 16/16]
+ 1010  60      MIN  A=@748         B=@720         -> TMP25
  1011  68      ADD A=@748         B=@724         -> TMP25
  1012  70      ADD A=@748         B=@728         -> TMP25
  1013  b1      P0.bank=1

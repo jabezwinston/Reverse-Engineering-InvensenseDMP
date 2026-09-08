@@ -18,8 +18,8 @@
  1040  ae      P2.page=e   -> D@992 @992
  1041  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  1042  32      MUL A=@996         B=@1000        -> @992
- 1043  f5      f5
- 1044  1b      NMUL A=@992         B=@1004        -> @992
+ 1043  f5      MIN prefix  next ALU op computes signed min(A,B)  [probe29, 16/16]
+ 1044  1b      F5.3 A=@992         B=@1004        -> @992
  1045  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  1046  b4      P1.bank=0
  1047  b8      P2.bank=0
@@ -131,13 +131,13 @@
  1153  00      ADD A=TMP1B        B=TMP1B        -> @560
  1154  28      ADD A=TMP2B        B=TMP2B        -> @560
  1155  50      ADD A=TMP3B        B=TMP3B        -> @560
- 1156  f5      f5
+ 1156  f5      MIN prefix  next ALU op computes signed min(A,B)  [probe29, 16/16]
  1157  b2      P0.bank=2
  1158  b6      P1.bank=2
  1159  aa      P2.page=a   -> D@672 @672
  1160  83      P0.page=3   -> A@560 @560
  1161  93      P1.page=3   -> B@560 @560
- 1162  28      ADD A=@564         B=@564         -> @672
+ 1162  28      MIN  A=@564         B=@564         -> @672
  1163  54      ADD A=@568         B=@568         -> @676
  1164  7c      ADD A=@572         B=@572         -> @676
  1165  b9      P2.bank=1
@@ -156,8 +156,8 @@
  1178  9a      P1.page=a   -> B@672 @672
  1179  b9      P2.bank=1
  1180  ae      P2.page=e   -> D@480 TMP25
- 1181  f5      f5
- 1182  60      ADD A=@700         B=@672         -> TMP25
+ 1181  f5      MIN prefix  next ALU op computes signed min(A,B)  [probe29, 16/16]
+ 1182  60      MIN  A=@700         B=@672         -> TMP25
  1183  68      ADD A=@700         B=@676         -> TMP25
  1184  70      ADD A=@700         B=@680         -> TMP25
  1185  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
@@ -259,8 +259,8 @@
  1281  7c      ADD A=BLPFSZ       B=TMP4A        -> BLPFSX
  1282  a8      P2.page=8   -> D@128 TMP1A
  1283  92      P1.page=2   -> B@32 BLPFSTC
- 1284  f5      f5
- 1285  2c      ADD A=BLPFSX       B=BLPFSX       -> TMP2A
+ 1284  f5      MIN prefix  next ALU op computes signed min(A,B)  [probe29, 16/16]
+ 1285  2c      MIN  A=BLPFSX       B=BLPFSX       -> TMP2A
  1286  54      ADD A=BLPFSY       B=BLPFSY       -> TMP2A
  1287  88      P0.page=8   -> A@128 TMP1A
  1288  98      P1.page=8   -> B@128 TMP1A
@@ -302,10 +302,10 @@
  1326  11      RSUB A=BLPFC        B=TMP3A        -> TMP1A
  1327  d1      TEST  Z := (last ALU result == 0); d9 = IF.Z, da = IF.NZ  [probe19/20]
  1328  82      P0.page=2   -> A@32 BLPFSTC
- 1329  f5      f5
+ 1329  f5      MIN prefix  next ALU op computes signed min(A,B)  [probe29, 16/16]
  1330  d9      IF.Z
  1331  92      [d9] P1.page=2   -> B@32 BLPFSTC
- 1332  28      ADD A=BLPFSX       B=BLPFSX       -> TMP1A
+ 1332  28      MIN  A=BLPFSX       B=BLPFSX       -> TMP1A
  1333  97      P1.page=7   -> B@112 0_5
  1334  88      P0.page=8   -> A@128 TMP1A
  1335  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
@@ -376,10 +376,10 @@
  1403  11      RSUB A=BLPFC        B=TMP3A        -> TMP1A
  1404  d1      TEST  Z := (last ALU result == 0); d9 = IF.Z, da = IF.NZ  [probe19/20]
  1405  82      P0.page=2   -> A@32 BLPFSTC
- 1406  f5      f5
+ 1406  f5      MIN prefix  next ALU op computes signed min(A,B)  [probe29, 16/16]
  1407  d9      IF.Z
  1408  92      [d9] P1.page=2   -> B@32 BLPFSTC
- 1409  50      ADD A=BLPFSY       B=BLPFSY       -> TMP1A
+ 1409  50      MIN  A=BLPFSY       B=BLPFSY       -> TMP1A
  1410  97      P1.page=7   -> B@112 0_5
  1411  88      P0.page=8   -> A@128 TMP1A
  1412  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
@@ -431,8 +431,8 @@
  1460  78      ADD A=BLPFSZ       B=BLPFSZ       -> BLPFC
  1461  a8      P2.page=8   -> D@128 TMP1A
  1462  82      P0.page=2   -> A@32 BLPFSTC
- 1463  f5      f5
- 1464  7c      ADD A=BLPFSZ       B=BLPFSZ       -> TMP2A
+ 1463  f5      MIN prefix  next ALU op computes signed min(A,B)  [probe29, 16/16]
+ 1464  7c      MIN  A=BLPFSZ       B=BLPFSZ       -> TMP2A
  1465  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  1466  88      P0.page=8   -> A@128 TMP1A
  1467  3a      MUL A=TMP2A        B=BLPFSZ       -> TMP1A
@@ -541,8 +541,8 @@
  1571  8d      P0.page=d   -> A@208 CTRL1
  1572  9d      P1.page=d   -> B@208 CTRL1
  1573  7a      MUL A=CTRL4        B=CTRL4        -> TMP1A
- 1574  f5      f5
- 1575  7c      ADD A=CTRL4        B=CTRL4        -> TMP2A
+ 1574  f5      MIN prefix  next ALU op computes signed min(A,B)  [probe29, 16/16]
+ 1575  7c      MIN  A=CTRL4        B=CTRL4        -> TMP2A
  1576  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  1577  88      P0.page=8   -> A@128 TMP1A
  1578  7a      MUL A=TMP4A        B=CTRL4        -> TMP1A
@@ -550,10 +550,10 @@
  1580  45      RSUB A=TMP3A        B=TMP1A        -> TMP2A
  1581  8e      P0.page=e   -> A@224 CTRLS1
  1582  0e      MUL A=CTRLS1       B=TMP2A        -> TMP2A
- 1583  f5      f5
+ 1583  f5      MIN prefix  next ALU op computes signed min(A,B)  [probe29, 16/16]
  1584  82      P0.page=2   -> A@32 BLPFSTC
  1585  92      P1.page=2   -> B@32 BLPFSTC
- 1586  7c      ADD A=BLPFSZ       B=BLPFSZ       -> TMP2A
+ 1586  7c      MIN  A=BLPFSZ       B=BLPFSZ       -> TMP2A
  1587  88      P0.page=8   -> A@128 TMP1A
  1588  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  1589  5a      MUL A=TMP3A        B=BLPFSZ       -> TMP1A
@@ -570,8 +570,8 @@
  1600  11      RSUB A=TMP1A        B=TMP3A        -> TMP1A
  1601  08      ADD A=TMP1A        B=TMP2A        -> TMP1A
  1602  d0      P2 word += 2 -> D@136 TMP3A  (d0, mod 4; probe20)
- 1603  f5      f5
- 1604  04      ADD A=TMP1A        B=TMP1A        -> TMP4A
+ 1603  f5      MIN prefix  next ALU op computes signed min(A,B)  [probe29, 16/16]
+ 1604  04      MIN  A=TMP1A        B=TMP1A        -> TMP4A
  1605  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  1606  1e      MUL A=TMP1A        B=TMP4A        -> TMP4A
  1607  97      P1.page=7   -> B@112 0_5
@@ -596,8 +596,8 @@
  1626  88      P0.page=8   -> A@128 TMP1A
  1627  98      P1.page=8   -> B@128 TMP1A
  1628  34      ADD A=TMP2A        B=TMP3A        -> TMP3A
- 1629  f5      f5
- 1630  04      ADD A=TMP1A        B=TMP1A        -> TMP3A
+ 1629  f5      MIN prefix  next ALU op computes signed min(A,B)  [probe29, 16/16]
+ 1630  04      MIN  A=TMP1A        B=TMP1A        -> TMP3A
  1631  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  1632  61      RSUB A=TMP4A        B=TMP1A        -> TMP2A
  1633  db      IF.3
@@ -880,8 +880,8 @@
  1913  9c      P1.page=c   -> B@448 TEMP29
  1914  a8      P2.page=8   -> D@384 ACCQD0
  1915  8c      P0.page=c   -> A@448 TEMP29
- 1916  f5      f5
- 1917  30      ADD A=XACCB_PRE    B=YACCB_PRE    -> ACCQD0
+ 1916  f5      MIN prefix  next ALU op computes signed min(A,B)  [probe29, 16/16]
+ 1917  30      MIN  A=XACCB_PRE    B=YACCB_PRE    -> ACCQD0
  1918  db      IF.3
  1919  38      [db] ADD A=XACCB_PRE    B=ZACCB_PRE    -> ACCQD0
  1920  d9      IF.Z
@@ -1320,14 +1320,14 @@
  2353  2d      RSUB A=TMP2A        B=XACCB        -> XACCB
  2354  55      RSUB A=TMP3A        B=YACCB        -> XACCB
  2355  7d      RSUB A=TMP4A        B=ZACCB        -> XACCB
- 2356  f5      f5
+ 2356  f5      MIN prefix  next ALU op computes signed min(A,B)  [probe29, 16/16]
  2357  b0      P0.bank=0
  2358  b4      P1.bank=0
  2359  b8      P2.bank=0
  2360  88      P0.page=8   -> A@128 TMP1A
  2361  98      P1.page=8   -> B@128 TMP1A
  2362  ad      P2.page=d   -> D@208 CTRL1
- 2363  2c      ADD A=TMP2A        B=TMP2A        -> CTRL2
+ 2363  2c      MIN  A=TMP2A        B=TMP2A        -> CTRL2
  2364  54      ADD A=TMP3A        B=TMP3A        -> CTRL2
  2365  7c      ADD A=TMP4A        B=TMP4A        -> CTRL2
  2366  b5      P1.bank=1
@@ -1599,12 +1599,12 @@
  2635  f4      [d9] NOBR   (f4 with bit7 set in the displacement: no jump)  [probe27]
  2636  f4      NOBR   (f4 with bit7 set in the displacement: no jump)  [probe27]
  2637  ac      P2.page=c   -> D@704 @704
- 2638  f5      f5
+ 2638  f5      MIN prefix  next ALU op computes signed min(A,B)  [probe29, 16/16]
  2639  9c      P1.page=c   -> B@704 @704
  2640  9c      P1.page=c   -> B@704 @704
  2641  8d      P0.page=d   -> A@720 @720
  2642  df      CLR  @708 := 0  (P2 word++ first)  (df; probe23)
- 2643  2b      NMUL A=@724         B=@708         -> @708
+ 2643  2b      F5.3 A=@724         B=@708         -> @708
  2644  ba      P2.bank=2
  2645  b6      P1.bank=2
  2646  ae      P2.page=e   -> D@736 @736

@@ -519,6 +519,36 @@ must complete inside one sample period.
 **Coverage after this fix: 98.0%** of MPU-6050-family code bytes. Remaining: `de` (186),
 `f5` (81), `f7` (31), `f6` (22), `fc` (19).
 
+## Finding 16 — `f5` computes signed MIN (HARDWARE CONFIRMED 2026-09-08)
+
+probe28 swept all 16 `(A,B)` pairs of `f5 <alu>` with P0 and P1 on **different** pages — the
+control Finding 12 lacked. Thirteen cells returned the B operand, three did not, and the
+pattern fit `min(A,B)` in all sixteen, including the one discriminating cell where A is the
+smaller (`A=0.5, B=1.0 -> 0.5`).
+
+probe29 confirmed it against operands written into RAM by the bench, chosen to separate signed
+MIN from magnitude MIN: P0 = {0.5, 0.0, 1.0, 1.5}, P1 = {-1.5, -0.5, +0.25, +1.0}.
+
+    signed MIN matched 16/16 cells;  magnitude MIN matched 10/16
+
+so `f5` is **signed** minimum: `min(M[P0+4A], M[P1+4B])`, e.g. `A=1.5, B=-1.5 -> -1.5`.
+
+*Method note.* The first run of probe29 put its operand page at 0x260 — inside the harness's
+own 0x230..0x28f sentinel scrub — so every B was 0x7E7E7E7E (about 1.97) and every cell trivially
+returned A. That agrees with MIN but proves nothing, and it would have read as "f5 = MOV A" to
+anyone not checking the scrub window. Moving the operands to 0x360 produced the 16/16 above.
+Detector regions and operand regions must not overlap.
+
+**Scope, stated honestly.** Only the `op == 0` form is confirmed. probe30 found that under `f5`
+the other op values do not resolve: op1 and op4..7 store nothing, and op2/op3 gave results that
+differ between operand pairs (op3 matched ADD, then B-A, then A-B). Nor is `f5` always an ALU
+prefix — image 3062 @1134 has `f5 b2`, where the next byte is a pointer op. The decoder marks
+the unconfirmed combinations `F5.n` rather than guessing.
+
+**Coverage: 98.4%** of MPU-6050-family code bytes (was 83.0% at the start of this pass).
+Remaining: `de` (186), `f7` (31), `f6` (22), `fc` (19) — all in the no-observable-effect set,
+which no RAM, FIFO, routing, flag, destination or interrupt-rate detector has moved.
+
 ## Plan
 
 ### P1 — static, no hardware (this session)

@@ -653,8 +653,8 @@
  1419  a8      P2.page=8   -> D@128 TMP1A
  1420  8a      P0.page=a   -> A@160 DZ
  1421  9a      P1.page=a   -> B@160 DZ
- 1422  f5      f5
- 1423  20      ADD A=XGC          B=DZ           -> TMP1A
+ 1422  f5      MIN prefix  next ALU op computes signed min(A,B)  [probe29, 16/16]
+ 1423  20      MIN  A=XGC          B=DZ           -> TMP1A
  1424  aa      P2.page=a   -> D@160 DZ
  1425  da      IF.NZ
  1426  df      [da] CLR  XGC := 0  (P2 word++ first)  (df; probe23)

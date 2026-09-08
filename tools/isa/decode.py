@@ -14,7 +14,8 @@
     f8/f9: INC/DEC M[P2] by 1 LSB; fa/fb: same after advancing; df: advance then CLR  [probe23, HW]
     c0..cf (mantis): MOV M[P0 + 4*(x>>1)] -> M[P2]; x&1 pre-advances P2;
                      x&8 = MOV16 (upper half-word, zero-extended)        [probe25, HW]
-    dc/dd: result routing RAM/FIFO (sticky two-way switch; FIFO at rest)   df: P2 += 4   [probe9-16, HW]
+    dc/dd: result routing RAM/FIFO (sticky two-way switch; FIFO at rest)          [probe9-16, HW]
+    f5: prefix -- the next ALU op with op field 0 computes signed MIN(A,B)  [probe29, HW]
     f0..f3 (mantis) / f8..fb (3050): FIFO width/mode        [bench]
 
 Usage: decode.py <image.bin> [--start N] [--end N] [--symbols dmpmap|emd|hammerhead|none]
@@ -85,6 +86,9 @@ class Decoder:
         if b == 0xFA and self.L == "mantis":
             self.p2off = getattr(self, "p2off", 0) + 4
             return 1, f"P2 += 4      -> D@{self.ptr(2)} {self.N.name(self.ptr(2))}  (fa, probe18; same effect as df)"
+        if b == 0xF5 and self.L == "mantis":
+            self.minpfx = True
+            return 1, "MIN prefix  next ALU op computes signed min(A,B)  [probe29, 16/16]"
         if b == 0xFF:
             return 1, "HALT   disable/terminate (vendor: ends every image)"
         if b == 0xFE:
@@ -112,6 +116,10 @@ class Decoder:
             A, B, op = (b >> 5) & 3, (b >> 3) & 3, b & 7
             a, bb = self.ptr(0) + 4 * A, self.ptr(1) + 4 * B
             ALU = {0: "ADD", 1: "RSUB", 2: "MUL", 3: "NMUL"}[op & 3]
+            if getattr(self, "minpfx", False):
+                self.minpfx = False
+                if op & 3 == 0: ALU = "MIN "        # only op0 is confirmed under f5
+                else: ALU = f"F5.{op & 3}"
             d = self.ptr(2) + (4 if op & 4 else 0)
             if self.ram: dest = self.N.name(d)
             else: dest = f"FIFO{ {1: 32, 2: 16, 3: 16}.get(self.width, '') }"
