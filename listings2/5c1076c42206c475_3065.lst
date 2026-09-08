@@ -1,12 +1,12 @@
 ; lineage=mantis start=1024
  1024  d8      ALWAYS
- 1025  dc      dc
+ 1025  dc      STORE  commit ALU result -> M[P2] PTAT  (dc)
  1026  b4      P1.bank=0
  1027  b8      P2.bank=0
  1028  b0      P0.bank=0
  1029  d8      ALWAYS
  1030  b9      P2.bank=1
- 1031  ab      P2.page=b   -> D@432 @432
+ 1031  ab      P2.page=b   -> D@432 SEM1
  1032  f3      FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
  1033  f8      f8
  1034  fa      fa
@@ -17,135 +17,135 @@
  1039  9e      P1.page=e   -> B@992 @992
  1040  ae      P2.page=e   -> D@992 @992
  1041  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
- 1042  32      op2  A=@996           B=@1000          (D?=@1000)
+ 1042  32      MUL A=@996         B=@1000        -> P2 (via dc)
  1043  f5      f5
- 1044  1b      op3  A=@992           B=@1004          (D?=@1004)
+ 1044  1b      NMUL A=@992         B=@1004        -> P2 (via dc)
  1045  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  1046  b4      P1.bank=0
  1047  b8      P2.bank=0
  1048  b0      P0.bank=0
- 1049  80      P0.page=0   -> A@0 @0
- 1050  97      P1.page=7   -> B@112 @112
+ 1049  80      P0.page=0   -> A@0 PTAT
+ 1050  97      P1.page=7   -> B@112 0_5
  1051  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
- 1052  a9      P2.page=9   -> D@144 @144
+ 1052  a9      P2.page=9   -> D@144 XACCW
  1053  df      df
  1054  df      df
  1055  df      df
- 1056  aa      P2.page=a   -> D@160 @160
+ 1056  aa      P2.page=a   -> D@160 DZ
  1057  df      df
  1058  df      df
  1059  df      df
  1060  f2      FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
- 1061  aa      P2.page=a   -> D@160 @160
+ 1061  aa      P2.page=a   -> D@160 DZ
  1062  c5      c5
  1063  cd      cd
  1064  c7      c7
- 1065  a9      P2.page=9   -> D@144 @144
- 1066  0c      op4  A=@0             B=@116           (D?=@148)
+ 1065  a9      P2.page=9   -> D@144 XACCW
+ 1066  0c      ADD A=PTAT         B=0_0          -> P2+4 (via dc)
  1067  c9      c9
- 1068  2c      op4  A=@4             B=@116           (D?=@148)
- 1069  97      P1.page=7   -> B@112 @112
- 1070  97      P1.page=7   -> B@112 @112
- 1071  97      P1.page=7   -> B@112 @112
- 1072  97      P1.page=7   -> B@112 @112
+ 1068  2c      ADD A=YGYR         B=0_0          -> P2+4 (via dc)
+ 1069  97      P1.page=7   -> B@112 0_5
+ 1070  97      P1.page=7   -> B@112 0_5
+ 1071  97      P1.page=7   -> B@112 0_5
+ 1072  97      P1.page=7   -> B@112 0_5
  1073  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
- 1074  a9      P2.page=9   -> D@144 @144
- 1075  89      P0.page=9   -> A@144 @144
- 1076  26      op6  A=@148           B=@112           (D?=@144)
- 1077  46      op6  A=@152           B=@112           (D?=@144)
- 1078  66      op6  A=@156           B=@112           (D?=@144)
+ 1074  a9      P2.page=9   -> D@144 XACCW
+ 1075  89      P0.page=9   -> A@144 XACCW
+ 1076  26      MUL A=XACCB        B=0_5          -> P2+4 (via dc)
+ 1077  46      MUL A=YACCB        B=0_5          -> P2+4 (via dc)
+ 1078  66      MUL A=ZACCB        B=0_5          -> P2+4 (via dc)
  1079  b2      P0.bank=2
  1080  89      P0.page=9   -> A@656 @656
- 1081  99      P1.page=9   -> B@144 @144
- 1082  a9      P2.page=9   -> D@144 @144
- 1083  2d      op5  A=@660           B=@148           (D?=@148)
- 1084  55      op5  A=@664           B=@152           (D?=@152)
- 1085  7d      op5  A=@668           B=@156           (D?=@156)
+ 1081  99      P1.page=9   -> B@144 XACCW
+ 1082  a9      P2.page=9   -> D@144 XACCW
+ 1083  2d      RSUB A=@660         B=XACCB        -> P2+4 (via dc)
+ 1084  55      RSUB A=@664         B=YACCB        -> P2+4 (via dc)
+ 1085  7d      RSUB A=@668         B=ZACCB        -> P2+4 (via dc)
  1086  b0      P0.bank=0
- 1087  99      P1.page=9   -> B@144 @144
- 1088  99      P1.page=9   -> B@144 @144
- 1089  99      P1.page=9   -> B@144 @144
- 1090  99      P1.page=9   -> B@144 @144
- 1091  99      P1.page=9   -> B@144 @144
- 1092  99      P1.page=9   -> B@144 @144
- 1093  99      P1.page=9   -> B@144 @144
- 1094  99      P1.page=9   -> B@144 @144
- 1095  99      P1.page=9   -> B@144 @144
- 1096  99      P1.page=9   -> B@144 @144
- 1097  99      P1.page=9   -> B@144 @144
- 1098  99      P1.page=9   -> B@144 @144
- 1099  99      P1.page=9   -> B@144 @144
- 1100  99      P1.page=9   -> B@144 @144
- 1101  99      P1.page=9   -> B@144 @144
- 1102  99      P1.page=9   -> B@144 @144
- 1103  99      P1.page=9   -> B@144 @144
- 1104  99      P1.page=9   -> B@144 @144
- 1105  99      P1.page=9   -> B@144 @144
+ 1087  99      P1.page=9   -> B@144 XACCW
+ 1088  99      P1.page=9   -> B@144 XACCW
+ 1089  99      P1.page=9   -> B@144 XACCW
+ 1090  99      P1.page=9   -> B@144 XACCW
+ 1091  99      P1.page=9   -> B@144 XACCW
+ 1092  99      P1.page=9   -> B@144 XACCW
+ 1093  99      P1.page=9   -> B@144 XACCW
+ 1094  99      P1.page=9   -> B@144 XACCW
+ 1095  99      P1.page=9   -> B@144 XACCW
+ 1096  99      P1.page=9   -> B@144 XACCW
+ 1097  99      P1.page=9   -> B@144 XACCW
+ 1098  99      P1.page=9   -> B@144 XACCW
+ 1099  99      P1.page=9   -> B@144 XACCW
+ 1100  99      P1.page=9   -> B@144 XACCW
+ 1101  99      P1.page=9   -> B@144 XACCW
+ 1102  99      P1.page=9   -> B@144 XACCW
+ 1103  99      P1.page=9   -> B@144 XACCW
+ 1104  99      P1.page=9   -> B@144 XACCW
+ 1105  99      P1.page=9   -> B@144 XACCW
  1106  b0      P0.bank=0
- 1107  8a      P0.page=a   -> A@160 @160
- 1108  a8      P2.page=8   -> D@128 @128
- 1109  96      P1.page=6   -> B@96 @96
- 1110  36      op6  A=@164           B=@104           (D?=@136)
- 1111  56      op6  A=@168           B=@104           (D?=@136)
- 1112  76      op6  A=@172           B=@104           (D?=@136)
+ 1107  8a      P0.page=a   -> A@160 DZ
+ 1108  a8      P2.page=8   -> D@128 TMP1A
+ 1109  96      P1.page=6   -> B@96 ATC
+ 1110  36      MUL A=XGC          B=GSF          -> P2+4 (via dc)
+ 1111  56      MUL A=YGC          B=GSF          -> P2+4 (via dc)
+ 1112  76      MUL A=ZGC          B=GSF          -> P2+4 (via dc)
  1113  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  1114  ba      P2.bank=2
  1115  a3      P2.page=3   -> D@560 @560
  1116  b4      P1.bank=0
  1117  b2      P0.bank=2
- 1118  80      P0.page=0   -> A@512 @512
+ 1118  80      P0.page=0   -> A@512 BLPFNMZL+2
  1119  c0      c0
  1120  b8      P2.bank=0
- 1121  a8      P2.page=8   -> D@128 @128
- 1122  97      P1.page=7   -> B@112 @112
- 1123  11      op1  A=@512           B=@120           (D?=@136)
+ 1121  a8      P2.page=8   -> D@128 TMP1A
+ 1122  97      P1.page=7   -> B@112 0_5
+ 1123  11      RSUB A=BLPFNMZL+2   B=1_0          -> P2 (via dc)
  1124  b2      P0.bank=2
  1125  83      P0.page=3   -> A@560 @560
- 1126  98      P1.page=8   -> B@128 @128
+ 1126  98      P1.page=8   -> B@128 TMP1A
  1127  ba      P2.bank=2
  1128  a3      P2.page=3   -> D@560 @560
  1129  f0      FMODE.0   ; 1=32-bit fifo, 2/3=16-bit
- 1130  24      op4  A=@564           B=@128           (D?=@560)
- 1131  08      op0  A=@560           B=@132           (D?=@564)
- 1132  44      op4  A=@568           B=@128           (D?=@560)
- 1133  10      op0  A=@560           B=@136           (D?=@568)
- 1134  64      op4  A=@572           B=@128           (D?=@560)
- 1135  18      op0  A=@560           B=@140           (D?=@572)
+ 1130  24      ADD A=@564         B=TMP1A        -> P2+4 (via dc)
+ 1131  08      ADD A=@560         B=TMP2A        -> P2 (via dc)
+ 1132  44      ADD A=@568         B=TMP1A        -> P2+4 (via dc)
+ 1133  10      ADD A=@560         B=TMP3A        -> P2 (via dc)
+ 1134  64      ADD A=@572         B=TMP1A        -> P2+4 (via dc)
+ 1135  18      ADD A=@560         B=TMP4A        -> P2 (via dc)
  1136  b2      P0.bank=2
  1137  b9      P2.bank=1
  1138  b4      P1.bank=0
- 1139  98      P1.page=8   -> B@128 @128
+ 1139  98      P1.page=8   -> B@128 TMP1A
  1140  83      P0.page=3   -> A@560 @560
  1141  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
- 1142  a3      P2.page=3   -> D@304 @304
- 1143  29      op1  A=@564           B=@132           (D?=@308)
- 1144  55      op5  A=@568           B=@136           (D?=@312)
- 1145  7d      op5  A=@572           B=@140           (D?=@316)
+ 1142  a3      P2.page=3   -> D@304 TMP1B
+ 1143  29      RSUB A=@564         B=TMP2A        -> P2 (via dc)
+ 1144  55      RSUB A=@568         B=TMP3A        -> P2+4 (via dc)
+ 1145  7d      RSUB A=@572         B=TMP4A        -> P2+4 (via dc)
  1146  ba      P2.bank=2
  1147  b5      P1.bank=1
  1148  b1      P0.bank=1
  1149  a3      P2.page=3   -> D@560 @560
- 1150  83      P0.page=3   -> A@304 @304
- 1151  93      P1.page=3   -> B@304 @304
+ 1150  83      P0.page=3   -> A@304 TMP1B
+ 1151  93      P1.page=3   -> B@304 TMP1B
  1152  f0      FMODE.0   ; 1=32-bit fifo, 2/3=16-bit
- 1153  00      op0  A=@304           B=@304           (D?=@560)
- 1154  28      op0  A=@308           B=@308           (D?=@564)
- 1155  50      op0  A=@312           B=@312           (D?=@568)
+ 1153  00      ADD A=TMP1B        B=TMP1B        -> P2 (via dc)
+ 1154  28      ADD A=TMP2B        B=TMP2B        -> P2 (via dc)
+ 1155  50      ADD A=TMP3B        B=TMP3B        -> P2 (via dc)
  1156  f5      f5
  1157  b2      P0.bank=2
  1158  b6      P1.bank=2
  1159  aa      P2.page=a   -> D@672 @672
  1160  83      P0.page=3   -> A@560 @560
  1161  93      P1.page=3   -> B@560 @560
- 1162  28      op0  A=@564           B=@564           (D?=@676)
- 1163  54      op4  A=@568           B=@568           (D?=@680)
- 1164  7c      op4  A=@572           B=@572           (D?=@684)
+ 1162  28      ADD A=@564         B=@564         -> P2 (via dc)
+ 1163  54      ADD A=@568         B=@568         -> P2+4 (via dc)
+ 1164  7c      ADD A=@572         B=@572         -> P2+4 (via dc)
  1165  b9      P2.bank=1
  1166  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
- 1167  a3      P2.page=3   -> D@304 @304
+ 1167  a3      P2.page=3   -> D@304 TMP1B
  1168  82      P0.page=2   -> A@544 @544
  1169  93      P1.page=3   -> B@560 @560
- 1170  61      op1  A=@556           B=@560           (D?=@304)
+ 1170  61      RSUB A=@556         B=@560         -> P2 (via dc)
  1171  ba      P2.bank=2
  1172  a2      P2.page=2   -> D@544 @544
  1173  da      IF.2
@@ -155,11 +155,11 @@
  1177  8b      P0.page=b   -> A@688 @688
  1178  9a      P1.page=a   -> B@672 @672
  1179  b9      P2.bank=1
- 1180  ae      P2.page=e   -> D@480 @480
+ 1180  ae      P2.page=e   -> D@480 TMP25
  1181  f5      f5
- 1182  60      [db] op0  A=@700           B=@672           (D?=@480)
- 1183  68      [db] op0  A=@700           B=@676           (D?=@484)
- 1184  70      [db] op0  A=@700           B=@680           (D?=@488)
+ 1182  60      [db] ADD A=@700         B=@672         -> P2 (via dc)
+ 1183  68      [db] ADD A=@700         B=@676         -> P2 (via dc)
+ 1184  70      [db] ADD A=@700         B=@680         -> P2 (via dc)
  1185  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  1186  da      IF.2
  1187  ba      P2.bank=2
@@ -169,11 +169,11 @@
  1191  a2      P2.page=2   -> D@544 @544
  1192  fa      fa
  1193  b9      P2.bank=1
- 1194  a3      P2.page=3   -> D@304 @304
+ 1194  a3      P2.page=3   -> D@304 TMP1B
  1195  82      P0.page=2   -> A@544 @544
  1196  92      P1.page=2   -> B@544 @544
  1197  db      IF.3
- 1198  31      [db] op1  A=@548           B=@552           (D?=@312)
+ 1198  31      [db] RSUB A=@548         B=@552         -> P2 (via dc)
  1199  ba      P2.bank=2
  1200  a2      P2.page=2   -> D@544 @544
  1201  d9      IF.1
@@ -187,12 +187,12 @@
  1209  85      P0.page=5   -> A@592 @592
  1210  c1      c1
  1211  b8      P2.bank=0
- 1212  a2      P2.page=2   -> D@32 @32
+ 1212  a2      P2.page=2   -> D@32 BLPFSTC
  1213  df      df
  1214  df      df
  1215  df      df
  1216  ba      P2.bank=2
- 1217  a0      P2.page=0   -> D@512 @512
+ 1217  a0      P2.page=0   -> D@512 BLPFNMZL+2
  1218  df      df
  1219  df      df
  1220  df      df
@@ -200,130 +200,130 @@
  1222  d8      ALWAYS
  1223  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  1224  b8      P2.bank=0
- 1225  a8      P2.page=8   -> D@128 @128
+ 1225  a8      P2.page=8   -> D@128 TMP1A
  1226  b3      P0.bank=3
  1227  8d      P0.page=d   -> A@976 @976
  1228  b4      P1.bank=0
- 1229  98      P1.page=8   -> B@128 @128
- 1230  0d      op5  A=@976           B=@132           (D?=@132)
- 1231  35      op5  A=@980           B=@136           (D?=@136)
- 1232  5d      op5  A=@984           B=@140           (D?=@140)
+ 1229  98      P1.page=8   -> B@128 TMP1A
+ 1230  0d      RSUB A=@976         B=TMP2A        -> P2+4 (via dc)
+ 1231  35      RSUB A=@980         B=TMP3A        -> P2+4 (via dc)
+ 1232  5d      RSUB A=@984         B=TMP4A        -> P2+4 (via dc)
  1233  b8      P2.bank=0
- 1234  aa      P2.page=a   -> D@160 @160
- 1235  98      P1.page=8   -> B@128 @128
+ 1234  aa      P2.page=a   -> D@160 DZ
+ 1235  98      P1.page=8   -> B@128 TMP1A
  1236  b0      P0.bank=0
- 1237  87      P0.page=7   -> A@112 @112
- 1238  2d      op5  A=@116           B=@132           (D?=@164)
- 1239  35      op5  A=@116           B=@136           (D?=@168)
- 1240  3d      op5  A=@116           B=@140           (D?=@172)
+ 1237  87      P0.page=7   -> A@112 0_5
+ 1238  2d      RSUB A=0_0          B=TMP2A        -> P2+4 (via dc)
+ 1239  35      RSUB A=0_0          B=TMP3A        -> P2+4 (via dc)
+ 1240  3d      RSUB A=0_0          B=TMP4A        -> P2+4 (via dc)
  1241  b2      P0.bank=2
  1242  b6      P1.bank=2
  1243  ba      P2.bank=2
  1244  af      P2.page=f   -> D@752 @752
  1245  8c      P0.page=c   -> A@704 @704
  1246  96      P1.page=6   -> B@608 @608
- 1247  19      op1  A=@704           B=@620           (D?=@764)
+ 1247  19      RSUB A=@704         B=@620         -> P2 (via dc)
  1248  8f      P0.page=f   -> A@752 @752
  1249  9f      P1.page=f   -> B@752 @752
  1250  a7      P2.page=7   -> D@624 @624
- 1251  0e      op6  A=@752           B=@756           (D?=@628)
- 1252  16      op6  A=@752           B=@760           (D?=@632)
- 1253  1e      op6  A=@752           B=@764           (D?=@636)
+ 1251  0e      MUL A=@752         B=@756         -> P2+4 (via dc)
+ 1252  16      MUL A=@752         B=@760         -> P2+4 (via dc)
+ 1253  1e      MUL A=@752         B=@764         -> P2+4 (via dc)
  1254  b4      P1.bank=0
- 1255  9a      P1.page=a   -> B@160 @160
+ 1255  9a      P1.page=a   -> B@160 DZ
  1256  b8      P2.bank=0
- 1257  aa      P2.page=a   -> D@160 @160
+ 1257  aa      P2.page=a   -> D@160 DZ
  1258  87      P0.page=7   -> A@624 @624
- 1259  2c      op4  A=@628           B=@164           (D?=@164)
- 1260  54      op4  A=@632           B=@168           (D?=@168)
- 1261  7c      op4  A=@636           B=@172           (D?=@172)
+ 1259  2c      ADD A=@628         B=XGC          -> P2+4 (via dc)
+ 1260  54      ADD A=@632         B=YGC          -> P2+4 (via dc)
+ 1261  7c      ADD A=@636         B=ZGC          -> P2+4 (via dc)
  1262  d8      ALWAYS
  1263  b8      P2.bank=0
  1264  b4      P1.bank=0
  1265  b0      P0.bank=0
  1266  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
- 1267  99      P1.page=9   -> B@144 @144
- 1268  82      P0.page=2   -> A@32 @32
- 1269  a8      P2.page=8   -> D@128 @128
- 1270  2d      op5  A=@36            B=@148           (D?=@132)
- 1271  55      op5  A=@40            B=@152           (D?=@136)
- 1272  7d      op5  A=@44            B=@156           (D?=@140)
- 1273  98      P1.page=8   -> B@128 @128
- 1274  a8      P2.page=8   -> D@128 @128
- 1275  0e      op6  A=@32            B=@132           (D?=@132)
- 1276  16      op6  A=@32            B=@136           (D?=@136)
- 1277  1e      op6  A=@32            B=@140           (D?=@140)
- 1278  a2      P2.page=2   -> D@32 @32
- 1279  2c      op4  A=@36            B=@132           (D?=@36)
- 1280  54      op4  A=@40            B=@136           (D?=@40)
- 1281  7c      op4  A=@44            B=@140           (D?=@44)
- 1282  a8      P2.page=8   -> D@128 @128
- 1283  92      P1.page=2   -> B@32 @32
+ 1267  99      P1.page=9   -> B@144 XACCW
+ 1268  82      P0.page=2   -> A@32 BLPFSTC
+ 1269  a8      P2.page=8   -> D@128 TMP1A
+ 1270  2d      RSUB A=BLPFSX       B=XACCB        -> P2+4 (via dc)
+ 1271  55      RSUB A=BLPFSY       B=YACCB        -> P2+4 (via dc)
+ 1272  7d      RSUB A=BLPFSZ       B=ZACCB        -> P2+4 (via dc)
+ 1273  98      P1.page=8   -> B@128 TMP1A
+ 1274  a8      P2.page=8   -> D@128 TMP1A
+ 1275  0e      MUL A=BLPFSTC      B=TMP2A        -> P2+4 (via dc)
+ 1276  16      MUL A=BLPFSTC      B=TMP3A        -> P2+4 (via dc)
+ 1277  1e      MUL A=BLPFSTC      B=TMP4A        -> P2+4 (via dc)
+ 1278  a2      P2.page=2   -> D@32 BLPFSTC
+ 1279  2c      ADD A=BLPFSX       B=TMP2A        -> P2+4 (via dc)
+ 1280  54      ADD A=BLPFSY       B=TMP3A        -> P2+4 (via dc)
+ 1281  7c      ADD A=BLPFSZ       B=TMP4A        -> P2+4 (via dc)
+ 1282  a8      P2.page=8   -> D@128 TMP1A
+ 1283  92      P1.page=2   -> B@32 BLPFSTC
  1284  f5      f5
- 1285  2c      op4  A=@36            B=@36            (D?=@132)
- 1286  54      op4  A=@40            B=@40            (D?=@136)
- 1287  88      P0.page=8   -> A@128 @128
- 1288  98      P1.page=8   -> B@128 @128
+ 1285  2c      ADD A=BLPFSX       B=BLPFSX       -> P2+4 (via dc)
+ 1286  54      ADD A=BLPFSY       B=BLPFSY       -> P2+4 (via dc)
+ 1287  88      P0.page=8   -> A@128 TMP1A
+ 1288  98      P1.page=8   -> B@128 TMP1A
  1289  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
- 1290  35      op5  A=@132           B=@136           (D?=@136)
+ 1290  35      RSUB A=TMP2A        B=TMP3A        -> P2+4 (via dc)
  1291  d9      IF.1
  1292  f4 18   B.d9 -> 1318
  1294  d8      ALWAYS
  1295  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
- 1296  a2      P2.page=2   -> D@32 @32
+ 1296  a2      P2.page=2   -> D@32 BLPFSTC
  1297  d0      d0
  1298  f8      f8
  1299  f9      f9
- 1300  a8      P2.page=8   -> D@128 @128
- 1301  84      P0.page=4   -> A@64 @64
+ 1300  a8      P2.page=8   -> D@128 TMP1A
+ 1301  84      P0.page=4   -> A@64 BLPFC
  1302  d9      IF.1
  1303  c7      c7
  1304  df      df
  1305  f8      f8
  1306  f8      f8
- 1307  83      P0.page=3   -> A@48 @48
+ 1307  83      P0.page=3   -> A@48 BLPFMTC
  1308  c5      c5
  1309  da      IF.2
  1310  df      df
- 1311  69      [da] op1  A=@60            B=@132           (D?=@132)
+ 1311  69      [da] RSUB A=BLPFMZ       B=TMP2A        -> P2 (via dc)
  1312  df      df
- 1313  83      P0.page=3   -> A@48 @48
+ 1313  83      P0.page=3   -> A@48 BLPFMTC
  1314  c1      c1
  1315  d8      ALWAYS
  1316  f4 01   B -> 1319
- 1318  14      op4  A=@48            B=@136           (D?=@136)
+ 1318  14      ADD A=BLPFMTC      B=TMP3A        -> P2+4 (via dc)
  1319  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
- 1320  a8      P2.page=8   -> D@128 @128
- 1321  82      P0.page=2   -> A@32 @32
- 1322  4e      op6  A=@40            B=@132           (D?=@132)
- 1323  a8      P2.page=8   -> D@128 @128
- 1324  84      P0.page=4   -> A@64 @64
+ 1320  a8      P2.page=8   -> D@128 TMP1A
+ 1321  82      P0.page=2   -> A@32 BLPFSTC
+ 1322  4e      MUL A=BLPFSY       B=TMP2A        -> P2+4 (via dc)
+ 1323  a8      P2.page=8   -> D@128 TMP1A
+ 1324  84      P0.page=4   -> A@64 BLPFC
  1325  f3      FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
- 1326  11      op1  A=@64            B=@136           (D?=@136)
+ 1326  11      RSUB A=BLPFC        B=TMP3A        -> P2 (via dc)
  1327  d1      d1
- 1328  82      P0.page=2   -> A@32 @32
+ 1328  82      P0.page=2   -> A@32 BLPFSTC
  1329  f5      f5
  1330  d9      IF.1
- 1331  92      P1.page=2   -> B@32 @32
- 1332  28      [d9] op0  A=@36            B=@36            (D?=@132)
- 1333  97      P1.page=7   -> B@112 @112
- 1334  88      P0.page=8   -> A@128 @128
+ 1331  92      P1.page=2   -> B@32 BLPFSTC
+ 1332  28      [d9] ADD A=BLPFSX       B=BLPFSX       -> P2 (via dc)
+ 1333  97      P1.page=7   -> B@112 0_5
+ 1334  88      P0.page=8   -> A@128 TMP1A
  1335  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
- 1336  09      [d9] op1  A=@128           B=@116           (D?=@132)
+ 1336  09      [d9] RSUB A=TMP1A        B=0_0          -> P2 (via dc)
  1337  f4 1c   B.d9 -> 1367
- 1339  1c      [d9] op4  A=@128           B=@124           (D?=@140)
+ 1339  1c      [d9] ADD A=TMP1A        B=1_5          -> P2+4 (via dc)
  1340  d8      ALWAYS
- 1341  84      P0.page=4   -> A@64 @64
- 1342  a8      P2.page=8   -> D@128 @128
+ 1341  84      P0.page=4   -> A@64 BLPFC
+ 1342  a8      P2.page=8   -> D@128 TMP1A
  1343  f3      FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
  1344  c0      c0
  1345  f9      f9
  1346  d1      d1
  1347  d9      IF.1
- 1348  97      P1.page=7   -> B@112 @112
- 1349  82      P0.page=2   -> A@32 @32
+ 1348  97      P1.page=7   -> B@112 0_5
+ 1349  82      P0.page=2   -> A@32 BLPFSTC
  1350  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
- 1351  29      [d9] op1  A=@36            B=@116           (D?=@132)
+ 1351  29      [d9] RSUB A=BLPFSX       B=0_0          -> P2 (via dc)
  1352  f4 0d   B.d9 -> 1367
  1354  d8      ALWAYS
  1355  f3      FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
@@ -331,72 +331,72 @@
  1357  f9      f9
  1358  d1      d1
  1359  d9      IF.1
- 1360  82      P0.page=2   -> A@32 @32
+ 1360  82      P0.page=2   -> A@32 BLPFSTC
  1361  f4 c2   f4 c2   ; imm>=0x80 (unknown form)
- 1363  03      [d9] op3  A=@32            B=@112           (D?=@128)
+ 1363  03      [d9] NMUL A=BLPFSTC      B=0_5          -> P2 (via dc)
  1364  d8      ALWAYS
  1365  de      de
  1366  df      df
- 1367  1a      op2  A=@32            B=@124           (D?=@140)
+ 1367  1a      MUL A=BLPFSTC      B=1_5          -> P2 (via dc)
  1368  d8      ALWAYS
  1369  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
- 1370  a2      P2.page=2   -> D@32 @32
+ 1370  a2      P2.page=2   -> D@32 BLPFSTC
  1371  fa      fa
  1372  f9      f9
- 1373  a8      P2.page=8   -> D@128 @128
- 1374  84      P0.page=4   -> A@64 @64
- 1375  98      P1.page=8   -> B@128 @128
+ 1373  a8      P2.page=8   -> D@128 TMP1A
+ 1374  84      P0.page=4   -> A@64 BLPFC
+ 1375  98      P1.page=8   -> B@128 TMP1A
  1376  d9      IF.1
  1377  c7      c7
  1378  df      df
  1379  f8      f8
  1380  f8      f8
  1381  f8      f8
- 1382  83      P0.page=3   -> A@48 @48
+ 1382  83      P0.page=3   -> A@48 BLPFMTC
  1383  c7      c7
  1384  da      IF.2
  1385  df      df
- 1386  69      [da] op1  A=@60            B=@132           (D?=@132)
+ 1386  69      [da] RSUB A=BLPFMZ       B=TMP2A        -> P2 (via dc)
  1387  df      df
  1388  f8      f8
- 1389  83      P0.page=3   -> A@48 @48
+ 1389  83      P0.page=3   -> A@48 BLPFMTC
  1390  c3      c3
  1391  d8      ALWAYS
  1392  f4 01   B -> 1395
- 1394  14      op4  A=@48            B=@136           (D?=@136)
+ 1394  14      ADD A=BLPFMTC      B=TMP3A        -> P2+4 (via dc)
  1395  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
- 1396  98      P1.page=8   -> B@128 @128
- 1397  a8      P2.page=8   -> D@128 @128
- 1398  82      P0.page=2   -> A@32 @32
- 1399  2e      op6  A=@36            B=@132           (D?=@132)
- 1400  a8      P2.page=8   -> D@128 @128
- 1401  84      P0.page=4   -> A@64 @64
+ 1396  98      P1.page=8   -> B@128 TMP1A
+ 1397  a8      P2.page=8   -> D@128 TMP1A
+ 1398  82      P0.page=2   -> A@32 BLPFSTC
+ 1399  2e      MUL A=BLPFSX       B=TMP2A        -> P2+4 (via dc)
+ 1400  a8      P2.page=8   -> D@128 TMP1A
+ 1401  84      P0.page=4   -> A@64 BLPFC
  1402  f3      FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
- 1403  11      op1  A=@64            B=@136           (D?=@136)
+ 1403  11      RSUB A=BLPFC        B=TMP3A        -> P2 (via dc)
  1404  d1      d1
- 1405  82      P0.page=2   -> A@32 @32
+ 1405  82      P0.page=2   -> A@32 BLPFSTC
  1406  f5      f5
  1407  d9      IF.1
- 1408  92      P1.page=2   -> B@32 @32
- 1409  50      [d9] op0  A=@40            B=@40            (D?=@136)
- 1410  97      P1.page=7   -> B@112 @112
- 1411  88      P0.page=8   -> A@128 @128
+ 1408  92      P1.page=2   -> B@32 BLPFSTC
+ 1409  50      [d9] ADD A=BLPFSY       B=BLPFSY       -> P2 (via dc)
+ 1410  97      P1.page=7   -> B@112 0_5
+ 1411  88      P0.page=8   -> A@128 TMP1A
  1412  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
- 1413  09      [d9] op1  A=@128           B=@116           (D?=@132)
+ 1413  09      [d9] RSUB A=TMP1A        B=0_0          -> P2 (via dc)
  1414  f4 1c   B.d9 -> 1444
  1416  d8      ALWAYS
- 1417  84      P0.page=4   -> A@64 @64
- 1418  a8      P2.page=8   -> D@128 @128
+ 1417  84      P0.page=4   -> A@64 BLPFC
+ 1418  a8      P2.page=8   -> D@128 TMP1A
  1419  f3      FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
  1420  c0      c0
  1421  f8      f8
  1422  f9      f9
  1423  d1      d1
  1424  d9      IF.1
- 1425  97      P1.page=7   -> B@112 @112
- 1426  82      P0.page=2   -> A@32 @32
+ 1425  97      P1.page=7   -> B@112 0_5
+ 1426  82      P0.page=2   -> A@32 BLPFSTC
  1427  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
- 1428  49      [d9] op1  A=@40            B=@116           (D?=@132)
+ 1428  49      [d9] RSUB A=BLPFSY       B=0_0          -> P2 (via dc)
  1429  f4 0d   B.d9 -> 1444
  1431  d8      ALWAYS
  1432  f3      FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
@@ -404,205 +404,205 @@
  1434  f9      f9
  1435  d1      d1
  1436  d9      IF.1
- 1437  82      P0.page=2   -> A@32 @32
+ 1437  82      P0.page=2   -> A@32 BLPFSTC
  1438  f4 c4   f4 c4   ; imm>=0x80 (unknown form)
- 1440  03      [d9] op3  A=@32            B=@112           (D?=@128)
+ 1440  03      [d9] NMUL A=BLPFSTC      B=0_5          -> P2 (via dc)
  1441  d8      ALWAYS
  1442  de      de
  1443  df      df
  1444  d8      ALWAYS
  1445  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
- 1446  ad      P2.page=d   -> D@208 @208
- 1447  88      P0.page=8   -> A@128 @128
- 1448  98      P1.page=8   -> B@128 @128
+ 1446  ad      P2.page=d   -> D@208 CTRL1
+ 1447  88      P0.page=8   -> A@128 TMP1A
+ 1448  98      P1.page=8   -> B@128 TMP1A
  1449  cc      cc
- 1450  a8      P2.page=8   -> D@128 @128
- 1451  09      op1  A=@128           B=@132           (D?=@132)
+ 1450  a8      P2.page=8   -> D@128 TMP1A
+ 1451  09      RSUB A=TMP1A        B=TMP2A        -> P2 (via dc)
  1452  f9      f9
  1453  d9      IF.1
- 1454  82      P0.page=2   -> A@32 @32
- 1455  92      P1.page=2   -> B@32 @32
- 1456  a4      P2.page=4   -> D@64 @64
+ 1454  82      P0.page=2   -> A@32 BLPFSTC
+ 1455  92      P1.page=2   -> B@32 BLPFSTC
+ 1456  a4      P2.page=4   -> D@64 BLPFC
  1457  f0      FMODE.0   ; 1=32-bit fifo, 2/3=16-bit
- 1458  2c      [d9] op4  A=@36            B=@36            (D?=@68)
- 1459  50      [d9] op0  A=@40            B=@40            (D?=@72)
- 1460  78      [d9] op0  A=@44            B=@44            (D?=@76)
- 1461  a8      P2.page=8   -> D@128 @128
- 1462  82      P0.page=2   -> A@32 @32
+ 1458  2c      [d9] ADD A=BLPFSX       B=BLPFSX       -> P2+4 (via dc)
+ 1459  50      [d9] ADD A=BLPFSY       B=BLPFSY       -> P2 (via dc)
+ 1460  78      [d9] ADD A=BLPFSZ       B=BLPFSZ       -> P2 (via dc)
+ 1461  a8      P2.page=8   -> D@128 TMP1A
+ 1462  82      P0.page=2   -> A@32 BLPFSTC
  1463  f5      f5
- 1464  7c      [d9] op4  A=@44            B=@44            (D?=@140)
+ 1464  7c      [d9] ADD A=BLPFSZ       B=BLPFSZ       -> P2+4 (via dc)
  1465  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
- 1466  88      P0.page=8   -> A@128 @128
- 1467  3a      [d9] op2  A=@132           B=@44            (D?=@140)
+ 1466  88      P0.page=8   -> A@128 TMP1A
+ 1467  3a      [d9] MUL A=TMP2A        B=BLPFSZ       -> P2 (via dc)
  1468  cf      cf
- 1469  94      P1.page=4   -> B@64 @64
- 1470  4a      [d9] op2  A=@136           B=@68            (D?=@132)
- 1471  6e      [d9] op6  A=@140           B=@68            (D?=@132)
- 1472  98      P1.page=8   -> B@128 @128
+ 1469  94      P1.page=4   -> B@64 BLPFC
+ 1470  4a      [d9] MUL A=TMP3A        B=0H2          -> P2 (via dc)
+ 1471  6e      [d9] MUL A=TMP4A        B=0H2          -> P2+4 (via dc)
+ 1472  98      P1.page=8   -> B@128 TMP1A
  1473  db      IF.3
- 1474  69      [db] op1  A=@140           B=@132           (D?=@132)
- 1475  31      [db] op1  A=@132           B=@136           (D?=@136)
+ 1474  69      [db] RSUB A=TMP4A        B=TMP2A        -> P2 (via dc)
+ 1475  31      [db] RSUB A=TMP2A        B=TMP3A        -> P2 (via dc)
  1476  d9      IF.1
- 1477  84      P0.page=4   -> A@64 @64
+ 1477  84      P0.page=4   -> A@64 BLPFC
  1478  c4      c4
  1479  cd      cd
  1480  fc      fc
  1481  db      IF.3
- 1482  6d      [db] op5  A=@76            B=@132           (D?=@132)
+ 1482  6d      [db] RSUB A=BERR2N       B=TMP2A        -> P2+4 (via dc)
  1483  d9      IF.1
- 1484  a8      P2.page=8   -> D@128 @128
+ 1484  a8      P2.page=8   -> D@128 TMP1A
  1485  fc      fc
  1486  db      IF.3
- 1487  25      [db] op5  A=@68            B=@128           (D?=@128)
+ 1487  25      [db] RSUB A=0H2          B=TMP1A        -> P2+4 (via dc)
  1488  da      IF.2
- 1489  ad      P2.page=d   -> D@208 @208
+ 1489  ad      P2.page=d   -> D@208 CTRL1
  1490  f2      FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
  1491  de      de
  1492  f9      f9
  1493  d8      ALWAYS
  1494  f2      FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
- 1495  a5      P2.page=5   -> D@80 @80
+ 1495  a5      P2.page=5   -> D@80 ANGVBX
  1496  f8      f8
- 1497  8d      P0.page=d   -> A@208 @208
- 1498  94      P1.page=4   -> B@64 @64
+ 1497  8d      P0.page=d   -> A@208 CTRL1
+ 1498  94      P1.page=4   -> B@64 BLPFC
  1499  d1      d1
  1500  da      IF.2
  1501  f4 19   B.da -> 1528
  1503  d8      ALWAYS
- 1504  a8      P2.page=8   -> D@128 @128
+ 1504  a8      P2.page=8   -> D@128 TMP1A
  1505  f2      FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
- 1506  05      op5  A=@208           B=@64            (D?=@128)
+ 1506  05      RSUB A=CTRL1        B=BLPFC        -> P2+4 (via dc)
  1507  d1      d1
- 1508  a4      P2.page=4   -> D@64 @64
+ 1508  a4      P2.page=4   -> D@64 BLPFC
  1509  da      IF.2
  1510  c0      c0
- 1511  a5      P2.page=5   -> D@80 @80
+ 1511  a5      P2.page=5   -> D@80 ANGVBX
  1512  f7      f7
  1513  de      de
  1514  f9      f9
  1515  d8      ALWAYS
- 1516  a5      P2.page=5   -> D@80 @80
+ 1516  a5      P2.page=5   -> D@80 ANGVBX
  1517  f8      f8
- 1518  85      P0.page=5   -> A@80 @80
- 1519  95      P1.page=5   -> B@80 @80
- 1520  18      op0  A=@80            B=@92            (D?=@92)
+ 1518  85      P0.page=5   -> A@80 ANGVBX
+ 1519  95      P1.page=5   -> B@80 ANGVBX
+ 1520  18      ADD A=ANGVBX       B=BERR1        -> P2 (via dc)
  1521  df      df
  1522  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
- 1523  ad      P2.page=d   -> D@208 @208
- 1524  8e      P0.page=e   -> A@224 @224
+ 1523  ad      P2.page=d   -> D@208 CTRL1
+ 1524  8e      P0.page=e   -> A@224 CTRLS1
  1525  c3      c3
  1526  c5      c5
  1527  c7      c7
  1528  d8      ALWAYS
  1529  f2      FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
- 1530  a5      P2.page=5   -> D@80 @80
+ 1530  a5      P2.page=5   -> D@80 ANGVBX
  1531  f8      f8
  1532  d1      d1
  1533  d9      IF.1
  1534  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
- 1535  ad      P2.page=d   -> D@208 @208
- 1536  8f      P0.page=f   -> A@240 @240
+ 1535  ad      P2.page=d   -> D@208 CTRL1
+ 1536  8f      P0.page=f   -> A@240 CTRLSFNL
  1537  c3      c3
  1538  c5      c5
  1539  c7      c7
  1540  d8      ALWAYS
- 1541  a5      P2.page=5   -> D@80 @80
+ 1541  a5      P2.page=5   -> D@80 ANGVBX
  1542  f2      FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
  1543  f9      f9
  1544  f9      f9
- 1545  a8      P2.page=8   -> D@128 @128
- 1546  8d      P0.page=d   -> A@208 @208
- 1547  9d      P1.page=d   -> B@208 @208
+ 1545  a8      P2.page=8   -> D@128 TMP1A
+ 1546  8d      P0.page=d   -> A@208 CTRL1
+ 1547  9d      P1.page=d   -> B@208 CTRL1
  1548  f0      FMODE.0   ; 1=32-bit fifo, 2/3=16-bit
- 1549  28      op0  A=@212           B=@212           (D?=@132)
- 1550  50      op0  A=@216           B=@216           (D?=@136)
- 1551  78      op0  A=@220           B=@220           (D?=@140)
- 1552  84      P0.page=4   -> A@64 @64
- 1553  98      P1.page=8   -> B@128 @128
+ 1549  28      ADD A=CTRL2        B=CTRL2        -> P2 (via dc)
+ 1550  50      ADD A=CTRL3        B=CTRL3        -> P2 (via dc)
+ 1551  78      ADD A=CTRL4        B=CTRL4        -> P2 (via dc)
+ 1552  84      P0.page=4   -> A@64 BLPFC
+ 1553  98      P1.page=8   -> B@128 TMP1A
  1554  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
- 1555  26      op6  A=@68            B=@128           (D?=@128)
- 1556  84      P0.page=4   -> A@64 @64
- 1557  95      P1.page=5   -> B@80 @80
- 1558  2d      op5  A=@68            B=@84            (D?=@132)
- 1559  88      P0.page=8   -> A@128 @128
- 1560  98      P1.page=8   -> B@128 @128
- 1561  11      op1  A=@128           B=@136           (D?=@136)
- 1562  52      op2  A=@136           B=@136           (D?=@136)
- 1563  87      P0.page=7   -> A@112 @112
- 1564  12      op2  A=@112           B=@136           (D?=@136)
- 1565  12      op2  A=@112           B=@136           (D?=@136)
- 1566  88      P0.page=8   -> A@128 @128
- 1567  31      op1  A=@132           B=@136           (D?=@136)
+ 1555  26      MUL A=0H2          B=TMP1A        -> P2+4 (via dc)
+ 1556  84      P0.page=4   -> A@64 BLPFC
+ 1557  95      P1.page=5   -> B@80 ANGVBX
+ 1558  2d      RSUB A=0H2          B=ANGVBY       -> P2+4 (via dc)
+ 1559  88      P0.page=8   -> A@128 TMP1A
+ 1560  98      P1.page=8   -> B@128 TMP1A
+ 1561  11      RSUB A=TMP1A        B=TMP3A        -> P2 (via dc)
+ 1562  52      MUL A=TMP3A        B=TMP3A        -> P2 (via dc)
+ 1563  87      P0.page=7   -> A@112 0_5
+ 1564  12      MUL A=0_5          B=TMP3A        -> P2 (via dc)
+ 1565  12      MUL A=0_5          B=TMP3A        -> P2 (via dc)
+ 1566  88      P0.page=8   -> A@128 TMP1A
+ 1567  31      RSUB A=TMP2A        B=TMP3A        -> P2 (via dc)
  1568  f9      f9
  1569  d9      IF.1
  1570  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
- 1571  8d      P0.page=d   -> A@208 @208
- 1572  9d      P1.page=d   -> B@208 @208
- 1573  7a      [d9] op2  A=@220           B=@220           (D?=@140)
+ 1571  8d      P0.page=d   -> A@208 CTRL1
+ 1572  9d      P1.page=d   -> B@208 CTRL1
+ 1573  7a      [d9] MUL A=CTRL4        B=CTRL4        -> P2 (via dc)
  1574  f5      f5
- 1575  7c      [d9] op4  A=@220           B=@220           (D?=@140)
+ 1575  7c      [d9] ADD A=CTRL4        B=CTRL4        -> P2+4 (via dc)
  1576  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
- 1577  88      P0.page=8   -> A@128 @128
- 1578  7a      [d9] op2  A=@140           B=@220           (D?=@140)
- 1579  98      P1.page=8   -> B@128 @128
- 1580  45      [d9] op5  A=@136           B=@128           (D?=@128)
- 1581  8e      P0.page=e   -> A@224 @224
- 1582  0e      [d9] op6  A=@224           B=@132           (D?=@132)
+ 1577  88      P0.page=8   -> A@128 TMP1A
+ 1578  7a      [d9] MUL A=TMP4A        B=CTRL4        -> P2 (via dc)
+ 1579  98      P1.page=8   -> B@128 TMP1A
+ 1580  45      [d9] RSUB A=TMP3A        B=TMP1A        -> P2+4 (via dc)
+ 1581  8e      P0.page=e   -> A@224 CTRLS1
+ 1582  0e      [d9] MUL A=CTRLS1       B=TMP2A        -> P2+4 (via dc)
  1583  f5      f5
- 1584  82      P0.page=2   -> A@32 @32
- 1585  92      P1.page=2   -> B@32 @32
- 1586  7c      [d9] op4  A=@44            B=@44            (D?=@140)
- 1587  88      P0.page=8   -> A@128 @128
+ 1584  82      P0.page=2   -> A@32 BLPFSTC
+ 1585  92      P1.page=2   -> B@32 BLPFSTC
+ 1586  7c      [d9] ADD A=BLPFSZ       B=BLPFSZ       -> P2+4 (via dc)
+ 1587  88      P0.page=8   -> A@128 TMP1A
  1588  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
- 1589  5a      [d9] op2  A=@136           B=@44            (D?=@140)
- 1590  98      P1.page=8   -> B@128 @128
- 1591  5a      [d9] op2  A=@136           B=@140           (D?=@140)
- 1592  82      P0.page=2   -> A@32 @32
- 1593  92      P1.page=2   -> B@32 @32
- 1594  7e      [d9] op6  A=@44            B=@44            (D?=@140)
- 1595  88      P0.page=8   -> A@128 @128
- 1596  94      P1.page=4   -> B@64 @64
- 1597  69      [d9] op1  A=@140           B=@68            (D?=@132)
- 1598  98      P1.page=8   -> B@128 @128
- 1599  1e      [d9] op6  A=@128           B=@140           (D?=@140)
- 1600  11      [d9] op1  A=@128           B=@136           (D?=@136)
- 1601  08      [d9] op0  A=@128           B=@132           (D?=@132)
+ 1589  5a      [d9] MUL A=TMP3A        B=BLPFSZ       -> P2 (via dc)
+ 1590  98      P1.page=8   -> B@128 TMP1A
+ 1591  5a      [d9] MUL A=TMP3A        B=TMP4A        -> P2 (via dc)
+ 1592  82      P0.page=2   -> A@32 BLPFSTC
+ 1593  92      P1.page=2   -> B@32 BLPFSTC
+ 1594  7e      [d9] MUL A=BLPFSZ       B=BLPFSZ       -> P2+4 (via dc)
+ 1595  88      P0.page=8   -> A@128 TMP1A
+ 1596  94      P1.page=4   -> B@64 BLPFC
+ 1597  69      [d9] RSUB A=TMP4A        B=0H2          -> P2 (via dc)
+ 1598  98      P1.page=8   -> B@128 TMP1A
+ 1599  1e      [d9] MUL A=TMP1A        B=TMP4A        -> P2+4 (via dc)
+ 1600  11      [d9] RSUB A=TMP1A        B=TMP3A        -> P2 (via dc)
+ 1601  08      [d9] ADD A=TMP1A        B=TMP2A        -> P2 (via dc)
  1602  d0      d0
  1603  f5      f5
- 1604  04      [d9] op4  A=@128           B=@128           (D?=@128)
+ 1604  04      [d9] ADD A=TMP1A        B=TMP1A        -> P2+4 (via dc)
  1605  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
- 1606  1e      [d9] op6  A=@128           B=@140           (D?=@140)
- 1607  97      P1.page=7   -> B@112 @112
- 1608  02      [d9] op2  A=@128           B=@112           (D?=@128)
- 1609  02      [d9] op2  A=@128           B=@112           (D?=@128)
- 1610  98      P1.page=8   -> B@128 @128
- 1611  36      [d9] op6  A=@132           B=@136           (D?=@136)
- 1612  25      [d9] op5  A=@132           B=@128           (D?=@128)
+ 1606  1e      [d9] MUL A=TMP1A        B=TMP4A        -> P2+4 (via dc)
+ 1607  97      P1.page=7   -> B@112 0_5
+ 1608  02      [d9] MUL A=TMP1A        B=0_5          -> P2 (via dc)
+ 1609  02      [d9] MUL A=TMP1A        B=0_5          -> P2 (via dc)
+ 1610  98      P1.page=8   -> B@128 TMP1A
+ 1611  36      [d9] MUL A=TMP2A        B=TMP3A        -> P2+4 (via dc)
+ 1612  25      [d9] RSUB A=TMP2A        B=TMP1A        -> P2+4 (via dc)
  1613  db      IF.3
  1614  f9      f9
  1615  d9      IF.1
  1616  f0      FMODE.0   ; 1=32-bit fifo, 2/3=16-bit
- 1617  8d      P0.page=d   -> A@208 @208
- 1618  92      P1.page=2   -> B@32 @32
- 1619  a8      P2.page=8   -> D@128 @128
- 1620  49      [d9] op1  A=@216           B=@36            (D?=@132)
- 1621  30      [d9] op0  A=@212           B=@40            (D?=@136)
- 1622  2c      [d9] op4  A=@212           B=@36            (D?=@132)
- 1623  50      [d9] op0  A=@216           B=@40            (D?=@136)
- 1624  8e      P0.page=e   -> A@224 @224
+ 1617  8d      P0.page=d   -> A@208 CTRL1
+ 1618  92      P1.page=2   -> B@32 BLPFSTC
+ 1619  a8      P2.page=8   -> D@128 TMP1A
+ 1620  49      [d9] RSUB A=CTRL3        B=BLPFSX       -> P2 (via dc)
+ 1621  30      [d9] ADD A=CTRL2        B=BLPFSY       -> P2 (via dc)
+ 1622  2c      [d9] ADD A=CTRL2        B=BLPFSX       -> P2+4 (via dc)
+ 1623  50      [d9] ADD A=CTRL3        B=BLPFSY       -> P2 (via dc)
+ 1624  8e      P0.page=e   -> A@224 CTRLS1
  1625  c9      c9
- 1626  88      P0.page=8   -> A@128 @128
- 1627  98      P1.page=8   -> B@128 @128
- 1628  34      [d9] op4  A=@132           B=@136           (D?=@136)
+ 1626  88      P0.page=8   -> A@128 TMP1A
+ 1627  98      P1.page=8   -> B@128 TMP1A
+ 1628  34      [d9] ADD A=TMP2A        B=TMP3A        -> P2+4 (via dc)
  1629  f5      f5
- 1630  04      [d9] op4  A=@128           B=@128           (D?=@128)
+ 1630  04      [d9] ADD A=TMP1A        B=TMP1A        -> P2+4 (via dc)
  1631  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
- 1632  61      [d9] op1  A=@140           B=@128           (D?=@128)
+ 1632  61      [d9] RSUB A=TMP4A        B=TMP1A        -> P2 (via dc)
  1633  db      IF.3
  1634  f9      f9
  1635  d9      IF.1
  1636  f2      FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
- 1637  a5      P2.page=5   -> D@80 @80
+ 1637  a5      P2.page=5   -> D@80 ANGVBX
  1638  f8      f8
  1639  db      IF.3
  1640  f9      f9
@@ -611,37 +611,37 @@
  1643  fa      fa
  1644  d8      ALWAYS
  1645  f2      FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
- 1646  a5      P2.page=5   -> D@80 @80
+ 1646  a5      P2.page=5   -> D@80 ANGVBX
  1647  f8      f8
  1648  f9      f9
  1649  d9      IF.1
  1650  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
- 1651  af      P2.page=f   -> D@240 @240
- 1652  8e      P0.page=e   -> A@224 @224
+ 1651  af      P2.page=f   -> D@240 CTRLSFNL
+ 1652  8e      P0.page=e   -> A@224 CTRLS1
  1653  c3      c3
  1654  c5      c5
  1655  c7      c7
- 1656  ae      P2.page=e   -> D@224 @224
- 1657  82      P0.page=2   -> A@32 @32
+ 1656  ae      P2.page=e   -> D@224 CTRLS1
+ 1657  82      P0.page=2   -> A@32 BLPFSTC
  1658  c3      c3
  1659  c5      c5
  1660  c7      c7
  1661  d8      ALWAYS
- 1662  a4      P2.page=4   -> D@64 @64
+ 1662  a4      P2.page=4   -> D@64 BLPFC
  1663  f2      FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
  1664  f8      f8
  1665  d1      d1
- 1666  a5      P2.page=5   -> D@80 @80
+ 1666  a5      P2.page=5   -> D@80 ANGVBX
  1667  f3      FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
  1668  d9      IF.1
  1669  de      de
  1670  f9      f9
  1671  df      df
  1672  d8      ALWAYS
- 1673  a4      P2.page=4   -> D@64 @64
+ 1673  a4      P2.page=4   -> D@64 BLPFC
  1674  f2      FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
  1675  f9      f9
- 1676  a5      P2.page=5   -> D@80 @80
+ 1676  a5      P2.page=5   -> D@80 ANGVBX
  1677  f8      f8
  1678  f8      f8
  1679  d1      d1
@@ -661,17 +661,17 @@
  1694  f4 1d   B.da -> 1725
  1696  d9      IF.1
  1697  f3      FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
- 1698  a4      P2.page=4   -> D@64 @64
- 1699  84      P0.page=4   -> A@64 @64
+ 1698  a4      P2.page=4   -> D@64 BLPFC
+ 1699  84      P0.page=4   -> A@64 BLPFC
  1700  c8      c8
- 1701  a8      P2.page=8   -> D@128 @128
- 1702  9f      P1.page=f   -> B@240 @240
- 1703  01      [d9] op1  A=@64            B=@240           (D?=@128)
+ 1701  a8      P2.page=8   -> D@128 TMP1A
+ 1702  9f      P1.page=f   -> B@240 CTRLSFNL
+ 1703  01      [d9] RSUB A=BLPFC        B=CTRLSFNL     -> P2 (via dc)
  1704  db      IF.3
  1705  d1      d1
  1706  d8      ALWAYS
  1707  f4 10   B -> 1725
- 1709  1c      op4  A=@64            B=@252           (D?=@140)
+ 1709  1c      ADD A=BLPFC        B=TMP12        -> P2+4 (via dc)
  1710  d8      ALWAYS
  1711  bb      P2.bank=3
  1712  af      P2.page=f   -> D@1008 @1008
@@ -689,15 +689,15 @@
  1724  b8      P2.bank=0
  1725  d8      ALWAYS
  1726  f3      FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
- 1727  af      P2.page=f   -> D@240 @240
- 1728  84      P0.page=4   -> A@64 @64
+ 1727  af      P2.page=f   -> D@240 CTRLSFNL
+ 1728  84      P0.page=4   -> A@64 BLPFC
  1729  c0      c0
- 1730  a5      P2.page=5   -> D@80 @80
+ 1730  a5      P2.page=5   -> D@80 ANGVBX
  1731  fa      fa
  1732  f8      f8
  1733  f2      FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
- 1734  85      P0.page=5   -> A@80 @80
- 1735  a5      P2.page=5   -> D@80 @80
+ 1734  85      P0.page=5   -> A@80 ANGVBX
+ 1735  a5      P2.page=5   -> D@80 ANGVBX
  1736  c6      c6
  1737  d8      ALWAYS
  1738  d8      ALWAYS
@@ -707,146 +707,146 @@
  1742  b5      P1.bank=1
  1743  b9      P2.bank=1
  1744  b0      P0.bank=0
- 1745  8a      P0.page=a   -> A@160 @160
- 1746  95      P1.page=5   -> B@336 @336
- 1747  a3      P2.page=3   -> D@304 @304
+ 1745  8a      P0.page=a   -> A@160 DZ
+ 1746  95      P1.page=5   -> B@336 PVXG
+ 1747  a3      P2.page=3   -> D@304 TMP1B
  1748  de      de
- 1749  3c      op4  A=@164           B=@348           (D?=@316)
- 1750  a3      P2.page=3   -> D@304 @304
+ 1749  3c      ADD A=XGC          B=TMP17+2      -> P2+4 (via dc)
+ 1750  a3      P2.page=3   -> D@304 TMP1B
  1751  d9      IF.1
  1752  f8      f8
  1753  d8      ALWAYS
- 1754  5c      op4  A=@168           B=@348           (D?=@316)
- 1755  a3      P2.page=3   -> D@304 @304
+ 1754  5c      ADD A=YGC          B=TMP17+2      -> P2+4 (via dc)
+ 1755  a3      P2.page=3   -> D@304 TMP1B
  1756  d9      IF.1
  1757  f8      f8
  1758  d8      ALWAYS
- 1759  7c      op4  A=@172           B=@348           (D?=@316)
- 1760  a3      P2.page=3   -> D@304 @304
+ 1759  7c      ADD A=ZGC          B=TMP17+2      -> P2+4 (via dc)
+ 1760  a3      P2.page=3   -> D@304 TMP1B
  1761  d9      IF.1
  1762  f8      f8
  1763  d8      ALWAYS
  1764  f8      f8
  1765  f9      f9
  1766  d1      d1
- 1767  a5      P2.page=5   -> D@336 @336
+ 1767  a5      P2.page=5   -> D@336 PVXG
  1768  d9      IF.1
  1769  df      df
  1770  da      IF.2
  1771  fa      fa
  1772  d8      ALWAYS
  1773  b1      P0.bank=1
- 1774  85      P0.page=5   -> A@336 @336
- 1775  30      op0  A=@340           B=@344           (D?=@344)
+ 1774  85      P0.page=5   -> A@336 PVXG
+ 1775  30      ADD A=PVYG         B=PVZG         -> P2 (via dc)
  1776  f7      f7
  1777  d9      IF.1
  1778  de      de
  1779  d8      ALWAYS
  1780  f8      f8
- 1781  30      op0  A=@340           B=@344           (D?=@344)
- 1782  ad      P2.page=d   -> D@464 @464
+ 1781  30      ADD A=PVYG         B=PVZG         -> P2 (via dc)
+ 1782  ad      P2.page=d   -> D@464 TMP22
  1783  da      IF.2
  1784  de      de
  1785  d8      ALWAYS
  1786  f2      FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
  1787  b4      P1.bank=0
- 1788  8c      P0.page=c   -> A@448 @448
- 1789  99      P1.page=9   -> B@144 @144
- 1790  a3      P2.page=3   -> D@304 @304
- 1791  2d      op5  A=@452           B=@148           (D?=@308)
- 1792  55      op5  A=@456           B=@152           (D?=@312)
- 1793  7d      op5  A=@460           B=@156           (D?=@316)
- 1794  a0      P2.page=0   -> D@256 @256
- 1795  83      P0.page=3   -> A@304 @304
+ 1788  8c      P0.page=c   -> A@448 TEMP29
+ 1789  99      P1.page=9   -> B@144 XACCW
+ 1790  a3      P2.page=3   -> D@304 TMP1B
+ 1791  2d      RSUB A=XACCB_PRE    B=XACCB        -> P2+4 (via dc)
+ 1792  55      RSUB A=YACCB_PRE    B=YACCB        -> P2+4 (via dc)
+ 1793  7d      RSUB A=ZACCB_PRE    B=ZACCB        -> P2+4 (via dc)
+ 1794  a0      P2.page=0   -> D@256 PREVPTAT
+ 1795  83      P0.page=3   -> A@304 TMP1B
  1796  df      df
  1797  df      df
  1798  df      df
  1799  b5      P1.bank=1
- 1800  91      P1.page=1   -> B@272 @272
- 1801  a0      P2.page=0   -> D@256 @256
+ 1800  91      P1.page=1   -> B@272 1HB
+ 1801  a0      P2.page=0   -> D@256 PREVPTAT
  1802  f6      f6
- 1803  29      op1  A=@308           B=@276           (D?=@260)
+ 1803  29      RSUB A=TMP2B        B=0            -> P2 (via dc)
  1804  d9      IF.1
  1805  fb      fb
  1806  d8      ALWAYS
- 1807  a0      P2.page=0   -> D@256 @256
+ 1807  a0      P2.page=0   -> D@256 PREVPTAT
  1808  fc      fc
- 1809  29      op1  A=@308           B=@276           (D?=@260)
+ 1809  29      RSUB A=TMP2B        B=0            -> P2 (via dc)
  1810  d9      IF.1
  1811  fa      fa
  1812  d8      ALWAYS
- 1813  a0      P2.page=0   -> D@256 @256
+ 1813  a0      P2.page=0   -> D@256 PREVPTAT
  1814  d0      d0
- 1815  51      op1  A=@312           B=@280           (D?=@264)
+ 1815  51      RSUB A=TMP3B        B=ASR22        -> P2 (via dc)
  1816  d9      IF.1
  1817  f8      f8
  1818  d8      ALWAYS
  1819  fc      fc
- 1820  51      op1  A=@312           B=@280           (D?=@264)
+ 1820  51      RSUB A=TMP3B        B=ASR22        -> P2 (via dc)
  1821  d9      IF.1
  1822  f9      f9
  1823  d8      ALWAYS
- 1824  79      op1  A=@316           B=@284           (D?=@268)
+ 1824  79      RSUB A=TMP4B        B=ASR6         -> P2 (via dc)
  1825  d9      IF.1
  1826  fb      fb
  1827  d8      ALWAYS
- 1828  a0      P2.page=0   -> D@256 @256
+ 1828  a0      P2.page=0   -> D@256 PREVPTAT
  1829  d0      d0
  1830  fc      fc
- 1831  79      op1  A=@316           B=@284           (D?=@268)
+ 1831  79      RSUB A=TMP4B        B=ASR6         -> P2 (via dc)
  1832  d9      IF.1
  1833  fa      fa
  1834  d8      ALWAYS
- 1835  a1      P2.page=1   -> D@272 @272
+ 1835  a1      P2.page=1   -> D@272 1HB
  1836  f9      f9
  1837  f9      f9
  1838  f9      f9
  1839  f9      f9
  1840  f9      f9
- 1841  a0      P2.page=0   -> D@256 @256
+ 1841  a0      P2.page=0   -> D@256 PREVPTAT
  1842  da      IF.2
  1843  df      df
  1844  df      df
  1845  df      df
  1846  d8      ALWAYS
- 1847  a1      P2.page=1   -> D@272 @272
+ 1847  a1      P2.page=1   -> D@272 1HB
  1848  f8      f8
  1849  f8      f8
  1850  f8      f8
  1851  f8      f8
  1852  f8      f8
- 1853  ac      P2.page=c   -> D@448 @448
+ 1853  ac      P2.page=c   -> D@448 TEMP29
  1854  de      de
  1855  f8      f8
- 1856  ad      P2.page=d   -> D@464 @464
+ 1856  ad      P2.page=d   -> D@464 TMP22
  1857  de      de
- 1858  83      P0.page=3   -> A@304 @304
- 1859  93      P1.page=3   -> B@304 @304
- 1860  ac      P2.page=c   -> D@448 @448
- 1861  2c      op4  A=@308           B=@308           (D?=@452)
- 1862  54      op4  A=@312           B=@312           (D?=@456)
- 1863  7c      op4  A=@316           B=@316           (D?=@460)
+ 1858  83      P0.page=3   -> A@304 TMP1B
+ 1859  93      P1.page=3   -> B@304 TMP1B
+ 1860  ac      P2.page=c   -> D@448 TEMP29
+ 1861  2c      ADD A=TMP2B        B=TMP2B        -> P2+4 (via dc)
+ 1862  54      ADD A=TMP3B        B=TMP3B        -> P2+4 (via dc)
+ 1863  7c      ADD A=TMP4B        B=TMP4B        -> P2+4 (via dc)
  1864  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
- 1865  a8      P2.page=8   -> D@384 @384
+ 1865  a8      P2.page=8   -> D@384 ACCQD0
  1866  df      df
  1867  df      df
  1868  df      df
  1869  f6      f6
- 1870  9d      P1.page=d   -> B@464 @464
- 1871  2c      op4  A=@308           B=@468           (D?=@388)
+ 1870  9d      P1.page=d   -> B@464 TMP22
+ 1871  2c      ADD A=TMP2B        B=TAP_THX      -> P2+4 (via dc)
  1872  da      IF.2
- 1873  a0      P2.page=0   -> D@256 @256
+ 1873  a0      P2.page=0   -> D@256 PREVPTAT
  1874  df      df
  1875  d9      IF.1
  1876  fa      fa
  1877  db      IF.3
- 1878  2d      [db] op5  A=@308           B=@468           (D?=@260)
+ 1878  2d      [db] RSUB A=TMP2B        B=TAP_THX      -> P2+4 (via dc)
  1879  f8      f8
  1880  d8      ALWAYS
- 1881  a8      P2.page=8   -> D@384 @384
- 1882  50      op0  A=@312           B=@472           (D?=@392)
+ 1881  a8      P2.page=8   -> D@384 ACCQD0
+ 1882  50      ADD A=TMP3B        B=TAP_THY      -> P2 (via dc)
  1883  da      IF.2
- 1884  a0      P2.page=0   -> D@256 @256
+ 1884  a0      P2.page=0   -> D@256 PREVPTAT
  1885  d0      d0
  1886  de      de
  1887  d9      IF.1
@@ -855,13 +855,13 @@
  1890  f8      f8
  1891  f8      f8
  1892  db      IF.3
- 1893  55      [db] op5  A=@312           B=@472           (D?=@264)
+ 1893  55      [db] RSUB A=TMP3B        B=TAP_THY      -> P2+4 (via dc)
  1894  f8      f8
  1895  d8      ALWAYS
- 1896  a8      P2.page=8   -> D@384 @384
- 1897  78      op0  A=@316           B=@476           (D?=@396)
+ 1896  a8      P2.page=8   -> D@384 ACCQD0
+ 1897  78      ADD A=TMP4B        B=TAP_THZ      -> P2 (via dc)
  1898  da      IF.2
- 1899  a0      P2.page=0   -> D@256 @256
+ 1899  a0      P2.page=0   -> D@256 PREVPTAT
  1900  d0      d0
  1901  df      df
  1902  d9      IF.1
@@ -872,248 +872,248 @@
  1907  f8      f8
  1908  f8      f8
  1909  db      IF.3
- 1910  7d      [db] op5  A=@316           B=@476           (D?=@268)
+ 1910  7d      [db] RSUB A=TMP4B        B=TAP_THZ      -> P2+4 (via dc)
  1911  f8      f8
  1912  d8      ALWAYS
- 1913  9c      P1.page=c   -> B@448 @448
- 1914  a8      P2.page=8   -> D@384 @384
- 1915  8c      P0.page=c   -> A@448 @448
+ 1913  9c      P1.page=c   -> B@448 TEMP29
+ 1914  a8      P2.page=8   -> D@384 ACCQD0
+ 1915  8c      P0.page=c   -> A@448 TEMP29
  1916  f5      f5
- 1917  30      op0  A=@452           B=@456           (D?=@392)
+ 1917  30      ADD A=XACCB_PRE    B=YACCB_PRE    -> P2 (via dc)
  1918  db      IF.3
- 1919  38      [db] op0  A=@452           B=@460           (D?=@396)
+ 1919  38      [db] ADD A=XACCB_PRE    B=ZACCB_PRE    -> P2 (via dc)
  1920  d9      IF.1
  1921  d0      d0
  1922  de      de
  1923  df      df
- 1924  a0      P2.page=0   -> D@256 @256
+ 1924  a0      P2.page=0   -> D@256 PREVPTAT
  1925  d0      d0
  1926  de      de
  1927  df      df
  1928  d8      ALWAYS
- 1929  a8      P2.page=8   -> D@384 @384
- 1930  48      op0  A=@456           B=@452           (D?=@388)
+ 1929  a8      P2.page=8   -> D@384 ACCQD0
+ 1930  48      ADD A=YACCB_PRE    B=XACCB_PRE    -> P2 (via dc)
  1931  db      IF.3
- 1932  58      [db] op0  A=@456           B=@460           (D?=@396)
+ 1932  58      [db] ADD A=YACCB_PRE    B=ZACCB_PRE    -> P2 (via dc)
  1933  d9      IF.1
  1934  df      df
  1935  d0      d0
  1936  de      de
- 1937  a0      P2.page=0   -> D@256 @256
+ 1937  a0      P2.page=0   -> D@256 PREVPTAT
  1938  df      df
  1939  d0      d0
  1940  de      de
  1941  d8      ALWAYS
- 1942  a8      P2.page=8   -> D@384 @384
- 1943  68      op0  A=@460           B=@452           (D?=@388)
+ 1942  a8      P2.page=8   -> D@384 ACCQD0
+ 1943  68      ADD A=ZACCB_PRE    B=XACCB_PRE    -> P2 (via dc)
  1944  db      IF.3
- 1945  70      [db] op0  A=@460           B=@456           (D?=@392)
+ 1945  70      [db] ADD A=ZACCB_PRE    B=YACCB_PRE    -> P2 (via dc)
  1946  d9      IF.1
  1947  df      df
  1948  df      df
- 1949  a0      P2.page=0   -> D@256 @256
+ 1949  a0      P2.page=0   -> D@256 PREVPTAT
  1950  df      df
  1951  df      df
  1952  d8      ALWAYS
  1953  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
- 1954  a8      P2.page=8   -> D@384 @384
- 1955  88      P0.page=8   -> A@384 @384
- 1956  90      P1.page=0   -> B@256 @256
- 1957  2c      op4  A=@388           B=@260           (D?=@388)
- 1958  54      op4  A=@392           B=@264           (D?=@392)
- 1959  7c      op4  A=@396           B=@268           (D?=@396)
- 1960  98      P1.page=8   -> B@384 @384
- 1961  a8      P2.page=8   -> D@384 @384
+ 1954  a8      P2.page=8   -> D@384 ACCQD0
+ 1955  88      P0.page=8   -> A@384 ACCQD0
+ 1956  90      P1.page=0   -> B@256 PREVPTAT
+ 1957  2c      ADD A=ACCQD1       B=ACCZB+2      -> P2+4 (via dc)
+ 1958  54      ADD A=ACCQD2       B=ACCXB        -> P2+4 (via dc)
+ 1959  7c      ADD A=ACCQD3       B=ACCYB+2      -> P2+4 (via dc)
+ 1960  98      P1.page=8   -> B@384 ACCQD0
+ 1961  a8      P2.page=8   -> D@384 ACCQD0
  1962  d0      d0
- 1963  5c      op4  A=@392           B=@396           (D?=@396)
- 1964  38      op0  A=@388           B=@396           (D?=@396)
+ 1963  5c      ADD A=ACCQD2       B=ACCQD3       -> P2+4 (via dc)
+ 1964  38      ADD A=ACCQD1       B=ACCQD3       -> P2 (via dc)
  1965  d1      d1
  1966  da      IF.2
  1967  f2      FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
- 1968  ae      P2.page=e   -> D@480 @480
- 1969  8c      P0.page=c   -> A@448 @448
+ 1968  ae      P2.page=e   -> D@480 TMP25
+ 1969  8c      P0.page=c   -> A@448 TEMP29
  1970  df      df
  1971  f9      f9
  1972  d8      ALWAYS
  1973  b0      P0.bank=0
- 1974  87      P0.page=7   -> A@112 @112
- 1975  a8      P2.page=8   -> D@384 @384
+ 1974  87      P0.page=7   -> A@112 0_5
+ 1975  a8      P2.page=8   -> D@384 ACCQD0
  1976  c1      c1
  1977  c1      c1
  1978  b1      P0.bank=1
- 1979  88      P0.page=8   -> A@384 @384
- 1980  a8      P2.page=8   -> D@384 @384
+ 1979  88      P0.page=8   -> A@384 ACCQD0
+ 1980  a8      P2.page=8   -> D@384 ACCQD0
  1981  c6      c6
  1982  f9      f9
  1983  f9      f9
  1984  da      IF.2
- 1985  36      [da] op6  A=@388           B=@392           (D?=@392)
+ 1985  36      [da] MUL A=ACCQD1       B=ACCQD2       -> P2+4 (via dc)
  1986  d8      ALWAYS
- 1987  a8      P2.page=8   -> D@384 @384
+ 1987  a8      P2.page=8   -> D@384 ACCQD0
  1988  f9      f9
  1989  da      IF.2
- 1990  36      [da] op6  A=@388           B=@392           (D?=@392)
+ 1990  36      [da] MUL A=ACCQD1       B=ACCQD2       -> P2+4 (via dc)
  1991  d8      ALWAYS
- 1992  a8      P2.page=8   -> D@384 @384
+ 1992  a8      P2.page=8   -> D@384 ACCQD0
  1993  f9      f9
  1994  da      IF.2
- 1995  36      [da] op6  A=@388           B=@392           (D?=@392)
+ 1995  36      [da] MUL A=ACCQD1       B=ACCQD2       -> P2+4 (via dc)
  1996  d8      ALWAYS
- 1997  a8      P2.page=8   -> D@384 @384
+ 1997  a8      P2.page=8   -> D@384 ACCQD0
  1998  f9      f9
  1999  da      IF.2
- 2000  36      [da] op6  A=@388           B=@392           (D?=@392)
+ 2000  36      [da] MUL A=ACCQD1       B=ACCQD2       -> P2+4 (via dc)
  2001  d8      ALWAYS
- 2002  a8      P2.page=8   -> D@384 @384
+ 2002  a8      P2.page=8   -> D@384 ACCQD0
  2003  f9      f9
  2004  da      IF.2
- 2005  36      [da] op6  A=@388           B=@392           (D?=@392)
+ 2005  36      [da] MUL A=ACCQD1       B=ACCQD2       -> P2+4 (via dc)
  2006  d8      ALWAYS
  2007  f7      f7
- 2008  8d      P0.page=d   -> A@464 @464
- 2009  9d      P1.page=d   -> B@464 @464
- 2010  ad      P2.page=d   -> D@464 @464
+ 2008  8d      P0.page=d   -> A@464 TMP22
+ 2009  9d      P1.page=d   -> B@464 TMP22
+ 2010  ad      P2.page=d   -> D@464 TMP22
  2011  f8      f8
- 2012  18      op0  A=@464           B=@476           (D?=@476)
+ 2012  18      ADD A=TMP22        B=TAP_THZ      -> P2 (via dc)
  2013  da      IF.2
  2014  f2      FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
- 2015  ae      P2.page=e   -> D@480 @480
+ 2015  ae      P2.page=e   -> D@480 TMP25
  2016  df      df
  2017  d8      ALWAYS
  2018  f7      f7
- 2019  ad      P2.page=d   -> D@464 @464
+ 2019  ad      P2.page=d   -> D@464 TMP22
  2020  fa      fa
- 2021  30      op0  A=@468           B=@472           (D?=@472)
+ 2021  30      ADD A=TAP_THX      B=TAP_THY      -> P2 (via dc)
  2022  d9      IF.1
- 2023  a4      P2.page=4   -> D@320 @320
+ 2023  a4      P2.page=4   -> D@320 STXG
  2024  de      de
  2025  f9      f9
  2026  d8      ALWAYS
  2027  f2      FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
- 2028  ae      P2.page=e   -> D@480 @480
+ 2028  ae      P2.page=e   -> D@480 TMP25
  2029  de      de
  2030  fa      fa
  2031  f9      f9
- 2032  83      P0.page=3   -> A@304 @304
- 2033  a7      P2.page=7   -> D@368 @368
+ 2032  83      P0.page=3   -> A@304 TMP1B
+ 2033  a7      P2.page=7   -> D@368 ACCQD4
  2034  d9      IF.1
  2035  c3      c3
  2036  c5      c5
  2037  c7      c7
  2038  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
- 2039  88      P0.page=8   -> A@384 @384
- 2040  9b      P1.page=b   -> B@432 @432
- 2041  a7      P2.page=7   -> D@368 @368
- 2042  7a      [d9] op2  A=@396           B=@444           (D?=@380)
- 2043  ad      P2.page=d   -> D@464 @464
+ 2039  88      P0.page=8   -> A@384 ACCQD0
+ 2040  9b      P1.page=b   -> B@432 SEM1
+ 2041  a7      P2.page=7   -> D@368 ACCQD4
+ 2042  7a      [d9] MUL A=ACCQD3       B=SH_TH_Z      -> P2 (via dc)
+ 2043  ad      P2.page=d   -> D@464 TMP22
  2044  f7      f7
  2045  de      de
  2046  df      df
- 2047  a4      P2.page=4   -> D@320 @320
+ 2047  a4      P2.page=4   -> D@320 STXG
  2048  f8      f8
- 2049  84      P0.page=4   -> A@320 @320
- 2050  94      P1.page=4   -> B@320 @320
- 2051  08      [d9] op0  A=@320           B=@324           (D?=@324)
- 2052  a7      P2.page=7   -> D@368 @368
- 2053  97      P1.page=7   -> B@368 @368
+ 2049  84      P0.page=4   -> A@320 STXG
+ 2050  94      P1.page=4   -> B@320 STXG
+ 2051  08      [d9] ADD A=STXG         B=STYG         -> P2 (via dc)
+ 2052  a7      P2.page=7   -> D@368 ACCQD4
+ 2053  97      P1.page=7   -> B@368 ACCQD4
  2054  f3      FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
- 2055  00      [d9] op0  A=@320           B=@368           (D?=@368)
- 2056  ae      P2.page=e   -> D@480 @480
+ 2055  00      [d9] ADD A=STXG         B=ACCQD4       -> P2 (via dc)
+ 2056  ae      P2.page=e   -> D@480 TMP25
  2057  f2      FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
- 2058  98      P1.page=8   -> B@384 @384
- 2059  19      [d9] op1  A=@320           B=@396           (D?=@492)
- 2060  a4      P2.page=4   -> D@320 @320
- 2061  88      P0.page=8   -> A@384 @384
+ 2058  98      P1.page=8   -> B@384 ACCQD0
+ 2059  19      [d9] RSUB A=STXG         B=ACCQD3       -> P2 (via dc)
+ 2060  a4      P2.page=4   -> D@320 STXG
+ 2061  88      P0.page=8   -> A@384 ACCQD0
  2062  c6      c6
- 2063  a3      P2.page=3   -> D@304 @304
- 2064  94      P1.page=4   -> B@320 @320
- 2065  88      P0.page=8   -> A@384 @384
+ 2063  a3      P2.page=3   -> D@304 TMP1B
+ 2064  94      P1.page=4   -> B@320 STXG
+ 2065  88      P0.page=8   -> A@384 ACCQD0
  2066  f6      f6
- 2067  32      [d9] op2  A=@388           B=@328           (D?=@312)
+ 2067  32      [d9] MUL A=ACCQD1       B=STZG         -> P2 (via dc)
  2068  df      df
  2069  f2      FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
- 2070  83      P0.page=3   -> A@304 @304
- 2071  93      P1.page=3   -> B@304 @304
+ 2070  83      P0.page=3   -> A@304 TMP1B
+ 2071  93      P1.page=3   -> B@304 TMP1B
  2072  db      IF.3
- 2073  09      [db] op1  A=@304           B=@308           (D?=@308)
+ 2073  09      [db] RSUB A=TMP1B        B=TMP2B        -> P2 (via dc)
  2074  d9      IF.1
  2075  f2      FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
- 2076  aa      P2.page=a   -> D@416 @416
+ 2076  aa      P2.page=a   -> D@416 Y
  2077  df      df
  2078  d8      ALWAYS
  2079  d8      ALWAYS
- 2080  ae      P2.page=e   -> D@480 @480
+ 2080  ae      P2.page=e   -> D@480 TMP25
  2081  f8      f8
  2082  f9      f9
  2083  d1      d1
  2084  da      IF.2
  2085  f3      FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
- 2086  a4      P2.page=4   -> D@320 @320
+ 2086  a4      P2.page=4   -> D@320 STXG
  2087  de      de
- 2088  a7      P2.page=7   -> D@368 @368
+ 2088  a7      P2.page=7   -> D@368 ACCQD4
  2089  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
- 2090  88      P0.page=8   -> A@384 @384
- 2091  9b      P1.page=b   -> B@432 @432
- 2092  7a      [da] op2  A=@396           B=@444           (D?=@380)
+ 2090  88      P0.page=8   -> A@384 ACCQD0
+ 2091  9b      P1.page=b   -> B@432 SEM1
+ 2092  7a      [da] MUL A=ACCQD3       B=SH_TH_Z      -> P2 (via dc)
  2093  d8      ALWAYS
  2094  f3      FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
- 2095  84      P0.page=4   -> A@320 @320
- 2096  94      P1.page=4   -> B@320 @320
- 2097  ae      P2.page=e   -> D@480 @480
- 2098  19      op1  A=@320           B=@332           (D?=@492)
+ 2095  84      P0.page=4   -> A@320 STXG
+ 2096  94      P1.page=4   -> B@320 STXG
+ 2097  ae      P2.page=e   -> D@480 TMP25
+ 2098  19      RSUB A=STXG         B=CTRLSFJT2    -> P2 (via dc)
  2099  f9      f9
  2100  da      IF.2
- 2101  aa      P2.page=a   -> D@416 @416
+ 2101  aa      P2.page=a   -> D@416 Y
  2102  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  2103  df      df
  2104  d8      ALWAYS
- 2105  a8      P2.page=8   -> D@384 @384
- 2106  81      P0.page=1   -> A@272 @272
+ 2105  a8      P2.page=8   -> D@384 ACCQD0
+ 2106  81      P0.page=1   -> A@272 1HB
  2107  c0      c0
  2108  c3      c3
  2109  c5      c5
  2110  c7      c7
- 2111  a3      P2.page=3   -> D@304 @304
- 2112  92      P1.page=2   -> B@288 @288
- 2113  83      P0.page=3   -> A@304 @304
+ 2111  a3      P2.page=3   -> D@304 TMP1B
+ 2112  92      P1.page=2   -> B@288 TMP13
+ 2113  83      P0.page=3   -> A@304 TMP1B
  2114  f6      f6
- 2115  28      op0  A=@308           B=@292           (D?=@308)
- 2116  ad      P2.page=d   -> D@464 @464
+ 2115  28      ADD A=TMP2B        B=FINTX        -> P2 (via dc)
+ 2116  ad      P2.page=d   -> D@464 TMP22
  2117  de      de
  2118  d9      IF.1
  2119  f8      f8
  2120  d8      ALWAYS
- 2121  a3      P2.page=3   -> D@304 @304
- 2122  50      op0  A=@312           B=@296           (D?=@312)
- 2123  ad      P2.page=d   -> D@464 @464
+ 2121  a3      P2.page=3   -> D@304 TMP1B
+ 2122  50      ADD A=TMP3B        B=FINTY        -> P2 (via dc)
+ 2123  ad      P2.page=d   -> D@464 TMP22
  2124  d9      IF.1
  2125  f8      f8
  2126  d8      ALWAYS
- 2127  a3      P2.page=3   -> D@304 @304
- 2128  78      op0  A=@316           B=@300           (D?=@316)
- 2129  ad      P2.page=d   -> D@464 @464
+ 2127  a3      P2.page=3   -> D@304 TMP1B
+ 2128  78      ADD A=TMP4B        B=FINTZ        -> P2 (via dc)
+ 2129  ad      P2.page=d   -> D@464 TMP22
  2130  d9      IF.1
  2131  f8      f8
  2132  d8      ALWAYS
  2133  f8      f8
  2134  f9      f9
  2135  d1      d1
- 2136  a1      P2.page=1   -> D@272 @272
+ 2136  a1      P2.page=1   -> D@272 1HB
  2137  da      IF.2
  2138  de      de
  2139  c3      c3
  2140  c5      c5
  2141  c7      c7
  2142  d8      ALWAYS
- 2143  a1      P2.page=1   -> D@272 @272
- 2144  81      P0.page=1   -> A@272 @272
- 2145  94      P1.page=4   -> B@320 @320
+ 2143  a1      P2.page=1   -> D@272 1HB
+ 2144  81      P0.page=1   -> A@272 1HB
+ 2145  94      P1.page=4   -> B@320 STXG
  2146  f8      f8
- 2147  18      op0  A=@272           B=@332           (D?=@284)
+ 2147  18      ADD A=1HB          B=CTRLSFJT2    -> P2 (via dc)
  2148  f2      FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
  2149  b0      P0.bank=0
- 2150  89      P0.page=9   -> A@144 @144
- 2151  ac      P2.page=c   -> D@448 @448
+ 2150  89      P0.page=9   -> A@144 XACCW
+ 2151  ac      P2.page=c   -> D@448 TEMP29
  2152  c3      c3
  2153  c5      c5
  2154  c7      c7
@@ -1122,391 +1122,391 @@
  2157  b8      P2.bank=0
  2158  b4      P1.bank=0
  2159  b0      P0.bank=0
- 2160  97      P1.page=7   -> B@112 @112
- 2161  86      P0.page=6   -> A@96 @96
- 2162  a8      P2.page=8   -> D@128 @128
- 2163  31      op1  A=@100           B=@120           (D?=@136)
- 2164  9b      P1.page=b   -> B@176 @176
- 2165  06      op6  A=@96            B=@176           (D?=@128)
- 2166  99      P1.page=9   -> B@144 @144
- 2167  07      op7  A=@96            B=@144           (D?=@128)
- 2168  ab      P2.page=b   -> D@176 @176
- 2169  97      P1.page=7   -> B@112 @112
- 2170  28      op0  A=@100           B=@116           (D?=@180)
- 2171  88      P0.page=8   -> A@128 @128
- 2172  9b      P1.page=b   -> B@176 @176
+ 2160  97      P1.page=7   -> B@112 0_5
+ 2161  86      P0.page=6   -> A@96 ATC
+ 2162  a8      P2.page=8   -> D@128 TMP1A
+ 2163  31      RSUB A=ACT2         B=1_0          -> P2 (via dc)
+ 2164  9b      P1.page=b   -> B@176 YACCW
+ 2165  06      MUL A=ATC          B=YACCW        -> P2+4 (via dc)
+ 2166  99      P1.page=9   -> B@144 XACCW
+ 2167  07      NMUL A=ATC          B=XACCW        -> P2+4 (via dc)
+ 2168  ab      P2.page=b   -> D@176 YACCW
+ 2169  97      P1.page=7   -> B@112 0_5
+ 2170  28      ADD A=ACT2         B=0_0          -> P2 (via dc)
+ 2171  88      P0.page=8   -> A@128 TMP1A
+ 2172  9b      P1.page=b   -> B@176 YACCW
  2173  f0      FMODE.0   ; 1=32-bit fifo, 2/3=16-bit
- 2174  0c      op4  A=@128           B=@180           (D?=@180)
- 2175  20      op0  A=@132           B=@176           (D?=@176)
- 2176  14      op4  A=@128           B=@184           (D?=@184)
- 2177  40      op0  A=@136           B=@176           (D?=@176)
+ 2174  0c      ADD A=TMP1A        B=AFB1         -> P2+4 (via dc)
+ 2175  20      ADD A=TMP2A        B=YACCW        -> P2 (via dc)
+ 2176  14      ADD A=TMP1A        B=AFB2         -> P2+4 (via dc)
+ 2177  40      ADD A=TMP3A        B=YACCW        -> P2 (via dc)
  2178  b0      P0.bank=0
  2179  b4      P1.bank=0
  2180  b8      P2.bank=0
  2181  f0      FMODE.0   ; 1=32-bit fifo, 2/3=16-bit
- 2182  a8      P2.page=8   -> D@128 @128
- 2183  8a      P0.page=a   -> A@160 @160
- 2184  9a      P1.page=a   -> B@160 @160
- 2185  28      op0  A=@164           B=@164           (D?=@132)
- 2186  50      op0  A=@168           B=@168           (D?=@136)
- 2187  78      op0  A=@172           B=@172           (D?=@140)
+ 2182  a8      P2.page=8   -> D@128 TMP1A
+ 2183  8a      P0.page=a   -> A@160 DZ
+ 2184  9a      P1.page=a   -> B@160 DZ
+ 2185  28      ADD A=XGC          B=XGC          -> P2 (via dc)
+ 2186  50      ADD A=YGC          B=YGC          -> P2 (via dc)
+ 2187  78      ADD A=ZGC          B=ZGC          -> P2 (via dc)
  2188  b7      P1.bank=3
  2189  9b      P1.page=b   -> B@944 @944
- 2190  a8      P2.page=8   -> D@128 @128
- 2191  29      op1  A=@164           B=@948           (D?=@132)
- 2192  51      op1  A=@168           B=@952           (D?=@136)
- 2193  79      op1  A=@172           B=@956           (D?=@140)
- 2194  24      op4  A=@164           B=@944           (D?=@128)
- 2195  70      op0  A=@172           B=@952           (D?=@136)
- 2196  59      op1  A=@168           B=@956           (D?=@140)
- 2197  44      op4  A=@168           B=@944           (D?=@128)
- 2198  69      op1  A=@172           B=@948           (D?=@132)
- 2199  38      op0  A=@164           B=@956           (D?=@140)
- 2200  64      op4  A=@172           B=@944           (D?=@128)
- 2201  48      op0  A=@168           B=@948           (D?=@132)
- 2202  31      op1  A=@164           B=@952           (D?=@136)
+ 2190  a8      P2.page=8   -> D@128 TMP1A
+ 2191  29      RSUB A=XGC          B=@948         -> P2 (via dc)
+ 2192  51      RSUB A=YGC          B=@952         -> P2 (via dc)
+ 2193  79      RSUB A=ZGC          B=@956         -> P2 (via dc)
+ 2194  24      ADD A=XGC          B=@944         -> P2+4 (via dc)
+ 2195  70      ADD A=ZGC          B=@952         -> P2 (via dc)
+ 2196  59      RSUB A=YGC          B=@956         -> P2 (via dc)
+ 2197  44      ADD A=YGC          B=@944         -> P2+4 (via dc)
+ 2198  69      RSUB A=ZGC          B=@948         -> P2 (via dc)
+ 2199  38      ADD A=XGC          B=@956         -> P2 (via dc)
+ 2200  64      ADD A=ZGC          B=@944         -> P2+4 (via dc)
+ 2201  48      ADD A=YGC          B=@948         -> P2 (via dc)
+ 2202  31      RSUB A=XGC          B=@952         -> P2 (via dc)
  2203  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  2204  bb      P2.bank=3
  2205  ab      P2.page=b   -> D@944 @944
- 2206  88      P0.page=8   -> A@128 @128
- 2207  00      op0  A=@128           B=@944           (D?=@944)
- 2208  2c      op4  A=@132           B=@948           (D?=@948)
- 2209  54      op4  A=@136           B=@952           (D?=@952)
- 2210  7c      op4  A=@140           B=@956           (D?=@956)
+ 2206  88      P0.page=8   -> A@128 TMP1A
+ 2207  00      ADD A=TMP1A        B=@944         -> P2 (via dc)
+ 2208  2c      ADD A=TMP2A        B=@948         -> P2+4 (via dc)
+ 2209  54      ADD A=TMP3A        B=@952         -> P2+4 (via dc)
+ 2210  7c      ADD A=TMP4A        B=@956         -> P2+4 (via dc)
  2211  f0      FMODE.0   ; 1=32-bit fifo, 2/3=16-bit
  2212  b3      P0.bank=3
  2213  8b      P0.page=b   -> A@944 @944
  2214  b8      P2.bank=0
- 2215  a8      P2.page=8   -> D@128 @128
- 2216  04      op4  A=@944           B=@944           (D?=@128)
- 2217  28      op0  A=@948           B=@948           (D?=@132)
- 2218  50      op0  A=@952           B=@952           (D?=@136)
- 2219  78      op0  A=@956           B=@956           (D?=@140)
+ 2215  a8      P2.page=8   -> D@128 TMP1A
+ 2216  04      ADD A=@944         B=@944         -> P2+4 (via dc)
+ 2217  28      ADD A=@948         B=@948         -> P2 (via dc)
+ 2218  50      ADD A=@952         B=@952         -> P2 (via dc)
+ 2219  78      ADD A=@956         B=@956         -> P2 (via dc)
  2220  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  2221  b0      P0.bank=0
- 2222  88      P0.page=8   -> A@128 @128
+ 2222  88      P0.page=8   -> A@128 TMP1A
  2223  b4      P1.bank=0
- 2224  97      P1.page=7   -> B@112 @112
- 2225  26      op6  A=@132           B=@112           (D?=@128)
- 2226  a8      P2.page=8   -> D@128 @128
- 2227  59      op1  A=@136           B=@124           (D?=@140)
- 2228  98      P1.page=8   -> B@128 @128
+ 2224  97      P1.page=7   -> B@112 0_5
+ 2225  26      MUL A=TMP2A        B=0_5          -> P2+4 (via dc)
+ 2226  a8      P2.page=8   -> D@128 TMP1A
+ 2227  59      RSUB A=TMP3A        B=1_5          -> P2 (via dc)
+ 2228  98      P1.page=8   -> B@128 TMP1A
  2229  bb      P2.bank=3
  2230  ab      P2.page=b   -> D@944 @944
  2231  b3      P0.bank=3
  2232  8b      P0.page=b   -> A@944 @944
- 2233  02      op2  A=@944           B=@128           (D?=@944)
- 2234  26      op6  A=@948           B=@128           (D?=@944)
- 2235  46      op6  A=@952           B=@128           (D?=@944)
- 2236  66      op6  A=@956           B=@128           (D?=@944)
+ 2233  02      MUL A=@944         B=TMP1A        -> P2 (via dc)
+ 2234  26      MUL A=@948         B=TMP1A        -> P2+4 (via dc)
+ 2235  46      MUL A=@952         B=TMP1A        -> P2+4 (via dc)
+ 2236  66      MUL A=@956         B=TMP1A        -> P2+4 (via dc)
  2237  b0      P0.bank=0
  2238  b8      P2.bank=0
  2239  f0      FMODE.0   ; 1=32-bit fifo, 2/3=16-bit
- 2240  8a      P0.page=a   -> A@160 @160
- 2241  9c      P1.page=c   -> B@192 @192
- 2242  a8      P2.page=8   -> D@128 @128
- 2243  29      op1  A=@164           B=@196           (D?=@132)
- 2244  51      op1  A=@168           B=@200           (D?=@136)
- 2245  79      op1  A=@172           B=@204           (D?=@140)
- 2246  8b      P0.page=b   -> A@176 @176
- 2247  29      op1  A=@180           B=@196           (D?=@132)
- 2248  51      op1  A=@184           B=@200           (D?=@136)
- 2249  79      op1  A=@188           B=@204           (D?=@140)
- 2250  8a      P0.page=a   -> A@160 @160
- 2251  24      op4  A=@164           B=@192           (D?=@128)
- 2252  70      op0  A=@172           B=@200           (D?=@136)
- 2253  59      op1  A=@168           B=@204           (D?=@140)
- 2254  8b      P0.page=b   -> A@176 @176
- 2255  20      op0  A=@180           B=@192           (D?=@128)
- 2256  58      op0  A=@184           B=@204           (D?=@140)
- 2257  71      op1  A=@188           B=@200           (D?=@136)
- 2258  8a      P0.page=a   -> A@160 @160
- 2259  44      op4  A=@168           B=@192           (D?=@128)
- 2260  69      op1  A=@172           B=@196           (D?=@132)
- 2261  38      op0  A=@164           B=@204           (D?=@140)
- 2262  8b      P0.page=b   -> A@176 @176
- 2263  39      op1  A=@180           B=@204           (D?=@140)
- 2264  40      op0  A=@184           B=@192           (D?=@128)
- 2265  68      op0  A=@188           B=@196           (D?=@132)
- 2266  8a      P0.page=a   -> A@160 @160
- 2267  64      op4  A=@172           B=@192           (D?=@128)
- 2268  48      op0  A=@168           B=@196           (D?=@132)
- 2269  31      op1  A=@164           B=@200           (D?=@136)
- 2270  8b      P0.page=b   -> A@176 @176
- 2271  30      op0  A=@180           B=@200           (D?=@136)
- 2272  49      op1  A=@184           B=@196           (D?=@132)
- 2273  60      op0  A=@188           B=@192           (D?=@128)
- 2274  88      P0.page=8   -> A@128 @128
+ 2240  8a      P0.page=a   -> A@160 DZ
+ 2241  9c      P1.page=c   -> B@192 QT1
+ 2242  a8      P2.page=8   -> D@128 TMP1A
+ 2243  29      RSUB A=XGC          B=QT2          -> P2 (via dc)
+ 2244  51      RSUB A=YGC          B=QT3          -> P2 (via dc)
+ 2245  79      RSUB A=ZGC          B=QT4          -> P2 (via dc)
+ 2246  8b      P0.page=b   -> A@176 YACCW
+ 2247  29      RSUB A=AFB1         B=QT2          -> P2 (via dc)
+ 2248  51      RSUB A=AFB2         B=QT3          -> P2 (via dc)
+ 2249  79      RSUB A=MAGFB        B=QT4          -> P2 (via dc)
+ 2250  8a      P0.page=a   -> A@160 DZ
+ 2251  24      ADD A=XGC          B=QT1          -> P2+4 (via dc)
+ 2252  70      ADD A=ZGC          B=QT3          -> P2 (via dc)
+ 2253  59      RSUB A=YGC          B=QT4          -> P2 (via dc)
+ 2254  8b      P0.page=b   -> A@176 YACCW
+ 2255  20      ADD A=AFB1         B=QT1          -> P2 (via dc)
+ 2256  58      ADD A=AFB2         B=QT4          -> P2 (via dc)
+ 2257  71      RSUB A=MAGFB        B=QT3          -> P2 (via dc)
+ 2258  8a      P0.page=a   -> A@160 DZ
+ 2259  44      ADD A=YGC          B=QT1          -> P2+4 (via dc)
+ 2260  69      RSUB A=ZGC          B=QT2          -> P2 (via dc)
+ 2261  38      ADD A=XGC          B=QT4          -> P2 (via dc)
+ 2262  8b      P0.page=b   -> A@176 YACCW
+ 2263  39      RSUB A=AFB1         B=QT4          -> P2 (via dc)
+ 2264  40      ADD A=AFB2         B=QT1          -> P2 (via dc)
+ 2265  68      ADD A=MAGFB        B=QT2          -> P2 (via dc)
+ 2266  8a      P0.page=a   -> A@160 DZ
+ 2267  64      ADD A=ZGC          B=QT1          -> P2+4 (via dc)
+ 2268  48      ADD A=YGC          B=QT2          -> P2 (via dc)
+ 2269  31      RSUB A=XGC          B=QT3          -> P2 (via dc)
+ 2270  8b      P0.page=b   -> A@176 YACCW
+ 2271  30      ADD A=AFB1         B=QT3          -> P2 (via dc)
+ 2272  49      RSUB A=AFB2         B=QT2          -> P2 (via dc)
+ 2273  60      ADD A=MAGFB        B=QT1          -> P2 (via dc)
+ 2274  88      P0.page=8   -> A@128 TMP1A
  2275  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
- 2276  ac      P2.page=c   -> D@192 @192
- 2277  00      op0  A=@128           B=@192           (D?=@192)
- 2278  2c      op4  A=@132           B=@196           (D?=@196)
- 2279  54      op4  A=@136           B=@200           (D?=@200)
- 2280  7c      op4  A=@140           B=@204           (D?=@204)
+ 2276  ac      P2.page=c   -> D@192 QT1
+ 2277  00      ADD A=TMP1A        B=QT1          -> P2 (via dc)
+ 2278  2c      ADD A=TMP2A        B=QT2          -> P2+4 (via dc)
+ 2279  54      ADD A=TMP3A        B=QT3          -> P2+4 (via dc)
+ 2280  7c      ADD A=TMP4A        B=QT4          -> P2+4 (via dc)
  2281  f0      FMODE.0   ; 1=32-bit fifo, 2/3=16-bit
- 2282  8c      P0.page=c   -> A@192 @192
- 2283  a8      P2.page=8   -> D@128 @128
- 2284  04      op4  A=@192           B=@192           (D?=@128)
- 2285  28      op0  A=@196           B=@196           (D?=@132)
- 2286  50      op0  A=@200           B=@200           (D?=@136)
- 2287  78      op0  A=@204           B=@204           (D?=@140)
+ 2282  8c      P0.page=c   -> A@192 QT1
+ 2283  a8      P2.page=8   -> D@128 TMP1A
+ 2284  04      ADD A=QT1          B=QT1          -> P2+4 (via dc)
+ 2285  28      ADD A=QT2          B=QT2          -> P2 (via dc)
+ 2286  50      ADD A=QT3          B=QT3          -> P2 (via dc)
+ 2287  78      ADD A=QT4          B=QT4          -> P2 (via dc)
  2288  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
- 2289  88      P0.page=8   -> A@128 @128
- 2290  97      P1.page=7   -> B@112 @112
- 2291  26      op6  A=@132           B=@112           (D?=@128)
- 2292  a8      P2.page=8   -> D@128 @128
- 2293  59      op1  A=@136           B=@124           (D?=@140)
- 2294  98      P1.page=8   -> B@128 @128
- 2295  ac      P2.page=c   -> D@192 @192
- 2296  8c      P0.page=c   -> A@192 @192
- 2297  02      op2  A=@192           B=@128           (D?=@192)
- 2298  26      op6  A=@196           B=@128           (D?=@192)
- 2299  46      op6  A=@200           B=@128           (D?=@192)
- 2300  66      op6  A=@204           B=@128           (D?=@192)
+ 2289  88      P0.page=8   -> A@128 TMP1A
+ 2290  97      P1.page=7   -> B@112 0_5
+ 2291  26      MUL A=TMP2A        B=0_5          -> P2+4 (via dc)
+ 2292  a8      P2.page=8   -> D@128 TMP1A
+ 2293  59      RSUB A=TMP3A        B=1_5          -> P2 (via dc)
+ 2294  98      P1.page=8   -> B@128 TMP1A
+ 2295  ac      P2.page=c   -> D@192 QT1
+ 2296  8c      P0.page=c   -> A@192 QT1
+ 2297  02      MUL A=QT1          B=TMP1A        -> P2 (via dc)
+ 2298  26      MUL A=QT2          B=TMP1A        -> P2+4 (via dc)
+ 2299  46      MUL A=QT3          B=TMP1A        -> P2+4 (via dc)
+ 2300  66      MUL A=QT4          B=TMP1A        -> P2+4 (via dc)
  2301  f0      FMODE.0   ; 1=32-bit fifo, 2/3=16-bit
- 2302  89      P0.page=9   -> A@144 @144
- 2303  9c      P1.page=c   -> B@192 @192
- 2304  a8      P2.page=8   -> D@128 @128
- 2305  29      op1  A=@148           B=@196           (D?=@132)
- 2306  51      op1  A=@152           B=@200           (D?=@136)
- 2307  79      op1  A=@156           B=@204           (D?=@140)
- 2308  24      op4  A=@148           B=@192           (D?=@128)
- 2309  70      op0  A=@156           B=@200           (D?=@136)
- 2310  59      op1  A=@152           B=@204           (D?=@140)
- 2311  44      op4  A=@152           B=@192           (D?=@128)
- 2312  69      op1  A=@156           B=@196           (D?=@132)
- 2313  38      op0  A=@148           B=@204           (D?=@140)
- 2314  64      op4  A=@156           B=@192           (D?=@128)
- 2315  48      op0  A=@152           B=@196           (D?=@132)
- 2316  31      op1  A=@148           B=@200           (D?=@136)
- 2317  a9      P2.page=9   -> D@144 @144
- 2318  88      P0.page=8   -> A@128 @128
- 2319  09      op1  A=@128           B=@196           (D?=@148)
- 2320  20      op0  A=@132           B=@192           (D?=@144)
- 2321  59      op1  A=@136           B=@204           (D?=@156)
- 2322  70      op0  A=@140           B=@200           (D?=@152)
- 2323  ab      P2.page=b   -> D@176 @176
- 2324  11      op1  A=@128           B=@200           (D?=@184)
- 2325  38      op0  A=@132           B=@204           (D?=@188)
- 2326  40      op0  A=@136           B=@192           (D?=@176)
- 2327  69      op1  A=@140           B=@196           (D?=@180)
- 2328  a8      P2.page=8   -> D@128 @128
- 2329  19      op1  A=@128           B=@204           (D?=@140)
- 2330  31      op1  A=@132           B=@200           (D?=@136)
- 2331  48      op0  A=@136           B=@196           (D?=@132)
- 2332  60      op0  A=@140           B=@192           (D?=@128)
- 2333  8c      P0.page=c   -> A@192 @192
- 2334  a8      P2.page=8   -> D@128 @128
- 2335  3c      op4  A=@196           B=@204           (D?=@140)
- 2336  41      op1  A=@200           B=@192           (D?=@128)
- 2337  5c      op4  A=@200           B=@204           (D?=@140)
- 2338  20      op0  A=@196           B=@192           (D?=@128)
- 2339  7c      op4  A=@204           B=@204           (D?=@140)
- 2340  00      op0  A=@192           B=@192           (D?=@128)
+ 2302  89      P0.page=9   -> A@144 XACCW
+ 2303  9c      P1.page=c   -> B@192 QT1
+ 2304  a8      P2.page=8   -> D@128 TMP1A
+ 2305  29      RSUB A=XACCB        B=QT2          -> P2 (via dc)
+ 2306  51      RSUB A=YACCB        B=QT3          -> P2 (via dc)
+ 2307  79      RSUB A=ZACCB        B=QT4          -> P2 (via dc)
+ 2308  24      ADD A=XACCB        B=QT1          -> P2+4 (via dc)
+ 2309  70      ADD A=ZACCB        B=QT3          -> P2 (via dc)
+ 2310  59      RSUB A=YACCB        B=QT4          -> P2 (via dc)
+ 2311  44      ADD A=YACCB        B=QT1          -> P2+4 (via dc)
+ 2312  69      RSUB A=ZACCB        B=QT2          -> P2 (via dc)
+ 2313  38      ADD A=XACCB        B=QT4          -> P2 (via dc)
+ 2314  64      ADD A=ZACCB        B=QT1          -> P2+4 (via dc)
+ 2315  48      ADD A=YACCB        B=QT2          -> P2 (via dc)
+ 2316  31      RSUB A=XACCB        B=QT3          -> P2 (via dc)
+ 2317  a9      P2.page=9   -> D@144 XACCW
+ 2318  88      P0.page=8   -> A@128 TMP1A
+ 2319  09      RSUB A=TMP1A        B=QT2          -> P2 (via dc)
+ 2320  20      ADD A=TMP2A        B=QT1          -> P2 (via dc)
+ 2321  59      RSUB A=TMP3A        B=QT4          -> P2 (via dc)
+ 2322  70      ADD A=TMP4A        B=QT3          -> P2 (via dc)
+ 2323  ab      P2.page=b   -> D@176 YACCW
+ 2324  11      RSUB A=TMP1A        B=QT3          -> P2 (via dc)
+ 2325  38      ADD A=TMP2A        B=QT4          -> P2 (via dc)
+ 2326  40      ADD A=TMP3A        B=QT1          -> P2 (via dc)
+ 2327  69      RSUB A=TMP4A        B=QT2          -> P2 (via dc)
+ 2328  a8      P2.page=8   -> D@128 TMP1A
+ 2329  19      RSUB A=TMP1A        B=QT4          -> P2 (via dc)
+ 2330  31      RSUB A=TMP2A        B=QT3          -> P2 (via dc)
+ 2331  48      ADD A=TMP3A        B=QT2          -> P2 (via dc)
+ 2332  60      ADD A=TMP4A        B=QT1          -> P2 (via dc)
+ 2333  8c      P0.page=c   -> A@192 QT1
+ 2334  a8      P2.page=8   -> D@128 TMP1A
+ 2335  3c      ADD A=QT2          B=QT4          -> P2+4 (via dc)
+ 2336  41      RSUB A=QT3          B=QT1          -> P2 (via dc)
+ 2337  5c      ADD A=QT3          B=QT4          -> P2+4 (via dc)
+ 2338  20      ADD A=QT2          B=QT1          -> P2 (via dc)
+ 2339  7c      ADD A=QT4          B=QT4          -> P2+4 (via dc)
+ 2340  00      ADD A=QT1          B=QT1          -> P2 (via dc)
  2341  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
- 2342  87      P0.page=7   -> A@112 @112
- 2343  98      P1.page=8   -> B@128 @128
- 2344  19      op1  A=@112           B=@140           (D?=@140)
- 2345  86      P0.page=6   -> A@96 @96
- 2346  a8      P2.page=8   -> D@128 @128
- 2347  6e      op6  A=@108           B=@132           (D?=@132)
- 2348  76      op6  A=@108           B=@136           (D?=@136)
- 2349  7e      op6  A=@108           B=@140           (D?=@140)
- 2350  a9      P2.page=9   -> D@144 @144
- 2351  99      P1.page=9   -> B@144 @144
- 2352  88      P0.page=8   -> A@128 @128
- 2353  2d      op5  A=@132           B=@148           (D?=@148)
- 2354  55      op5  A=@136           B=@152           (D?=@152)
- 2355  7d      op5  A=@140           B=@156           (D?=@156)
+ 2342  87      P0.page=7   -> A@112 0_5
+ 2343  98      P1.page=8   -> B@128 TMP1A
+ 2344  19      RSUB A=0_5          B=TMP4A        -> P2 (via dc)
+ 2345  86      P0.page=6   -> A@96 ATC
+ 2346  a8      P2.page=8   -> D@128 TMP1A
+ 2347  6e      MUL A=G            B=TMP2A        -> P2+4 (via dc)
+ 2348  76      MUL A=G            B=TMP3A        -> P2+4 (via dc)
+ 2349  7e      MUL A=G            B=TMP4A        -> P2+4 (via dc)
+ 2350  a9      P2.page=9   -> D@144 XACCW
+ 2351  99      P1.page=9   -> B@144 XACCW
+ 2352  88      P0.page=8   -> A@128 TMP1A
+ 2353  2d      RSUB A=TMP2A        B=XACCB        -> P2+4 (via dc)
+ 2354  55      RSUB A=TMP3A        B=YACCB        -> P2+4 (via dc)
+ 2355  7d      RSUB A=TMP4A        B=ZACCB        -> P2+4 (via dc)
  2356  f5      f5
  2357  b0      P0.bank=0
  2358  b4      P1.bank=0
  2359  b8      P2.bank=0
- 2360  88      P0.page=8   -> A@128 @128
- 2361  98      P1.page=8   -> B@128 @128
- 2362  ad      P2.page=d   -> D@208 @208
- 2363  2c      op4  A=@132           B=@132           (D?=@212)
- 2364  54      op4  A=@136           B=@136           (D?=@216)
- 2365  7c      op4  A=@140           B=@140           (D?=@220)
+ 2360  88      P0.page=8   -> A@128 TMP1A
+ 2361  98      P1.page=8   -> B@128 TMP1A
+ 2362  ad      P2.page=d   -> D@208 CTRL1
+ 2363  2c      ADD A=TMP2A        B=TMP2A        -> P2+4 (via dc)
+ 2364  54      ADD A=TMP3A        B=TMP3A        -> P2+4 (via dc)
+ 2365  7c      ADD A=TMP4A        B=TMP4A        -> P2+4 (via dc)
  2366  b5      P1.bank=1
  2367  b9      P2.bank=1
- 2368  9e      P1.page=e   -> B@480 @480
- 2369  a3      P2.page=3   -> D@304 @304
+ 2368  9e      P1.page=e   -> B@480 TMP25
+ 2369  a3      P2.page=3   -> D@304 TMP1B
  2370  df      df
  2371  df      df
  2372  df      df
  2373  f6      f6
- 2374  a3      P2.page=3   -> D@304 @304
- 2375  30      op0  A=@132           B=@488           (D?=@312)
+ 2374  a3      P2.page=3   -> D@304 TMP1B
+ 2375  30      ADD A=TMP2A        B=ORIENT       -> P2 (via dc)
  2376  d9      IF.1
  2377  fa      fa
  2378  db      IF.3
- 2379  35      [db] op5  A=@132           B=@488           (D?=@312)
+ 2379  35      [db] RSUB A=TMP2A        B=ORIENT       -> P2+4 (via dc)
  2380  f8      f8
  2381  d8      ALWAYS
- 2382  a3      P2.page=3   -> D@304 @304
- 2383  50      op0  A=@136           B=@488           (D?=@312)
+ 2382  a3      P2.page=3   -> D@304 TMP1B
+ 2383  50      ADD A=TMP3A        B=ORIENT       -> P2 (via dc)
  2384  d0      d0
  2385  d9      IF.1
  2386  f8      f8
  2387  db      IF.3
- 2388  55      [db] op5  A=@136           B=@488           (D?=@312)
+ 2388  55      [db] RSUB A=TMP3A        B=ORIENT       -> P2+4 (via dc)
  2389  f8      f8
  2390  d8      ALWAYS
- 2391  a3      P2.page=3   -> D@304 @304
- 2392  70      op0  A=@140           B=@488           (D?=@312)
+ 2391  a3      P2.page=3   -> D@304 TMP1B
+ 2392  70      ADD A=TMP4A        B=ORIENT       -> P2 (via dc)
  2393  d0      d0
  2394  d9      IF.1
  2395  fa      fa
  2396  db      IF.3
- 2397  75      [db] op5  A=@140           B=@488           (D?=@312)
+ 2397  75      [db] RSUB A=TMP4A        B=ORIENT       -> P2+4 (via dc)
  2398  f8      f8
  2399  d8      ALWAYS
- 2400  a3      P2.page=3   -> D@304 @304
+ 2400  a3      P2.page=3   -> D@304 TMP1B
  2401  b4      P1.bank=0
- 2402  8d      P0.page=d   -> A@208 @208
- 2403  9d      P1.page=d   -> B@208 @208
- 2404  30      op0  A=@212           B=@216           (D?=@312)
+ 2402  8d      P0.page=d   -> A@208 CTRL1
+ 2403  9d      P1.page=d   -> B@208 CTRL1
+ 2404  30      ADD A=CTRL2        B=CTRL3        -> P2 (via dc)
  2405  db      IF.3
- 2406  38      [db] op0  A=@212           B=@220           (D?=@316)
+ 2406  38      [db] ADD A=CTRL2        B=CTRL4        -> P2 (via dc)
  2407  d9      IF.1
  2408  d0      d0
  2409  de      de
  2410  df      df
  2411  d8      ALWAYS
- 2412  a3      P2.page=3   -> D@304 @304
- 2413  48      op0  A=@216           B=@212           (D?=@308)
+ 2412  a3      P2.page=3   -> D@304 TMP1B
+ 2413  48      ADD A=CTRL3        B=CTRL2        -> P2 (via dc)
  2414  db      IF.3
- 2415  58      [db] op0  A=@216           B=@220           (D?=@316)
+ 2415  58      [db] ADD A=CTRL3        B=CTRL4        -> P2 (via dc)
  2416  d9      IF.1
  2417  df      df
  2418  d0      d0
  2419  de      de
  2420  d8      ALWAYS
- 2421  a3      P2.page=3   -> D@304 @304
- 2422  68      op0  A=@220           B=@212           (D?=@308)
+ 2421  a3      P2.page=3   -> D@304 TMP1B
+ 2422  68      ADD A=CTRL4        B=CTRL2        -> P2 (via dc)
  2423  db      IF.3
- 2424  70      [db] op0  A=@220           B=@216           (D?=@312)
+ 2424  70      [db] ADD A=CTRL4        B=CTRL3        -> P2 (via dc)
  2425  d9      IF.1
  2426  df      df
  2427  df      df
  2428  d8      ALWAYS
  2429  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
- 2430  a3      P2.page=3   -> D@304 @304
+ 2430  a3      P2.page=3   -> D@304 TMP1B
  2431  b1      P0.bank=1
  2432  b5      P1.bank=1
- 2433  82      P0.page=2   -> A@288 @288
+ 2433  82      P0.page=2   -> A@288 TMP13
  2434  c0      c0
- 2435  83      P0.page=3   -> A@304 @304
- 2436  93      P1.page=3   -> B@304 @304
- 2437  0e      op6  A=@304           B=@308           (D?=@308)
- 2438  0a      op2  A=@304           B=@308           (D?=@308)
- 2439  0a      op2  A=@304           B=@308           (D?=@308)
- 2440  16      op6  A=@304           B=@312           (D?=@312)
- 2441  12      op2  A=@304           B=@312           (D?=@312)
- 2442  1e      op6  A=@304           B=@316           (D?=@316)
- 2443  58      op0  A=@312           B=@316           (D?=@316)
- 2444  38      op0  A=@308           B=@316           (D?=@316)
- 2445  1a      op2  A=@304           B=@316           (D?=@316)
- 2446  a3      P2.page=3   -> D@304 @304
- 2447  8f      P0.page=f   -> A@496 @496
- 2448  7c      op4  A=@508           B=@316           (D?=@316)
- 2449  83      P0.page=3   -> A@304 @304
- 2450  0e      op6  A=@304           B=@308           (D?=@308)
- 2451  a3      P2.page=3   -> D@304 @304
- 2452  12      op2  A=@304           B=@312           (D?=@312)
- 2453  86      P0.page=6   -> A@352 @352
- 2454  61      op1  A=@364           B=@304           (D?=@304)
+ 2435  83      P0.page=3   -> A@304 TMP1B
+ 2436  93      P1.page=3   -> B@304 TMP1B
+ 2437  0e      MUL A=TMP1B        B=TMP2B        -> P2+4 (via dc)
+ 2438  0a      MUL A=TMP1B        B=TMP2B        -> P2 (via dc)
+ 2439  0a      MUL A=TMP1B        B=TMP2B        -> P2 (via dc)
+ 2440  16      MUL A=TMP1B        B=TMP3B        -> P2+4 (via dc)
+ 2441  12      MUL A=TMP1B        B=TMP3B        -> P2 (via dc)
+ 2442  1e      MUL A=TMP1B        B=TMP4B        -> P2+4 (via dc)
+ 2443  58      ADD A=TMP3B        B=TMP4B        -> P2 (via dc)
+ 2444  38      ADD A=TMP2B        B=TMP4B        -> P2 (via dc)
+ 2445  1a      MUL A=TMP1B        B=TMP4B        -> P2 (via dc)
+ 2446  a3      P2.page=3   -> D@304 TMP1B
+ 2447  8f      P0.page=f   -> A@496 BLPFNMTC
+ 2448  7c      ADD A=BLPFNMZ      B=TMP4B        -> P2+4 (via dc)
+ 2449  83      P0.page=3   -> A@304 TMP1B
+ 2450  0e      MUL A=TMP1B        B=TMP2B        -> P2+4 (via dc)
+ 2451  a3      P2.page=3   -> D@304 TMP1B
+ 2452  12      MUL A=TMP1B        B=TMP3B        -> P2 (via dc)
+ 2453  86      P0.page=6   -> A@352 MNMFLAG
+ 2454  61      RSUB A=MNMTHR       B=TMP1B        -> P2 (via dc)
  2455  d1      d1
  2456  d9      IF.1
  2457  c7      c7
  2458  c7      c7
  2459  d8      ALWAYS
- 2460  a3      P2.page=3   -> D@304 @304
- 2461  6d      op5  A=@364           B=@308           (D?=@308)
+ 2460  a3      P2.page=3   -> D@304 TMP1B
+ 2461  6d      RSUB A=MNMTHR       B=TMP2B        -> P2+4 (via dc)
  2462  d1      d1
  2463  d9      IF.1
  2464  c7      c7
  2465  d8      ALWAYS
- 2466  a3      P2.page=3   -> D@304 @304
- 2467  71      op1  A=@364           B=@312           (D?=@312)
+ 2466  a3      P2.page=3   -> D@304 TMP1B
+ 2467  71      RSUB A=MNMTHR       B=TMP3B        -> P2 (via dc)
  2468  d1      d1
- 2469  a6      P2.page=6   -> D@352 @352
+ 2469  a6      P2.page=6   -> D@352 MNMFLAG
  2470  d9      IF.1
  2471  c5      c5
  2472  da      IF.2
  2473  df      df
  2474  d8      ALWAYS
- 2475  9f      P1.page=f   -> B@496 @496
- 2476  83      P0.page=3   -> A@304 @304
+ 2475  9f      P1.page=f   -> B@496 BLPFNMTC
+ 2476  83      P0.page=3   -> A@304 TMP1B
  2477  f3      FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
- 2478  a3      P2.page=3   -> D@304 @304
- 2479  65      op5  A=@316           B=@496           (D?=@304)
+ 2478  a3      P2.page=3   -> D@304 TMP1B
+ 2479  65      RSUB A=TMP4B        B=BLPFNMTC     -> P2+4 (via dc)
  2480  d1      d1
- 2481  af      P2.page=f   -> D@496 @496
+ 2481  af      P2.page=f   -> D@496 BLPFNMTC
  2482  c6      c6
  2483  d9      IF.1
  2484  fa      fa
  2485  da      IF.2
  2486  df      df
  2487  d8      ALWAYS
- 2488  a3      P2.page=3   -> D@304 @304
- 2489  8f      P0.page=f   -> A@496 @496
+ 2488  a3      P2.page=3   -> D@304 TMP1B
+ 2489  8f      P0.page=f   -> A@496 BLPFNMTC
  2490  df      df
- 2491  1d      op5  A=@496           B=@508           (D?=@316)
+ 2491  1d      RSUB A=BLPFNMTC     B=BLPFNMZ      -> P2+4 (via dc)
  2492  d1      d1
- 2493  a3      P2.page=3   -> D@304 @304
+ 2493  a3      P2.page=3   -> D@304 TMP1B
  2494  d9      IF.1
  2495  fa      fa
  2496  d8      ALWAYS
- 2497  a3      P2.page=3   -> D@304 @304
- 2498  31      op1  A=@500           B=@504           (D?=@312)
+ 2497  a3      P2.page=3   -> D@304 TMP1B
+ 2498  31      RSUB A=BLPFNMX      B=BLPFNMY      -> P2 (via dc)
  2499  da      IF.2
  2500  fa      fa
  2501  d9      IF.1
- 2502  af      P2.page=f   -> D@496 @496
+ 2502  af      P2.page=f   -> D@496 BLPFNMTC
  2503  df      df
  2504  d8      ALWAYS
- 2505  a3      P2.page=3   -> D@304 @304
+ 2505  a3      P2.page=3   -> D@304 TMP1B
  2506  fa      fa
  2507  f9      f9
  2508  d1      d1
  2509  d9      IF.1
- 2510  af      P2.page=f   -> D@496 @496
+ 2510  af      P2.page=f   -> D@496 BLPFNMTC
  2511  d0      d0
- 2512  96      P1.page=6   -> B@352 @352
+ 2512  96      P1.page=6   -> B@352 MNMFLAG
  2513  c1      c1
- 2514  ae      P2.page=e   -> D@480 @480
+ 2514  ae      P2.page=e   -> D@480 TMP25
  2515  d0      d0
- 2516  0c      [d9] op4  A=@496           B=@356           (D?=@484)
- 2517  8e      P0.page=e   -> A@480 @480
- 2518  94      P1.page=4   -> B@320 @320
- 2519  a3      P2.page=3   -> D@304 @304
+ 2516  0c      [d9] ADD A=BLPFNMTC     B=MNMTM        -> P2+4 (via dc)
+ 2517  8e      P0.page=e   -> A@480 TMP25
+ 2518  94      P1.page=4   -> B@320 STXG
+ 2519  a3      P2.page=3   -> D@304 TMP1B
  2520  f7      f7
- 2521  72      [d9] op2  A=@492           B=@328           (D?=@312)
+ 2521  72      [d9] MUL A=ENDIAN       B=STZG         -> P2 (via dc)
  2522  df      df
  2523  f3      FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
- 2524  83      P0.page=3   -> A@304 @304
- 2525  93      P1.page=3   -> B@304 @304
+ 2524  83      P0.page=3   -> A@304 TMP1B
+ 2525  93      P1.page=3   -> B@304 TMP1B
  2526  db      IF.3
- 2527  09      [db] op1  A=@304           B=@308           (D?=@308)
+ 2527  09      [db] RSUB A=TMP1B        B=TMP2B        -> P2 (via dc)
  2528  d9      IF.1
  2529  f2      FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
- 2530  aa      P2.page=a   -> D@416 @416
+ 2530  aa      P2.page=a   -> D@416 Y
  2531  d0      d0
  2532  de      de
  2533  d8      ALWAYS
  2534  d8      ALWAYS
  2535  d8      ALWAYS
  2536  f2      FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
- 2537  ab      P2.page=b   -> D@432 @432
+ 2537  ab      P2.page=b   -> D@432 SEM1
  2538  f8      f8
  2539  f9      f9
  2540  d9      IF.1
  2541  b0      P0.bank=0
- 2542  87      P0.page=7   -> A@112 @112
+ 2542  87      P0.page=7   -> A@112 0_5
  2543  c4      c4
- 2544  aa      P2.page=a   -> D@416 @416
+ 2544  aa      P2.page=a   -> D@416 Y
  2545  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  2546  df      df
  2547  df      df
@@ -1518,31 +1518,31 @@
  2553  d8      ALWAYS
  2554  b1      P0.bank=1
  2555  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
- 2556  a3      P2.page=3   -> D@304 @304
- 2557  97      P1.page=7   -> B@368 @368
- 2558  8e      P0.page=e   -> A@480 @480
- 2559  60      op0  A=@492           B=@368           (D?=@304)
+ 2556  a3      P2.page=3   -> D@304 TMP1B
+ 2557  97      P1.page=7   -> B@368 ACCQD4
+ 2558  8e      P0.page=e   -> A@480 TMP25
+ 2559  60      ADD A=ENDIAN       B=ACCQD4       -> P2 (via dc)
  2560  df      df
  2561  b0      P0.bank=0
- 2562  84      P0.page=4   -> A@64 @64
+ 2562  84      P0.page=4   -> A@64 BLPFC
  2563  f2      FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
  2564  c8      c8
- 2565  93      P1.page=3   -> B@304 @304
- 2566  85      P0.page=5   -> A@80 @80
+ 2565  93      P1.page=3   -> B@304 TMP1B
+ 2566  85      P0.page=5   -> A@80 ANGVBX
  2567  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
- 2568  4a      op2  A=@88            B=@308           (D?=@308)
+ 2568  4a      MUL A=ANGVBZ       B=TMP2B        -> P2 (via dc)
  2569  b1      P0.bank=1
- 2570  83      P0.page=3   -> A@304 @304
- 2571  a3      P2.page=3   -> D@304 @304
- 2572  08      op0  A=@304           B=@308           (D?=@308)
+ 2570  83      P0.page=3   -> A@304 TMP1B
+ 2571  a3      P2.page=3   -> D@304 TMP1B
+ 2572  08      ADD A=TMP1B        B=TMP2B        -> P2 (via dc)
  2573  b5      P1.bank=1
- 2574  83      P0.page=3   -> A@304 @304
- 2575  9a      P1.page=a   -> B@416 @416
- 2576  08      op0  A=@304           B=@420           (D?=@308)
- 2577  10      op0  A=@304           B=@424           (D?=@312)
+ 2574  83      P0.page=3   -> A@304 TMP1B
+ 2575  9a      P1.page=a   -> B@416 Y
+ 2576  08      ADD A=TMP1B        B=B0           -> P2 (via dc)
+ 2577  10      ADD A=TMP1B        B=A1           -> P2 (via dc)
  2578  b7      P1.bank=3
  2579  9f      P1.page=f   -> B@1008 @1008
- 2580  10      op0  A=@304           B=@1016          (D?=@312)
+ 2580  10      ADD A=TMP1B        B=@1016        -> P2 (via dc)
  2581  b5      P1.bank=1
  2582  d8      ALWAYS
  2583  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
@@ -1550,7 +1550,7 @@
  2585  ba      P2.bank=2
  2586  ae      P2.page=e   -> D@736 @736
  2587  b0      P0.bank=0
- 2588  8a      P0.page=a   -> A@160 @160
+ 2588  8a      P0.page=a   -> A@160 DZ
  2589  c2      c2
  2590  b2      P0.bank=2
  2591  b6      P1.bank=2
@@ -1563,13 +1563,13 @@
  2599  d8      ALWAYS
  2600  f9      f9
  2601  d9      IF.1
- 2602  0c      [d9] op4  A=@736           B=@740           (D?=@740)
+ 2602  0c      [d9] ADD A=@736         B=@740         -> P2+4 (via dc)
  2603  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  2604  d8      ALWAYS
  2605  f8      f8
  2606  f8      f8
  2607  ad      P2.page=d   -> D@720 @720
- 2608  61      op1  A=@748           B=@736           (D?=@720)
+ 2608  61      RSUB A=@748         B=@736         -> P2 (via dc)
  2609  d9      IF.1
  2610  ae      P2.page=e   -> D@736 @736
  2611  fb      fb
@@ -1580,7 +1580,7 @@
  2617  f8      f8
  2618  f8      f8
  2619  ad      P2.page=d   -> D@720 @720
- 2620  19      op1  A=@736           B=@748           (D?=@732)
+ 2620  19      RSUB A=@736         B=@748         -> P2 (via dc)
  2621  d9      IF.1
  2622  ae      P2.page=e   -> D@736 @736
  2623  fb      fb
@@ -1592,7 +1592,7 @@
  2630  f8      f8
  2631  ad      P2.page=d   -> D@720 @720
  2632  8d      P0.page=d   -> A@720 @720
- 2633  61      op1  A=@732           B=@736           (D?=@720)
+ 2633  61      RSUB A=@732         B=@736         -> P2 (via dc)
  2634  d9      IF.1
  2635  f4 f4   f4 f4   ; imm>=0x80 (unknown form)
  2637  ac      P2.page=c   -> D@704 @704
@@ -1601,7 +1601,7 @@
  2640  9c      P1.page=c   -> B@704 @704
  2641  8d      P0.page=d   -> A@720 @720
  2642  df      df
- 2643  2b      [d9] op3  A=@724           B=@708           (D?=@708)
+ 2643  2b      [d9] NMUL A=@724         B=@708         -> P2 (via dc)
  2644  ba      P2.bank=2
  2645  b6      P1.bank=2
  2646  ae      P2.page=e   -> D@736 @736
@@ -1614,7 +1614,7 @@
  2654  d0      d0
  2655  f8      f8
  2656  ad      P2.page=d   -> D@720 @720
- 2657  51      op1  A=@728           B=@712           (D?=@728)
+ 2657  51      RSUB A=@728         B=@712         -> P2 (via dc)
  2658  da      IF.2
  2659  ae      P2.page=e   -> D@736 @736
  2660  fa      fa
@@ -1624,31 +1624,31 @@
  2664  b9      P2.bank=1
  2665  b1      P0.bank=1
  2666  b6      P1.bank=2
- 2667  a3      P2.page=3   -> D@304 @304
- 2668  83      P0.page=3   -> A@304 @304
+ 2667  a3      P2.page=3   -> D@304 TMP1B
+ 2668  83      P0.page=3   -> A@304 TMP1B
  2669  9c      P1.page=c   -> B@704 @704
- 2670  08      op0  A=@304           B=@708           (D?=@308)
+ 2670  08      ADD A=TMP1B        B=@708         -> P2 (via dc)
  2671  b9      P2.bank=1
  2672  b1      P0.bank=1
- 2673  83      P0.page=3   -> A@304 @304
+ 2673  83      P0.page=3   -> A@304 TMP1B
  2674  9a      P1.page=a   -> B@672 @672
  2675  b5      P1.bank=1
- 2676  aa      P2.page=a   -> D@416 @416
+ 2676  aa      P2.page=a   -> D@416 Y
  2677  c0      c0
  2678  fd      fd
- 2679  30      op0  A=@308           B=@424           (D?=@424)
- 2680  83      P0.page=3   -> A@304 @304
+ 2679  30      ADD A=TMP2B        B=A1           -> P2 (via dc)
+ 2680  83      P0.page=3   -> A@304 TMP1B
  2681  b7      P1.bank=3
  2682  9f      P1.page=f   -> B@1008 @1008
- 2683  10      op0  A=@304           B=@1016          (D?=@424)
+ 2683  10      ADD A=TMP1B        B=@1016        -> P2 (via dc)
  2684  b5      P1.bank=1
- 2685  8b      P0.page=b   -> A@432 @432
- 2686  93      P1.page=3   -> B@304 @304
+ 2685  8b      P0.page=b   -> A@432 SEM1
+ 2686  93      P1.page=3   -> B@304 TMP1B
  2687  f2      FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
- 2688  02      op2  A=@432           B=@304           (D?=@416)
- 2689  02      op2  A=@432           B=@304           (D?=@416)
+ 2688  02      MUL A=SEM1         B=TMP1B        -> P2 (via dc)
+ 2689  02      MUL A=SEM1         B=TMP1B        -> P2 (via dc)
  2690  d1      d1
- 2691  ab      P2.page=b   -> D@432 @432
+ 2691  ab      P2.page=b   -> D@432 SEM1
  2692  da      IF.2
  2693  de      de
  2694  d8      ALWAYS
@@ -1656,20 +1656,20 @@
  2696  b1      P0.bank=1
  2697  b9      P2.bank=1
  2698  f3      FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
- 2699  8b      P0.page=b   -> A@432 @432
- 2700  a3      P2.page=3   -> D@304 @304
- 2701  91      P1.page=1   -> B@272 @272
+ 2699  8b      P0.page=b   -> A@432 SEM1
+ 2700  a3      P2.page=3   -> D@304 TMP1B
+ 2701  91      P1.page=1   -> B@272 1HB
  2702  b6      P1.bank=2
- 2703  09      op1  A=@432           B=@532           (D?=@308)
+ 2703  09      RSUB A=SEM1         B=@532         -> P2 (via dc)
  2704  b4      P1.bank=0
  2705  d9      IF.1
- 2706  ab      P2.page=b   -> D@432 @432
+ 2706  ab      P2.page=b   -> D@432 SEM1
  2707  de      de
  2708  b0      P0.bank=0
- 2709  87      P0.page=7   -> A@112 @112
- 2710  9c      P1.page=c   -> B@192 @192
+ 2709  87      P0.page=7   -> A@112 0_5
+ 2710  9c      P1.page=c   -> B@192 QT1
  2711  b9      P2.bank=1
- 2712  a3      P2.page=3   -> D@304 @304
+ 2712  a3      P2.page=3   -> D@304 TMP1B
  2713  dd      dd
  2714  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  2715  b3      P0.bank=3
@@ -1679,55 +1679,55 @@
  2719  8b      P0.page=b   -> A@944 @944
  2720  8b      P0.page=b   -> A@944 @944
  2721  b0      P0.bank=0
- 2722  87      P0.page=7   -> A@112 @112
- 2723  a3      P2.page=3   -> D@304 @304
- 2724  a3      P2.page=3   -> D@304 @304
- 2725  a3      P2.page=3   -> D@304 @304
- 2726  a3      P2.page=3   -> D@304 @304
+ 2722  87      P0.page=7   -> A@112 0_5
+ 2723  a3      P2.page=3   -> D@304 TMP1B
+ 2724  a3      P2.page=3   -> D@304 TMP1B
+ 2725  a3      P2.page=3   -> D@304 TMP1B
+ 2726  a3      P2.page=3   -> D@304 TMP1B
  2727  b4      P1.bank=0
- 2728  90      P1.page=0   -> B@0 @0
- 2729  80      P0.page=0   -> A@0 @0
+ 2728  90      P1.page=0   -> B@0 PTAT
+ 2729  80      P0.page=0   -> A@0 PTAT
  2730  f2      FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
- 2731  a3      P2.page=3   -> D@304 @304
- 2732  a3      P2.page=3   -> D@304 @304
- 2733  a3      P2.page=3   -> D@304 @304
- 2734  a3      P2.page=3   -> D@304 @304
- 2735  a3      P2.page=3   -> D@304 @304
- 2736  a3      P2.page=3   -> D@304 @304
- 2737  a3      P2.page=3   -> D@304 @304
- 2738  a3      P2.page=3   -> D@304 @304
- 2739  a3      P2.page=3   -> D@304 @304
- 2740  a3      P2.page=3   -> D@304 @304
+ 2731  a3      P2.page=3   -> D@304 TMP1B
+ 2732  a3      P2.page=3   -> D@304 TMP1B
+ 2733  a3      P2.page=3   -> D@304 TMP1B
+ 2734  a3      P2.page=3   -> D@304 TMP1B
+ 2735  a3      P2.page=3   -> D@304 TMP1B
+ 2736  a3      P2.page=3   -> D@304 TMP1B
+ 2737  a3      P2.page=3   -> D@304 TMP1B
+ 2738  a3      P2.page=3   -> D@304 TMP1B
+ 2739  a3      P2.page=3   -> D@304 TMP1B
+ 2740  a3      P2.page=3   -> D@304 TMP1B
  2741  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
- 2742  87      P0.page=7   -> A@112 @112
+ 2742  87      P0.page=7   -> A@112 0_5
  2743  b5      P1.bank=1
- 2744  9a      P1.page=a   -> B@416 @416
- 2745  a3      P2.page=3   -> D@304 @304
+ 2744  9a      P1.page=a   -> B@416 Y
+ 2745  a3      P2.page=3   -> D@304 TMP1B
  2746  f3      FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
- 2747  9b      P1.page=b   -> B@432 @432
- 2748  a3      P2.page=3   -> D@304 @304
- 2749  a3      P2.page=3   -> D@304 @304
- 2750  dc      dc
+ 2747  9b      P1.page=b   -> B@432 SEM1
+ 2748  a3      P2.page=3   -> D@304 TMP1B
+ 2749  a3      P2.page=3   -> D@304 TMP1B
+ 2750  dc      STORE  commit ALU result -> M[P2] TMP1B  (dc)
  2751  ba      P2.bank=2
  2752  ac      P2.page=c   -> D@704 @704
  2753  df      df
  2754  b9      P2.bank=1
- 2755  a3      P2.page=3   -> D@304 @304
- 2756  a3      P2.page=3   -> D@304 @304
- 2757  a3      P2.page=3   -> D@304 @304
- 2758  a3      P2.page=3   -> D@304 @304
- 2759  a3      P2.page=3   -> D@304 @304
- 2760  a3      P2.page=3   -> D@304 @304
- 2761  a3      P2.page=3   -> D@304 @304
- 2762  a3      P2.page=3   -> D@304 @304
- 2763  a3      P2.page=3   -> D@304 @304
- 2764  a3      P2.page=3   -> D@304 @304
- 2765  a3      P2.page=3   -> D@304 @304
- 2766  a3      P2.page=3   -> D@304 @304
- 2767  a3      P2.page=3   -> D@304 @304
- 2768  a3      P2.page=3   -> D@304 @304
- 2769  a3      P2.page=3   -> D@304 @304
- 2770  a3      P2.page=3   -> D@304 @304
+ 2755  a3      P2.page=3   -> D@304 TMP1B
+ 2756  a3      P2.page=3   -> D@304 TMP1B
+ 2757  a3      P2.page=3   -> D@304 TMP1B
+ 2758  a3      P2.page=3   -> D@304 TMP1B
+ 2759  a3      P2.page=3   -> D@304 TMP1B
+ 2760  a3      P2.page=3   -> D@304 TMP1B
+ 2761  a3      P2.page=3   -> D@304 TMP1B
+ 2762  a3      P2.page=3   -> D@304 TMP1B
+ 2763  a3      P2.page=3   -> D@304 TMP1B
+ 2764  a3      P2.page=3   -> D@304 TMP1B
+ 2765  a3      P2.page=3   -> D@304 TMP1B
+ 2766  a3      P2.page=3   -> D@304 TMP1B
+ 2767  a3      P2.page=3   -> D@304 TMP1B
+ 2768  a3      P2.page=3   -> D@304 TMP1B
+ 2769  a3      P2.page=3   -> D@304 TMP1B
+ 2770  a3      P2.page=3   -> D@304 TMP1B
  2771  d8      ALWAYS
  2772  d8      ALWAYS
  2773  d8      ALWAYS
@@ -1743,207 +1743,207 @@
  2783  80      P0.page=0   -> A@768 @768
  2784  9a      P1.page=a   -> B@928 @928
  2785  aa      P2.page=a   -> D@928 @928
- 2786  28      [d9] op0  A=@772           B=@932           (D?=@932)
+ 2786  28      [d9] ADD A=@772         B=@932         -> P2 (via dc)
  2787  b4      P1.bank=0
  2788  80      P0.page=0   -> A@768 @768
- 2789  98      P1.page=8   -> B@128 @128
+ 2789  98      P1.page=8   -> B@128 TMP1A
  2790  a7      P2.page=7   -> D@880 @880
- 2791  20      [d9] op0  A=@772           B=@128           (D?=@880)
+ 2791  20      [d9] ADD A=@772         B=TMP1A        -> P2 (via dc)
  2792  b7      P1.bank=3
  2793  97      P1.page=7   -> B@880 @880
  2794  87      P0.page=7   -> A@880 @880
  2795  a8      P2.page=8   -> D@896 @896
- 2796  66      [d9] op6  A=@892           B=@880           (D?=@896)
+ 2796  66      [d9] MUL A=@892         B=@880         -> P2+4 (via dc)
  2797  88      P0.page=8   -> A@896 @896
  2798  f0      FMODE.0   ; 1=32-bit fifo, 2/3=16-bit
- 2799  79      [d9] op1  A=@908           B=@892           (D?=@908)
- 2800  51      [d9] op1  A=@904           B=@888           (D?=@904)
+ 2799  79      [d9] RSUB A=@908         B=@892         -> P2 (via dc)
+ 2800  51      [d9] RSUB A=@904         B=@888         -> P2 (via dc)
  2801  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  2802  90      P1.page=0   -> B@768 @768
- 2803  2c      [d9] op4  A=@900           B=@772           (D?=@900)
+ 2803  2c      [d9] ADD A=@900         B=@772         -> P2+4 (via dc)
  2804  87      P0.page=7   -> A@880 @880
- 2805  0c      [d9] op4  A=@880           B=@772           (D?=@900)
+ 2805  0c      [d9] ADD A=@880         B=@772         -> P2+4 (via dc)
  2806  a7      P2.page=7   -> D@880 @880
  2807  81      P0.page=1   -> A@784 @784
  2808  97      P1.page=7   -> B@880 @880
- 2809  62      [d9] op2  A=@796           B=@880           (D?=@880)
+ 2809  62      [d9] MUL A=@796         B=@880         -> P2 (via dc)
  2810  93      P1.page=3   -> B@816 @816
  2811  f0      FMODE.0   ; 1=32-bit fifo, 2/3=16-bit
- 2812  71      [d9] op1  A=@796           B=@824           (D?=@888)
- 2813  71      [d9] op1  A=@796           B=@824           (D?=@888)
- 2814  60      [d9] op0  A=@796           B=@816           (D?=@880)
+ 2812  71      [d9] RSUB A=@796         B=@824         -> P2 (via dc)
+ 2813  71      [d9] RSUB A=@796         B=@824         -> P2 (via dc)
+ 2814  60      [d9] ADD A=@796         B=@816         -> P2 (via dc)
  2815  85      P0.page=5   -> A@848 @848
  2816  94      P1.page=4   -> B@832 @832
- 2817  01      [d9] op1  A=@848           B=@832           (D?=@880)
- 2818  29      [d9] op1  A=@852           B=@836           (D?=@884)
- 2819  51      [d9] op1  A=@856           B=@840           (D?=@888)
- 2820  79      [d9] op1  A=@860           B=@844           (D?=@892)
+ 2817  01      [d9] RSUB A=@848         B=@832         -> P2 (via dc)
+ 2818  29      [d9] RSUB A=@852         B=@836         -> P2 (via dc)
+ 2819  51      [d9] RSUB A=@856         B=@840         -> P2 (via dc)
+ 2820  79      [d9] RSUB A=@860         B=@844         -> P2 (via dc)
  2821  90      P1.page=0   -> B@768 @768
  2822  a5      P2.page=5   -> D@848 @848
  2823  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
- 2824  28      [d9] op0  A=@852           B=@772           (D?=@852)
- 2825  4c      [d9] op4  A=@856           B=@772           (D?=@852)
- 2826  6c      [d9] op4  A=@860           B=@772           (D?=@852)
+ 2824  28      [d9] ADD A=@852         B=@772         -> P2 (via dc)
+ 2825  4c      [d9] ADD A=@856         B=@772         -> P2+4 (via dc)
+ 2826  6c      [d9] ADD A=@860         B=@772         -> P2+4 (via dc)
  2827  87      P0.page=7   -> A@880 @880
- 2828  0c      [d9] op4  A=@880           B=@772           (D?=@852)
+ 2828  0c      [d9] ADD A=@880         B=@772         -> P2+4 (via dc)
  2829  95      P1.page=5   -> B@848 @848
- 2830  18      [d9] op0  A=@880           B=@860           (D?=@860)
+ 2830  18      [d9] ADD A=@880         B=@860         -> P2 (via dc)
  2831  85      P0.page=5   -> A@848 @848
- 2832  78      [d9] op0  A=@860           B=@860           (D?=@860)
+ 2832  78      [d9] ADD A=@860         B=@860         -> P2 (via dc)
  2833  a3      P2.page=3   -> D@816 @816
  2834  83      P0.page=3   -> A@816 @816
  2835  90      P1.page=0   -> B@768 @768
- 2836  28      [d9] op0  A=@820           B=@772           (D?=@820)
- 2837  4c      [d9] op4  A=@824           B=@772           (D?=@820)
- 2838  6c      [d9] op4  A=@828           B=@772           (D?=@820)
+ 2836  28      [d9] ADD A=@820         B=@772         -> P2 (via dc)
+ 2837  4c      [d9] ADD A=@824         B=@772         -> P2+4 (via dc)
+ 2838  6c      [d9] ADD A=@828         B=@772         -> P2+4 (via dc)
  2839  88      P0.page=8   -> A@896 @896
- 2840  6c      [d9] op4  A=@908           B=@772           (D?=@820)
+ 2840  6c      [d9] ADD A=@908         B=@772         -> P2+4 (via dc)
  2841  d8      ALWAYS
  2842  f3      FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
  2843  a2      P2.page=2   -> D@800 @800
  2844  82      P0.page=2   -> A@800 @800
- 2845  00      op0  A=@800           B=@768           (D?=@800)
+ 2845  00      ADD A=@800         B=@768         -> P2 (via dc)
  2846  f2      FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
- 2847  10      op0  A=@800           B=@776           (D?=@808)
+ 2847  10      ADD A=@800         B=@776         -> P2 (via dc)
  2848  a8      P2.page=8   -> D@896 @896
  2849  92      P1.page=2   -> B@800 @800
- 2850  19      op1  A=@800           B=@812           (D?=@908)
+ 2850  19      RSUB A=@800         B=@812         -> P2 (via dc)
  2851  80      P0.page=0   -> A@768 @768
  2852  a2      P2.page=2   -> D@800 @800
  2853  f2      FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
  2854  d9      IF.1
- 2855  26      [d9] op6  A=@772           B=@800           (D?=@800)
+ 2855  26      [d9] MUL A=@772         B=@800         -> P2+4 (via dc)
  2856  d8      ALWAYS
  2857  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  2858  88      P0.page=8   -> A@896 @896
  2859  a8      P2.page=8   -> D@896 @896
- 2860  4d      op5  A=@904           B=@804           (D?=@900)
+ 2860  4d      RSUB A=@904         B=@804         -> P2+4 (via dc)
  2861  d9      IF.1
- 2862  48      [d9] op0  A=@904           B=@804           (D?=@900)
+ 2862  48      [d9] ADD A=@904         B=@804         -> P2 (via dc)
  2863  d8      ALWAYS
  2864  96      P1.page=6   -> B@864 @864
  2865  a8      P2.page=8   -> D@896 @896
- 2866  39      op1  A=@900           B=@876           (D?=@908)
+ 2866  39      RSUB A=@900         B=@876         -> P2 (via dc)
  2867  80      P0.page=0   -> A@768 @768
  2868  d9      IF.1
- 2869  3c      [d9] op4  A=@772           B=@876           (D?=@908)
+ 2869  3c      [d9] ADD A=@772         B=@876         -> P2+4 (via dc)
  2870  d8      ALWAYS
  2871  95      P1.page=5   -> B@848 @848
  2872  80      P0.page=0   -> A@768 @768
  2873  a8      P2.page=8   -> D@896 @896
- 2874  39      op1  A=@772           B=@860           (D?=@908)
+ 2874  39      RSUB A=@772         B=@860         -> P2 (via dc)
  2875  a6      P2.page=6   -> D@864 @864
  2876  86      P0.page=6   -> A@864 @864
  2877  98      P1.page=8   -> B@896 @896
  2878  d9      IF.1
- 2879  2c      [d9] op4  A=@868           B=@900           (D?=@868)
+ 2879  2c      [d9] ADD A=@868         B=@900         -> P2+4 (via dc)
  2880  da      IF.2
  2881  87      P0.page=7   -> A@880 @880
  2882  a7      P2.page=7   -> D@880 @880
- 2883  2c      [da] op4  A=@884           B=@900           (D?=@884)
+ 2883  2c      [da] ADD A=@884         B=@900         -> P2+4 (via dc)
  2884  d8      ALWAYS
  2885  a8      P2.page=8   -> D@896 @896
  2886  89      P0.page=9   -> A@912 @912
  2887  95      P1.page=5   -> B@848 @848
- 2888  19      op1  A=@912           B=@860           (D?=@908)
+ 2888  19      RSUB A=@912         B=@860         -> P2 (via dc)
  2889  a9      P2.page=9   -> D@912 @912
  2890  80      P0.page=0   -> A@768 @768
  2891  d9      IF.1
- 2892  38      [d9] op0  A=@772           B=@860           (D?=@924)
+ 2892  38      [d9] ADD A=@772         B=@860         -> P2 (via dc)
  2893  d8      ALWAYS
  2894  a8      P2.page=8   -> D@896 @896
  2895  89      P0.page=9   -> A@912 @912
- 2896  39      op1  A=@916           B=@860           (D?=@908)
+ 2896  39      RSUB A=@916         B=@860         -> P2 (via dc)
  2897  a9      P2.page=9   -> D@912 @912
  2898  80      P0.page=0   -> A@768 @768
  2899  da      IF.2
- 2900  3c      [da] op4  A=@772           B=@860           (D?=@924)
+ 2900  3c      [da] ADD A=@772         B=@860         -> P2+4 (via dc)
  2901  d8      ALWAYS
  2902  a8      P2.page=8   -> D@896 @896
- 2903  2e      op6  A=@772           B=@852           (D?=@900)
+ 2903  2e      MUL A=@772         B=@852         -> P2+4 (via dc)
  2904  a8      P2.page=8   -> D@896 @896
- 2905  39      op1  A=@772           B=@860           (D?=@908)
+ 2905  39      RSUB A=@772         B=@860         -> P2 (via dc)
  2906  90      P1.page=0   -> B@768 @768
  2907  d9      IF.1
- 2908  0c      [d9] op4  A=@768           B=@772           (D?=@900)
+ 2908  0c      [d9] ADD A=@768         B=@772         -> P2+4 (via dc)
  2909  d8      ALWAYS
  2910  a8      P2.page=8   -> D@896 @896
  2911  95      P1.page=5   -> B@848 @848
- 2912  31      op1  A=@772           B=@856           (D?=@904)
+ 2912  31      RSUB A=@772         B=@856         -> P2 (via dc)
  2913  98      P1.page=8   -> B@896 @896
  2914  d9      IF.1
- 2915  0c      [d9] op4  A=@768           B=@900           (D?=@900)
+ 2915  0c      [d9] ADD A=@768         B=@900         -> P2+4 (via dc)
  2916  d8      ALWAYS
  2917  a8      P2.page=8   -> D@896 @896
- 2918  09      op1  A=@768           B=@900           (D?=@900)
+ 2918  09      RSUB A=@768         B=@900         -> P2 (via dc)
  2919  d9      IF.1
  2920  ff      ff
  2921  d8      ALWAYS
- 2922  01      op1  A=@768           B=@896           (D?=@896)
+ 2922  01      RSUB A=@768         B=@896         -> P2 (via dc)
  2923  da      IF.2
  2924  ff      ff
  2925  d8      ALWAYS
  2926  95      P1.page=5   -> B@848 @848
- 2927  39      op1  A=@772           B=@860           (D?=@908)
+ 2927  39      RSUB A=@772         B=@860         -> P2 (via dc)
  2928  a9      P2.page=9   -> D@912 @912
  2929  da      IF.2
- 2930  26      [da] op6  A=@772           B=@848           (D?=@912)
+ 2930  26      [da] MUL A=@772         B=@848         -> P2+4 (via dc)
  2931  ff      ff
  2932  d8      ALWAYS
  2933  90      P1.page=0   -> B@768 @768
  2934  a8      P2.page=8   -> D@896 @896
- 2935  0d      op5  A=@768           B=@772           (D?=@900)
+ 2935  0d      RSUB A=@768         B=@772         -> P2+4 (via dc)
  2936  89      P0.page=9   -> A@912 @912
  2937  99      P1.page=9   -> B@912 @912
  2938  a8      P2.page=8   -> D@896 @896
- 2939  10      op0  A=@912           B=@920           (D?=@904)
+ 2939  10      ADD A=@912         B=@920         -> P2 (via dc)
  2940  80      P0.page=0   -> A@768 @768
  2941  98      P1.page=8   -> B@896 @896
- 2942  21      op1  A=@772           B=@896           (D?=@896)
+ 2942  21      RSUB A=@772         B=@896         -> P2 (via dc)
  2943  da      IF.2
- 2944  2e      [da] op6  A=@772           B=@900           (D?=@900)
+ 2944  2e      [da] MUL A=@772         B=@900         -> P2+4 (via dc)
  2945  d8      ALWAYS
  2946  89      P0.page=9   -> A@912 @912
  2947  99      P1.page=9   -> B@912 @912
  2948  a8      P2.page=8   -> D@896 @896
- 2949  31      op1  A=@916           B=@920           (D?=@904)
+ 2949  31      RSUB A=@916         B=@920         -> P2 (via dc)
  2950  80      P0.page=0   -> A@768 @768
  2951  da      IF.2
- 2952  2e      [da] op6  A=@772           B=@916           (D?=@900)
+ 2952  2e      [da] MUL A=@772         B=@916         -> P2+4 (via dc)
  2953  d8      ALWAYS
  2954  a8      P2.page=8   -> D@896 @896
  2955  86      P0.page=6   -> A@864 @864
  2956  96      P1.page=6   -> B@864 @864
- 2957  31      op1  A=@868           B=@872           (D?=@904)
+ 2957  31      RSUB A=@868         B=@872         -> P2 (via dc)
  2958  80      P0.page=0   -> A@768 @768
  2959  da      IF.2
- 2960  2e      [da] op6  A=@772           B=@868           (D?=@900)
+ 2960  2e      [da] MUL A=@772         B=@868         -> P2+4 (via dc)
  2961  d8      ALWAYS
  2962  a8      P2.page=8   -> D@896 @896
  2963  87      P0.page=7   -> A@880 @880
- 2964  31      op1  A=@884           B=@872           (D?=@904)
+ 2964  31      RSUB A=@884         B=@872         -> P2 (via dc)
  2965  80      P0.page=0   -> A@768 @768
  2966  da      IF.2
- 2967  2e      [da] op6  A=@772           B=@868           (D?=@900)
+ 2967  2e      [da] MUL A=@772         B=@868         -> P2+4 (via dc)
  2968  d8      ALWAYS
  2969  a8      P2.page=8   -> D@896 @896
  2970  82      P0.page=2   -> A@800 @800
  2971  92      P1.page=2   -> B@800 @800
  2972  f3      FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
- 2973  41      op1  A=@808           B=@800           (D?=@896)
+ 2973  41      RSUB A=@808         B=@800         -> P2 (via dc)
  2974  80      P0.page=0   -> A@768 @768
  2975  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  2976  d9      IF.1
- 2977  2e      [d9] op6  A=@772           B=@804           (D?=@900)
+ 2977  2e      [d9] MUL A=@772         B=@804         -> P2+4 (via dc)
  2978  d8      ALWAYS
  2979  a8      P2.page=8   -> D@896 @896
  2980  82      P0.page=2   -> A@800 @800
  2981  f3      FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
- 2982  19      op1  A=@800           B=@812           (D?=@908)
+ 2982  19      RSUB A=@800         B=@812         -> P2 (via dc)
  2983  80      P0.page=0   -> A@768 @768
  2984  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  2985  d9      IF.1
- 2986  2e      [d9] op6  A=@772           B=@804           (D?=@900)
+ 2986  2e      [d9] MUL A=@772         B=@804         -> P2+4 (via dc)
  2987  d8      ALWAYS
  2988  82      P0.page=2   -> A@800 @800
  2989  ac      P2.page=c   -> D@960 @960
@@ -1951,17 +1951,17 @@
  2991  c0      c0
  2992  a2      P2.page=2   -> D@800 @800
  2993  80      P0.page=0   -> A@768 @768
- 2994  22      op2  A=@772           B=@800           (D?=@800)
+ 2994  22      MUL A=@772         B=@800         -> P2 (via dc)
  2995  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  2996  a6      P2.page=6   -> D@864 @864
- 2997  2e      op6  A=@772           B=@804           (D?=@868)
+ 2997  2e      MUL A=@772         B=@804         -> P2+4 (via dc)
  2998  a7      P2.page=7   -> D@880 @880
- 2999  2e      op6  A=@772           B=@804           (D?=@884)
+ 2999  2e      MUL A=@772         B=@804         -> P2+4 (via dc)
  3000  a9      P2.page=9   -> D@912 @912
- 3001  22      op2  A=@772           B=@800           (D?=@912)
+ 3001  22      MUL A=@772         B=@800         -> P2 (via dc)
  3002  98      P1.page=8   -> B@896 @896
  3003  a8      P2.page=8   -> D@896 @896
- 3004  29      op1  A=@772           B=@900           (D?=@900)
+ 3004  29      RSUB A=@772         B=@900         -> P2 (via dc)
  3005  da      IF.2
  3006  ac      P2.page=c   -> D@960 @960
  3007  de      de
@@ -1969,26 +1969,26 @@
  3009  d8      ALWAYS
  3010  a2      P2.page=2   -> D@800 @800
  3011  f2      FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
- 3012  2a      op2  A=@772           B=@900           (D?=@804)
+ 3012  2a      MUL A=@772         B=@900         -> P2 (via dc)
  3013  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  3014  a9      P2.page=9   -> D@912 @912
- 3015  2e      op6  A=@772           B=@900           (D?=@916)
+ 3015  2e      MUL A=@772         B=@900         -> P2+4 (via dc)
  3016  82      P0.page=2   -> A@800 @800
  3017  92      P1.page=2   -> B@800 @800
  3018  a8      P2.page=8   -> D@896 @896
  3019  f2      FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
- 3020  31      op1  A=@804           B=@808           (D?=@904)
+ 3020  31      RSUB A=@804         B=@808         -> P2 (via dc)
  3021  80      P0.page=0   -> A@768 @768
  3022  a6      P2.page=6   -> D@864 @864
  3023  96      P1.page=6   -> B@864 @864
  3024  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  3025  d9      IF.1
- 3026  00      [d9] op0  A=@768           B=@864           (D?=@864)
+ 3026  00      [d9] ADD A=@768         B=@864         -> P2 (via dc)
  3027  ac      P2.page=c   -> D@960 @960
  3028  8c      P0.page=c   -> A@960 @960
  3029  9c      P1.page=c   -> B@960 @960
- 3030  0c      [d9] op4  A=@960           B=@964           (D?=@964)
- 3031  30      [d9] op0  A=@964           B=@968           (D?=@968)
+ 3030  0c      [d9] ADD A=@960         B=@964         -> P2+4 (via dc)
+ 3031  30      [d9] ADD A=@964         B=@968         -> P2 (via dc)
  3032  ac      P2.page=c   -> D@960 @960
  3033  de      de
  3034  d0      d0
@@ -1999,26 +1999,26 @@
  3039  9c      P1.page=c   -> B@960 @960
  3040  ac      P2.page=c   -> D@960 @960
  3041  d0      d0
- 3042  10      op0  A=@960           B=@968           (D?=@968)
+ 3042  10      ADD A=@960         B=@968         -> P2 (via dc)
  3043  ac      P2.page=c   -> D@960 @960
  3044  de      de
  3045  80      P0.page=0   -> A@768 @768
  3046  92      P1.page=2   -> B@800 @800
  3047  a2      P2.page=2   -> D@800 @800
  3048  f2      FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
- 3049  4c      op4  A=@776           B=@804           (D?=@804)
+ 3049  4c      ADD A=@776         B=@804         -> P2+4 (via dc)
  3050  82      P0.page=2   -> A@800 @800
  3051  a8      P2.page=8   -> D@896 @896
  3052  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  3053  ca      ca
  3054  f2      FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
- 3055  35      op5  A=@804           B=@808           (D?=@904)
+ 3055  35      RSUB A=@804         B=@808         -> P2+4 (via dc)
  3056  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  3057  96      P1.page=6   -> B@864 @864
  3058  88      P0.page=8   -> A@896 @896
  3059  a6      P2.page=6   -> D@864 @864
  3060  d9      IF.1
- 3061  00      [d9] op0  A=@896           B=@864           (D?=@864)
+ 3061  00      [d9] ADD A=@896         B=@864         -> P2 (via dc)
  3062  d8      ALWAYS
  3063  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  3064  ff      ff

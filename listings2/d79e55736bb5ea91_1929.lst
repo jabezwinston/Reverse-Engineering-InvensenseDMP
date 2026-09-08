@@ -1,6 +1,6 @@
 ; lineage=mantis start=768
   768  d8      ALWAYS
-  769  dc      dc
+  769  dc      STORE  commit ALU result -> M[P2] PTAT  (dc)
   770  ba      P2.bank=2
   771  a2      P2.page=2   -> D@544 @544
   772  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
@@ -1150,7 +1150,7 @@
  1916  9b      P1.page=b   -> B@432 SEM1
  1917  a3      P2.page=3   -> D@304 TMP1B
  1918  30      [d9] ADD A=0_0          B=SH_TH_Y      -> P2 (via dc)
- 1919  dc      dc
+ 1919  dc      STORE  commit ALU result -> M[P2] TMP1B  (dc)
  1920  b9      P2.bank=1
  1921  a7      P2.page=7   -> D@368 ACCQD4
  1922  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit

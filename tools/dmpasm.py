@@ -1,49 +1,103 @@
 #!/usr/bin/env python3
-"""dmpasm - assembler for the confirmed subset of the InvenSense DMP ISA.
+"""dmpasm - assembler for the recovered InvenSense DMP ISA (2026-09-08).
 
-Deliberately small. It emits only instructions whose behaviour has been verified
-on silicon; anything else requires an explicit `.db` escape. There is no branch
-mnemonic because no branch instruction is known (see bench/RESULTS.md round 9).
+The DMP is a Q30 fixed-point machine with pointer-addressed load/store, a small
+ALU, and a forward branch (ISA2.md, Findings 1-7, hardware-confirmed). This
+assembler emits only instructions verified on silicon; use `.db` for anything else.
 
-Syntax
-------
-    .lineage mantis          ; or 6050; sets opcode numbering (default mantis)
-    selbank 0x9a             ; DINA90+n, selects source bank
-    selbank gyro             ; alias: gyro|quat|accel|delay
-    emit gyro_x, gyro_y      ; register refs consumed by the emit block
-    emit r4, r5, r6          ; raw register indices also accepted
-    nop                      ; a3
-    skip                     ; fe
-    disable                  ; ff
-    .db 0xd8, 0x12           ; raw bytes, escape hatch
+Machine model
+-------------
+Three pointers P0, P1, P2. address(P) = bank*256 + page*16.  A word is 4 bytes,
+big-endian Q30 (2^30 = 1.0), range [-2,+2), addition wraps (modular).
+
+  p0page N / p1page N / p2page N     high nibble 8/9/A, low nibble = page (0..15)
+  p0bank N / p1bank N / p2bank N     mantis: b-family; 3050: c-family
+  add   A,B[,hi]                     M[P0+4A] + M[P1+4B]   (A,B in 0..3)
+  rsub  A,B[,hi]                     M[P1+4B] - M[P0+4A]   (op1)
+  mul   A,B[,hi]                     M[P0+4A] * M[P1+4B]   (op2)
+  nmul  A,B[,hi]                    -M[P0+4A] * M[P1+4B]   (op3)
+       `hi` sets op&4 -> destination word P2+4 (default P2+0). Only words 0,1 of
+       the P2 page are reachable; re-point P2 for words 2,3.
+  store                              dc: commit the ALU result to M[dest]
+  store.add / store.rsub / .mul / .nmul  A,B[,hi]
+       fused: emits `dc` THEN the ALU byte, the order confirmed on hardware
+       (probe6: dc precedes the op). This is the RAM-store idiom.
+  branch N                           f4 (mantis) / fc (3050); target = here+2+N,
+                                     forward only, 0 <= N <= 0x7f (Finding 2)
+  fmode N                            f0..f3: FIFO width/mode (1=32-bit, 2/3=16-bit)
+
+Legacy FIFO-emit form (stock preambles) still assembles:
+  selbank gyro|quat|accel|delay|0x9N
+  emit r0..r15 | gyro_x ... | 0xNN
+  nop / skip / disable / .db 0x..,0x..
+
+A bare ALU op with no `store` and no `dc` emits its result to the FIFO when a
+FIFO mode is active (bench round 10); with `store`/dc it writes RAM instead.
 
 Patching
 --------
-    python3 dmpasm.py prog.s --patch image.bin --at 1867 --len 6 --out out.bin
-
-`--len` is the capacity of the target site. The fragment must fit; it is padded
-with NOPs. Overrunning is refused, because a block has a fixed slot count and
-running past it corrupts the following instruction.
+  python3 dmpasm.py prog.s --patch image.bin --at 1868 --len 5 --out out.bin
+`--len` is the site capacity; the fragment is NOP-padded, overruns refused.
 """
 import argparse, re, sys, pathlib
 
-LINEAGES = {"6050": dict(emit=0xF9), "mantis": dict(emit=0xF1)}
+# lineage-specific opcodes
+LINEAGES = {
+    "mantis": dict(emit=0xF1, branch=0xF4, fmode0=0xF0, bankbase=0xB0, bankstyle="b"),
+    "6050":   dict(emit=0xF1, branch=0xF4, fmode0=0xF0, bankbase=0xB0, bankstyle="b"),
+    "3050":   dict(emit=0xF9, branch=0xFC, fmode0=0xF8, bankbase=0xC0, bankstyle="c"),
+}
+STORE = 0xDC                      # DINADC: commit ALU result to M[dest]
+ALU_OPS = {"add": 0, "rsub": 1, "mul": 2, "nmul": 3}
+NOP, SKIP, DISABLE = 0xA3, 0xFE, 0xFF
 BANK_ALIAS = {"gyro": 0x9A, "quat": 0x9C, "accel": 0x99, "delay": 0x98}
-# hardware-verified register names, per bank
 REGS = {
     0x9A: {"gyro_x": 0x28, "gyro_y": 0x30, "gyro_z": 0x38},
     0x9C: {"quat_w": 0x20, "quat_x": 0x28, "quat_y": 0x30, "quat_z": 0x38},
     0x99: {"accel_x": 0x28, "accel_y": 0x30, "accel_z": 0x38},
     0x98: {"delay_t": 0x28, "delay_t1": 0x38},
 }
-NOP, SKIP, DISABLE = 0xA3, 0xFE, 0xFF
 
 
 class AsmError(Exception):
     pass
 
 
+def _page_byte(hi_nibble, arg):
+    n = int(arg, 0)
+    if not 0 <= n <= 15:
+        raise AsmError(f"page {n} out of range 0-15")
+    return (hi_nibble << 4) | n
+
+
+def _bank_byte(L, sel, arg):
+    n = int(arg, 0)
+    if L["bankstyle"] == "b":                 # mantis: 0xB0 | (sel<<2) | bank, bank 0..3
+        if not 0 <= n <= 3:
+            raise AsmError(f"bank {n} out of range 0-3 (mantis)")
+        return L["bankbase"] | (sel << 2) | n
+    else:                                      # 3050: 0xC0 | (sel<<1) | bank, bank 0..1
+        if not 0 <= n <= 1:
+            raise AsmError(f"bank {n} out of range 0-1 (3050)")
+        return L["bankbase"] | (sel << 1) | n
+
+
+def _alu_byte(op, arg):
+    """Parse `A,B[,hi]` -> (A<<5)|(B<<3)|op(|4)."""
+    toks = [t.strip() for t in arg.split(",") if t.strip()]
+    if len(toks) < 2:
+        raise AsmError(f"{op!r} needs A,B (0..3) and optional hi")
+    A, B = int(toks[0], 0), int(toks[1], 0)
+    if not (0 <= A <= 3 and 0 <= B <= 3):
+        raise AsmError(f"operand index out of range 0-3: A={A} B={B}")
+    hi = 0
+    if len(toks) >= 3 and toks[2].lower() in ("hi", "1", "d1", "p2+4"):
+        hi = 4
+    return (A << 5) | (B << 3) | ALU_OPS[op] | hi
+
+
 def assemble(text, lineage="mantis"):
+    L = LINEAGES[lineage]
     out = bytearray()
     bank = None
     for lineno, raw in enumerate(text.splitlines(), 1):
@@ -53,46 +107,68 @@ def assemble(text, lineage="mantis"):
         parts = line.split(None, 1)
         op = parts[0].lower()
         arg = parts[1].strip() if len(parts) > 1 else ""
-
         try:
             if op == ".lineage":
                 if arg not in LINEAGES:
                     raise AsmError(f"unknown lineage {arg!r}")
-                lineage = arg
+                L = LINEAGES[lineage := arg]
             elif op == ".db":
                 for tok in arg.split(","):
                     out.append(int(tok.strip(), 0) & 0xFF)
+
+            # --- pointers ---
+            elif op in ("p0page", "p1page", "p2page"):
+                out.append(_page_byte(0x8 + "012".index(op[1]), arg))
+            elif op in ("p0bank", "p1bank", "p2bank"):
+                out.append(_bank_byte(L, "012".index(op[1]), arg))
+
+            # --- ALU (compute; emits to FIFO in fifo mode, else use store) ---
+            elif op in ALU_OPS:
+                out.append(_alu_byte(op, arg))
+            elif op == "store" and not arg:
+                out.append(STORE)
+            elif op.startswith("store.") and op[6:] in ALU_OPS:
+                out.append(STORE)                    # dc first (hardware order)
+                out.append(_alu_byte(op[6:], arg))
+
+            # --- control / fifo ---
+            elif op == "branch":
+                n = int(arg, 0)
+                if not 0 <= n <= 0x7F:
+                    raise AsmError(f"branch imm {n:#x} must be 0..0x7f (forward only)")
+                out.append(L["branch"]); out.append(n)
+            elif op == "fmode":
+                n = int(arg, 0)
+                if not 0 <= n <= 3:
+                    raise AsmError("fmode 0..3")
+                out.append(L["fmode0"] | n)
+
+            # --- legacy FIFO-emit form ---
             elif op == "selbank":
-                b = BANK_ALIAS.get(arg.lower(), None)
+                b = BANK_ALIAS.get(arg.lower())
                 if b is None:
                     b = int(arg, 0)
                 if not 0x90 <= b <= 0x9F:
                     raise AsmError(f"bank 0x{b:02x} out of range 0x90-0x9f")
-                bank = b
-                out.append(b)
+                bank = b; out.append(b)
             elif op == "emit":
-                refs = []
                 for tok in [t.strip() for t in arg.split(",")] if arg else []:
                     if not tok:
                         continue
                     if tok in REGS.get(bank or -1, {}):
-                        refs.append(REGS[bank][tok])
+                        out.append(REGS[bank][tok])
                     elif re.fullmatch(r"r(\d+)", tok):
                         r = int(tok[1:])
                         if not 0 <= r <= 15:
                             raise AsmError(f"register {tok} out of range r0-r15")
-                        refs.append(r << 3)
+                        out.append(r << 3)
                     elif tok.startswith("0x"):
-                        refs.append(int(tok, 0) & 0x7F)
+                        out.append(int(tok, 0) & 0x7F)
                     else:
                         known = ", ".join(REGS.get(bank or -1, {}))
-                        raise AsmError(
-                            f"unknown register {tok!r}"
-                            + (f" for bank 0x{bank:02x} (known: {known})" if bank
-                               else " - no selbank in scope, use rN or 0xNN"))
-                # a low byte IS the emit instruction; no block opcode needed
-                # (bench round 10). Use `.db 0xf1` to reproduce stock preambles.
-                out.extend(refs)
+                        raise AsmError(f"unknown register {tok!r}" +
+                            (f" for bank 0x{bank:02x} (known: {known})" if bank
+                             else " - no selbank in scope, use rN or 0xNN"))
             elif op == "nop":
                 out.append(NOP)
             elif op == "skip":
@@ -100,8 +176,10 @@ def assemble(text, lineage="mantis"):
             elif op == "disable":
                 out.append(DISABLE)
             else:
-                raise AsmError(f"unknown mnemonic {op!r} "
-                               "(confirmed set: selbank, emit, nop, skip, disable, .db)")
+                raise AsmError(
+                    f"unknown mnemonic {op!r} (confirmed: p0page/p1page/p2page, "
+                    "p0bank/p1bank/p2bank, add/rsub/mul/nmul, store[.op], branch, "
+                    "fmode, selbank, emit, nop, skip, disable, .db)")
         except AsmError as e:
             raise AsmError(f"line {lineno}: {e}") from None
         except ValueError as e:
@@ -113,27 +191,20 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("source")
     ap.add_argument("--lineage", default="mantis", choices=list(LINEAGES))
-    ap.add_argument("--patch", help="host image to patch")
-    ap.add_argument("--at", type=int, help="patch address")
-    ap.add_argument("--len", type=int, help="capacity of the target site in bytes")
-    ap.add_argument("--out", help="output image path")
+    ap.add_argument("--patch"); ap.add_argument("--at", type=int)
+    ap.add_argument("--len", type=int); ap.add_argument("--out")
     a = ap.parse_args()
-
     try:
         code = assemble(pathlib.Path(a.source).read_text(), a.lineage)
     except AsmError as e:
         sys.exit(f"error: {e}")
-
     print(f"assembled {len(code)} bytes: {code.hex(' ')}")
-
     if not a.patch:
         return
     if a.at is None or a.len is None or not a.out:
         sys.exit("--patch requires --at, --len and --out")
     if len(code) > a.len:
-        sys.exit(f"error: fragment is {len(code)} B but site capacity is {a.len} B "
-                 f"- overrunning would corrupt the next instruction")
-
+        sys.exit(f"error: fragment is {len(code)} B but site capacity is {a.len} B")
     img = bytearray(pathlib.Path(a.patch).read_bytes())
     if a.at + a.len > len(img):
         sys.exit(f"error: site {a.at}+{a.len} exceeds image ({len(img)} B)")
@@ -141,10 +212,7 @@ def main():
     original = bytes(img[a.at:a.at + a.len])
     img[a.at:a.at + a.len] = padded
     pathlib.Path(a.out).write_bytes(bytes(img))
-    print(f"site {a.at}..{a.at + a.len - 1}")
-    print(f"  was: {original.hex(' ')}")
-    print(f"  now: {padded.hex(' ')}   ({a.len - len(code)} NOP pad)")
-    print(f"wrote {a.out}")
+    print(f"site {a.at}..{a.at + a.len - 1}\n  was: {original.hex(' ')}\n  now: {padded.hex(' ')}   ({a.len - len(code)} NOP pad)\nwrote {a.out}")
 
 
 if __name__ == "__main__":

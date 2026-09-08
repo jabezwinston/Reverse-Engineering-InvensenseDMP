@@ -261,6 +261,24 @@ and the op semantics. Combined: the DMP is a Q30 fixed-point add/sub/mul machine
 (`dc`), a forward branch (`f4`, Finding 2), and pointer-addressed memory — a small but complete
 computer. `bench/probe7.py` reproduces the whole table.
 
+
+### probe8 (2026-09-08): the destination index is one bit, and `dc` is the only store
+
+Tested whether the DINADC low nibble selects the destination word (dc/dd/de/df -> word 0/1/2/3):
+
+    dc 97 ba a4 40  -> 0x240 = 1.5   (word 0)
+    dd 97 ba a4 40  -> nothing
+    de 97 ba a4 40  -> nothing
+    df 97 ba a4 40  -> nothing
+    dc ... op0 -> word 0 (0x240) ; dc ... op4 -> word 1 (0x244)
+    dd ... op4 -> nothing
+
+**Only `dc` stores.** `dd/de/df` are distinct opcodes, not destination variants. The
+destination word is selected solely by the ALU byte's bit 2 (`op&4`), giving words 0 and 1
+of the P2 page. Words 2 and 3 (P2+8, P2+12) are NOT reachable by this instruction form; the
+operand index is 2 bits (any of 4 words) but the store index is 1 bit. To write words 2/3
+you re-point P2. This asymmetry is a real property of the datapath, now closed as a question.
+
 ## Plan
 
 ### P1 — static, no hardware (this session)

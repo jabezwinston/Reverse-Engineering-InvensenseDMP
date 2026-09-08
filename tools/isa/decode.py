@@ -69,6 +69,8 @@ class Decoder:
             self.cond = f"{b:02x}"; return 1, {0xD8: "ALWAYS", 0xD9: "IF.1", 0xDA: "IF.2", 0xDB: "IF.3"}[b]
         if b in self.fmode:
             self.width = b & 3; return 1, f"FMODE.{b&3}   ; 1=32-bit fifo, 2/3=16-bit"
+        if b == 0xDC:
+            return 1, f"STORE  commit ALU result -> M[P2] {self.N.name(self.ptr(2))}  (dc)"
         if b < 0x80:
             A, B, op = (b >> 5) & 3, (b >> 3) & 3, b & 7
             a, bb, d = self.ptr(0) + 4 * A, self.ptr(1) + 4 * B, self.ptr(2) + 4 * B

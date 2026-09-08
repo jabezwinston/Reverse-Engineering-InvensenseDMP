@@ -303,7 +303,7 @@
   813  9b      P1.page=b   -> B@432 SEM1
   814  a3      P2.page=3   -> D@304 TMP1B
   815  a3      P2.page=3   -> D@304 TMP1B
-  816  dc      dc
+  816  dc      STORE  commit ALU result -> M[P2] TMP1B  (dc)
   817  c5      P2.bank=1
   818  a7      P2.page=7   -> D@368 ACCQD4
   819  f9      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
