@@ -17,10 +17,11 @@ the program through pointers.
 The firmware image is loaded at address 0 and occupies the low part of that space. Everything
 above it is ordinary data RAM.
 
-**Free RAM above the image is data only.** 1143 B were free in the 1929-byte host image and
-verified untouched across a run; filling it with four different byte values and branching into it
-produced identical outcomes every time, so **execution never reaches it** **[HW]**. You cannot
-host code there.
+**Free RAM above the image is executable.** A 2120-byte program written at the entry point
+spans 768–2887, i.e. 958 bytes past the end of the 1929-byte stock image, and its terminating
+emit fires **[HW, probe38]**. An earlier round concluded the opposite, but it tested whether a
+forward `f4` *branch* reaches the region, not whether execution *falls into* it. So the code
+budget is the address space (§5.6), not the vendor's patch slots.
 
 ## 1.2 Numbers
 

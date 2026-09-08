@@ -10,7 +10,7 @@ These are properties of the machine, established rather than assumed. Design aro
 | **Displacement is 7 bits, forward** | A single branch reaches at most 127 bytes ahead |
 | **No call, return or stack** | No subroutines. Inline everything |
 | **Pointers reach 1024 B** | All program data lives in `0x000`–`0x3FF` ([§6.1](06-memory-map.md)) |
-| **Free RAM above the image is not executable** **[HW]** | You cannot add code; you patch existing sites |
+| **Program is ~2270 B and one pass must fit the sample period** **[HW]** | Code size *is* execution time; see [§5.6](05-host-interface.md#56-execution-budget) |
 | **Entry point is fixed by the host, one pass per sample** | No standalone program; you modify a hosted one |
 | **No immediates** | Every constant must be a word in RAM, placed by the host |
 | **Arithmetic wraps** | Clamp by hand ([§4.7](04-idioms.md)) |

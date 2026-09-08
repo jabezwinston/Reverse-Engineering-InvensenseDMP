@@ -38,6 +38,13 @@ The DMP is a small but complete **feed-forward computer**: no loops are expressi
 image is straight-line code re-run from the top on each sample interrupt. Custom DMP programs
 written in this repo's assembly language run on real MPU-6050 silicon exactly as predicted.
 
+A **wholly custom program** runs from the entry point, not just patches into the vendor's `a3`
+slots, and it may extend past the end of the original image — so the budget is ~2270 bytes, and
+one pass costs `0.6 us` per pointer/mode byte, `2 us` per MOV, `3.9 us` per add and `7.9 us` per
+multiply, plus 56 us fixed. Predicting the shipping firmware's pass rate from that model matches
+measurement at five sample rates with no free parameters (ISA2.md Finding 23,
+[manual §5.6](docs/manual/05-host-interface.md#56-execution-budget)).
+
 ## What works today
 
 ```
@@ -84,7 +91,7 @@ is volatile — a power cycle restores stock, and every patch is reverted after 
 
 See `bench/README.md` for the protocol, `bench/RESULTS.md` for all experiment rounds including
 every correction and false start, and
-[manual §5.8](docs/manual/05-host-interface.md#58-measurement-discipline) for the measurement
+[manual §5.8](docs/manual/05-host-interface.md#59-measurement-discipline) for the measurement
 discipline these results depend on.
 
 ## Why it stopped, and why it restarted
@@ -101,7 +108,7 @@ Several confident-looking results in this project turned out to be measurement a
 packet offsets that broke when packet length changed, detectors never validated against a null
 control, and silent I2C failures that produced clean-looking false negatives. Each is documented
 where it occurred, and the six that produced false findings are collected in
-[manual §5.8](docs/manual/05-host-interface.md#58-measurement-discipline).
+[manual §5.8](docs/manual/05-host-interface.md#59-measurement-discipline).
 **Validate the instrument before trusting the measurement.**
 
 ## Licensing

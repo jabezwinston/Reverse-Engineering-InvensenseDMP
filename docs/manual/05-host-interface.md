@@ -109,9 +109,14 @@ you can make before the run** — which is exactly how a custom program is verif
 DMP program memory is **volatile RAM**. There is no flash and no way to brick the part — a power
 cycle restores it to stock. Every bench operation that patches also restores.
 
-You cannot add code: **free RAM above the image is unreachable as code** (§1.1). You patch
-in place, into the vendor's own runtime-patch slots — the `a3`-padded runs that
-`dmp_enable_feature` writes into. In the 1929-byte MotionApps20 image:
+There are two ways in. **Authoring the whole program** is the larger one: overwrite the code
+region from the entry point and keep the stock image's data and config below it. A custom
+program written that way runs, and it may extend past the end of the original image
+**[HW, probe38]** — see §5.6 for how much room that is.
+
+**Patching in place** is the smaller, safer one: write into the vendor's own runtime-patch
+slots, the `a3`-padded runs that `dmp_enable_feature` writes into. In the 1929-byte
+MotionApps20 image:
 
 | address | `a3` run | notes |
 |---|---:|---|
@@ -127,7 +132,46 @@ emits from, which is how a custom field selection is built.
 Beyond those, the knockout sweep identified 16-byte windows whose removal did not stop the
 quaternion — repurposable, at the cost of whatever feature lived there.
 
-## 5.6 End to end
+## 5.6 Execution budget
+
+Because the PC only moves forward, **every byte executes at most once per pass, so code size is
+execution time**. WCET analysis is free: your program's worst case *is* its length. What it
+costs depends on the opcode, and the spread is more than tenfold **[HW, probe40]**:
+
+| instruction | memory traffic | µs each |
+|---|---|---:|
+| `d8`, pointer loads, modes, predicates | none | **0.6** |
+| `c0`–`cf` MOV | 1 read + 1 write | **~2.0** |
+| ALU `add` / `rsub` | 2 reads + 1 write | **3.9** |
+| ALU `mul` / `nmul` | 2 reads + 1 write + multiply | **7.9** |
+
+plus **~56 µs of fixed per-pass overhead**. That is ~1.3 µs per memory access with the
+multiplier costing a further ~4 µs — a plain memory-to-memory machine with no cache to think
+about. **Budgeting from instruction count alone overstates real code by about 6×.**
+
+A pass can only start on a sample tick, so if it overruns the sample period the DMP drops whole
+samples — the rate falls to an exact integer submultiple. The failure is graceful and
+quantised: never a hang, never a corrupt result, just a slower output rate **[HW, probe38]**.
+
+| sample rate | period | budget (all-`add` code) | budget (mixed, ~2.2 µs avg) |
+|---|---:|---:|---:|
+| 1000 Hz | 1000 µs | ~240 | ~430 |
+| 500 Hz | 2000 µs | ~495 | ~880 |
+| **200 Hz** (vendor default) | 5000 µs | ~1260 | ~2250 |
+| 100 Hz | 10000 µs | ~2530 | ~4520 |
+
+The address space caps the program at **~2270 bytes** (768–3040; start at 1024 instead and get
+2016 bytes with all of `0x000`–`0x3FF` left free for data). So at 100–200 Hz **space and time
+run out at about the same point**, and below 200 Hz you are limited by address space alone.
+
+The model is validated against the shipping firmware with no free parameters: the stock
+MotionApps20 opcode mix predicts a 2537 µs pass, hence `rate = sample_rate / ceil(2537/period)`
+— a non-monotonic curve, since 500 Hz should be *slower* than both 1000 Hz and 333 Hz. Measured
+at five rates: 333.5 / 251.8 / 333.6 / 200.2 / 99.4 passes per second against 333 / 250 / 333 /
+200 / 100 predicted **[HW, probe41]**. It also explains the vendor's choice of 200 Hz — the
+stock program uses 51 % of that period and does not fit at 500 Hz.
+
+## 5.7 End to end
 
 `bench/dmprun.py` assembles, patches, loads, runs, captures and verifies:
 
@@ -151,7 +195,7 @@ RESULT: custom program verified
 Two independent checks, both made **before** the run: the packet length follows from the number
 of emits, and every emitted word must equal the corresponding stock field in the same packet.
 
-## 5.7 The bench rig
+## 5.8 The bench rig
 
 MPU-6050 on an ESP32 — `SDA = D21`, `SCL = D22`, `INT = D5`, part at 0x68, host at
 `/dev/ttyUSB0`. The ESP32 runs `bench/esp32_dmp_bridge/` and contains **no experiment logic**: it
@@ -162,7 +206,7 @@ host-side Python in `bench/`.
 For a remote rig, `bench/rfc2217_server.py` bridges the serial port over the network; RFC2217
 carries DTR/RTS so the auto-reset still works, which plain `socket://` does not.
 
-## 5.8 Measurement discipline
+## 5.9 Measurement discipline
 
 Six specific traps in this project produced confident, wrong results. They are worth reading
 before you design an experiment, because every one of them looked like a clean measurement:

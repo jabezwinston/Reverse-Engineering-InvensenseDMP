@@ -131,5 +131,5 @@ is a real effect by construction. Report the mask size and N.
 
 The six traps that have actually produced false findings in this project — and the rule each one
 yields — are collected in
-[manual §5.8](docs/manual/05-host-interface.md#58-measurement-discipline). Read them before
+[manual §5.8](docs/manual/05-host-interface.md#59-measurement-discipline). Read them before
 designing an experiment; every one of them looked like a clean measurement at the time.

@@ -808,6 +808,81 @@ That is an independent end-to-end confirmation of operand indexing, the pre-adva
 involved. It also means the anomaly is roughly a fifth smaller than stated and lives in the 218
 runs where the destination is a different word from both operands. Those remain unexplained.
 
+## Finding 23 — a custom program runs, code lives above the image, and the timing model (HARDWARE CONFIRMED)
+
+Four questions the toolchain needed answered before a compiler is worth writing. All four
+settled on the rig (`bench/probe38.py`, `probe39.py`, `probe40.py`, `probe41.py`).
+
+**1. A wholly custom program at PRGM_START runs.** Keeping the stock image's data and config
+and overwriting only the code region at 0x300 with
+
+    b0 87 b4 9c dd f1 20 ff        P0 -> const page, P1 -> quat page, FIFO, 32-bit, emit QT1, halt
+
+produced a FIFO of exactly one repeating 4-byte word (`2d e4 a7 4e ...`) against the stock
+image's varied 42-byte packets. The DMP is not restricted to the vendor's `a3` patch slots:
+you can author the whole program.
+
+**2. Code above the image executes.** A 2120-byte program at 768 spans 768..2887, i.e. 958
+bytes above the end of the 1929-byte image, and its terminating emit *fired* -- the FIFO filled
+at the expected rate. So the region is executable. TOOLCHAIN's T5 negative ("free RAM is
+unreachable as code") tested whether a forward `f4` BRANCH reaches it, not whether execution
+falls into it, and its conclusion does not survive. **The code budget is ~2270 bytes
+(768..3040), not the 28 bytes of `a3` slots.**
+
+**3. The pass is sample-gated, and the budget is a hard ceiling.** A custom program raises no
+DMP_INT, only FIFO_OFLOW, so the bridge's `T` returns the time to fill 1024 B = 256 passes at
+4 B/pass. Validated by halving the emits: 1/2/4 emits per pass gave dt = 256631 / 128557 /
+64888 us, all ~995 passes/s. Growing the program with `d8` filler at a 1 kHz sample rate:
+
+| program | passes/s |
+|---|---:|
+| 1416, 1480, 1544, 1608 B | 994-996  (full rate) |
+| 1672, 1736, ... 2120 B | 498-499  (**every other sample dropped**) |
+
+The ceiling at a 1000 us period is 1608 < C <= 1672 instructions, and the failure mode is
+graceful: the rate falls to an exact integer submultiple, never a hang or a corrupt result.
+Repeating at 125 us and 250 us periods (DLPF=0, 8 kHz) brackets it at 104..136 and 296..328,
+and the three brackets solve to
+
+    pass time ~= 0.58 us x instructions + 56 us fixed
+
+**4. Instruction cost varies by an order of magnitude with the opcode** (`probe40.py`, same
+instrument, 1 kHz). Measured from consecutive plateau crossings, which cancels the fixed term:
+
+| filler | memory traffic | us / instruction | largest full-rate program at 1 kHz |
+|---|---|---:|---:|
+| `d8` ALWAYS | none | **0.6** | 1611 B |
+| `c0` MOV | 1 read + 1 write | **~2.0** | 459 B |
+| `40` ADD | 2 reads + 1 write | **3.9** | < 331 B |
+| `42` MUL | 2 reads + 1 write + multiply | **7.9** | < 331 B |
+
+That is a coherent microarchitecture: ~1.3 us per memory access, and the multiplier costs a
+further ~4 us. **A budget derived from `d8` filler overstates real code by ~6x.**
+
+**Validation against the shipping firmware, with no free parameters** (`probe41.py`). The stock
+MotionApps20 opcode mix is 716 cheap / 329 add-class / 90 mul-class / 26 mov, which the costs
+above turn into a predicted 2537 us pass. Since a pass can only start on a sample tick, that
+predicts `rate = sample_rate / ceil(2537 / period)` -- a *non-monotonic* curve, because 500 Hz
+is predicted slower than both 1000 Hz and 333 Hz:
+
+| sample rate | predicted | measured |
+|---|---:|---:|
+| 1000 Hz | 333/s | 333.5, 333.6 |
+| 500 Hz | 250/s | 251.8, 250.3 |
+| 333 Hz | 333/s | 333.6, 333.9 |
+| 200 Hz | 200/s | 200.2, 199.0 |
+| 100 Hz | 100/s | 99.4, 100.6 |
+
+5/5, including the dip. The costs came from synthetic filler and the mix from the image; nothing
+was fitted. It also explains the vendor's choice of 200 Hz: the stock program uses 51% of a
+5000 us period, and does not fit at 500 Hz.
+
+*Method note.* Two instruments failed first and are recorded in `probe38.py`: a host-timed FIFO
+dwell (the tunnel's ~100 ms round trip is comparable to the dwell, so every cell saturated at
+1024 B and read identically) and a zero/sleep/read counter (the count included the read's round
+trip but the elapsed time did not -- every rate came out a constant 13.5% high, in a way that
+preserved all the ratios and so looked like a real result).
+
 ## Decoder corrections (2026-09-08, no new hardware)
 
 Three defects found while writing `docs/manual/`, all in `tools/isa/decode.py`:
