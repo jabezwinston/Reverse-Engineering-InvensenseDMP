@@ -10,8 +10,9 @@
         imm>=0x80 does NOT branch and is not an operand: the byte executes  [probe27, HW]
     d1: TEST Z := (result == 0).  d8 always; d9 IF.Z; da IF.NZ; db IF.3 (true at rest):
         single-shot conditional prefixes on the NEXT instruction        [probe10/19/20, HW]
-    P2 word index (2 bits, mod 4): df/fa/fb/odd-cx pre-advance 1, d0 += 2; op&4 adds 1 for that op
-    f8/f9: INC/DEC M[P2] by 1 LSB; fa/fb: same after advancing; df: advance then CLR  [probe23, HW]
+    P2 word index (2 bits, mod 4): df/fa/fb/odd-cx pre-advance 1, d0 += 2; op&4 pre-advances 1
+    f8/f9: INC/DEC M[P2] by 1 LSB; fa/fb: same after advancing         [probe23, HW]
+    de: M[P2] := 0 in place; df: advance the word first, then clear    [probe23/31, HW]
     c0..cf (mantis): MOV M[P0 + 4*(x>>1)] -> M[P2]; x&1 pre-advances P2;
                      x&8 = MOV16 (upper half-word, zero-extended)        [probe25, HW]
     dc/dd: result routing RAM/FIFO (sticky two-way switch; FIFO at rest)          [probe9-16, HW]
@@ -105,6 +106,13 @@ class Decoder:
             op = "MOV16" if b & 8 else "MOV  "     # c8..cf: upper half-word, zero-extended
             return 1, (f"{op} {self.N.name(src):<12} -> {self.N.name(self.ptr(2))}"
                        f"{'  (P2 word++ first)' if b & 1 else ''}  ({b:02x}; probe25)")
+        if b == 0xDE:
+            # Writes a zero through the current result route: with dc (RAM) it clears the
+            # P2 word in place, without advancing.  Earlier rounds called it inert because
+            # they ran it BEFORE a store, which then overwrote the zero.  probe31 B:
+            #   ba a4 dc 40 de -> 0x240 = +0.00   (the store had put +1.00 there)
+            #   ba a4 dc de 40 -> 0x240 = +1.00   (so it does not move the destination)
+            return 1, f"CLR  {self.N.name(self.ptr(2))} := 0  (in place, no advance)  (de; probe31)"
         if b == 0xDF:
             self.p2off = getattr(self, "p2off", 0) + 4
             return 1, f"CLR  {self.N.name(self.ptr(2))} := 0  (P2 word++ first)  (df; probe23)"
@@ -120,7 +128,11 @@ class Decoder:
                 self.minpfx = False
                 if op & 3 == 0: ALU = "MIN "        # only op0 is confirmed under f5
                 else: ALU = f"F5.{op & 3}"
-            d = self.ptr(2) + (4 if op & 4 else 0)
+            # op&4 PRE-ADVANCES the P2 word (mod 4); it is not a fixed +4 offset.
+            # probe32: `44 44 44` writes 0x244/0x248/0x24c, and `00 2c 54 7c`
+            # writes four consecutive words -- that is how QT1..QT4 get updated.
+            if op & 4: self.p2off = (getattr(self, 'p2off', 0) + 4) % 16
+            d = self.ptr(2)
             if self.ram: dest = self.N.name(d)
             else: dest = f"FIFO{ {1: 32, 2: 16, 3: 16}.get(self.width, '') }"
             return 1, f"{ALU} A={self.N.name(a):<12} B={self.N.name(bb):<12} -> {dest}"

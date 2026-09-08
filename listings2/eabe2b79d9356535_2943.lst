@@ -74,7 +74,7 @@
  1097  c7      MOV   ZACC         -> ZGC  (P2 word++ first)  (c7; probe25)
  1098  a9      P2.page=9   -> D@144 XACCW
  1099  0c      ADD A=PTAT         B=0_0          -> FIFO16
- 1100  c9      MOV16 PTAT         -> XACCB  (P2 word++ first)  (c9; probe25)
+ 1100  c9      MOV16 PTAT         -> YACCB  (P2 word++ first)  (c9; probe25)
  1101  2c      ADD A=YGYR         B=0_0          -> FIFO16
  1102  97      P1.page=7   -> B@112 0_5
  1103  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
@@ -145,7 +145,7 @@
  1168  d8      ALWAYS
  1169  f3      FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
  1170  a2      P2.page=2   -> D@288 TMP13
- 1171  de      de
+ 1171  de      CLR  TMP13 := 0  (in place, no advance)  (de; probe31)
  1172  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  1173  82      P0.page=2   -> A@288 TMP13
  1174  93      P1.page=3   -> B@304 TMP1B
@@ -187,7 +187,7 @@
  1210  d1      TEST  Z := (last ALU result == 0); d9 = IF.Z, da = IF.NZ  [probe19/20]
  1211  d9      IF.Z
  1212  a6      [d9] P2.page=6   -> D@352 MNMFLAG
- 1213  de      de
+ 1213  de      CLR  MNMFLAG := 0  (in place, no advance)  (de; probe31)
  1214  df      CLR  MNMTM := 0  (P2 word++ first)  (df; probe23)
  1215  f4 1c   B -> 1245
  1217  d8      ALWAYS
@@ -227,7 +227,7 @@
  1255  f8      INC  MNMFLAG by 1  (f8; probe23)
  1256  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  1257  a5      P2.page=5   -> D@336 PVXG
- 1258  de      de
+ 1258  de      CLR  PVXG := 0  (in place, no advance)  (de; probe31)
  1259  d8      ALWAYS
  1260  f4      NOBR   (f4 with bit7 set in the displacement: no jump)  [probe27]
  1261  a3      P2.page=3   -> D@304 TMP1B
@@ -244,7 +244,7 @@
  1272  d9      IF.Z
  1273  f1      [d9] FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  1274  a5      P2.page=5   -> D@336 PVXG
- 1275  de      de
+ 1275  de      CLR  PVXG := 0  (in place, no advance)  (de; probe31)
  1276  f2      FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
  1277  a6      P2.page=6   -> D@352 MNMFLAG
  1278  f8      INC  MNMFLAG by 1  (f8; probe23)
@@ -267,7 +267,7 @@
  1295  42      [da] MUL A=PVZG         B=PVXG         -> FIFO16
  1296  f2      FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
  1297  a2      P2.page=2   -> D@288 TMP13
- 1298  de      de
+ 1298  de      CLR  TMP13 := 0  (in place, no advance)  (de; probe31)
  1299  f4 0b   B -> 1312
  1301  d8      ALWAYS
  1302  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
@@ -282,7 +282,7 @@
  1312  d8      ALWAYS
  1313  f2      FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
  1314  a6      P2.page=6   -> D@352 MNMFLAG
- 1315  de      de
+ 1315  de      CLR  MNMFLAG := 0  (in place, no advance)  (de; probe31)
  1316  df      CLR  MNMTM := 0  (P2 word++ first)  (df; probe23)
  1317  d8      ALWAYS
  1318  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
@@ -553,7 +553,7 @@
  1583  f3      FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
  1584  b9      P2.bank=1
  1585  ac      P2.page=c   -> D@448 TEMP29
- 1586  de      de
+ 1586  de      CLR  TEMP29 := 0  (in place, no advance)  (de; probe31)
  1587  d8      ALWAYS
  1588  b1      P0.bank=1
  1589  b6      P1.bank=2
@@ -633,7 +633,7 @@
  1665  11      RSUB A=@720         B=@728         -> @688
  1666  d9      IF.Z
  1667  ad      [d9] P2.page=d   -> D@720 @720
- 1668  de      de
+ 1668  de      CLR  @720 := 0  (in place, no advance)  (de; probe31)
  1669  f4 13   B -> 1690
  1671  dd      ROUTE -> FIFO  (dd; sticky until dc)  [probe16]
  1672  f2      FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
@@ -700,7 +700,7 @@
  1734  11      RSUB A=@736         B=@744         -> @688
  1735  d9      IF.Z
  1736  ae      [d9] P2.page=e   -> D@736 @736
- 1737  de      de
+ 1737  de      CLR  @736 := 0  (in place, no advance)  (de; probe31)
  1738  f4 12   B -> 1758
  1740  dd      ROUTE -> FIFO  (dd; sticky until dc)  [probe16]
  1741  f3      FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
@@ -766,7 +766,7 @@
  1802  11      RSUB A=@736         B=@744         -> @688
  1803  d9      IF.Z
  1804  ae      [d9] P2.page=e   -> D@736 @736
- 1805  de      de
+ 1805  de      CLR  @736 := 0  (in place, no advance)  (de; probe31)
  1806  f4 12   B -> 1826
  1808  dd      ROUTE -> FIFO  (dd; sticky until dc)  [probe16]
  1809  f3      FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
@@ -873,15 +873,15 @@
  1915  f2      FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
  1916  f9      DEC  TEMP29 by 1  (f9; probe23)
  1917  d9      IF.Z
- 1918  de      [d9] de
+ 1918  de      [d9] CLR  TEMP29 := 0  (in place, no advance)  (de; probe31)
  1919  f4 09   B -> 1930
  1921  1d      RSUB A=TEMP29       B=A2           -> XACCB_PRE
- 1922  16      MUL A=TEMP29       B=A1           -> XACCB_PRE
+ 1922  16      MUL A=TEMP29       B=A1           -> YACCB_PRE
  1923  da      IF.NZ
  1924  f2      [da] FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
  1925  dd      ROUTE -> FIFO  (dd; sticky until dc)  [probe16]
- 1926  c6      MOV   ZACCB_PRE    -> TEMP29  (c6; probe25)
- 1927  dc      ROUTE -> RAM   M[P2..] TEMP29  (dc; sticky until dd)
+ 1926  c6      MOV   ZACCB_PRE    -> YACCB_PRE  (c6; probe25)
+ 1927  dc      ROUTE -> RAM   M[P2..] YACCB_PRE  (dc; sticky until dd)
  1928  f4 30   B -> 1978
  1930  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  1931  b9      P2.bank=1
@@ -949,13 +949,13 @@
  1994  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  1995  28      ADD A=@852         B=@772         -> @848
  1996  4c      ADD A=@856         B=@772         -> @852
- 1997  6c      ADD A=@860         B=@772         -> @852
+ 1997  6c      ADD A=@860         B=@772         -> @856
  1998  87      P0.page=7   -> A@880 @880
- 1999  0c      ADD A=@880         B=@772         -> @852
+ 1999  0c      ADD A=@880         B=@772         -> @860
  2000  95      P1.page=5   -> B@848 @848
- 2001  18      ADD A=@880         B=@860         -> @848
+ 2001  18      ADD A=@880         B=@860         -> @860
  2002  85      P0.page=5   -> A@848 @848
- 2003  78      ADD A=@860         B=@860         -> @848
+ 2003  78      ADD A=@860         B=@860         -> @860
  2004  b0      P0.bank=0
  2005  b4      P1.bank=0
  2006  b8      P2.bank=0
@@ -984,13 +984,13 @@
  2029  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  2030  28      ADD A=CTRLS2       B=0_0          -> CTRLS1
  2031  4c      ADD A=CTRLS3       B=0_0          -> CTRLS2
- 2032  6c      ADD A=CTRLS4       B=0_0          -> CTRLS2
+ 2032  6c      ADD A=CTRLS4       B=0_0          -> CTRLS3
  2033  8f      P0.page=f   -> A@240 CTRLSFNL
- 2034  0c      ADD A=CTRLSFNL     B=0_0          -> CTRLS2
+ 2034  0c      ADD A=CTRLSFNL     B=0_0          -> CTRLS4
  2035  9e      P1.page=e   -> B@224 CTRLS1
- 2036  18      ADD A=CTRLSFNL     B=CTRLS4       -> CTRLS1
+ 2036  18      ADD A=CTRLSFNL     B=CTRLS4       -> CTRLS4
  2037  8e      P0.page=e   -> A@224 CTRLS1
- 2038  78      ADD A=CTRLS4       B=CTRLS4       -> CTRLS1
+ 2038  78      ADD A=CTRLS4       B=CTRLS4       -> CTRLS4
  2039  87      P0.page=7   -> A@112 0_5
  2040  98      P1.page=8   -> B@128 TMP1A
  2041  af      P2.page=f   -> D@240 CTRLSFNL
@@ -1019,16 +1019,16 @@
  2064  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  2065  28      ADD A=@532         B=0_0          -> @528
  2066  4c      ADD A=@536         B=0_0          -> @532
- 2067  6c      ADD A=@540         B=0_0          -> @532
+ 2067  6c      ADD A=@540         B=0_0          -> @536
  2068  b0      P0.bank=0
  2069  8f      P0.page=f   -> A@240 CTRLSFNL
- 2070  0c      ADD A=CTRLSFNL     B=0_0          -> @532
+ 2070  0c      ADD A=CTRLSFNL     B=0_0          -> @540
  2071  b6      P1.bank=2
  2072  91      P1.page=1   -> B@528 @528
- 2073  18      ADD A=CTRLSFNL     B=@540         -> @528
+ 2073  18      ADD A=CTRLSFNL     B=@540         -> @540
  2074  b2      P0.bank=2
  2075  81      P0.page=1   -> A@528 @528
- 2076  78      ADD A=@540         B=@540         -> @528
+ 2076  78      ADD A=@540         B=@540         -> @540
  2077  b0      P0.bank=0
  2078  87      P0.page=7   -> A@112 0_5
  2079  b4      P1.bank=0
@@ -1060,15 +1060,15 @@
  2105  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  2106  28      ADD A=@580         B=0_0          -> @576
  2107  4c      ADD A=@584         B=0_0          -> @580
- 2108  6c      ADD A=@588         B=0_0          -> @580
+ 2108  6c      ADD A=@588         B=0_0          -> @584
  2109  8b      P0.page=b   -> A@688 @688
- 2110  0c      ADD A=@688         B=0_0          -> @580
+ 2110  0c      ADD A=@688         B=0_0          -> @588
  2111  b6      P1.bank=2
  2112  94      P1.page=4   -> B@576 @576
- 2113  18      ADD A=@688         B=@588         -> @576
+ 2113  18      ADD A=@688         B=@588         -> @588
  2114  b2      P0.bank=2
  2115  84      P0.page=4   -> A@576 @576
- 2116  78      ADD A=@588         B=@588         -> @576
+ 2116  78      ADD A=@588         B=@588         -> @588
  2117  bb      P2.bank=3
  2118  a3      P2.page=3   -> D@816 @816
  2119  b3      P0.bank=3
@@ -1077,9 +1077,9 @@
  2122  90      P1.page=0   -> B@768 @768
  2123  28      ADD A=@820         B=@772         -> @816
  2124  4c      ADD A=@824         B=@772         -> @820
- 2125  6c      ADD A=@828         B=@772         -> @820
+ 2125  6c      ADD A=@828         B=@772         -> @824
  2126  8a      P0.page=a   -> A@928 @928
- 2127  6c      ADD A=@940         B=@772         -> @820
+ 2127  6c      ADD A=@940         B=@772         -> @828
  2128  f2      FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
  2129  b0      P0.bank=0
  2130  83      P0.page=3   -> A@48 BLPFMTC
@@ -1105,10 +1105,10 @@
  2150  45      RSUB A=A1           B=TMP1B        -> TMP2B
  2151  b2      P0.bank=2
  2152  8c      P0.page=c   -> A@704 @704
- 2153  2e      MUL A=@708         B=TMP2B        -> TMP2B
+ 2153  2e      MUL A=@708         B=TMP2B        -> TMP3B
  2154  b1      P0.bank=1
  2155  8a      P0.page=a   -> A@416 Y
- 2156  54      ADD A=A1           B=TMP3B        -> TMP2B
+ 2156  54      ADD A=A1           B=TMP3B        -> TMP4B
  2157  83      P0.page=3   -> A@304 TMP1B
  2158  aa      P2.page=a   -> D@416 Y
  2159  d0      P2 word += 2 -> D@424 A1  (d0, mod 4; probe20)
@@ -1128,10 +1128,10 @@
  2173  65      RSUB A=A2           B=TMP1B        -> TMP2B
  2174  b2      P0.bank=2
  2175  8c      P0.page=c   -> A@704 @704
- 2176  2e      MUL A=@708         B=TMP2B        -> TMP2B
+ 2176  2e      MUL A=@708         B=TMP2B        -> TMP3B
  2177  b1      P0.bank=1
  2178  8a      P0.page=a   -> A@416 Y
- 2179  74      ADD A=A2           B=TMP3B        -> TMP2B
+ 2179  74      ADD A=A2           B=TMP3B        -> TMP4B
  2180  83      P0.page=3   -> A@304 TMP1B
  2181  aa      P2.page=a   -> D@416 Y
  2182  d0      P2 word += 2 -> D@424 A1  (d0, mod 4; probe20)
@@ -1168,7 +1168,7 @@
  2213  b5      P1.bank=1
  2214  93      P1.page=3   -> B@304 TMP1B
  2215  04      ADD A=TMP1B        B=TMP1B        -> TMP2B
- 2216  2c      ADD A=TMP2B        B=TMP2B        -> TMP2B
+ 2216  2c      ADD A=TMP2B        B=TMP2B        -> TMP3B
  2217  f3      FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
  2218  b8      P2.bank=0
  2219  a3      P2.page=3   -> D@48 BLPFMTC
@@ -1219,7 +1219,7 @@
  2264  f3      [d9] FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
  2265  a3      P2.page=3   -> D@48 BLPFMTC
  2266  d0      P2 word += 2 -> D@56 BLPFMY  (d0, mod 4; probe20)
- 2267  de      de
+ 2267  de      CLR  BLPFMY := 0  (in place, no advance)  (de; probe31)
  2268  f8      INC  BLPFMY by 1  (f8; probe23)
  2269  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  2270  b1      P0.bank=1
@@ -1234,7 +1234,7 @@
  2279  b8      P2.bank=0
  2280  a3      P2.page=3   -> D@48 BLPFMTC
  2281  d0      P2 word += 2 -> D@56 BLPFMY  (d0, mod 4; probe20)
- 2282  de      de
+ 2282  de      CLR  BLPFMY := 0  (in place, no advance)  (de; probe31)
  2283  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  2284  b3      P0.bank=3
  2285  86      P0.page=6   -> A@864 @864
@@ -1252,7 +1252,7 @@
  2297  41      RSUB A=BLPFMY       B=CTRLSFNL     -> BLPFMTC
  2298  d9      IF.Z
  2299  d0      [d9] P2 word += 2 -> D@56 BLPFMY  (d0, mod 4; probe20)
- 2300  de      de
+ 2300  de      CLR  BLPFMY := 0  (in place, no advance)  (de; probe31)
  2301  d8      ALWAYS
  2302  f3      FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
  2303  bb      P2.bank=3
@@ -1285,7 +1285,7 @@
  2330  b9      P2.bank=1
  2331  a4      P2.page=4   -> D@320 STXG
  2332  d9      IF.Z
- 2333  de      [d9] de
+ 2333  de      [d9] CLR  STXG := 0  (in place, no advance)  (de; probe31)
  2334  da      IF.NZ
  2335  f8      [da] INC  STXG by 1  (f8; probe23)
  2336  d8      ALWAYS
@@ -1304,7 +1304,7 @@
  2349  84      P0.page=4   -> A@320 STXG
  2350  b5      P1.bank=1
  2351  94      P1.page=4   -> B@320 STXG
- 2352  21      RSUB A=STYG         B=STXG         -> @1008
+ 2352  21      RSUB A=STYG         B=STXG         -> @1012
  2353  d9      IF.Z
  2354  f5      [d9] MIN prefix  next ALU op computes signed min(A,B)  [probe29, 16/16]
  2355  b3      P0.bank=3
@@ -1340,7 +1340,7 @@
  2385  3e      MUL A=ACCZB+2      B=ACCYB+2      -> ACCZB+2
  2386  f0      FMODE.0   ; 1=32-bit fifo, 2/3=16-bit
  2387  93      P1.page=3   -> B@304 TMP1B
- 2388  40      ADD A=ACCXB        B=TMP1B        -> PREVPTAT
+ 2388  40      ADD A=ACCXB        B=TMP1B        -> ACCZB+2
  2389  d8      ALWAYS
  2390  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  2391  b9      P2.bank=1
@@ -1359,8 +1359,8 @@
  2404  93      P1.page=3   -> B@304 TMP1B
  2405  05      RSUB A=PREVPTAT     B=TMP1B        -> TMP2B
  2406  d9      IF.Z
- 2407  d0      [d9] P2 word += 2 -> D@312 TMP3B  (d0, mod 4; probe20)
- 2408  f8      INC  TMP3B by 1  (f8; probe23)
+ 2407  d0      [d9] P2 word += 2 -> D@316 TMP4B  (d0, mod 4; probe20)
+ 2408  f8      INC  TMP4B by 1  (f8; probe23)
  2409  d8      ALWAYS
  2410  f2      FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
  2411  b3      P0.bank=3
@@ -1405,7 +1405,7 @@
  2450  b9      P2.bank=1
  2451  a4      P2.page=4   -> D@320 STXG
  2452  d0      P2 word += 2 -> D@328 STZG  (d0, mod 4; probe20)
- 2453  de      de
+ 2453  de      CLR  STZG := 0  (in place, no advance)  (de; probe31)
  2454  da      IF.NZ
  2455  f1      [da] FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  2456  b3      P0.bank=3
@@ -1419,7 +1419,7 @@
  2464  b9      P2.bank=1
  2465  a4      P2.page=4   -> D@320 STXG
  2466  d0      P2 word += 2 -> D@328 STZG  (d0, mod 4; probe20)
- 2467  de      de
+ 2467  de      CLR  STZG := 0  (in place, no advance)  (de; probe31)
  2468  f8      INC  STZG by 1  (f8; probe23)
  2469  df      CLR  CTRLSFJT2 := 0  (P2 word++ first)  (df; probe23)
  2470  f8      INC  CTRLSFJT2 by 1  (f8; probe23)
@@ -1442,7 +1442,7 @@
  2487  f2      [d9] FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
  2488  a4      P2.page=4   -> D@320 STXG
  2489  d0      P2 word += 2 -> D@328 STZG  (d0, mod 4; probe20)
- 2490  de      de
+ 2490  de      CLR  STZG := 0  (in place, no advance)  (de; probe31)
  2491  d8      ALWAYS
  2492  f2      FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
  2493  bb      P2.bank=3
@@ -1483,11 +1483,11 @@
  2528  2e      MUL A=@772         B=@900         -> @1012
  2529  88      P0.page=8   -> A@896 @896
  2530  f5      MIN prefix  next ALU op computes signed min(A,B)  [probe29, 16/16]
- 2531  75      F5.1 A=@908         B=@904         -> @1012
+ 2531  75      F5.1 A=@908         B=@904         -> @1016
  2532  da      IF.NZ
  2533  ff      [da] HALT   disable/terminate (vendor: ends every image)
  2534  d8      ALWAYS
- 2535  71      RSUB A=@908         B=@904         -> @1008
+ 2535  71      RSUB A=@908         B=@904         -> @1016
  2536  80      P0.page=0   -> A@768 @768
  2537  a9      P2.page=9   -> D@912 @912
  2538  da      IF.NZ
@@ -1633,12 +1633,12 @@
  2678  29      RSUB A=@772         B=@1012        -> @1008
  2679  da      IF.NZ
  2680  ac      [da] P2.page=c   -> D@960 @960
- 2681  de      de
+ 2681  de      CLR  @960 := 0  (in place, no advance)  (de; probe31)
  2682  ff      HALT   disable/terminate (vendor: ends every image)
  2683  d8      ALWAYS
  2684  a2      P2.page=2   -> D@800 @800
  2685  f2      FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
- 2686  de      de
+ 2686  de      CLR  @800 := 0  (in place, no advance)  (de; probe31)
  2687  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  2688  a9      P2.page=9   -> D@912 @912
  2689  df      CLR  @916 := 0  (P2 word++ first)  (df; probe23)
@@ -1658,7 +1658,7 @@
  2703  ba      P2.bank=2
  2704  a2      P2.page=2   -> D@544 @544
  2705  d0      P2 word += 2 -> D@552 @552  (d0, mod 4; probe20)
- 2706  de      de
+ 2706  de      CLR  @552 := 0  (in place, no advance)  (de; probe31)
  2707  f8      INC  @552 by 1  (f8; probe23)
  2708  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  2709  b0      P0.bank=0
@@ -1681,13 +1681,13 @@
  2726  db      IF.3
  2727  82      [db] P0.page=2   -> A@544 @544
  2728  9b      P1.page=b   -> B@688 @688
- 2729  79      RSUB A=@556         B=@700         -> @688
+ 2729  79      RSUB A=@556         B=@700         -> @692
  2730  f3      FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
  2731  b1      P0.bank=1
  2732  84      P0.page=4   -> A@320 STXG
  2733  b4      P1.bank=0
  2734  97      P1.page=7   -> B@112 0_5
- 2735  49      RSUB A=STZG         B=0_0          -> @688
+ 2735  49      RSUB A=STZG         B=0_0          -> @692
  2736  f2      FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
  2737  a2      P2.page=2   -> D@544 @544
  2738  d0      P2 word += 2 -> D@552 @552  (d0, mod 4; probe20)
@@ -1762,7 +1762,7 @@
  2808  31      RSUB A=@804         B=@808         -> @1008
  2809  d9      IF.Z
  2810  f1      [d9] FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
- 2811  de      de
+ 2811  de      CLR  @1008 := 0  (in place, no advance)  (de; probe31)
  2812  b2      P0.bank=2
  2813  82      P0.page=2   -> A@544 @544
  2814  b6      P1.bank=2
@@ -1778,7 +1778,7 @@
  2824  8c      P0.page=c   -> A@960 @960
  2825  9c      P1.page=c   -> B@960 @960
  2826  0c      ADD A=@960         B=@964         -> @964
- 2827  30      ADD A=@964         B=@968         -> @960
+ 2827  30      ADD A=@964         B=@968         -> @964
  2828  db      IF.3
  2829  b2      [db] P0.bank=2
  2830  b6      P1.bank=2
@@ -1804,7 +1804,7 @@
  2850  5e      MUL A=@520         B=@524         -> @524
  2851  f0      FMODE.0   ; 1=32-bit fifo, 2/3=16-bit
  2852  92      P1.page=2   -> B@544 @544
- 2853  38      ADD A=@516         B=@556         -> @520
+ 2853  38      ADD A=@516         B=@556         -> @524
  2854  d8      ALWAYS
  2855  f2      FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
  2856  b3      P0.bank=3
@@ -1818,9 +1818,9 @@
  2864  f1      [d9] FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  2865  bb      P2.bank=3
  2866  ac      P2.page=c   -> D@960 @960
- 2867  de      de
+ 2867  de      CLR  @960 := 0  (in place, no advance)  (de; probe31)
  2868  d0      P2 word += 2 -> D@968 @968  (d0, mod 4; probe20)
- 2869  de      de
+ 2869  de      CLR  @968 := 0  (in place, no advance)  (de; probe31)
  2870  ba      P2.bank=2
  2871  a2      P2.page=2   -> D@544 @544
  2872  d0      P2 word += 2 -> D@552 @552  (d0, mod 4; probe20)
@@ -1860,9 +1860,9 @@
  2906  f1      [d9] FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  2907  b9      P2.bank=1
  2908  a4      P2.page=4   -> D@320 STXG
- 2909  de      de
+ 2909  de      CLR  STXG := 0  (in place, no advance)  (de; probe31)
  2910  a0      P2.page=0   -> D@256 PREVPTAT
- 2911  de      de
+ 2911  de      CLR  PREVPTAT := 0  (in place, no advance)  (de; probe31)
  2912  df      CLR  ACCZB+2 := 0  (P2 word++ first)  (df; probe23)
  2913  d8      ALWAYS
  2914  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
@@ -1873,7 +1873,7 @@
  2919  d0      P2 word += 2 -> D@968 @968  (d0, mod 4; probe20)
  2920  10      ADD A=@960         B=@968         -> @968
  2921  ac      P2.page=c   -> D@960 @960
- 2922  de      de
+ 2922  de      CLR  @960 := 0  (in place, no advance)  (de; probe31)
  2923  ba      P2.bank=2
  2924  a2      P2.page=2   -> D@544 @544
  2925  d0      P2 word += 2 -> D@552 @552  (d0, mod 4; probe20)

@@ -549,6 +549,88 @@ the unconfirmed combinations `F5.n` rather than guessing.
 Remaining: `de` (186), `f7` (31), `f6` (22), `fc` (19) — all in the no-observable-effect set,
 which no RAM, FIFO, routing, flag, destination or interrupt-rate detector has moved.
 
+## Finding 17 — `op&4` PRE-ADVANCES the destination word (CORRECTS Finding 7)
+
+Finding 7 read bit 2 of the op field as a *fixed* destination-word selector, "P2+0 or P2+4".
+That is wrong, and it was wrong for a reason worth recording: every cell in probe7 ran a
+**single** ALU op starting from `p2off = 0`, where "store at P2+4" and "advance the word index,
+then store" are indistinguishable. They come apart the moment two such ops run back to back.
+
+`bench/probe32.py`, P0 = P1 = 0x70, P2 = 0x240, routing to RAM:
+
+| payload | fixed P2+4 predicts | pre-advance predicts | measured |
+|---|---|---|---|
+| `44` | 0x244 | 0x244 | `0x244=+1.50` |
+| `44 44` | 0x244 only | 0x244, 0x248 | `0x244=+1.50 0x248=+1.50` |
+| `44 4c` | 0x244 only | 0x244, 0x248 | `0x244=+1.50 0x248=+1.00` |
+| `44 44 44` | 0x244 only | 0x244, 0x248, 0x24c | `0x244=+1.50 0x248=+1.50 0x24c=+1.50` |
+| `00 2c 54 7c` | 0x240, 0x244 | four consecutive words | `0x240=+1.00 0x244=+0.00 0x248=-2.00 0x24c=-1.00` |
+
+The last row is the decisive one. `00 2c 54 7c` is a real firmware idiom -- it occurs over
+QT1..QT4, over CTRL1..CTRL4 and over ACCQD0..ACCQD3 -- and all four measured values match
+`A+B` for the four operand pairs, including two wraps (1.0+1.0 -> -2.0, 1.5+1.5 -> -1.0).
+Under the old rule those four instructions would have written QT1, QT2, QT2, QT2.
+
+**The store assigns; it does not accumulate** (`bench/probe33.py`): `40 08` measures +0.50, the
+second op's value, not the +2.0 sum; `40 40 40` measures +1.50 rather than 4.5-wrapped. Runs of
+`op&4`-clear ops therefore all target the same word and the last write wins.
+
+So the P2 word index has exactly one update rule, shared by the whole ISA: **something advances
+it by one word, mod 4, before the access** -- `df`, `fa`, `fb`, odd `cx`, and now `op&4`; `d0`
+advances by two. Corrected rule:
+
+```
+    if (op & 4) p2word = (p2word + 1) & 3;         // pre-advance, mod 4
+    M[P2 + 4*p2word] = A <op&3> B;                 // assign
+```
+
+Cost of the error: the destination column of every listing. Regenerating `listings2/` after the
+fix changed 1775 lines across the 12 images, and it is what makes the quaternion update read as
+`QT1..QT4 += TMP1A..TMP4A` instead of three redundant writes to QT2.
+
+**Open, and not resolved by this:** the firmware contains runs of `op&4`-clear ALU ops sharing
+one destination -- 1527..1530 computes four terms into `ANGVBX`, then four into `ANGVBY`, then
+four into `ANGVBZ`, which is the shape of a quaternion rotation whose terms need *summing*.
+Under the confirmed rule the first three writes of each group are dead. Either the DMP has an
+accumulate mode that a single-word RAM detector cannot see, or those writes really are dead
+code. `40 08` says plain ADD assigns, so any such mode is not simply "op0 accumulates".
+
+## Finding 18 — `de` writes a zero through the current route (was "no observable effect")
+
+`de` was the largest unexplained byte in the corpus (219 of 17297 code bytes) and eight rounds of
+probing had called it inert: no RAM, FIFO, routing, flag, destination or interrupt-rate detector
+moved. All of those probes placed it *before* a store. The store then overwrote the zero.
+
+`bench/probe31.py` section B looks at the destination **after** a store instead:
+
+```
+ba a4 dc 40 de   ->  0x240 = +0.00     the store had just put +1.00 there; `de` erased it
+ba a4 dc 40 fd   ->  0x240 = +1.00     fd does not
+ba a4 dc 40 fc   ->  0x240 = +1.00     fc does not
+ba a4 dc de 40   ->  0x240 = +1.00     de does not move the destination either
+ba a4 de         ->  no RAM change     with routing at its at-rest FIFO setting
+```
+
+**`de` clears the P2 word in place, without advancing it**, and only shows up in RAM when the
+routing latch is at `dc`. That completes a family that was already half-known:
+
+```
+de   M[P2] = 0;                     f8   M[P2]++;              f9   M[P2]--;
+df   p2word++; M[P2] = 0;           fa   p2word++; M[P2]++;    fb   p2word++; M[P2]--;
+```
+
+`de : df` is exactly `f8 : fa` -- "in place" against "advance the word first". It also explains
+the commonest `de` context in the corpus: 106 of 219 sites directly follow an `ax` P2 load, and
+37 are directly followed by `df`, i.e. the idiom `ax de df df df` = point P2 at a page and clear
+all four of its words.
+
+The natural reading is that `de` drives the constant 0 into the ordinary result write-back path,
+making it "clear M[P2]" under `dc` and "push a zero word" under `dd`. The FIFO half is *not*
+confirmed -- that needs probe16's drained-stream method with a passing bare-emit control.
+
+**Coverage: 98.4% -> 99.50%** of MPU-6050-family code bytes (87 of 17297 unexplained).
+Remaining: `f7` (31), `f6` (22), `fc` (19), `fd` (3), and 12 bytes of 3050-lineage `c8`..`cf`.
+
 ## Plan
 
 ### P1 — static, no hardware (this session)
