@@ -446,6 +446,40 @@ ADD(0.5,1.5) -> +0.5, ADD(0.5,0.0) -> 0.0, MUL(1.0,0.5) -> 0.0, RSUB -> no store
 a family that scrambles the rig when executed at the probe site), `f5`/`fd`/`fc` and the
 `f4 imm>=0x80` form.
 
+## Finding 14 — the MOV family reads P0, and `c8`–`cf` are its 16-bit form (CORRECTION + NEW)
+
+**Correction to Finding 12.** probe21/22 ran with P0 and P1 both pointing at page 7, so a MOV's
+source was ambiguous and I attributed it to P1. probe25 repeats the test with P0 = page 7
+{0.5, 0.0, 1.0, 1.5} and P1 = page 6 {0x00400000, 1.0, 0x02CB47A2, 0.5}:
+
+    c0 -> 20000000   c2 -> 00000000   c4 -> 40000000   c6 -> 60000000
+
+Those are P0's four words, not P1's. **`c0`–`c7` = MOV `M[P0 + 4*(x>>1)]` -> `M[P2]`**, `x&1`
+pre-advancing the P2 word. Finding 12's structure was right and its source register was wrong.
+
+**New: `c8`–`cf` are the same move on 16-bit data.**
+
+    c8 -> 00002000   ca -> 00000000   cc -> 00004000   ce -> 00006000
+
+Each is the source word's **upper half, zero-extended** (0x20000000 -> 0x00002000). So the
+family is `c0 | (half << 3) | (k << 1) | inc`, and the 16-bit form pairs with the `f2`/`f3`
+16-bit FIFO modes: the DMP handles both widths throughout, not only at the FIFO boundary.
+In the corpus this decodes cleanly — e.g. image 3062 @1251 `c8` = MOV16 CPASS_MTX_00, the
+compass-matrix element load.
+
+`ff` and `fe` are now labelled from vendor ground truth (`ff` disables/halts and terminates
+every image; `fe` = DINAFE skip) rather than left blank. `f6`/`f7` join `de` in the
+no-observable-effect set (probe25: nothing stored, nothing moved, before or after an op).
+
+**Coverage, MPU-6050 family (11 images, 17297 code bytes): 97.7%.** The ICM-20948 image
+(`fcbb7309391e6bbf_14301`) is excluded from that figure: all 634 `bc`/`bd`/`be` bytes in the
+corpus live in it and nowhere else, and it is DMP3-generation firmware whose encoding the
+mantis model should not be assumed to fit. Judged on its own it is 87.2% "explained", which
+should be read as an upper bound on coincidental agreement, not as a decode.
+
+Remaining in the 6050 family: `de` (186), `f5` (81), `f7` (31), `f4 imm>=0x80` (24),
+`f6` (22), `fc` (19).
+
 ## Plan
 
 ### P1 — static, no hardware (this session)

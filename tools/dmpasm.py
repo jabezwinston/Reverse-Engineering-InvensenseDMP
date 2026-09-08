@@ -35,12 +35,13 @@ big-endian Q30 (2^30 = 1.0), range [-2,+2), addition wraps (modular).
   inc / dec                          f8 / f9: M[P2] += 1 / -= 1 (one LSB)
   inc.next / dec.next                fa / fb: P2 word++, then INC / DEC
   p2inc2                             d0: P2 word += 2, mod 4
-  mov k[,inc]                        c0..c7: copy M[P1+4k] -> M[P2]; inc pre-advances P2
+  mov k[,inc]                        c0..c7: copy M[P0+4k] -> M[P2]; inc pre-advances P2
+  mov16 k[,inc]                      c8..cf: copy the upper half-word, zero-extended
 
 Legacy FIFO-emit form (stock preambles) still assembles:
   selbank gyro|quat|accel|delay|0x9N
   emit r0..r15 | gyro_x ... | 0xNN
-  nop / skip / disable / .db 0x..,0x..
+  nop / skip (fe) / disable (ff, halts) / .db 0x..,0x..
 
 A bare ALU op with no `store` and no `dc` emits its result to the FIFO when a
 FIFO mode is active (bench round 10); with `store`/dc it writes RAM instead.
@@ -149,11 +150,12 @@ def assemble(text, lineage="mantis"):
                 out.append(0xD8 + n)
             elif op in ("store.off", "fifo"):    # dd: route results to FIFO (sticky) [probe16]
                 out.append(0xDD)
-            elif op == "mov":                    # cx: M[P1+4k] -> M[P2]; "mov k" or "mov k,inc"
+            elif op in ("mov", "mov16"):         # cx: M[P0+4k] -> M[P2]; "mov k" / "mov k,inc"
                 toks = [t.strip().lower() for t in arg.split(",")]
                 k = int(toks[0], 0)
-                if not 0 <= k <= 3: raise AsmError("mov k: source word k is 0..3")
-                out.append(0xC0 | (k << 1) | (1 if len(toks) > 1 and toks[1] == "inc" else 0))
+                if not 0 <= k <= 3: raise AsmError(f"{op} k: source word k is 0..3")
+                out.append(0xC0 | (8 if op == "mov16" else 0) | (k << 1)
+                           | (1 if len(toks) > 1 and toks[1] == "inc" else 0))
             elif op in ("inc", "dec", "inc.next", "dec.next"):   # f8 f9 fa fb
                 out.append(0xF8 | (1 if op.startswith("dec") else 0) | (2 if op.endswith(".next") else 0))
             elif op == "clr.next":               # df: P2 word++, then M[P2] = 0

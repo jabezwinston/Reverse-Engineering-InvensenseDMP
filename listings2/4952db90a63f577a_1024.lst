@@ -312,7 +312,7 @@
   822  26      MUL A=0_0          B=SEM1         -> ACCQD5
   823  d8      ALWAYS
   824  d8      ALWAYS
-  825  ff      ff
+  825  ff      HALT   disable/terminate (vendor: ends every image)
   826  d8      ALWAYS
   827  d8      ALWAYS
   828  d8      ALWAYS

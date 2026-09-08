@@ -24,7 +24,7 @@
  1046  d1      TEST  Z := (last ALU result == 0); d9 = IF.Z, da = IF.NZ  [probe19/20]
  1047  da      IF.NZ
  1048  f1      [da] FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
- 1049  ff      ff
+ 1049  ff      HALT   disable/terminate (vendor: ends every image)
  1050  d8      ALWAYS
  1051  f3      FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
  1052  b9      P2.bank=1
@@ -43,9 +43,9 @@
  1065  b0      P0.bank=0
  1066  81      P0.page=1   -> A@16 @16
  1067  a8      P2.page=8   -> D@128 @128
- 1068  c1      MOV  D_1_96       -> @132  (P2 word++ first)  (c1; probe21)
- 1069  c9      c9
- 1070  c3      MOV  D_1_98+2     -> @136  (P2 word++ first)  (c3; probe21)
+ 1068  c1      MOV   @16          -> @132  (P2 word++ first)  (c1; probe25)
+ 1069  c9      MOV16 @16          -> @136  (P2 word++ first)  (c9; probe25)
+ 1070  c3      MOV   @20          -> @140  (P2 word++ first)  (c3; probe25)
  1071  b0      P0.bank=0
  1072  b6      P1.bank=2
  1073  b9      P2.bank=1
@@ -95,7 +95,7 @@
  1117  f8      INC  D_1_176 by 1  (f8; probe23)
  1118  d8      ALWAYS
  1119  a0      P2.page=0   -> D@256 @256
- 1120  cb      cb
+ 1120  cb      MOV16 D_1_4        -> D_1_4  (P2 word++ first)  (cb; probe25)
  1121  f3      FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
  1122  de      de
  1123  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
@@ -103,7 +103,7 @@
  1125  90      P1.page=0   -> B@256 @256
  1126  52      MUL A=D_1_8        B=D_1_8        -> FIFO32
  1127  a4      P2.page=4   -> D@320 D_SMD_MOT_THLD
- 1128  c2      MOV  D_1_4        -> D_SMD_MOT_THLD  (c2; probe21)
+ 1128  c2      MOV   D_1_4        -> D_SMD_MOT_THLD  (c2; probe25)
  1129  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  1130  a0      P2.page=0   -> D@256 @256
  1131  36      MUL A=D_1_4        B=D_1_8        -> FIFO32
@@ -111,7 +111,7 @@
  1133  29      RSUB A=D_1_4        B=@324         -> FIFO32
  1134  f5      f5
  1135  30      ADD A=D_1_4        B=D_1_72       -> FIFO32
- 1136  ca      ca
+ 1136  ca      MOV16 D_1_4        -> @256  (ca; probe25)
  1137  f3      FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
  1138  de      de
  1139  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
@@ -178,12 +178,12 @@
  1200  df      CLR  @172 := 0  (P2 word++ first)  (df; probe23)
  1201  f2      FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
  1202  aa      P2.page=a   -> D@160 @160
- 1203  c5      MOV  @120         -> D_0_163+1  (P2 word++ first)  (c5; probe21)
- 1204  cd      cd
- 1205  c7      MOV  @124         -> @168  (P2 word++ first)  (c7; probe21)
+ 1203  c5      MOV   @8           -> D_0_163+1  (P2 word++ first)  (c5; probe25)
+ 1204  cd      MOV16 @8           -> @168  (P2 word++ first)  (cd; probe25)
+ 1205  c7      MOV   @12          -> @172  (P2 word++ first)  (c7; probe25)
  1206  a9      P2.page=9   -> D@144 @144
  1207  0c      ADD A=@0           B=@116         -> FIFO16
- 1208  c9      c9
+ 1208  c9      MOV16 @0           -> @148  (P2 word++ first)  (c9; probe25)
  1209  2c      ADD A=@4           B=@116         -> FIFO16
  1210  97      P1.page=7   -> B@112 @112
  1211  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
@@ -212,9 +212,9 @@
  1234  89      P0.page=9   -> A@144 @144
  1235  b9      P2.bank=1
  1236  a3      P2.page=3   -> D@304 @304
- 1237  c3      MOV  @100         -> @308  (P2 word++ first)  (c3; probe21)
- 1238  c5      MOV  D_0_104      -> @312  (P2 word++ first)  (c5; probe21)
- 1239  c7      MOV  D_0_108      -> @316  (P2 word++ first)  (c7; probe21)
+ 1237  c3      MOV   @148         -> @308  (P2 word++ first)  (c3; probe25)
+ 1238  c5      MOV   @152         -> @312  (P2 word++ first)  (c5; probe25)
+ 1239  c7      MOV   @156         -> @316  (P2 word++ first)  (c7; probe25)
  1240  b1      P0.bank=1
  1241  81      P0.page=1   -> A@272 @272
  1242  b4      P1.bank=0
@@ -248,9 +248,9 @@
  1270  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  1271  83      P0.page=3   -> A@304 @304
  1272  a2      P2.page=2   -> D@288 D_SMD_ENABLE
- 1273  c3      MOV  @308         -> D_1_36  (P2 word++ first)  (c3; probe21)
- 1274  c5      MOV  @312         -> D_1_40  (P2 word++ first)  (c5; probe21)
- 1275  c7      MOV  @316         -> D_1_44  (P2 word++ first)  (c7; probe21)
+ 1273  c3      MOV   @308         -> D_1_36  (P2 word++ first)  (c3; probe25)
+ 1274  c5      MOV   @312         -> D_1_40  (P2 word++ first)  (c5; probe25)
+ 1275  c7      MOV   @316         -> D_1_44  (P2 word++ first)  (c7; probe25)
  1276  d8      ALWAYS
  1277  f3      FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
  1278  a2      P2.page=2   -> D@288 D_SMD_ENABLE
@@ -685,7 +685,7 @@
  1717  8e      P0.page=e   -> A@224 D_0_224
  1718  af      P2.page=f   -> D@240 @240
  1719  d0      P2 word += 2 -> D@248 @248  (d0, mod 4; probe20)
- 1720  c6      MOV  D_0_236      -> @248  (c6; probe21)
+ 1720  c6      MOV   D_0_236      -> @248  (c6; probe25)
  1721  d8      ALWAYS
  1722  ad      P2.page=d   -> D@208 @208
  1723  d0      P2 word += 2 -> D@216 @216  (d0, mod 4; probe20)
@@ -722,7 +722,7 @@
  1754  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  1755  8e      P0.page=e   -> A@224 D_0_224
  1756  a4      P2.page=4   -> D@64 @64
- 1757  c7      MOV  @220         -> D_SO_DATA+2  (P2 word++ first)  (c7; probe21)
+ 1757  c7      MOV   D_0_236      -> D_SO_DATA+2  (P2 word++ first)  (c7; probe25)
  1758  f2      FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
  1759  8d      P0.page=d   -> A@208 @208
  1760  ad      P2.page=d   -> D@208 @208
@@ -743,7 +743,7 @@
  1776  af      [d9] P2.page=f   -> D@240 @240
  1777  df      CLR  @244 := 0  (P2 word++ first)  (df; probe23)
  1778  d0      P2 word += 2 -> D@252 @252  (d0, mod 4; probe20)
- 1779  c0      MOV  @80          -> @252  (c0; probe21)
+ 1779  c0      MOV   D_0_224      -> @252  (c0; probe25)
  1780  d8      ALWAYS
  1781  af      P2.page=f   -> D@240 @240
  1782  8f      P0.page=f   -> A@240 @240
@@ -753,11 +753,11 @@
  1786  f2      FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
  1787  89      P0.page=9   -> A@144 @144
  1788  af      P2.page=f   -> D@240 @240
- 1789  c6      MOV  @76          -> @240  (c6; probe21)
+ 1789  c6      MOV   @156         -> @240  (c6; probe25)
  1790  a3      P2.page=3   -> D@48 @48
  1791  d0      P2 word += 2 -> D@56 @56  (d0, mod 4; probe20)
- 1792  c2      MOV  D_SO_DATA+2  -> @56  (c2; probe21)
- 1793  c5      MOV  @72          -> @60  (P2 word++ first)  (c5; probe21)
+ 1792  c2      MOV   @148         -> @56  (c2; probe25)
+ 1793  c5      MOV   @152         -> @60  (P2 word++ first)  (c5; probe25)
  1794  b0      P0.bank=0
  1795  b4      P1.bank=0
  1796  b8      P2.bank=0
@@ -949,9 +949,9 @@
  1982  b9      P2.bank=1
  1983  a3      P2.page=3   -> D@304 @304
  1984  da      IF.NZ
- 1985  c3      [da] MOV  @116         -> @308  (P2 word++ first)  (c3; probe21)
- 1986  c5      MOV  @120         -> @312  (P2 word++ first)  (c5; probe21)
- 1987  c7      MOV  @124         -> @316  (P2 word++ first)  (c7; probe21)
+ 1985  c3      [da] MOV   D_FS_LPQ1    -> @308  (P2 word++ first)  (c3; probe25)
+ 1986  c5      MOV   D_FS_LPQ2    -> @312  (P2 word++ first)  (c5; probe25)
+ 1987  c7      MOV   D_FS_LPQ3    -> @316  (P2 word++ first)  (c7; probe25)
  1988  d9      IF.Z
  1989  2d      [d9] RSUB A=D_FS_LPQ1    B=@116         -> FIFO32
  1990  4d      RSUB A=D_FS_LPQ2    B=@116         -> FIFO32
@@ -965,9 +965,9 @@
  1998  f9      DEC  D_0_192 by 1  (f9; probe23)
  1999  a8      P2.page=8   -> D@128 @128
  2000  da      IF.NZ
- 2001  c3      [da] MOV  @116         -> @132  (P2 word++ first)  (c3; probe21)
- 2002  c5      MOV  @120         -> @136  (P2 word++ first)  (c5; probe21)
- 2003  c7      MOV  @124         -> @140  (P2 word++ first)  (c7; probe21)
+ 2001  c3      [da] MOV   D_FS_Q1      -> @132  (P2 word++ first)  (c3; probe25)
+ 2002  c5      MOV   D_FS_Q2      -> @136  (P2 word++ first)  (c5; probe25)
+ 2003  c7      MOV   D_FS_Q3      -> @140  (P2 word++ first)  (c7; probe25)
  2004  d9      IF.Z
  2005  2d      [d9] RSUB A=D_FS_Q1      B=@116         -> FIFO32
  2006  4d      RSUB A=D_FS_Q2      B=@116         -> FIFO32
@@ -993,17 +993,17 @@
  2026  da      IF.NZ
  2027  f2      [da] FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
  2028  8a      P0.page=a   -> A@416 D_1_160
- 2029  ca      ca
+ 2029  ca      MOV16 @420         -> @420  (ca; probe25)
  2030  f4 0e   B -> 2046
  2032  f3      FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
  2033  b1      P0.bank=1
  2034  88      P0.page=8   -> A@384 D_RUN_CNTR
  2035  dd      ROUTE -> FIFO  (dd; sticky until dc)  [probe16]
- 2036  c2      MOV  @628         -> @420  (c2; probe21)
- 2037  c2      MOV  @628         -> @420  (c2; probe21)
+ 2036  c2      MOV   @388         -> @420  (c2; probe25)
+ 2037  c2      MOV   @388         -> @420  (c2; probe25)
  2038  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  2039  88      P0.page=8   -> A@384 D_RUN_CNTR
- 2040  c0      MOV  @624         -> @420  (c0; probe21)
+ 2040  c0      MOV   D_RUN_CNTR   -> @420  (c0; probe25)
  2041  dc      ROUTE -> RAM   M[P2..] @420  (dc; sticky until dd)
  2042  f3      FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
  2043  b9      P2.bank=1
@@ -1035,9 +1035,9 @@
  2070  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  2071  b1      P0.bank=1
  2072  83      P0.page=3   -> A@304 @304
- 2073  c2      MOV  @420         -> FLICK_MSG  (c2; probe21)
- 2074  c4      MOV  @424         -> FLICK_MSG  (c4; probe21)
- 2075  c6      MOV  @428         -> FLICK_MSG  (c6; probe21)
+ 2073  c2      MOV   @308         -> FLICK_MSG  (c2; probe25)
+ 2074  c4      MOV   @312         -> FLICK_MSG  (c4; probe25)
+ 2075  c6      MOV   @316         -> FLICK_MSG  (c6; probe25)
  2076  dc      ROUTE -> RAM   M[P2..] FLICK_MSG  (dc; sticky until dd)
  2077  f3      FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
  2078  b9      P2.bank=1
@@ -1069,9 +1069,9 @@
  2105  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  2106  b0      P0.bank=0
  2107  88      P0.page=8   -> A@128 @128
- 2108  c2      MOV  @420         -> D_2_208  (c2; probe21)
- 2109  c4      MOV  @424         -> D_2_208  (c4; probe21)
- 2110  c6      MOV  @428         -> D_2_208  (c6; probe21)
+ 2108  c2      MOV   @132         -> D_2_208  (c2; probe25)
+ 2109  c4      MOV   @136         -> D_2_208  (c4; probe25)
+ 2110  c6      MOV   @140         -> D_2_208  (c6; probe25)
  2111  dc      ROUTE -> RAM   M[P2..] D_2_208  (dc; sticky until dd)
  2112  f3      FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
  2113  b9      P2.bank=1
@@ -1102,9 +1102,9 @@
  2139  f2      FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
  2140  f2      FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
  2141  88      P0.page=8   -> A@384 D_RUN_CNTR
- 2142  c2      MOV  @420         -> FLICK_MSG  (c2; probe21)
- 2143  c4      MOV  @424         -> FLICK_MSG  (c4; probe21)
- 2144  c6      MOV  @428         -> FLICK_MSG  (c6; probe21)
+ 2142  c2      MOV   @388         -> FLICK_MSG  (c2; probe25)
+ 2143  c4      MOV   @392         -> FLICK_MSG  (c4; probe25)
+ 2144  c6      MOV   @396         -> FLICK_MSG  (c6; probe25)
  2145  dc      ROUTE -> RAM   M[P2..] FLICK_MSG  (dc; sticky until dd)
  2146  f3      FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
  2147  b9      P2.bank=1
@@ -1135,9 +1135,9 @@
  2173  f2      FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
  2174  b0      P0.bank=0
  2175  80      P0.page=0   -> A@0 @0
- 2176  c0      MOV  D_1_160      -> D_2_224  (c0; probe21)
- 2177  c8      c8
- 2178  c2      MOV  @420         -> D_2_224  (c2; probe21)
+ 2176  c0      MOV   @0           -> D_2_224  (c0; probe25)
+ 2177  c8      MOV16 @0           -> D_2_224  (c8; probe25)
+ 2178  c2      MOV   @4           -> D_2_224  (c2; probe25)
  2179  dc      ROUTE -> RAM   M[P2..] D_2_224  (dc; sticky until dd)
  2180  f3      FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
  2181  b9      P2.bank=1
@@ -1168,9 +1168,9 @@
  2207  f2      FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
  2208  b0      P0.bank=0
  2209  80      P0.page=0   -> A@0 @0
- 2210  c4      MOV  @424         -> D_ODR_CNTR_S5  (c4; probe21)
- 2211  cc      cc
- 2212  c6      MOV  @428         -> D_ODR_CNTR_S5  (c6; probe21)
+ 2210  c4      MOV   @8           -> D_ODR_CNTR_S5  (c4; probe25)
+ 2211  cc      MOV16 @8           -> D_ODR_CNTR_S5  (cc; probe25)
+ 2212  c6      MOV   @12          -> D_ODR_CNTR_S5  (c6; probe25)
  2213  dc      ROUTE -> RAM   M[P2..] D_ODR_CNTR_S5  (dc; sticky until dd)
  2214  f3      FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
  2215  b9      P2.bank=1
@@ -1201,9 +1201,9 @@
  2241  f2      FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
  2242  b0      P0.bank=0
  2243  81      P0.page=1   -> A@16 @16
- 2244  c0      MOV  D_1_160      -> D_2_224  (c0; probe21)
- 2245  c8      c8
- 2246  c2      MOV  @420         -> D_2_224  (c2; probe21)
+ 2244  c0      MOV   @16          -> D_2_224  (c0; probe25)
+ 2245  c8      MOV16 @16          -> D_2_224  (c8; probe25)
+ 2246  c2      MOV   @20          -> D_2_224  (c2; probe25)
  2247  dc      ROUTE -> RAM   M[P2..] D_2_224  (dc; sticky until dd)
  2248  f3      FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
  2249  b9      P2.bank=1
@@ -1234,9 +1234,9 @@
  2275  f2      FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
  2276  b0      P0.bank=0
  2277  81      P0.page=1   -> A@16 @16
- 2278  c4      MOV  @424         -> D_ODR_CNTR_S5  (c4; probe21)
- 2279  cc      cc
- 2280  c6      MOV  @428         -> D_ODR_CNTR_S5  (c6; probe21)
+ 2278  c4      MOV   @24          -> D_ODR_CNTR_S5  (c4; probe25)
+ 2279  cc      MOV16 @24          -> D_ODR_CNTR_S5  (cc; probe25)
+ 2280  c6      MOV   @28          -> D_ODR_CNTR_S5  (c6; probe25)
  2281  dc      ROUTE -> RAM   M[P2..] D_ODR_CNTR_S5  (dc; sticky until dd)
  2282  f3      FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
  2283  b9      P2.bank=1
@@ -1248,9 +1248,9 @@
  2289  88      P0.page=8   -> A@128 @128
  2290  b9      P2.bank=1
  2291  a8      P2.page=8   -> D@384 D_RUN_CNTR
- 2292  c3      MOV  @420         -> @388  (P2 word++ first)  (c3; probe21)
- 2293  c5      MOV  @424         -> @392  (P2 word++ first)  (c5; probe21)
- 2294  c7      MOV  @428         -> @396  (P2 word++ first)  (c7; probe21)
+ 2292  c3      MOV   @132         -> @388  (P2 word++ first)  (c3; probe25)
+ 2293  c5      MOV   @136         -> @392  (P2 word++ first)  (c5; probe25)
+ 2294  c7      MOV   @140         -> @396  (P2 word++ first)  (c7; probe25)
  2295  d8      ALWAYS
  2296  f3      FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
  2297  b9      P2.bank=1
@@ -1282,7 +1282,7 @@
  2325  f9      DEC  @448 by 1  (f9; probe23)
  2326  d1      TEST  Z := (last ALU result == 0); d9 = IF.Z, da = IF.NZ  [probe19/20]
  2327  d9      IF.Z
- 2328  c2      [d9] MOV  @420         -> @448  (c2; probe21)
+ 2328  c2      [d9] MOV   D_BM_NUMWORD_TOFILL -> @448  (c2; probe25)
  2329  d8      ALWAYS
  2330  f2      FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
  2331  f9      DEC  @448 by 1  (f9; probe23)
@@ -1293,7 +1293,7 @@
  2337  da      IF.NZ
  2338  f2      [da] FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
  2339  dd      ROUTE -> FIFO  (dd; sticky until dc)  [probe16]
- 2340  c6      MOV  @428         -> @448  (c6; probe21)
+ 2340  c6      MOV   @460         -> @448  (c6; probe25)
  2341  dc      ROUTE -> RAM   M[P2..] @448  (dc; sticky until dd)
  2342  f4 31   B -> 2393
  2344  11      RSUB A=@448         B=@424         -> @448
@@ -1313,7 +1313,7 @@
  2359  b9      P2.bank=1
  2360  ab      P2.page=b   -> D@432 D_1_176
  2361  df      CLR  D_BM_BATCH_CNTR := 0  (P2 word++ first)  (df; probe23)
- 2362  fe      fe
+ 2362  fe      SKIP   (vendor: DINAFE)
  2363  d8      ALWAYS
  2364  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  2365  bb      P2.bank=3
@@ -1322,7 +1322,7 @@
  2368  aa      P2.page=a   -> D@928 D_PEDSTD_DECI
  2369  f9      DEC  D_PEDSTD_DECI by 1  (f9; probe23)
  2370  da      IF.NZ
- 2371  ff      [da] ff
+ 2371  ff      [da] HALT   disable/terminate (vendor: ends every image)
  2372  d9      IF.Z
  2373  80      [d9] P0.page=0   -> A@768 @768
  2374  9a      P1.page=a   -> B@928 D_PEDSTD_DECI
@@ -1341,7 +1341,7 @@
  2387  87      P0.page=7   -> A@880 @880
  2388  aa      P2.page=a   -> D@928 D_PEDSTD_DECI
  2389  d0      P2 word += 2 -> D@936 @936  (d0, mod 4; probe20)
- 2390  c1      MOV  @896         -> @940  (P2 word++ first)  (c1; probe21)
+ 2390  c1      MOV   @880         -> @940  (P2 word++ first)  (c1; probe25)
  2391  a7      P2.page=7   -> D@880 @880
  2392  81      P0.page=1   -> A@784 @784
  2393  97      P1.page=7   -> B@880 @880
@@ -1417,22 +1417,22 @@
  2463  f5      f5
  2464  75      RSUB A=@860         B=@856         -> @900
  2465  da      IF.NZ
- 2466  ff      [da] ff
+ 2466  ff      [da] HALT   disable/terminate (vendor: ends every image)
  2467  d8      ALWAYS
  2468  71      RSUB A=@860         B=@856         -> @896
  2469  80      P0.page=0   -> A@768 @768
  2470  a9      P2.page=9   -> D@912 @912
  2471  da      IF.NZ
  2472  f1      [da] FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
- 2473  ff      ff
+ 2473  ff      HALT   disable/terminate (vendor: ends every image)
  2474  d8      ALWAYS
  2475  82      P0.page=2   -> A@800 @800
  2476  a7      P2.page=7   -> D@880 @880
  2477  f3      FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
- 2478  c1      MOV  @848         -> @884  (P2 word++ first)  (c1; probe21)
+ 2478  c1      MOV   @800         -> @884  (P2 word++ first)  (c1; probe25)
  2479  f2      FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
  2480  80      P0.page=0   -> A@768 @768
- 2481  c2      MOV  @852         -> @884  (c2; probe21)
+ 2481  c2      MOV   @772         -> @884  (c2; probe25)
  2482  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  2483  97      P1.page=7   -> B@880 @880
  2484  86      P0.page=6   -> A@864 D_PEDSTD_STEPCTR
@@ -1451,8 +1451,8 @@
  2497  a2      P2.page=2   -> D@800 @800
  2498  d0      P2 word += 2 -> D@808 D_PEDSTD_SB  (d0, mod 4; probe20)
  2499  f3      FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
- 2500  c4      MOV  @872         -> D_PEDSTD_SB  (c4; probe21)
- 2501  c7      MOV  @876         -> D_PEDSTD_SB_TIME  (P2 word++ first)  (c7; probe21)
+ 2500  c4      MOV   @904         -> D_PEDSTD_SB  (c4; probe25)
+ 2501  c7      MOV   @908         -> D_PEDSTD_SB_TIME  (P2 word++ first)  (c7; probe25)
  2502  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  2503  da      IF.NZ
  2504  87      [da] P0.page=7   -> A@880 @880
@@ -1460,8 +1460,8 @@
  2506  a2      P2.page=2   -> D@800 @800
  2507  d0      P2 word += 2 -> D@808 D_PEDSTD_SB  (d0, mod 4; probe20)
  2508  f3      FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
- 2509  c6      MOV  @876         -> D_PEDSTD_SB  (c6; probe21)
- 2510  c7      MOV  @876         -> D_PEDSTD_SB_TIME  (P2 word++ first)  (c7; probe21)
+ 2509  c6      MOV   @892         -> D_PEDSTD_SB  (c6; probe25)
+ 2510  c7      MOV   @892         -> D_PEDSTD_SB_TIME  (P2 word++ first)  (c7; probe25)
  2511  82      P0.page=2   -> A@800 @800
  2512  78      ADD A=D_PEDSTD_SB_TIME B=@876         -> D_PEDSTD_SB_TIME
  2513  78      ADD A=D_PEDSTD_SB_TIME B=@876         -> D_PEDSTD_SB_TIME
@@ -1511,7 +1511,7 @@
  2557  82      P0.page=2   -> A@800 @800
  2558  ac      P2.page=c   -> D@960 @960
  2559  f3      FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
- 2560  c0      MOV  @800         -> @960  (c0; probe21)
+ 2560  c0      MOV   @800         -> @960  (c0; probe25)
  2561  a2      P2.page=2   -> D@800 @800
  2562  80      P0.page=0   -> A@768 @768
  2563  22      MUL A=@772         B=@800         -> @800
@@ -1525,7 +1525,7 @@
  2571  da      IF.NZ
  2572  ac      [da] P2.page=c   -> D@960 @960
  2573  de      de
- 2574  ff      ff
+ 2574  ff      HALT   disable/terminate (vendor: ends every image)
  2575  d8      ALWAYS
  2576  a2      P2.page=2   -> D@800 @800
  2577  f2      FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
@@ -1562,7 +1562,7 @@
  2608  aa      P2.page=a   -> D@416 D_1_160
  2609  fa      INC  @420 by 1  (P2 word++ first)  (fa; probe23)
  2610  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
- 2611  ff      ff
+ 2611  ff      HALT   disable/terminate (vendor: ends every image)
  2612  d8      ALWAYS
  2613  8c      P0.page=c   -> A@960 @960
  2614  9c      P1.page=c   -> B@960 @960
@@ -1579,7 +1579,7 @@
  2625  82      P0.page=2   -> A@800 @800
  2626  a8      P2.page=8   -> D@384 D_RUN_CNTR
  2627  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
- 2628  ca      ca
+ 2628  ca      MOV16 @804         -> D_RUN_CNTR  (ca; probe25)
  2629  f2      FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
  2630  35      RSUB A=@804         B=D_PEDSTD_SB  -> @388
  2631  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
@@ -1589,4 +1589,4 @@
  2635  d9      IF.Z
  2636  00      [d9] ADD A=@896         B=D_PEDSTD_STEPCTR -> D_1_96
  2637  d8      ALWAYS
- 2638  ff      ff
+ 2638  ff      HALT   disable/terminate (vendor: ends every image)

@@ -11,7 +11,8 @@
         single-shot conditional prefixes on the NEXT instruction        [probe10/19/20, HW]
     P2 word index (2 bits, mod 4): df/fa/fb/odd-cx pre-advance 1, d0 += 2; op&4 adds 1 for that op
     f8/f9: INC/DEC M[P2] by 1 LSB; fa/fb: same after advancing; df: advance then CLR  [probe23, HW]
-    c0..c7 (mantis): MOV M[P1 + 4*(x>>1)] -> M[P2]; x&1 pre-advances P2   [probe21, HW]
+    c0..cf (mantis): MOV M[P0 + 4*(x>>1)] -> M[P2]; x&1 pre-advances P2;
+                     x&8 = MOV16 (upper half-word, zero-extended)        [probe25, HW]
     dc/dd: result routing RAM/FIFO (sticky two-way switch; FIFO at rest)   df: P2 += 4   [probe9-16, HW]
     f0..f3 (mantis) / f8..fb (3050): FIFO width/mode        [bench]
 
@@ -81,16 +82,22 @@ class Decoder:
         if b == 0xFA and self.L == "mantis":
             self.p2off = getattr(self, "p2off", 0) + 4
             return 1, f"P2 += 4      -> D@{self.ptr(2)} {self.N.name(self.ptr(2))}  (fa, probe18; same effect as df)"
+        if b == 0xFF:
+            return 1, "HALT   disable/terminate (vendor: ends every image)"
+        if b == 0xFE:
+            return 1, "SKIP   (vendor: DINAFE)"
         if b == 0xD1:
             return 1, "TEST  Z := (last ALU result == 0); d9 = IF.Z, da = IF.NZ  [probe19/20]"
         if b == 0xD0:
             self.p2off = (getattr(self, "p2off", 0) + 8) % 16
             return 1, f"P2 word += 2 -> D@{self.ptr(2)} {self.N.name(self.ptr(2))}  (d0, mod 4; probe20)"
-        if self.L == "mantis" and 0xC0 <= b <= 0xC7:
-            k = (b >> 1) & 3                       # source word of the P1 page; bit0 = pre-advance P2
+        if self.L == "mantis" and 0xC0 <= b <= 0xCF:
+            k = (b >> 1) & 3                       # source word of the P0 page; bit0 pre-advances P2
             if b & 1: self.p2off = (getattr(self, "p2off", 0) + 4) % 16
-            src = self.ptr(1) + 4 * k
-            return 1, f"MOV  {self.N.name(src):<12} -> {self.N.name(self.ptr(2))}{'  (P2 word++ first)' if b & 1 else ''}  ({b:02x}; probe21)"
+            src = self.ptr(0) + 4 * k
+            op = "MOV16" if b & 8 else "MOV  "     # c8..cf: upper half-word, zero-extended
+            return 1, (f"{op} {self.N.name(src):<12} -> {self.N.name(self.ptr(2))}"
+                       f"{'  (P2 word++ first)' if b & 1 else ''}  ({b:02x}; probe25)")
         if b == 0xDF:
             self.p2off = getattr(self, "p2off", 0) + 4
             return 1, f"CLR  {self.N.name(self.ptr(2))} := 0  (P2 word++ first)  (df; probe23)"
