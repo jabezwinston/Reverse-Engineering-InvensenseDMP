@@ -141,6 +141,33 @@ compare-and-predicate idiom; `fd <imm>` takes a small immediate (`fd 0f` 44×); 
 FIFO packet block; `ff` (56×, followed by `d8`) ends a program; `f4` followed by a byte ≥ 0x80
 (39 of 420 sites) is not a branch and follows the `ax` renumbering in the 2634→2639 diff.
 
+## Finding 5 — what the vendor's hand-assembled sequences add (`corpus/ROSETTA.md`)
+
+290 driver writes (eMD 6.12, mlsdk `ml.c`/`mlFIFO.c`/`mlBiasNoMotion.c`, kernel
+`inv_mpu_misc.c`, i2cdevlib) were resolved to addresses and checked against the shipped images
+(`corpus/rosetta.json`). Points that bear on the ISA:
+
+- **`f4 4x` is not a branch.** The kernel enables the pedometer interrupt with `f4 44 f1` (off:
+  `f1 f1 f1`) and the display-orientation interrupt with `f4 41` (off: `d8 d8`). So the operand's
+  bits[6:5] select the form: `00` = branch by bits[4:0] (all 25 label-hitting sites have
+  imm < 0x20), `10` = raise a DMP interrupt. That is the bench's "swallowed but nothing skipped"
+  quadrant (round 15) and the "crash" of `f4 4x` with emits after it (round 16: the interrupt
+  handshake, not the core, broke).
+- **Eight additions = one byte shift.** `inv_freescale_sensor_fusion_8bit` scales an 8-bit
+  compass axis with `54 50 50 50 50 50 50 50` (A = B = 2: `op4`, then seven `op0`), i.e. eight
+  in-place doublings = ×256, with P0 = P1 = P2 on one page. `op4` therefore adds like `op0`; the
+  bit-2 difference is a side flag, not the arithmetic. The same routine's orientation variants
+  swap a `2c 28…` / `54 50…` / `7c 78…` slot against `cb` / `cd` / `cf`, so `cx` index
+  `bits[2:1]` names the same P0 word as a low byte's A field.
+- **`f9 a3 a3 a3` blocks, `8b 8b 8b 8b`, `98 98 98`, `f1 f1 f1`, `d8 d8`** are all used as
+  fillers: any pointer-set byte or mode byte is harmless when nothing consumes it.
+- The corpus 3062 file is an i2cdevlib **live dump**: it differs from the pristine eMD array
+  (`corpus/sources_external/emd612_dmp_memory_3062.bin`) in 282 bytes, all data plus exactly the
+  config points eMD's `dmp_enable_feature` touches. Use the pristine file for code statistics.
+- Placeholder pairs `c1/c3/c5/c7` <-> `0c/2c/4c/6c` (FCFG_1/FCFG_2 ship as `c5 cd c7`, drivers
+  write `4c cd 6c`): the odd `cx` byte is the assembler's "unset axis" form of the same
+  one-operand move.
+
 ## Plan
 
 ### P1 — static, no hardware (this session)
@@ -163,7 +190,8 @@ Now that the observable is known, each experiment is a single RAM diff:
 3. **Predicates.** `d9 <op> d8` / `da <op> d8` after a compare idiom (`f9 d1`), check which
    executes; sweep the flag source.
 4. **Backward branch.** `f4` immediates `0x80..0xff` (never tested; 9 % of corpus sites use them)
-   at a site with a re-execution detector.
+   at a site with a re-execution detector. Also `f4 2x` (crashes on the bench, absent from the corpus)
+   and `f4 6x` under single-step.
 5. **Bank sel 3** (`bc..bf`) and the `c8..cf` / `e0..ef` families with a destination diff.
 
 ### P3 — toolchain
