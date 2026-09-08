@@ -1,5 +1,8 @@
 # Toolchain plan — disassembler, assembler, and running custom DMP code
 
+> **2026-09-08:** branch reach is now known (`f4 imm` -> `site+2+imm`, [ISA2.md](ISA2.md)); the
+> assembler still refuses to emit it until `bench/isa_probe.py` confirms the semantics on silicon.
+
 Target: MPU-6050 on the ESP32 rig, MotionApps20 (1929 B) as the host image.
 Strategy: build the tooling around what is **confirmed**, mark the rest UNKNOWN, and let the
 same tooling be the instrument that fills the gaps.

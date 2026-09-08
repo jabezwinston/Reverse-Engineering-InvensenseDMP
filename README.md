@@ -4,10 +4,13 @@ Reverse engineering the undocumented instruction set of the InvenSense DMP (Digi
 Processor) embedded in MPU-6050/6500/9250 and ICM-20948 IMUs, and building a disassembler and
 assembler for it.
 
-**Status: complete and closed.** Custom DMP programs, written in this repo's own assembly
-language, run on real MPU-6050 silicon with behaviour predicted in advance and verified
-byte-for-byte. **31.4 %** of instructions across the 12-image corpus have hardware-verified
-behaviour. Arbitrary computation is not achievable on this bench — see *Limits*.
+**Status: reopened (2026-09-08).** The closing conclusion — that the DMP's working registers
+are not RAM-mapped — was wrong, and the branch encoding is now known. Both were established
+statically from data the project already had, using the methods that resolved the BK3296 core.
+See **[ISA2.md](ISA2.md)** for the findings, the evidence and the plan; `tools/isa/` for the
+reproducible tests; `listings2/` for listings under the new pointer/ALU model; and
+`bench/isa_probe.py` for the queued hardware experiments. Custom DMP programs written in this
+repo's assembly language still run on real MPU-6050 silicon exactly as described below.
 
 ## What works today
 
@@ -44,6 +47,8 @@ The DMP emits a register selection the stock firmware never produces.
 | `programs/` | example DMP programs in the assembly language |
 | `listings/` | disassembly of all 12 corpus images |
 | `UNKNOWNS.md` | plan for characterising unknown opcodes, and what it returned |
+| `ISA2.md` | **second pass (2026-09-08): pointer/ALU model, branch rule, plan** |
+| `listings2/` | listings under the pointer/ALU model (`tools/isa/decode.py`) |
 
 ## The instruction set, as recovered
 
@@ -105,17 +110,13 @@ is volatile — a power cycle restores stock, and every patch is reverted after 
 See `bench/README.md` for the protocol and `bench/RESULTS.md` for all 20 experiment rounds,
 including every correction and false start.
 
-## Why it stops here
+## Why it stopped, and why it restarted
 
-The dominant hypothesis is that the DMP's working registers are **not RAM-mapped**. Every
-instrument on this bench observes RAM or the FIFO; if the register file lives outside that
-window, writes to it are structurally invisible. Rounds 18, 19 and 20 each began with a
-compelling apparent positive and each was reduced to nothing by a null control — three
-independent confirmations of the same boundary.
-
-**What would reopen it:** an MPU-6500/6515 breakout runs the 2639 image, whose hammerhead symbol
-table names ~166 locations and validates 3/3 against the driver's own patch values. That is
-ground truth this project never had.
+Rounds 18–20 concluded that writes were structurally invisible because the register file lived
+outside RAM. In fact every "register" read on the bench is a data-RAM word at
+`bank*256 + page*16 + 4*field`, the vendor's `a3` "NOP" points the destination pointer at a
+scratch page, and `f4 imm` branches to `site + 2 + imm` (21 of 25 vendor code labels hit, 2.7
+expected by chance). The write scans were looking in the wrong place. ISA2.md has the details.
 
 ## Method note
 

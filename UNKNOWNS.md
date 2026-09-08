@@ -1,5 +1,9 @@
 # Plan — determining what each unknown instruction does
 
+> **2026-09-08:** Priorities 1, 2 and 4 returned negatives because the destination pointer at
+> the test site aimed at a scratch page and the write oracle looked for register-file writes that
+> are in fact RAM words. Reopened in [ISA2.md](ISA2.md); new experiments in `bench/isa_probe.py`.
+
 Roughly 180 byte values remain unattributed. This is a plan to characterise them systematically
 rather than opportunistically, and it is built on two measurements taken today.
 

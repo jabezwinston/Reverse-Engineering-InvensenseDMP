@@ -1,5 +1,9 @@
 # DMP opcode table — working draft
 
+> **Superseded in part (2026-09-08):** low bytes are two-operand ALU instructions over three
+> memory pointers, `f4 imm` branches to `site+2+imm`, and the "registers" are data RAM. See
+> [ISA2.md](ISA2.md). The vendor-table and driver-pair evidence below still stands.
+
 Derived from label-anchored comparison of two image+symbol pairs that ship in the same file, so
 the address↔image correspondence is guaranteed rather than inferred:
 
