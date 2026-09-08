@@ -1,6 +1,6 @@
 ; lineage=mantis start=768
   768  d8      ALWAYS
-  769  dc      STORE  commit ALU result -> M[P2] PTAT  (dc)
+  769  dc      ROUTE -> RAM   M[P2..] PTAT  (dc; sticky until dd)
   770  f4 d8   f4 d8   ; imm>=0x80 (unknown form)
   772  b9      P2.bank=1
   773  ab      P2.page=b   -> D@432 SEM1
@@ -26,7 +26,7 @@
   793  f3      FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
   794  f9      f9
   795  db      IF.3
-  796  a8      P2.page=8   -> D@128 TMP1A
+  796  a8      [db] P2.page=8   -> D@128 TMP1A
   797  f9      f9
   798  b0      P0.bank=0
   799  ba      P2.bank=2
@@ -231,26 +231,26 @@
   998  61      RSUB A=MNMTHR       B=BLPFNMTC     -> TMP1B
   999  a6      P2.page=6   -> D@352 MNMFLAG
  1000  da      IF.2
- 1001  de      de
+ 1001  de      [da] de
  1002  df      P2 += 4      -> D@356 MNMTM  (df, probe13)
  1003  db      IF.3
- 1004  b2      P0.bank=2
+ 1004  b2      [db] P0.bank=2
  1005  b6      P1.bank=2
  1006  8e      P0.page=e   -> A@736 @736
  1007  9d      P1.page=d   -> B@720 @720
  1008  ae      P2.page=e   -> D@480 TMP25
  1009  f5      f5
- 1010  60      [db] ADD A=@748         B=@720         -> TMP25
+ 1010  60      ADD A=@748         B=@720         -> TMP25
  1011  68      ADD A=@748         B=@724         -> TMP25
  1012  70      ADD A=@748         B=@728         -> TMP25
  1013  b1      P0.bank=1
  1014  b5      P1.bank=1
  1015  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  1016  da      IF.2
- 1017  a6      P2.page=6   -> D@352 MNMFLAG
+ 1017  a6      [da] P2.page=6   -> D@352 MNMFLAG
  1018  df      P2 += 4      -> D@356 MNMTM  (df, probe13)
  1019  d9      IF.1
- 1020  a6      P2.page=6   -> D@352 MNMFLAG
+ 1020  a6      [d9] P2.page=6   -> D@352 MNMFLAG
  1021  fa      fa
  1022  a3      P2.page=3   -> D@304 TMP1B
  1023  86      P0.page=6   -> A@352 MNMFLAG
@@ -259,7 +259,7 @@
  1026  31      [db] RSUB A=MNMTM        B=MNMTMTHR     -> TMP1B
  1027  a6      P2.page=6   -> D@352 MNMFLAG
  1028  d9      IF.1
- 1029  f8      f8
+ 1029  f8      [d9] f8
  1030  df      P2 += 4      -> D@356 MNMTM  (df, probe13)
  1031  ba      P2.bank=2
  1032  a6      P2.page=6   -> D@608 @608
@@ -400,11 +400,11 @@
  1167  f3      FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
  1168  a3      P2.page=3   -> D@48 BLPFMTC
  1169  d9      IF.1
- 1170  f8      f8
+ 1170  f8      [d9] f8
  1171  f0      FMODE.0   ; 1=32-bit fifo, 2/3=16-bit
  1172  98      P1.page=8   -> B@128 TMP1A
  1173  83      P0.page=3   -> A@48 BLPFMTC
- 1174  24      [d9] ADD A=BLPFMX       B=TMP1A        -> BLPFMX
+ 1174  24      ADD A=BLPFMX       B=TMP1A        -> BLPFMX
  1175  08      ADD A=BLPFMTC      B=TMP2A        -> BLPFMTC
  1176  44      ADD A=BLPFMY       B=TMP1A        -> BLPFMX
  1177  10      ADD A=BLPFMTC      B=TMP3A        -> BLPFMTC
@@ -425,7 +425,7 @@
  1192  64      ADD A=BLPFSZ       B=TMP1A        -> BLPFSX
  1193  18      ADD A=BLPFSTC      B=TMP4A        -> BLPFSTC
  1194  da      IF.2
- 1195  f3      FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
+ 1195  f3      [da] FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
  1196  de      de
  1197  d8      ALWAYS
  1198  83      P0.page=3   -> A@48 BLPFMTC
@@ -433,8 +433,8 @@
  1200  94      P1.page=4   -> B@64 BLPFC
  1201  01      RSUB A=BLPFMTC      B=BLPFC        -> ANGVBX
  1202  d9      IF.1
- 1203  a3      P2.page=3   -> D@48 BLPFMTC
- 1204  02      [d9] MUL A=BLPFMTC      B=BLPFC        -> BLPFMTC
+ 1203  a3      [d9] P2.page=3   -> D@48 BLPFMTC
+ 1204  02      MUL A=BLPFMTC      B=BLPFC        -> BLPFMTC
  1205  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  1206  a2      P2.page=2   -> D@32 BLPFSTC
  1207  c3      c3
@@ -616,19 +616,19 @@
  1383  87      P0.page=7   -> A@112 0_5
  1384  29      RSUB A=0_0          B=XGC          -> TMP1A
  1385  da      IF.2
- 1386  f8      f8
+ 1386  f8      [da] f8
  1387  d8      ALWAYS
  1388  87      P0.page=7   -> A@112 0_5
  1389  9a      P1.page=a   -> B@160 DZ
  1390  35      RSUB A=0_0          B=YGC          -> TMP2A
  1391  da      IF.2
- 1392  f8      f8
+ 1392  f8      [da] f8
  1393  d8      ALWAYS
  1394  87      P0.page=7   -> A@112 0_5
  1395  9a      P1.page=a   -> B@160 DZ
  1396  3d      RSUB A=0_0          B=ZGC          -> TMP2A
  1397  da      IF.2
- 1398  f8      f8
+ 1398  f8      [da] f8
  1399  d8      ALWAYS
  1400  b1      P0.bank=1
  1401  b9      P2.bank=1
@@ -718,7 +718,7 @@
  1485  93      P1.page=3   -> B@304 TMP1B
  1486  01      RSUB A=DZ           B=TMP1B        -> TMP1B
  1487  d9      IF.1
- 1488  df      P2 += 4      -> D@308 TMP2B  (df, probe13)
+ 1488  df      [d9] P2 += 4      -> D@308 TMP2B  (df, probe13)
  1489  df      P2 += 4      -> D@312 TMP3B  (df, probe13)
  1490  df      P2 += 4      -> D@316 TMP4B  (df, probe13)
  1491  d8      ALWAYS
@@ -990,12 +990,12 @@
  1757  83      P0.page=3   -> A@304 TMP1B
  1758  a7      P2.page=7   -> D@368 ACCQD4
  1759  d9      IF.1
- 1760  ad      P2.page=d   -> D@464 TMP22
+ 1760  ad      [d9] P2.page=d   -> D@464 TMP22
  1761  ad      P2.page=d   -> D@464 TMP22
  1762  ad      P2.page=d   -> D@464 TMP22
  1763  ad      P2.page=d   -> D@464 TMP22
  1764  f3      FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
- 1765  2a      [d9] MUL A=TMP2B        B=0            -> TMP22
+ 1765  2a      MUL A=TMP2B        B=0            -> TMP22
  1766  d8      ALWAYS
  1767  d8      ALWAYS
  1768  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
@@ -1112,14 +1112,14 @@
  1879  09      RSUB A=SEM1         B=@532         -> TMP1B
  1880  b4      P1.bank=0
  1881  d9      IF.1
- 1882  ab      P2.page=b   -> D@432 SEM1
+ 1882  ab      [d9] P2.page=b   -> D@432 SEM1
  1883  de      de
  1884  b0      P0.bank=0
  1885  87      P0.page=7   -> A@112 0_5
  1886  9c      P1.page=c   -> B@192 QT1
  1887  b9      P2.bank=1
  1888  a3      P2.page=3   -> D@304 TMP1B
- 1889  dd      dd
+ 1889  dd      ROUTE -> FIFO  (dd; sticky until dc)  [probe16]
  1890  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  1891  a3      P2.page=3   -> D@304 TMP1B
  1892  a3      P2.page=3   -> D@304 TMP1B
@@ -1182,11 +1182,11 @@
  1949  9b      P1.page=b   -> B@432 SEM1
  1950  a3      P2.page=3   -> D@304 TMP1B
  1951  a3      P2.page=3   -> D@304 TMP1B
- 1952  dc      STORE  commit ALU result -> M[P2] TMP1B  (dc)
+ 1952  dc      ROUTE -> RAM   M[P2..] TMP1B  (dc; sticky until dd)
  1953  b9      P2.bank=1
  1954  a7      P2.page=7   -> D@368 ACCQD4
  1955  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
- 1956  26      [d9] MUL A=0_0          B=SEM1         -> ACCQD5
+ 1956  26      MUL A=0_0          B=SEM1         -> ACCQD5
  1957  26      MUL A=0_0          B=SEM1         -> ACCQD5
  1958  26      MUL A=0_0          B=SEM1         -> ACCQD5
  1959  d8      ALWAYS

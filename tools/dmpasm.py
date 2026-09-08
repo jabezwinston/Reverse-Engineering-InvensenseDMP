@@ -18,7 +18,9 @@ big-endian Q30 (2^30 = 1.0), range [-2,+2), addition wraps (modular).
   nmul  A,B[,hi]                    -M[P0+4A] * M[P1+4B]   (op3)
        `hi` sets op&4 -> destination word P2+4 (default P2+0). Use `p2inc` (df)
        to reach words 2,3 of the page.
-  store                              dc: route ALU results to RAM (sticky for the block)
+  store                              dc: RAM routing ON  (sticky; every following ALU op stores)
+  fifo  (alias store.off)            dd: route results to the FIFO (sticky; the at-rest
+                                     routing). Vendor packet emit = dd f1 <ALU ops>
   p2inc [N]                          df: P2 += 4, N times. Reaches words 2,3 of a page
   store.add / store.rsub / .mul / .nmul  A,B[,hi]
        fused: emits `dc` THEN the ALU byte, the order confirmed on hardware
@@ -26,6 +28,10 @@ big-endian Q30 (2^30 = 1.0), range [-2,+2), addition wraps (modular).
   branch N                           f4 (mantis) / fc (3050); target = here+2+N,
                                      forward only, 0 <= N <= 0x7f (Finding 2)
   fmode N                            f0..f3: FIFO width/mode (1=32-bit, 2/3=16-bit)
+  always / if N                      d8 / d9,da,db: conditional prefix on the NEXT
+                                     instruction only (single-shot, probe10). At rest
+                                     if 1 and if 3 are true, if 2 false (vendor: if 2
+                                     gates gesture/motion events).
 
 Legacy FIFO-emit form (stock preambles) still assembles:
   selbank gyro|quat|accel|delay|0x9N
@@ -126,6 +132,15 @@ def assemble(text, lineage="mantis"):
             # --- ALU (compute; emits to FIFO in fifo mode, else use store) ---
             elif op in ALU_OPS:
                 out.append(_alu_byte(op, arg))
+            elif op == "always":                 # d8: next instruction unconditional
+                out.append(0xD8)
+            elif op == "if":                     # d9/da/db: predicate the NEXT instruction only
+                n = int(arg, 0)
+                if not 1 <= n <= 3:
+                    raise AsmError("if N: N is 1..3 (d9/da/db)")
+                out.append(0xD8 + n)
+            elif op in ("store.off", "fifo"):    # dd: route results to FIFO (sticky) [probe16]
+                out.append(0xDD)
             elif op == "p2inc":                  # df: P2 += 4 (probe13); repeat N times
                 out.extend([0xDF] * (int(arg, 0) if arg else 1))
             elif op == "store" and not arg:
@@ -181,7 +196,7 @@ def assemble(text, lineage="mantis"):
             else:
                 raise AsmError(
                     f"unknown mnemonic {op!r} (confirmed: p0page/p1page/p2page, "
-                    "p0bank/p1bank/p2bank, add/rsub/mul/nmul, store[.op], branch, "
+                    "p0bank/p1bank/p2bank, add/rsub/mul/nmul, store[.op], p2inc, always, if N, branch, "
                     "fmode, selbank, emit, nop, skip, disable, .db)")
         except AsmError as e:
             raise AsmError(f"line {lineno}: {e}") from None

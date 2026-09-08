@@ -23,9 +23,10 @@ class R(Rig):
         t0 = time.time()
         while time.time() - t0 < 0.4 and b.int_state()[1] < 1: pass
         b.wr(USER_CTRL, 0x00)
+        fired = b.int_state()[1]; fcnt = b.fifo_count()
         data = b.fifo_read(128)
         r = b.mem_read(P2, 8)
-        return int.from_bytes(r[:4],"big"), int.from_bytes(r[4:],"big"), data.count(PAT), len(data)
+        return int.from_bytes(r[:4],"big"), int.from_bytes(r[4:],"big"), data.count(PAT), fired, fcnt
     def safe(self, payload):
         for _ in range(2):
             try: return self.run(payload)
@@ -41,10 +42,14 @@ def main():
                     ("dc dd f1 40", P+[0xDC,0xDD,0xF1,0x40]),
                     ("dc 40 dd 44  (sticky?)", P+[0xDC,0x40,0xDD,0x44]),
                     ("dc dd dc 44  (re-arm?)", P+[0xDC,0xDD,0xDC,0x44]),
-                    ("dc f1 40  (f1 after dc?)", P+[0xDC,0xF1,0x40])]:
+                    ("dc f1 40  (f1 after dc?)", P+[0xDC,0xF1,0x40]),
+                    ("f1 de 40  (de in emit ctx)", P+[0xF1,0xDE,0x40]),
+                    ("de f1 40", P+[0xDE,0xF1,0x40]),
+                    ("dc de 40  (int/fifo count)", P+[0xDC,0xDE,0x40]),
+                    ("dc de de de 40", P+[0xDC,0xDE,0xDE,0xDE,0x40])]:
         for _ in range(2):
             r = rig.safe(pl)
-            print(f"  {tag:30} " + ("CRASH" if r is None else f"word0={w(r[0]):>8} word1={w(r[1]):>8}  fifo_hits={r[2]} ({r[3]}B)"), flush=True)
+            print(f"  {tag:30} " + ("CRASH" if r is None else f"word0={w(r[0]):>8} word1={w(r[1]):>8}  fifo_hits={r[2]:2}  int={r[3]:3} fifo={r[4]:4}"), flush=True)
 
 if __name__ == "__main__":
     main()

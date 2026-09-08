@@ -9,7 +9,7 @@
     f4 imm (mantis) / fc imm (3050): branch to site+2+imm   [proven vs eMD labels]
     d8/d9/da/db: single-shot conditional prefixes on the NEXT instruction [probe10, HW]
                  d8 always; d9/db true at rest; da false at rest (vendor: gesture-event gate)
-    dc: route ALU results to RAM (sticky)   df: P2 += 4         [probe9/12/13, HW]
+    dc/dd: result routing RAM/FIFO (sticky two-way switch; FIFO at rest)   df: P2 += 4   [probe9-16, HW]
     f0..f3 (mantis) / f8..fb (3050): FIFO width/mode        [bench]
 
 Usage: decode.py <image.bin> [--start N] [--end N] [--symbols dmpmap|emd|hammerhead|none]
@@ -43,7 +43,7 @@ class Decoder:
     def __init__(self, img, lineage, namer):
         self.img, self.L, self.N = img, lineage, namer
         self.page = [0, 0, 0]; self.bank = [0, 0, 0]
-        self.cond = "d8"; self.width = None
+        self.cond = "d8"; self.width = None; self.ram = False   # dc/dd routing, off at start
         if lineage == "mantis":
             self.br = 0xF4; self.bankfam = 0xB; self.fmode = range(0xF0, 0xF4)
         else:
@@ -74,16 +74,18 @@ class Decoder:
         if b == 0xDF:
             self.p2off = getattr(self, "p2off", 0) + 4
             return 1, f"P2 += 4      -> D@{self.ptr(2)} {self.N.name(self.ptr(2))}  (df, probe13)"
+        if b == 0xDD:
+            self.ram = False; return 1, "ROUTE -> FIFO  (dd; sticky until dc)  [probe16]"
         if b == 0xDC:
-            return 1, f"STORE  commit ALU result -> M[P2] {self.N.name(self.ptr(2))}  (dc)"
+            self.ram = True; return 1, f"ROUTE -> RAM   M[P2..] {self.N.name(self.ptr(2))}  (dc; sticky until dd)"
         if b < 0x80:
             A, B, op = (b >> 5) & 3, (b >> 3) & 3, b & 7
             a, bb = self.ptr(0) + 4 * A, self.ptr(1) + 4 * B
-            pre = "" if self.cond == "d8" else f"[{self.cond}] "
             ALU = {0: "ADD", 1: "RSUB", 2: "MUL", 3: "NMUL"}[op & 3]
             d = self.ptr(2) + (4 if op & 4 else 0)
-            self.cond = "d8"                      # predicates are single-shot (probe10)
-            return 1, f"{pre}{ALU} A={self.N.name(a):<12} B={self.N.name(bb):<12} -> {self.N.name(d)}"
+            if self.ram: dest = self.N.name(d)
+            else: dest = f"FIFO{ {1: 32, 2: 16, 3: 16}.get(self.width, '') }"
+            return 1, f"{ALU} A={self.N.name(a):<12} B={self.N.name(bb):<12} -> {dest}"
         return 1, f"{b:02x}"
 
 def run(img, start, end, table):
@@ -93,6 +95,9 @@ def run(img, start, end, table):
     i = start
     while i < end:
         n, txt = d.step(i)
+        if not (0xD8 <= img[i] <= 0xDB):
+            if d.cond != "d8": txt = f"[{d.cond}] " + txt
+            d.cond = "d8"                              # single-shot: governs one instruction (probe10)
         print(f"{i:5}  {img[i:i+n].hex(' '):6}  {txt}")
         i += n
 

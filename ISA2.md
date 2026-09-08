@@ -301,6 +301,87 @@ block; its position is free provided it precedes the ALU byte. No change to the 
 
 This closes the recovery: source -> dmpasm -> silicon reproduces the predicted result.
 
+## Finding 8 — `d8`–`db` are single-shot conditional prefixes (HARDWARE CONFIRMED 2026-09-08)
+
+`d8` is the single most frequent opcode in the corpus (4.88% of code bytes; `d8`–`db` together
+~10%). probe10 used the confirmed store idiom `97 ba a4 dc 40` (-> M[0x240] = +1.5) as a
+detector and placed each prefix at three positions:
+
+    pre   front      before-dc   before-alu
+    d8    store      store       store       unconditional
+    d9    store      store       store       condition TRUE at rest
+    da    ~0.5 (*)   0           0           suppresses exactly the NEXT instruction; FALSE at rest
+    db    store      store       store       condition TRUE at rest
+    (*) da at the block front skipped only `97`; P1 stayed at page a (DZ) and the rest of
+        the idiom ran: store = 1.0 + M[DZ]. So the prefix governs one instruction, not a region.
+
+The conditions are not sensor-power flags (probe11: identical across PWR_MGMT_2 = 3F/00/38/07)
+and not flags of the last ALU result (probe12: identical after results +1.5, 0.0, -0.5 and a
+wrapped 3.0). `de` does not set them either (probe14). Vendor ground truth names what `da`
+tests: `dmp_set_interrupt_mode` continuous `d8 b1 b9 f3 8b a3 91 b6 09 b4 d9` vs gesture
+`da b1 b9 f3 8b a3 91 b6 da b4 da` — "interrupt only on tap/orient event" is obtained by
+swapping `d8`/`09`/`d9` for `da`, and the 3050 motion state machine (KEY_CFG_18) swaps
+`da 0c d9` <-> `d9 0c da` between MOTION and NO_MOTION. So `da` gates on the gesture/motion
+event flag, which never fires on an untouched bench sensor; `d9` is its rest-state complement.
+Reaching `da`-true needs physical stimulus and is left there.
+
+The corpus reads as textbook conditional code once decoded: image 1929 @1184
+`da 2a d8 48 69 d9 2a d8 68 ...` = IF.2: MUL 0H2*BLPFSX -> BLPFSTC; ALWAYS: ADD BERR2+BLPFSX ...
+(the gyro-bias low-pass update). The decoder now treats the prefixes as single-shot;
+because vendor code always re-issues `d8`, listings are unchanged in practice.
+
+## Finding 9 — `df` = P2 += 4, and `dc` is a sticky routing mode (HARDWARE CONFIRMED 2026-09-08)
+
+probe13, same idiom, scanning 0x230..0x28f for where +1.5 landed:
+
+    dc 40          -> 0x240
+    dc df 40       -> 0x244
+    dc df df 40    -> 0x248        (word 2: unreachable by op&4 alone)
+    df dc 40       -> 0x244        (a pointer op; order relative to dc is irrelevant)
+
+**`df` advances the destination pointer by one word.** This dissolves the "1-bit destination"
+gap recorded under Finding 7: the operand fields index a page directly, the destination is
+walked with `df`, and the corpus's long `df df df` runs (150 `df`->`df` successions) are the
+destination pointer stepping through a page. `a`-page sets and `bx` bank sets reset the walk.
+
+probe12's `d8` control showed one `dc` arms every following ALU op in the block (word 0 and
+word 1 both stored) — **`dc` is a mode, not a one-shot commit.** probe9 had already shown its
+position is free provided it precedes the ALU byte.
+
+## Finding 10 — `dc`/`dd` route results to RAM or FIFO; `de` still open (HARDWARE CONFIRMED 2026-09-08)
+
+**Result.** `dc` (DINADC) and `dd` (DINADD) are a sticky two-way destination switch for every
+following ALU result: `dc` -> RAM at M[P2 (+4·op&4, +4·#df)], `dd` -> FIFO (width from `f0`–`f3`).
+FIFO is the at-rest routing, which is why bare ALU bytes emitted in the early rounds and why no
+RAM write was ever seen without `dc`: the standard probe site sits after the vendor's `dd f1`
+quaternion emit block at 1856. probe16, FIFO drained continuously at the slow sample rate,
+counting the +1.5 word (one ALU execution per sample, ~15 samples):
+
+    f1 40   (control)   hits 10/10   RAM 0           bare emit visible: method validated
+    dc 40               hits  0/0    RAM +1.5        -> RAM
+    dd f1 40            hits 10/11   RAM 0           -> FIFO
+    dd 40   (no fmode)  hits 10/11   RAM 0           -> FIFO (f1 still active from 1863)
+    dc dd f1 40         hits 10/10   RAM 0           dd re-routes after dc
+    dc dd 40            hits 11/11   RAM 0
+
+probe15 had shown the switch is sticky and re-armable through a second, independent witness:
+`dc 40 dd 44` stores word 0 only; `dc dd dc 44` stores word 1 only; and the interrupt count
+per fixed window splits into two clusters (RAM on ~132, FIFO ~150) because with `dc` left on
+the vendor's downstream emits also go to RAM and the packets shrink (probe16 streams: 312–384 B
+vs 554 B). The decoder now tracks the routing state, so 1856–1861 reads
+`dd f1 ; ADD 0_0+QT1 -> FIFO32 … QT4 -> FIFO32` — the MotionApps quaternion packet.
+
+**Method note, recorded because it cost a wrong interim conclusion.** probe14/15 read 128 bytes
+from an overflowed FIFO after the step and saw no emit even for the bare `f1 40` control, so all
+of their "no FIFO hits" cells were blind; an interim note that `dd` was "not a FIFO route" was
+wrong and is withdrawn here. The bare-emit control must pass before a FIFO negative means anything;
+draining while running at the slow rate (the regmap.py method) is the working technique.
+
+**`de` (1.41% of code) remains unknown.** It leaves RAM stores, destination, both operands,
+the predicates (probe14), the routing state and the interrupt/FIFO counts unchanged (probe15),
+alone or repeated. Its corpus neighbours (`f8`, `d8`, `df`, `f4`) suggest control/FIFO framing
+rather than data; it needs a detector this rig does not yet have.
+
 ## Plan
 
 ### P1 — static, no hardware (this session)
