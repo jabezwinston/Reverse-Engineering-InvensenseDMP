@@ -7,7 +7,9 @@
     low byte v = 0 AA BB ooo :  A-word = P0 + 4*AA, B-word = P1 + 4*BB, op = ooo
                                  (bench: emitted value = M[B-word] + M[A-word] in FIFO mode)
     f4 imm (mantis) / fc imm (3050): branch to site+2+imm   [proven vs eMD labels]
-    d8/d9/da/db: predicate prefixes (d8 = always)          [corpus structure, unverified]
+    d8/d9/da/db: single-shot conditional prefixes on the NEXT instruction [probe10, HW]
+                 d8 always; d9/db true at rest; da false at rest (vendor: gesture-event gate)
+    dc: route ALU results to RAM (sticky)   df: P2 += 4         [probe9/12/13, HW]
     f0..f3 (mantis) / f8..fb (3050): FIFO width/mode        [bench]
 
 Usage: decode.py <image.bin> [--start N] [--end N] [--symbols dmpmap|emd|hammerhead|none]
@@ -46,7 +48,7 @@ class Decoder:
             self.br = 0xF4; self.bankfam = 0xB; self.fmode = range(0xF0, 0xF4)
         else:
             self.br = 0xFC; self.bankfam = None; self.fmode = range(0xF8, 0xFC)
-    def ptr(self, p): return self.bank[p] * 256 + self.page[p] * 16
+    def ptr(self, p): return self.bank[p] * 256 + self.page[p] * 16 + (getattr(self, "p2off", 0) if p == 2 else 0)
     def step(self, i):
         b = self.img[i]; L = self.L
         if b == self.br and i + 1 < len(self.img):
@@ -57,7 +59,7 @@ class Decoder:
         fam = b >> 4
         if fam == 8: self.page[0] = b & 0xf; return 1, f"P0.page={b&0xf:x}   -> A@{self.ptr(0)} {self.N.name(self.ptr(0))}"
         if fam == 9: self.page[1] = b & 0xf; return 1, f"P1.page={b&0xf:x}   -> B@{self.ptr(1)} {self.N.name(self.ptr(1))}"
-        if fam == 0xA: self.page[2] = b & 0xf; return 1, f"P2.page={b&0xf:x}   -> D@{self.ptr(2)} {self.N.name(self.ptr(2))}"
+        if fam == 0xA: self.page[2] = b & 0xf; self.p2off = 0; return 1, f"P2.page={b&0xf:x}   -> D@{self.ptr(2)} {self.N.name(self.ptr(2))}"
         if L == "mantis" and fam == 0xB:
             sel, bank = (b >> 2) & 3, b & 3
             if sel < 3: self.bank[sel] = bank; return 1, f"P{sel}.bank={bank}"
@@ -69,15 +71,19 @@ class Decoder:
             self.cond = f"{b:02x}"; return 1, {0xD8: "ALWAYS", 0xD9: "IF.1", 0xDA: "IF.2", 0xDB: "IF.3"}[b]
         if b in self.fmode:
             self.width = b & 3; return 1, f"FMODE.{b&3}   ; 1=32-bit fifo, 2/3=16-bit"
+        if b == 0xDF:
+            self.p2off = getattr(self, "p2off", 0) + 4
+            return 1, f"P2 += 4      -> D@{self.ptr(2)} {self.N.name(self.ptr(2))}  (df, probe13)"
         if b == 0xDC:
             return 1, f"STORE  commit ALU result -> M[P2] {self.N.name(self.ptr(2))}  (dc)"
         if b < 0x80:
             A, B, op = (b >> 5) & 3, (b >> 3) & 3, b & 7
-            a, bb, d = self.ptr(0) + 4 * A, self.ptr(1) + 4 * B, self.ptr(2) + 4 * B
+            a, bb = self.ptr(0) + 4 * A, self.ptr(1) + 4 * B
             pre = "" if self.cond == "d8" else f"[{self.cond}] "
             ALU = {0: "ADD", 1: "RSUB", 2: "MUL", 3: "NMUL"}[op & 3]
-            dst = "P2+4" if op & 4 else "P2"
-            return 1, f"{pre}{ALU} A={self.N.name(a):<12} B={self.N.name(bb):<12} -> {dst} (via dc)"
+            d = self.ptr(2) + (4 if op & 4 else 0)
+            self.cond = "d8"                      # predicates are single-shot (probe10)
+            return 1, f"{pre}{ALU} A={self.N.name(a):<12} B={self.N.name(bb):<12} -> {self.N.name(d)}"
         return 1, f"{b:02x}"
 
 def run(img, start, end, table):

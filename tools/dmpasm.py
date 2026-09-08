@@ -16,9 +16,10 @@ big-endian Q30 (2^30 = 1.0), range [-2,+2), addition wraps (modular).
   rsub  A,B[,hi]                     M[P1+4B] - M[P0+4A]   (op1)
   mul   A,B[,hi]                     M[P0+4A] * M[P1+4B]   (op2)
   nmul  A,B[,hi]                    -M[P0+4A] * M[P1+4B]   (op3)
-       `hi` sets op&4 -> destination word P2+4 (default P2+0). Only words 0,1 of
-       the P2 page are reachable; re-point P2 for words 2,3.
-  store                              dc: commit the ALU result to M[dest]
+       `hi` sets op&4 -> destination word P2+4 (default P2+0). Use `p2inc` (df)
+       to reach words 2,3 of the page.
+  store                              dc: route ALU results to RAM (sticky for the block)
+  p2inc [N]                          df: P2 += 4, N times. Reaches words 2,3 of a page
   store.add / store.rsub / .mul / .nmul  A,B[,hi]
        fused: emits `dc` THEN the ALU byte, the order confirmed on hardware
        (probe6: dc precedes the op). This is the RAM-store idiom.
@@ -125,6 +126,8 @@ def assemble(text, lineage="mantis"):
             # --- ALU (compute; emits to FIFO in fifo mode, else use store) ---
             elif op in ALU_OPS:
                 out.append(_alu_byte(op, arg))
+            elif op == "p2inc":                  # df: P2 += 4 (probe13); repeat N times
+                out.extend([0xDF] * (int(arg, 0) if arg else 1))
             elif op == "store" and not arg:
                 out.append(STORE)
             elif op.startswith("store.") and op[6:] in ALU_OPS:
