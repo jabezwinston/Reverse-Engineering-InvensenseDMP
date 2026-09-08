@@ -177,6 +177,53 @@ held only for Family B. `tools/isa` and `listings2/` now decode 1923/1929/1962 f
 destination-rule test gets stricter with the extra 256 bytes of code (constant-page writes:
 P2 rules 0, in-place rules 6–10, shuffled control 9; sensor-input writes 0 under the P2 rules).
 
+## Finding 6 — `dc` is a store, and the ALU datapath (HARDWARE CONFIRMED 2026-09-08)
+
+The first register write ever observed on this bench, and the add-store datapath behind it.
+`bench/probe5.py`/`probe6.py` slow the sample rate (SMPLRT_DIV=0xFF, FIFO divider 0) so one
+bridge step runs ~4 DMP samples not ~64, aim P2 at an all-zero page, scrub it before each
+candidate, and read it back. This is the null-controlled stepper rounds 18-20 lacked.
+
+Every payload **without `dc`** wrote nothing (bare op, `d8`/`f0`/`f1` forms, pointer-set alone).
+With `dc`, varying P2 and the op fields at a fixed 4-sample step (each row reproducible; the live
+words at 0x290/0x2c0/0x2f0 are the running program, unchanged by the payload):
+
+| payload | P2 | stored | reading |
+|---|---|---|---|
+| `dc ba a2 30` | 0x220 | 0x220 = `007c731e` | address = bank2 page2 |
+| `dc ba a4 30` | 0x240 | 0x240 = `007c731e` | tracks P2 page |
+| `dc ba a6 30` | 0x260 | 0x260 = `007c731e` | linear in page |
+| `dc bb a4 30` | 0x340 | 0x340 = `007c731e` | tracks P2 bank too |
+| `dc ba a4 10` (A0) | 0x240 | `207c731e` | + `0x20000000` = Q30 0.5 |
+| `dc ba a4 30` (A1) | 0x240 | `007c731e` | + 0.0 |
+| `dc ba a4 50` (A2) | 0x240 | `407c731e` | + `0x40000000` = Q30 1.0 |
+| `dc ba a4 28` (B1) | 0x240 | `fd5d06a9` | B selects a different source |
+| `dc 9a a4`, `dc alone` | - | none | no op = no accumulator to commit |
+
+Hardware-confirmed model:
+
+    operand A = M[P0 + 4*A]      A = imm bits[6:5]; P0 page 0x70 = Q30 0.5/0.0/1.0/1.5
+    operand B = M[P1 + 4*B]      B = imm bits[4:3]
+    op 0      = A + B            ADD: A0/A1/A2 add 0.5/0.0/1.0 exactly
+    dc        = store the result to M[P2]
+
+The store address tracked P2 across pages 2/4/6 and banks 2/3; the A field shifted the value by
+the exact Q30 constant at P0[A]. There is also a per-bank bookkeeping word (`bank*256 + 0x30`)
+written on every commit.
+
+**The rounds-9/18/19/20 negatives are explained.** The sweeps used bare candidate bytes with
+`a3` padding and never included `dc`, and a free-running counter near 0x240 (`3a80xxxx`,
++0xaf/sample) masquerades as a store when a step runs long — probe3 hit exactly that at 107
+samples, and the same payload at 4 samples wrote nothing.
+
+**The DMP has a store (`dc`), arithmetic (op 0 = ADD), and a branch (`f4`, Finding 2)** — the
+primitives for general computation, not just reconfiguration. The closed-project ceiling is lifted.
+
+Open, one probe each: the destination word-offset within a P2 page (all stores landed on word 0;
+the 4-aligned-but-not-16-aligned targets in `dmpmap.h` need a finer index this sweep did not
+vary), `dc`'s commit timing relative to the pointer bytes, and op values 1-7 with non-zero
+operands (Finding 3 has op6 = MUL from the corpus; confirm with the scrubbed-page detector).
+
 ## Plan
 
 ### P1 — static, no hardware (this session)
