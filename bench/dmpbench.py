@@ -36,7 +36,12 @@ class Bridge:
     """
 
     def __init__(self, port, baud=115200):
-        self.s = serial.Serial(port, baud, timeout=1)
+        # Accepts a device path or a pyserial URL. The ESP32 is normally on another machine,
+        # shared with bench/rfc2217_server.py and reached through an SSH reverse tunnel as
+        # rfc2217://localhost:5555 (see bench/REMOTE_SERIAL.md). RFC2217 carries DTR/RTS, so
+        # the auto-reset below works across the network; socket:// does not.
+        self.s = serial.serial_for_url(port, baudrate=baud, timeout=1)
+        self.remote = "://" in port
         self._reset_and_sync()
 
     def _reset_and_sync(self, tries=3):
