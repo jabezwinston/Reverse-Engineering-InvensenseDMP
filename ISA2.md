@@ -279,6 +279,28 @@ of the P2 page. Words 2 and 3 (P2+8, P2+12) are NOT reachable by this instructio
 operand index is 2 bits (any of 4 words) but the store index is 1 bit. To write words 2/3
 you re-point P2. This asymmetry is a real property of the datapath, now closed as a question.
 
+
+### probe9 (2026-09-08): assembler output verified on silicon, end to end
+
+`tools/dmpasm.py` output run directly on the DMP, 8/8 cells exact against Q30 prediction:
+
+    store.add 2,0  -> 97 a4 ba dc 40 -> 6000_0000 (+1.5)   (1.0+0.5)
+    store.rsub 2,0 -> ...        dc 41 -> e000_0000 (-0.5)   (0.5-1.0)
+    store.mul 3,0  -> ...        dc 62 -> 3000_0000 (+0.75)  (1.5*0.5)
+    store.nmul 3,0 -> ...        dc 63 -> d000_0000 (-0.75)
+    store.add 2,3  -> ...        dc 58 -> a000_0000 (-1.5)   (1.0+1.5 = 2.5 wraps)
+    store.mul 2,3  -> ...        dc 5a -> 6000_0000 (+1.5)
+    store.rsub 0,2 -> ...        dc 11 -> 2000_0000 (+0.5)
+    store.add 3,3  -> ...        dc 78 -> c000_0000 (-1.0)   (1.5+1.5 = 3.0 wraps)
+
+The wrap cases (2.5 -> -1.5, 3.0 -> -1.0) confirm modular, not saturating, arithmetic.
+
+**Ordering:** `dc` after the pointer setup (assembler order `97 a4 ba dc 40`) and `dc` first
+(optable order `dc 97 ba a4 40`) both store the correct value. `dc` arms the store for the
+block; its position is free provided it precedes the ALU byte. No change to the assembler.
+
+This closes the recovery: source -> dmpasm -> silicon reproduces the predicted result.
+
 ## Plan
 
 ### P1 — static, no hardware (this session)
