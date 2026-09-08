@@ -12,18 +12,19 @@ big-endian Q30 (2^30 = 1.0), range [-2,+2), addition wraps (modular).
 
   p0page N / p1page N / p2page N     high nibble 8/9/A, low nibble = page (0..15)
   p0bank N / p1bank N / p2bank N     mantis: b-family; 3050: c-family
-  add   A,B[,hi]                     M[P0+4A] + M[P1+4B]   (A,B in 0..3)
-  rsub  A,B[,hi]                     M[P1+4B] - M[P0+4A]   (op1)
-  mul   A,B[,hi]                     M[P0+4A] * M[P1+4B]   (op2)
-  nmul  A,B[,hi]                    -M[P0+4A] * M[P1+4B]   (op3)
-       `hi` sets op&4 -> destination word P2+4 (default P2+0). Use `p2inc` (df)
+  add   A,B[,inc]                     M[P0+4A] + M[P1+4B]   (A,B in 0..3)
+  rsub  A,B[,inc]                     M[P1+4B] - M[P0+4A]   (op1)
+  mul   A,B[,inc]                     M[P0+4A] * M[P1+4B]   (op2)
+  nmul  A,B[,inc]                    -M[P0+4A] * M[P1+4B]   (op3)
+       `inc` sets op&4, which pre-advances the P2 word index by one before the
+       store (Finding 17; `hi` is accepted as the old spelling). Use `p2inc` (df)
        to reach words 2,3 of the page.
-  min   A,B[,hi]                     f5 + ALU: signed min(M[P0+4A], M[P1+4B])
+  min   A,B[,inc]                     f5 + ALU: signed min(M[P0+4A], M[P1+4B])
   store                              dc: RAM routing ON  (sticky; every following ALU op stores)
   fifo  (alias store.off)            dd: route results to the FIFO (sticky; the at-rest
                                      routing). Vendor packet emit = dd f1 <ALU ops>
   p2inc [N]                          df: P2 += 4, N times. Reaches words 2,3 of a page
-  store.add / store.rsub / .mul / .nmul  A,B[,hi]
+  store.add / store.rsub / .mul / .nmul  A,B[,inc]
        fused: emits `dc` THEN the ALU byte, the order confirmed on hardware
        (probe6: dc precedes the op). This is the RAM-store idiom.
   branch N                           f4 (mantis) / fc (3050); target = here+2+N,
@@ -96,17 +97,22 @@ def _bank_byte(L, sel, arg):
 
 
 def _alu_byte(op, arg):
-    """Parse `A,B[,hi]` -> (A<<5)|(B<<3)|op(|4)."""
+    """Parse `A,B[,inc]` -> (A<<5)|(B<<3)|op(|4).
+
+    The third operand sets op&4, which PRE-ADVANCES the P2 word index by one
+    (mod 4) before the store -- it is not a fixed "P2+4" destination, see
+    ISA2.md Finding 17.  From a freshly loaded P2 the two are identical, which
+    is why the older spelling `hi` is still accepted."""
     toks = [t.strip() for t in arg.split(",") if t.strip()]
     if len(toks) < 2:
-        raise AsmError(f"{op!r} needs A,B (0..3) and optional hi")
+        raise AsmError(f"{op!r} needs A,B (0..3) and optional inc")
     A, B = int(toks[0], 0), int(toks[1], 0)
     if not (0 <= A <= 3 and 0 <= B <= 3):
         raise AsmError(f"operand index out of range 0-3: A={A} B={B}")
-    hi = 0
-    if len(toks) >= 3 and toks[2].lower() in ("hi", "1", "d1", "p2+4"):
-        hi = 4
-    return (A << 5) | (B << 3) | ALU_OPS[op] | hi
+    adv = 0
+    if len(toks) >= 3 and toks[2].lower() in ("inc", "adv", "hi", "1", "d1", "p2+4"):
+        adv = 4
+    return (A << 5) | (B << 3) | ALU_OPS[op] | adv
 
 
 def assemble(text, lineage="mantis"):
