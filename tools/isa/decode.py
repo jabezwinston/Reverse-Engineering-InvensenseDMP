@@ -97,9 +97,6 @@ class Decoder:
             if b & 2: self.p2off = (getattr(self, "p2off", 0) + 4) % 16
             verb = "DEC" if b & 1 else "INC"
             return 1, f"{verb}  {self.N.name(self.ptr(2))} by 1{'  (P2 word++ first)' if b & 2 else ''}  ({b:02x}; probe23)"
-        if b == 0xFA and self.L == "mantis":
-            self.p2off = getattr(self, "p2off", 0) + 4
-            return 1, f"P2 += 4      -> D@{self.ptr(2)} {self.N.name(self.ptr(2))}  (fa, probe18; same effect as df)"
         if b == 0xF5 and self.L == "mantis":
             self.minpfx = True
             return 1, "MIN prefix  next ALU op computes signed min(A,B)  [probe29, 16/16]"
@@ -122,12 +119,33 @@ class Decoder:
             self.swap = True
             return 1, "SWAP prefix  next ALU op reads A through P1 and B through P0  [probe35, 32/32]"
         if b == 0xFD and self.L == "mantis":
+            # probe31: 16/16 no-store across the operand grid, and `fd 20 09 71 58`
+            # suppressed all four ops -- so it is not single-shot on the bench.  It is
+            # rendered as single-shot anyway because all three corpus sites head a live
+            # biquad run that would otherwise be entirely dead code.  Scope: open.
             self.nostore = True
-            return 1, "NOSTORE  the following ALU result is not written  [probe31, 16/16]"
+            return 1, "NOSTORE  the following ALU result is not written  [probe31; scope open, see UNKNOWNS.md]"
+        if self.L == "3050" and 0xFD <= b <= 0xFF:
+            # dmpKey.h puts the DINAF8 family at 0xf8 in the 3050 lineage and at 0xf0 in
+            # mantis, so 3050 fc..ff are mantis f4..f7 -- fc is already decoded as the branch
+            # on exactly that basis.  There is no MPU-3050 here, so these stay conjecture.
+            # But 0xff is certainly NOT halt in this lineage: image 1024 carries one at 825,
+            # unconditional (`d8 d8 ff` = CFG_6), and FCFG_1/2/7/3 at 868..936 still have to
+            # run -- the vendor's drivers patch them at runtime.
+            if b == 0xFF:
+                self.nostore = True
+                return 1, (f"?TRUNC {self.N.name(self.ptr(2))} &= 0xFFFF0000   (the next ALU op does not store)"
+                           f"   ; CONJECTURE: 3050 ff = mantis f7, no MPU-3050 to test")
+            self.minpfx = True
+            if b == 0xFE:
+                self.half = True
+                return 1, ("?MIN16 prefix  signed min(A,B), 16-bit store"
+                           "   ; CONJECTURE: 3050 fe = mantis f6 (the vendor also defines DINAFE = 0xfe here)")
+            return 1, "?MIN prefix  next ALU op computes signed min(A,B)   ; CONJECTURE: 3050 fd = mantis f5"
         if b == 0xFF:
-            return 1, "HALT   disable/terminate (vendor: ends every image)"
+            return 1, "HALT   disable/terminate (vendor: ends every image; probe26)"
         if b == 0xFE:
-            return 1, "SKIP   (vendor: DINAFE)"
+            return 1, "SKIP   (vendor: DINAFE; never probed -- label only)"
         if b == 0xD1:
             return 1, "TEST  Z := (last ALU result == 0); d9 = IF.Z, da = IF.NZ  [probe19/20]"
         if b == 0xD0:
@@ -148,7 +166,7 @@ class Decoder:
             #   ba a4 dc de 40 -> 0x240 = +1.00   (so it does not move the destination)
             return 1, f"CLR  {self.N.name(self.ptr(2))} := 0  (in place, no advance)  (de; probe31)"
         if b == 0xDF:
-            self.p2off = getattr(self, "p2off", 0) + 4
+            self.p2off = (getattr(self, "p2off", 0) + 4) % 16   # 2-bit word index
             return 1, f"CLR  {self.N.name(self.ptr(2))} := 0  (P2 word++ first)  (df; probe23)"
         if b == 0xDD:
             self.ram = False; return 1, "ROUTE -> FIFO  (dd; sticky until dc)  [probe16]"

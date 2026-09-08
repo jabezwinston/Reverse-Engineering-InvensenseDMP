@@ -1192,4 +1192,4 @@
  1958  26      MUL A=0_0          B=SEM1         -> ACCQD7
  1959  d8      ALWAYS
  1960  d8      ALWAYS
- 1961  ff      HALT   disable/terminate (vendor: ends every image)
+ 1961  ff      HALT   disable/terminate (vendor: ends every image; probe26)

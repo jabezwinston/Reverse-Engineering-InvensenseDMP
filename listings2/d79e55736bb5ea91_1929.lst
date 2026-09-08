@@ -1157,6 +1157,6 @@
  1923  26      MUL A=0_0          B=SEM1         -> ACCQD5
  1924  26      MUL A=0_0          B=SEM1         -> ACCQD6
  1925  26      MUL A=0_0          B=SEM1         -> ACCQD7
- 1926  fe      SKIP   (vendor: DINAFE)
+ 1926  fe      SKIP   (vendor: DINAFE; never probed -- label only)
  1927  d8      ALWAYS
- 1928  ff      HALT   disable/terminate (vendor: ends every image)
+ 1928  ff      HALT   disable/terminate (vendor: ends every image; probe26)

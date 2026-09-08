@@ -112,6 +112,17 @@ class Lifter:
             self.ram = False; return 1, None, None
         if b in (range(0xF0, 0xF4) if self.L == "mantis" else range(0xF8, 0xFC)):
             self.width = b & 3; return 1, None, None
+        if self.L == "3050" and 0xFD <= b <= 0xFF:
+            # The DINAF8 family is at 0xf8 in the 3050 lineage and 0xf0 in mantis (dmpKey.h),
+            # so 3050 fc..ff are mantis f4..f7; fc is already the branch on that basis.
+            # 0xff cannot be halt here -- image 1024 has an unconditional one at 825 (CFG_6)
+            # with FCFG_1..FCFG_3 at 868..936 still to run.  CONJECTURE, see UNKNOWNS.md.
+            if b == 0xFF:
+                self.nostore = True
+                return 1, g(f"{self.dest()} &= 0xFFFF0000;   /* CONJECTURE: 3050 ff = mantis f7 */"), None
+            self.minpfx = True
+            self.half = (b == 0xFE)
+            return 1, None, None
         if b == 0xFF:
             return 1, g("halt();"), None
         if b == 0xFE:

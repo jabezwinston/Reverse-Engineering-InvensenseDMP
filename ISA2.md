@@ -777,6 +777,65 @@ The remaining 12 are 3050-lineage `c8`..`cf` in image 1024, rendered as a marked
 `DINAC8`..`DINACF` are `0xc8`..`0xcf` in both lineages' headers and the mantis half is MOV16, but
 there is no MPU-3050 here to test it on.
 
+## Finding 22 — a quarter of the "dead" run writes are aliasing accumulations (STATIC)
+
+Finding 17 left 365 runs / 993 instructions of consecutive same-destination stores as an anomaly,
+on the grounds that all but the last write in each run must be dead. That framing was too strong.
+
+`tools/isa/runs.py` walks the pointer state through all 11 MPU images and asks, per instruction,
+whether the destination address equals either operand address:
+
+| | |
+|---|---:|
+| runs (re-counted under the corrected `df` wrap, below) | 369 |
+| instructions in runs | 1002 |
+| **instructions whose destination aliases an operand** | **258 (25.7 %)** |
+| runs where every instruction aliases | 78 |
+| runs where no instruction aliases | 218 |
+| mixed | 73 |
+
+An aliasing store is `x = x + a`, which accumulates correctly under the confirmed rule and is not
+a dead write. The clearest case is a vendor sequence that was never used to derive any of the
+model: `inv_freescale_sensor_fusion_8bit` writes `c2 a9 99 fa cb 54 50 50 50 50 50 50 50 cd` over
+`KEY_FCFG_FSCALE` at 877 of image 1024. Simulating the program from its entry point to that site
+gives **P0.page = 9 and P2.page = 9**, so `a9`/`99` put all three pointers on one page, `cb`
+steps P2 to word 1, `54` pre-advances to word 2 and stores `M[152] + M[152]`, and the seven `50`
+bytes repeat it: **eight in-place doublings = x256**, which is exactly what a routine named
+`_8bit` should compute.
+
+That is an independent end-to-end confirmation of operand indexing, the pre-advance reading of
+`op&4` (Finding 17), and assign-not-accumulate (probe33) — from a driver sequence, with no bench
+involved. It also means the anomaly is roughly a fifth smaller than stated and lives in the 218
+runs where the destination is a different word from both operands. Those remain unexplained.
+
+## Decoder corrections (2026-09-08, no new hardware)
+
+Three defects found while writing `docs/manual/`, all in `tools/isa/decode.py`:
+
+1. **`df` did not wrap the P2 word index.** The index is 2 bits (Finding 12/17) and `%16` was
+   applied to `op&4`, `fa`/`fb`, `d0` and odd `cx` but not to `df`. Five images decoded 9
+   instructions each with destinations past the end of the page (the ICM image, 28). Fixed;
+   `pseudo.py` already had it right, which is why `--check` never caught it — that check compares
+   instruction *lengths*, not destinations.
+2. **A dead `0xFA` branch** sat below the `0xF8..0xFB` case that already caught it.
+3. **`fe`/`ff` were lineage-blind.** See below.
+
+**3050 `ff` is not HALT.** `dmpKey.h` puts `DINAF8` at `0xf8` on the 3050 core and `0xf0` on
+mantis, so 3050 `fc`..`ff` are mantis `f4`..`f7` — and `fc` was already decoded as the branch on
+exactly that basis. The single `ff` in image 1024 is at 825, unconditional (`d8 d8 ff`, the
+vendor's `CFG_6`), with `FCFG_1`/`FCFG_2`/`FCFG_7`/`FCFG_3` at 868..936 still to run and patched
+at runtime by `inv_set_gyro_calibration` / `inv_set_accel_calibration`. Code after 825 must
+execute, so an unconditional halt there is impossible. Both decoders now render it `?TRUNC`,
+marked as conjecture, and `fd`/`fe` likewise (neither occurs in the image).
+
+**Coverage restated: 99.92 %** (17284 of 17297), because that `ff` moves from "confirmed" to
+"conjecture". The 13 conjectural bytes are the twelve 3050 `c8`..`cf` and this one.
+
+**`fd`'s scope is open, and the decoder says so.** probe31 showed `fd 20 09 71 58` suppressing all
+four ops, i.e. not single-shot, but all three corpus sites head a live biquad run that a sticky
+`fd` would kill entirely. The single-shot rendering is retained with an inline caveat; see
+UNKNOWNS.md item 2.
+
 ## Plan
 
 ### P1 — static, no hardware (this session)

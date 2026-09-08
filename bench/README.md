@@ -74,7 +74,8 @@ exactly what the hardware expects:
 
 ### Experiment matrix
 
-Resolve the open questions from `OPCODES.md`, highest value first:
+The original P4 matrix, kept as a record of how the bench phase was sequenced. All of it
+has been executed; the open questions that remain are in [../UNKNOWNS.md](../UNKNOWNS.md).
 
 | # | Question | Patch | Expected signal |
 |---|---|---|---|

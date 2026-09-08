@@ -903,7 +903,7 @@
  1948  b9      P2.bank=1
  1949  ab      P2.page=b   -> D@432 SEM1
  1950  df      CLR  SH_TH_X := 0  (P2 word++ first)  (df; probe23)
- 1951  fe      SKIP   (vendor: DINAFE)
+ 1951  fe      SKIP   (vendor: DINAFE; never probed -- label only)
  1952  d8      ALWAYS
  1953  f1      WIDTH.1   ; 32-bit store  [probe37]
  1954  bb      P2.bank=3
@@ -912,7 +912,7 @@
  1957  aa      P2.page=a   -> D@928 @928
  1958  f9      DEC  @928 by 1  (f9; probe23)
  1959  da      IF.NZ
- 1960  ff      [da] HALT   disable/terminate (vendor: ends every image)
+ 1960  ff      [da] HALT   disable/terminate (vendor: ends every image; probe26)
  1961  d9      IF.Z
  1962  80      [d9] P0.page=0   -> A@768 @768
  1963  9a      P1.page=a   -> B@928 @928
@@ -1485,14 +1485,14 @@
  2530  f5      MIN prefix  next ALU op computes signed min(A,B)  [probe29, 16/16]
  2531  75      F5.1 A=@908         B=@904         -> @1016
  2532  da      IF.NZ
- 2533  ff      [da] HALT   disable/terminate (vendor: ends every image)
+ 2533  ff      [da] HALT   disable/terminate (vendor: ends every image; probe26)
  2534  d8      ALWAYS
  2535  71      RSUB A=@908         B=@904         -> @1016
  2536  80      P0.page=0   -> A@768 @768
  2537  a9      P2.page=9   -> D@912 @912
  2538  da      IF.NZ
  2539  f1      [da] WIDTH.1   ; 32-bit store  [probe37]
- 2540  ff      HALT   disable/terminate (vendor: ends every image)
+ 2540  ff      HALT   disable/terminate (vendor: ends every image; probe26)
  2541  d8      ALWAYS
  2542  82      P0.page=2   -> A@800 @800
  2543  a7      P2.page=7   -> D@880 @880
@@ -1634,7 +1634,7 @@
  2679  da      IF.NZ
  2680  ac      [da] P2.page=c   -> D@960 @960
  2681  de      CLR  @960 := 0  (in place, no advance)  (de; probe31)
- 2682  ff      HALT   disable/terminate (vendor: ends every image)
+ 2682  ff      HALT   disable/terminate (vendor: ends every image; probe26)
  2683  d8      ALWAYS
  2684  a2      P2.page=2   -> D@800 @800
  2685  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37]
@@ -1650,7 +1650,7 @@
  2695  f9      DEC  BLPFMY by 1  (f9; probe23)
  2696  d1      TEST  Z := (last ALU result == 0); d9 = IF.Z, da = IF.NZ  [probe19/20]
  2697  d9      IF.Z
- 2698  ff      [d9] HALT   disable/terminate (vendor: ends every image)
+ 2698  ff      [d9] HALT   disable/terminate (vendor: ends every image; probe26)
  2699  d8      ALWAYS
  2700  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37]
  2701  b2      P0.bank=2
@@ -1826,7 +1826,7 @@
  2872  d0      P2 word += 2 -> D@552 @552  (d0, mod 4; probe20)
  2873  df      CLR  @556 := 0  (P2 word++ first)  (df; probe23)
  2874  f1      WIDTH.1   ; 32-bit store  [probe37]
- 2875  ff      HALT   disable/terminate (vendor: ends every image)
+ 2875  ff      HALT   disable/terminate (vendor: ends every image; probe26)
  2876  d8      ALWAYS
  2877  f3      WIDTH.3   ; 16-bit store, lower half-word  [probe37]
  2878  b9      P2.bank=1
@@ -1893,4 +1893,4 @@
  2939  d9      IF.Z
  2940  00      [d9] ADD A=@1008        B=@864         -> @864
  2941  d8      ALWAYS
- 2942  ff      HALT   disable/terminate (vendor: ends every image)
+ 2942  ff      HALT   disable/terminate (vendor: ends every image; probe26)

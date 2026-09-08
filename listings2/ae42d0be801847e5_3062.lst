@@ -324,9 +324,9 @@
  1347  83      P0.page=3   -> A@48 D_TILT0_
  1348  c5      MOV   D_TILT2_     -> @140  (P2 word++ first)  (c5; probe25)
  1349  da      IF.NZ
- 1350  df      [da] CLR  @144 := 0  (P2 word++ first)  (df; probe23)
- 1351  69      RSUB A=D_TILT3_     B=@132         -> @144
- 1352  df      CLR  @148 := 0  (P2 word++ first)  (df; probe23)
+ 1350  df      [da] CLR  @128 := 0  (P2 word++ first)  (df; probe23)
+ 1351  69      RSUB A=D_TILT3_     B=@132         -> @128
+ 1352  df      CLR  @132 := 0  (P2 word++ first)  (df; probe23)
  1353  83      P0.page=3   -> A@48 D_TILT0_
  1354  c1      MOV   D_TILT0_     -> @136  (P2 word++ first)  (c1; probe25)
  1355  d8      ALWAYS
@@ -396,10 +396,10 @@
  1422  83      P0.page=3   -> A@48 D_TILT0_
  1423  c7      MOV   D_TILT3_     -> @140  (P2 word++ first)  (c7; probe25)
  1424  da      IF.NZ
- 1425  df      [da] CLR  @144 := 0  (P2 word++ first)  (df; probe23)
- 1426  69      RSUB A=D_TILT3_     B=@132         -> @144
- 1427  df      CLR  @148 := 0  (P2 word++ first)  (df; probe23)
- 1428  f8      INC  @148 by 1  (f8; probe23)
+ 1425  df      [da] CLR  @128 := 0  (P2 word++ first)  (df; probe23)
+ 1426  69      RSUB A=D_TILT3_     B=@132         -> @128
+ 1427  df      CLR  @132 := 0  (P2 word++ first)  (df; probe23)
+ 1428  f8      INC  @132 by 1  (f8; probe23)
  1429  83      P0.page=3   -> A@48 D_TILT0_
  1430  c3      MOV   D_0_52       -> @136  (P2 word++ first)  (c3; probe25)
  1431  d8      ALWAYS
@@ -1612,7 +1612,7 @@
  2659  b5      P1.bank=1
  2660  aa      P2.page=a   -> D@416 D_1_160
  2661  c0      MOV   @304         -> D_1_160  (c0; probe25)
- 2662  fd      NOSTORE  the following ALU result is not written  [probe31, 16/16]
+ 2662  fd      NOSTORE  the following ALU result is not written  [probe31; scope open, see UNKNOWNS.md]
  2663  30      ADD A=@308         B=@424         -> (discarded)
  2664  83      P0.page=3   -> A@304 @304
  2665  b7      P1.bank=3
@@ -1703,7 +1703,7 @@
  2750  df      CLR  @708 := 0  (P2 word++ first)  (df; probe23)
  2751  b9      P2.bank=1
  2752  a3      P2.page=3   -> D@304 @304
- 2753  fe      SKIP   (vendor: DINAFE)
+ 2753  fe      SKIP   (vendor: DINAFE; never probed -- label only)
  2754  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37]
  2755  ab      P2.page=b   -> D@432 D_1_176
  2756  c4      MOV   @120         -> D_1_176  (c4; probe25)
@@ -1728,7 +1728,7 @@
  2775  aa      P2.page=a   -> D@928 D_PEDSTD_DECI
  2776  f9      DEC  D_PEDSTD_DECI by 1  (f9; probe23)
  2777  da      IF.NZ
- 2778  ff      [da] HALT   disable/terminate (vendor: ends every image)
+ 2778  ff      [da] HALT   disable/terminate (vendor: ends every image; probe26)
  2779  d9      IF.Z
  2780  80      [d9] P0.page=0   -> A@768 @768
  2781  9a      P1.page=a   -> B@928 D_PEDSTD_DECI
@@ -1867,18 +1867,18 @@
  2914  a8      P2.page=8   -> D@896 @896
  2915  09      RSUB A=@768         B=@900         -> @896
  2916  d9      IF.Z
- 2917  ff      [d9] HALT   disable/terminate (vendor: ends every image)
+ 2917  ff      [d9] HALT   disable/terminate (vendor: ends every image; probe26)
  2918  d8      ALWAYS
  2919  01      RSUB A=@768         B=@896         -> @896
  2920  da      IF.NZ
- 2921  ff      [da] HALT   disable/terminate (vendor: ends every image)
+ 2921  ff      [da] HALT   disable/terminate (vendor: ends every image; probe26)
  2922  d8      ALWAYS
  2923  95      P1.page=5   -> B@848 @848
  2924  39      RSUB A=@772         B=@860         -> @896
  2925  a9      P2.page=9   -> D@912 @912
  2926  da      IF.NZ
  2927  26      [da] MUL A=@772         B=@848         -> D_PEDSTD_PEAK
- 2928  ff      HALT   disable/terminate (vendor: ends every image)
+ 2928  ff      HALT   disable/terminate (vendor: ends every image; probe26)
  2929  d8      ALWAYS
  2930  90      P1.page=0   -> B@768 @768
  2931  a8      P2.page=8   -> D@896 @896
@@ -1955,7 +1955,7 @@
  3002  da      IF.NZ
  3003  ac      [da] P2.page=c   -> D@960 @960
  3004  de      CLR  @960 := 0  (in place, no advance)  (de; probe31)
- 3005  ff      HALT   disable/terminate (vendor: ends every image)
+ 3005  ff      HALT   disable/terminate (vendor: ends every image; probe26)
  3006  d8      ALWAYS
  3007  a2      P2.page=2   -> D@800 @800
  3008  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37]
@@ -1983,7 +1983,7 @@
  3030  de      CLR  @960 := 0  (in place, no advance)  (de; probe31)
  3031  d0      P2 word += 2 -> D@968 @968  (d0, mod 4; probe20)
  3032  de      CLR  @968 := 0  (in place, no advance)  (de; probe31)
- 3033  ff      HALT   disable/terminate (vendor: ends every image)
+ 3033  ff      HALT   disable/terminate (vendor: ends every image; probe26)
  3034  d8      ALWAYS
  3035  8c      P0.page=c   -> A@960 @960
  3036  9c      P1.page=c   -> B@960 @960
@@ -2011,4 +2011,4 @@
  3058  00      [d9] ADD A=@896         B=D_PEDSTD_STEPCTR -> D_PEDSTD_STEPCTR
  3059  d8      ALWAYS
  3060  f1      WIDTH.1   ; 32-bit store  [probe37]
- 3061  ff      HALT   disable/terminate (vendor: ends every image)
+ 3061  ff      HALT   disable/terminate (vendor: ends every image; probe26)

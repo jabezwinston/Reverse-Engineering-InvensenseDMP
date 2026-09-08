@@ -251,8 +251,10 @@ python3 tools/isa/pseudo.py <image> --check                             # agreem
 ```
 
 `pseudo.py` hides pointer-setup instructions by default (`--all` shows them). Every byte in the
-MPU-6050-family images now has a hardware-confirmed meaning; the only bytes rendered as a marked
-conjecture are the twelve 3050-lineage `c8`..`cf` in image 1024 -- see [UNKNOWNS.md](UNKNOWNS.md).
+MPU-6050-family images now has a hardware-confirmed meaning except thirteen: the twelve
+3050-lineage `c8`..`cf` in image 1024 and that image's single `ff`, all rendered as marked
+conjecture -- see [UNKNOWNS.md](UNKNOWNS.md). The normative instruction reference is
+[docs/manual/02-instruction-set.md](docs/manual/02-instruction-set.md).
 
 ## 6. What this firmware is *not*
 

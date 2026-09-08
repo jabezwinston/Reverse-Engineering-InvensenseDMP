@@ -284,9 +284,9 @@
  1307  83      P0.page=3   -> A@48 BLPFMTC
  1308  c5      MOV   BLPFMY       -> TMP4A  (P2 word++ first)  (c5; probe25)
  1309  da      IF.NZ
- 1310  df      [da] CLR  XACCW := 0  (P2 word++ first)  (df; probe23)
- 1311  69      RSUB A=BLPFMZ       B=TMP2A        -> XACCW
- 1312  df      CLR  XACCB := 0  (P2 word++ first)  (df; probe23)
+ 1310  df      [da] CLR  TMP1A := 0  (P2 word++ first)  (df; probe23)
+ 1311  69      RSUB A=BLPFMZ       B=TMP2A        -> TMP1A
+ 1312  df      CLR  TMP2A := 0  (P2 word++ first)  (df; probe23)
  1313  83      P0.page=3   -> A@48 BLPFMTC
  1314  c1      MOV   BLPFMTC      -> TMP3A  (P2 word++ first)  (c1; probe25)
  1315  d8      ALWAYS
@@ -356,10 +356,10 @@
  1382  83      P0.page=3   -> A@48 BLPFMTC
  1383  c7      MOV   BLPFMZ       -> TMP4A  (P2 word++ first)  (c7; probe25)
  1384  da      IF.NZ
- 1385  df      [da] CLR  XACCW := 0  (P2 word++ first)  (df; probe23)
- 1386  69      RSUB A=BLPFMZ       B=TMP2A        -> XACCW
- 1387  df      CLR  XACCB := 0  (P2 word++ first)  (df; probe23)
- 1388  f8      INC  XACCB by 1  (f8; probe23)
+ 1385  df      [da] CLR  TMP1A := 0  (P2 word++ first)  (df; probe23)
+ 1386  69      RSUB A=BLPFMZ       B=TMP2A        -> TMP1A
+ 1387  df      CLR  TMP2A := 0  (P2 word++ first)  (df; probe23)
+ 1388  f8      INC  TMP2A by 1  (f8; probe23)
  1389  83      P0.page=3   -> A@48 BLPFMTC
  1390  c3      MOV   BLPFMX       -> TMP3A  (P2 word++ first)  (c3; probe25)
  1391  d8      ALWAYS
@@ -1638,7 +1638,7 @@
  2675  b5      P1.bank=1
  2676  aa      P2.page=a   -> D@416 Y
  2677  c0      MOV   TMP1B        -> Y  (c0; probe25)
- 2678  fd      NOSTORE  the following ALU result is not written  [probe31, 16/16]
+ 2678  fd      NOSTORE  the following ALU result is not written  [probe31; scope open, see UNKNOWNS.md]
  2679  30      ADD A=TMP2B        B=A1           -> (discarded)
  2680  83      P0.page=3   -> A@304 TMP1B
  2681  b7      P1.bank=3
@@ -1741,7 +1741,7 @@
  2778  aa      P2.page=a   -> D@928 @928
  2779  f9      DEC  @928 by 1  (f9; probe23)
  2780  da      IF.NZ
- 2781  ff      [da] HALT   disable/terminate (vendor: ends every image)
+ 2781  ff      [da] HALT   disable/terminate (vendor: ends every image; probe26)
  2782  d9      IF.Z
  2783  80      [d9] P0.page=0   -> A@768 @768
  2784  9a      P1.page=a   -> B@928 @928
@@ -1880,18 +1880,18 @@
  2917  a8      P2.page=8   -> D@896 @896
  2918  09      RSUB A=@768         B=@900         -> @896
  2919  d9      IF.Z
- 2920  ff      [d9] HALT   disable/terminate (vendor: ends every image)
+ 2920  ff      [d9] HALT   disable/terminate (vendor: ends every image; probe26)
  2921  d8      ALWAYS
  2922  01      RSUB A=@768         B=@896         -> @896
  2923  da      IF.NZ
- 2924  ff      [da] HALT   disable/terminate (vendor: ends every image)
+ 2924  ff      [da] HALT   disable/terminate (vendor: ends every image; probe26)
  2925  d8      ALWAYS
  2926  95      P1.page=5   -> B@848 @848
  2927  39      RSUB A=@772         B=@860         -> @896
  2928  a9      P2.page=9   -> D@912 @912
  2929  da      IF.NZ
  2930  26      [da] MUL A=@772         B=@848         -> @916
- 2931  ff      HALT   disable/terminate (vendor: ends every image)
+ 2931  ff      HALT   disable/terminate (vendor: ends every image; probe26)
  2932  d8      ALWAYS
  2933  90      P1.page=0   -> B@768 @768
  2934  a8      P2.page=8   -> D@896 @896
@@ -1968,7 +1968,7 @@
  3005  da      IF.NZ
  3006  ac      [da] P2.page=c   -> D@960 @960
  3007  de      CLR  @960 := 0  (in place, no advance)  (de; probe31)
- 3008  ff      HALT   disable/terminate (vendor: ends every image)
+ 3008  ff      HALT   disable/terminate (vendor: ends every image; probe26)
  3009  d8      ALWAYS
  3010  a2      P2.page=2   -> D@800 @800
  3011  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37]
@@ -1996,7 +1996,7 @@
  3033  de      CLR  @960 := 0  (in place, no advance)  (de; probe31)
  3034  d0      P2 word += 2 -> D@968 @968  (d0, mod 4; probe20)
  3035  de      CLR  @968 := 0  (in place, no advance)  (de; probe31)
- 3036  ff      HALT   disable/terminate (vendor: ends every image)
+ 3036  ff      HALT   disable/terminate (vendor: ends every image; probe26)
  3037  d8      ALWAYS
  3038  8c      P0.page=c   -> A@960 @960
  3039  9c      P1.page=c   -> B@960 @960
@@ -2024,4 +2024,4 @@
  3061  00      [d9] ADD A=@896         B=@864         -> @864
  3062  d8      ALWAYS
  3063  f1      WIDTH.1   ; 32-bit store  [probe37]
- 3064  ff      HALT   disable/terminate (vendor: ends every image)
+ 3064  ff      HALT   disable/terminate (vendor: ends every image; probe26)

@@ -312,7 +312,7 @@
   822  26      MUL A=0_0          B=SEM1         -> ACCQD7
   823  d8      ALWAYS
   824  d8      ALWAYS
-  825  ff      HALT   disable/terminate (vendor: ends every image)
+  825  ff      ?TRUNC ACCQD7 &= 0xFFFF0000   (the next ALU op does not store)   ; CONJECTURE: 3050 ff = mantis f7, no MPU-3050 to test
   826  d8      ALWAYS
   827  d8      ALWAYS
   828  d8      ALWAYS
@@ -325,7 +325,7 @@
   835  a0      P2.page=0   -> D@0 PTAT
   836  90      P1.page=0   -> B@0 PTAT
   837  fa      WIDTH.2   ; 16-bit store, upper half-word  [probe37]
-  838  2c      ADD A=0            B=YGYR         -> YGYR.hi
+  838  2c      ADD A=0            B=YGYR         -> (discarded)
   839  80      P0.page=0   -> A@256 PREVPTAT
   840  74      ADD A=ACCYB+2      B=XACC         -> XACC.hi
   841  fb      WIDTH.3   ; 16-bit store, lower half-word  [probe37]

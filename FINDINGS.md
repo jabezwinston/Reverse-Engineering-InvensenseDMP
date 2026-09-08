@@ -210,4 +210,5 @@ Driver patch pairs in `inv_mpu_misc.c` give direct semantics: `fe` and `ff` are 
 `f4` takes a 1-byte immediate, and `a3`/`f1`/`d8` are the filler instructions used to disable
 features in place.
 
-See `OPCODES.md` for the full table.
+The full table that this pass produced (`OPCODES.md`) was superseded by ISA2.md and
+removed; the current instruction reference is [docs/manual/02-instruction-set.md](docs/manual/02-instruction-set.md).
