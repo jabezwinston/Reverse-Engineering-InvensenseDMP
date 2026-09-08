@@ -12,7 +12,7 @@
  1034  81      [d9] P0.page=1   -> A@16 @16
  1035  96      P1.page=6   -> B@352 D_1_96
  1036  f8      INC  D_1_96 by 1  (f8; probe23)
- 1037  f7      f7
+ 1037  f7      ?f7    unidentified; prefix-shaped -- followed by MUL at 9/31 sites  [UNKNOWNS.md]
  1038  3e      MUL A=@20          B=D_1_108      -> FIFO16
  1039  d8      ALWAYS
  1040  f3      FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
@@ -507,7 +507,7 @@
  1536  78      ADD A=D_0_188      B=D_0_188      -> FIFO32
  1537  d8      ALWAYS
  1538  d8      ALWAYS
- 1539  f6      f6
+ 1539  f6      ?f6    unidentified; prefix-shaped -- sits in f5's slot, before an ALU op  [UNKNOWNS.md]
  1540  b4      P1.bank=0
  1541  b8      P2.bank=0
  1542  b0      P0.bank=0
@@ -541,7 +541,7 @@
  1570  d8      ALWAYS
  1571  8d      P0.page=d   -> A@208 @208
  1572  48      ADD A=@216         B=@84          -> FIFO32
- 1573  f7      f7
+ 1573  f7      ?f7    unidentified; prefix-shaped -- followed by MUL at 9/31 sites  [UNKNOWNS.md]
  1574  d9      IF.Z
  1575  de      [d9] CLR  @216 := 0  (in place, no advance)  (de; probe31)
  1576  d8      ALWAYS
@@ -564,12 +564,12 @@
  1593  df      CLR  D_0_228 := 0  (P2 word++ first)  (df; probe23)
  1594  8e      P0.page=e   -> A@224 D_0_224
  1595  9f      P1.page=f   -> B@240 @240
- 1596  f6      f6
+ 1596  f6      ?f6    unidentified; prefix-shaped -- sits in f5's slot, before an ALU op  [UNKNOWNS.md]
  1597  19      RSUB A=D_0_224      B=@252         -> FIFO16
  1598  d9      IF.Z
  1599  f9      [d9] DEC  D_0_228 by 1  (f9; probe23)
  1600  d8      ALWAYS
- 1601  fc      fc
+ 1601  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  1602  61      RSUB A=D_0_236      B=@240         -> FIFO16
  1603  d9      IF.Z
  1604  f8      [d9] INC  D_0_228 by 1  (f8; probe23)
@@ -582,7 +582,7 @@
  1611  ae      [d9] P2.page=e   -> D@224 D_0_224
  1612  df      CLR  D_0_228 := 0  (P2 word++ first)  (df; probe23)
  1613  d8      ALWAYS
- 1614  f6      f6
+ 1614  f6      ?f6    unidentified; prefix-shaped -- sits in f5's slot, before an ALU op  [UNKNOWNS.md]
  1615  8e      P0.page=e   -> A@224 D_0_224
  1616  9e      P1.page=e   -> B@224 D_0_224
  1617  af      P2.page=f   -> D@240 @240
@@ -617,7 +617,7 @@
  1646  d0      P2 word += 2 -> D@232 D_0_232  (d0, mod 4; probe20)
  1647  3c      ADD A=D_0_228      B=D_0_236      -> FIFO16
  1648  d8      ALWAYS
- 1649  f6      f6
+ 1649  f6      ?f6    unidentified; prefix-shaped -- sits in f5's slot, before an ALU op  [UNKNOWNS.md]
  1650  8f      P0.page=f   -> A@240 @240
  1651  93      P1.page=3   -> B@48 @48
  1652  ad      P2.page=d   -> D@208 @208
@@ -636,7 +636,7 @@
  1665  de      CLR  D_0_232 := 0  (in place, no advance)  (de; probe31)
  1666  f9      DEC  D_0_232 by 1  (f9; probe23)
  1667  d8      ALWAYS
- 1668  f7      f7
+ 1668  f7      ?f7    unidentified; prefix-shaped -- followed by MUL at 9/31 sites  [UNKNOWNS.md]
  1669  8d      P0.page=d   -> A@208 @208
  1670  95      P1.page=5   -> B@80 @80
  1671  ad      P2.page=d   -> D@208 @208
@@ -648,7 +648,7 @@
  1677  d0      P2 word += 2 -> D@232 D_0_232  (d0, mod 4; probe20)
  1678  de      CLR  D_0_232 := 0  (in place, no advance)  (de; probe31)
  1679  d8      ALWAYS
- 1680  f7      f7
+ 1680  f7      ?f7    unidentified; prefix-shaped -- followed by MUL at 9/31 sites  [UNKNOWNS.md]
  1681  ad      P2.page=d   -> D@208 @208
  1682  d0      P2 word += 2 -> D@216 @216  (d0, mod 4; probe20)
  1683  fa      INC  @220 by 1  (P2 word++ first)  (fa; probe23)
@@ -669,7 +669,7 @@
  1698  f9      DEC  D_0_232 by 1  (f9; probe23)
  1699  d9      IF.Z
  1700  ad      [d9] P2.page=d   -> D@208 @208
- 1701  f7      f7
+ 1701  f7      ?f7    unidentified; prefix-shaped -- followed by MUL at 9/31 sites  [UNKNOWNS.md]
  1702  de      CLR  @208 := 0  (in place, no advance)  (de; probe31)
  1703  d0      P2 word += 2 -> D@216 @216  (d0, mod 4; probe20)
  1704  df      CLR  @220 := 0  (P2 word++ first)  (df; probe23)
@@ -737,7 +737,7 @@
  1766  35      RSUB A=D_SO_DATA+2  B=@72          -> FIFO16
  1767  f4 48   B -> 1841
  1769  d8      ALWAYS
- 1770  f6      f6
+ 1770  f6      ?f6    unidentified; prefix-shaped -- sits in f5's slot, before an ALU op  [UNKNOWNS.md]
  1771  ad      P2.page=d   -> D@208 @208
  1772  95      P1.page=5   -> B@80 @80
  1773  8e      P0.page=e   -> A@224 D_0_224

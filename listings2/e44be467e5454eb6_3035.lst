@@ -11,13 +11,13 @@
  1034  87      P0.page=7   -> A@368 ACCQD4
  1035  9d      P1.page=d   -> B@208 CTRL1
  1036  d0      P2 word += 2 -> D@376 ACCQD6  (d0, mod 4; probe20)
- 1037  f7      f7
+ 1037  f7      ?f7    unidentified; prefix-shaped -- followed by MUL at 9/31 sites  [UNKNOWNS.md]
  1038  4a      MUL A=ACCQD6       B=CTRL2        -> FIFO32
  1039  f3      FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
  1040  40      ADD A=ACCQD6       B=CTRL1        -> FIFO16
  1041  b8      P2.bank=0
  1042  b0      P0.bank=0
- 1043  f7      f7
+ 1043  f7      ?f7    unidentified; prefix-shaped -- followed by MUL at 9/31 sites  [UNKNOWNS.md]
  1044  a8      P2.page=8   -> D@128 TMP1A
  1045  8d      P0.page=d   -> A@208 CTRL1
  1046  91      P1.page=1   -> B@16 ADC2
@@ -43,7 +43,7 @@
  1067  f9      DEC  TMP1A by 1  (f9; probe23)
  1068  db      IF.3
  1069  fb      [db] DEC  TMP2A by 1  (P2 word++ first)  (fb; probe23)
- 1070  f7      f7
+ 1070  f7      ?f7    unidentified; prefix-shaped -- followed by MUL at 9/31 sites  [UNKNOWNS.md]
  1071  b9      P2.bank=1
  1072  b1      P0.bank=1
  1073  a7      P2.page=7   -> D@368 ACCQD4

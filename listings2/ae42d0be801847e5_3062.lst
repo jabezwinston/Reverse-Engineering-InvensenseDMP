@@ -261,12 +261,12 @@
  1283  98      P1.page=8   -> B@128 @128
  1284  c4      MOV   @72          -> @128  (c4; probe25)
  1285  cd      MOV16 @72          -> @132  (P2 word++ first)  (cd; probe25)
- 1286  fc      fc
+ 1286  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  1287  d8      ALWAYS
  1288  0d      RSUB A=D_TILT3_L+2  B=@132         -> @136
  1289  db      IF.3
  1290  a8      [db] P2.page=8   -> D@128 @128
- 1291  fc      fc
+ 1291  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  1292  2d      RSUB A=@68          B=@132         -> @132
  1293  f3      FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
  1294  d9      IF.Z
@@ -647,7 +647,7 @@
  1684  f3      FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
  1685  d8      ALWAYS
  1686  fa      INC  @252 by 1  (P2 word++ first)  (fa; probe23)
- 1687  fc      fc
+ 1687  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  1688  a8      P2.page=8   -> D@128 @128
  1689  69      RSUB A=@124         B=@244         -> @128
  1690  f9      DEC  @128 by 1  (f9; probe23)
@@ -841,7 +841,7 @@
  1884  d8      ALWAYS
  1885  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  1886  b8      P2.bank=0
- 1887  f6      f6
+ 1887  f6      ?f6    unidentified; prefix-shaped -- sits in f5's slot, before an ALU op  [UNKNOWNS.md]
  1888  b5      P1.bank=1
  1889  b9      P2.bank=1
  1890  b0      P0.bank=0
@@ -876,7 +876,7 @@
  1919  b1      P0.bank=1
  1920  85      P0.page=5   -> A@336 D_1_79+1
  1921  30      ADD A=@340         B=D_1_88       -> D_1_88
- 1922  f7      f7
+ 1922  f7      ?f7    unidentified; prefix-shaped -- followed by MUL at 9/31 sites  [UNKNOWNS.md]
  1923  d9      IF.Z
  1924  de      [d9] CLR  D_1_88 := 0  (in place, no advance)  (de; probe31)
  1925  d8      ALWAYS
@@ -902,13 +902,13 @@
  1945  b5      P1.bank=1
  1946  91      P1.page=1   -> B@272 @272
  1947  a0      P2.page=0   -> D@256 @256
- 1948  f6      f6
+ 1948  f6      ?f6    unidentified; prefix-shaped -- sits in f5's slot, before an ALU op  [UNKNOWNS.md]
  1949  29      RSUB A=@308         B=@276         -> @256
  1950  d9      IF.Z
  1951  fb      [d9] DEC  D_1_4 by 1  (P2 word++ first)  (fb; probe23)
  1952  d8      ALWAYS
  1953  a0      P2.page=0   -> D@256 @256
- 1954  fc      fc
+ 1954  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  1955  29      RSUB A=@308         B=@276         -> @256
  1956  d9      IF.Z
  1957  fa      [d9] INC  D_1_4 by 1  (P2 word++ first)  (fa; probe23)
@@ -919,7 +919,7 @@
  1962  d9      IF.Z
  1963  f8      [d9] INC  D_1_8 by 1  (f8; probe23)
  1964  d8      ALWAYS
- 1965  fc      fc
+ 1965  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  1966  51      RSUB A=@312         B=D_1_24       -> D_1_8
  1967  d9      IF.Z
  1968  f9      [d9] DEC  D_1_8 by 1  (f9; probe23)
@@ -930,7 +930,7 @@
  1973  d8      ALWAYS
  1974  a0      P2.page=0   -> D@256 @256
  1975  d0      P2 word += 2 -> D@264 D_1_8  (d0, mod 4; probe20)
- 1976  fc      fc
+ 1976  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  1977  79      RSUB A=@316         B=D_1_28       -> D_1_8
  1978  d9      IF.Z
  1979  fa      [d9] INC  D_1_152 by 1  (P2 word++ first)  (fa; probe23)
@@ -969,7 +969,7 @@
  2012  df      CLR  @388 := 0  (P2 word++ first)  (df; probe23)
  2013  df      CLR  @392 := 0  (P2 word++ first)  (df; probe23)
  2014  df      CLR  @396 := 0  (P2 word++ first)  (df; probe23)
- 2015  f6      f6
+ 2015  f6      ?f6    unidentified; prefix-shaped -- sits in f5's slot, before an ALU op  [UNKNOWNS.md]
  2016  9d      P1.page=d   -> B@464 @464
  2017  2c      ADD A=@308         B=@468         -> @384
  2018  da      IF.NZ
@@ -1107,7 +1107,7 @@
  2150  da      IF.NZ
  2151  36      [da] MUL A=@388         B=@392         -> @388
  2152  d8      ALWAYS
- 2153  f7      f7
+ 2153  f7      ?f7    unidentified; prefix-shaped -- followed by MUL at 9/31 sites  [UNKNOWNS.md]
  2154  8d      P0.page=d   -> A@464 @464
  2155  9d      P1.page=d   -> B@464 @464
  2156  ad      P2.page=d   -> D@464 @464
@@ -1118,7 +1118,7 @@
  2161  ae      P2.page=e   -> D@480 @480
  2162  df      CLR  @484 := 0  (P2 word++ first)  (df; probe23)
  2163  d8      ALWAYS
- 2164  f7      f7
+ 2164  f7      ?f7    unidentified; prefix-shaped -- followed by MUL at 9/31 sites  [UNKNOWNS.md]
  2165  ad      P2.page=d   -> D@464 @464
  2166  fa      INC  @468 by 1  (P2 word++ first)  (fa; probe23)
  2167  30      ADD A=@468         B=@472         -> @468
@@ -1144,7 +1144,7 @@
  2187  a7      P2.page=7   -> D@368 D_1_112
  2188  7a      MUL A=@396         B=@444         -> D_1_112
  2189  ad      P2.page=d   -> D@464 @464
- 2190  f7      f7
+ 2190  f7      ?f7    unidentified; prefix-shaped -- followed by MUL at 9/31 sites  [UNKNOWNS.md]
  2191  de      CLR  @464 := 0  (in place, no advance)  (de; probe31)
  2192  df      CLR  @468 := 0  (P2 word++ first)  (df; probe23)
  2193  a4      P2.page=4   -> D@320 @320
@@ -1166,7 +1166,7 @@
  2209  a3      P2.page=3   -> D@304 @304
  2210  94      P1.page=4   -> B@320 @320
  2211  88      P0.page=8   -> A@384 @384
- 2212  f6      f6
+ 2212  f6      ?f6    unidentified; prefix-shaped -- sits in f5's slot, before an ALU op  [UNKNOWNS.md]
  2213  32      MUL A=@388         B=D_1_72       -> @304
  2214  df      CLR  @308 := 0  (P2 word++ first)  (df; probe23)
  2215  f2      FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
@@ -1214,7 +1214,7 @@
  2257  a3      P2.page=3   -> D@304 @304
  2258  92      P1.page=2   -> B@288 @288
  2259  83      P0.page=3   -> A@304 @304
- 2260  f6      f6
+ 2260  f6      ?f6    unidentified; prefix-shaped -- sits in f5's slot, before an ALU op  [UNKNOWNS.md]
  2261  28      ADD A=@308         B=D_1_36       -> @304
  2262  ad      P2.page=d   -> D@464 @464
  2263  de      CLR  @464 := 0  (in place, no advance)  (de; probe31)
@@ -1612,7 +1612,7 @@
  2659  b5      P1.bank=1
  2660  aa      P2.page=a   -> D@416 D_1_160
  2661  c0      MOV   @304         -> D_1_160  (c0; probe25)
- 2662  fd      fd
+ 2662  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  2663  30      ADD A=@308         B=@424         -> D_1_160
  2664  83      P0.page=3   -> A@304 @304
  2665  b7      P1.bank=3

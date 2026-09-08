@@ -11,7 +11,7 @@
   777  a8      P2.page=8   -> D@128 TMP1A
   778  81      P0.page=1   -> A@528 @528
   779  91      P1.page=1   -> B@16 ADC2
-  780  f7      f7
+  780  f7      ?f7    unidentified; prefix-shaped -- followed by MUL at 9/31 sites  [UNKNOWNS.md]
   781  4a      MUL A=@536         B=BIASUNC      -> TMP1A
   782  90      P1.page=0   -> B@0 PTAT
   783  7f      NMUL A=@540         B=ZACC         -> TMP2A

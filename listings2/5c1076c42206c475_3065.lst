@@ -448,12 +448,12 @@
  1477  84      [d9] P0.page=4   -> A@64 BLPFC
  1478  c4      MOV   BERR2        -> TMP4A  (c4; probe25)
  1479  cd      MOV16 BERR2        -> TMP1A  (P2 word++ first)  (cd; probe25)
- 1480  fc      fc
+ 1480  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  1481  db      IF.3
  1482  6d      [db] RSUB A=BERR2N       B=TMP2A        -> TMP2A
  1483  d9      IF.Z
  1484  a8      [d9] P2.page=8   -> D@128 TMP1A
- 1485  fc      fc
+ 1485  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  1486  db      IF.3
  1487  25      [db] RSUB A=0H2          B=TMP1A        -> TMP2A
  1488  da      IF.NZ
@@ -479,7 +479,7 @@
  1509  da      IF.NZ
  1510  c0      [da] MOV   CTRL1        -> BLPFC  (c0; probe25)
  1511  a5      P2.page=5   -> D@80 ANGVBX
- 1512  f7      f7
+ 1512  f7      ?f7    unidentified; prefix-shaped -- followed by MUL at 9/31 sites  [UNKNOWNS.md]
  1513  de      CLR  ANGVBX := 0  (in place, no advance)  (de; probe31)
  1514  f9      DEC  ANGVBX by 1  (f9; probe23)
  1515  d8      ALWAYS
@@ -705,7 +705,7 @@
  1738  d8      ALWAYS
  1739  f2      FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
  1740  f9      DEC  ANGVBX by 1  (f9; probe23)
- 1741  f6      f6
+ 1741  f6      ?f6    unidentified; prefix-shaped -- sits in f5's slot, before an ALU op  [UNKNOWNS.md]
  1742  b5      P1.bank=1
  1743  b9      P2.bank=1
  1744  b0      P0.bank=0
@@ -740,7 +740,7 @@
  1773  b1      P0.bank=1
  1774  85      P0.page=5   -> A@336 PVXG
  1775  30      ADD A=PVYG         B=PVZG         -> PVZG
- 1776  f7      f7
+ 1776  f7      ?f7    unidentified; prefix-shaped -- followed by MUL at 9/31 sites  [UNKNOWNS.md]
  1777  d9      IF.Z
  1778  de      [d9] CLR  PVZG := 0  (in place, no advance)  (de; probe31)
  1779  d8      ALWAYS
@@ -766,13 +766,13 @@
  1799  b5      P1.bank=1
  1800  91      P1.page=1   -> B@272 1HB
  1801  a0      P2.page=0   -> D@256 PREVPTAT
- 1802  f6      f6
+ 1802  f6      ?f6    unidentified; prefix-shaped -- sits in f5's slot, before an ALU op  [UNKNOWNS.md]
  1803  29      RSUB A=TMP2B        B=0            -> PREVPTAT
  1804  d9      IF.Z
  1805  fb      [d9] DEC  ACCZB+2 by 1  (P2 word++ first)  (fb; probe23)
  1806  d8      ALWAYS
  1807  a0      P2.page=0   -> D@256 PREVPTAT
- 1808  fc      fc
+ 1808  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  1809  29      RSUB A=TMP2B        B=0            -> PREVPTAT
  1810  d9      IF.Z
  1811  fa      [d9] INC  ACCZB+2 by 1  (P2 word++ first)  (fa; probe23)
@@ -783,7 +783,7 @@
  1816  d9      IF.Z
  1817  f8      [d9] INC  ACCXB by 1  (f8; probe23)
  1818  d8      ALWAYS
- 1819  fc      fc
+ 1819  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  1820  51      RSUB A=TMP3B        B=ASR22        -> ACCXB
  1821  d9      IF.Z
  1822  f9      [d9] DEC  ACCXB by 1  (f9; probe23)
@@ -794,7 +794,7 @@
  1827  d8      ALWAYS
  1828  a0      P2.page=0   -> D@256 PREVPTAT
  1829  d0      P2 word += 2 -> D@264 ACCXB  (d0, mod 4; probe20)
- 1830  fc      fc
+ 1830  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  1831  79      RSUB A=TMP4B        B=ASR6         -> ACCXB
  1832  d9      IF.Z
  1833  fa      [d9] INC  ACCYB+2 by 1  (P2 word++ first)  (fa; probe23)
@@ -833,7 +833,7 @@
  1866  df      CLR  ACCQD1 := 0  (P2 word++ first)  (df; probe23)
  1867  df      CLR  ACCQD2 := 0  (P2 word++ first)  (df; probe23)
  1868  df      CLR  ACCQD3 := 0  (P2 word++ first)  (df; probe23)
- 1869  f6      f6
+ 1869  f6      ?f6    unidentified; prefix-shaped -- sits in f5's slot, before an ALU op  [UNKNOWNS.md]
  1870  9d      P1.page=d   -> B@464 TMP22
  1871  2c      ADD A=TMP2B        B=TAP_THX      -> ACCQD0
  1872  da      IF.NZ
@@ -971,7 +971,7 @@
  2004  da      IF.NZ
  2005  36      [da] MUL A=ACCQD1       B=ACCQD2       -> ACCQD1
  2006  d8      ALWAYS
- 2007  f7      f7
+ 2007  f7      ?f7    unidentified; prefix-shaped -- followed by MUL at 9/31 sites  [UNKNOWNS.md]
  2008  8d      P0.page=d   -> A@464 TMP22
  2009  9d      P1.page=d   -> B@464 TMP22
  2010  ad      P2.page=d   -> D@464 TMP22
@@ -982,7 +982,7 @@
  2015  ae      P2.page=e   -> D@480 TMP25
  2016  df      CLR  TMP27 := 0  (P2 word++ first)  (df; probe23)
  2017  d8      ALWAYS
- 2018  f7      f7
+ 2018  f7      ?f7    unidentified; prefix-shaped -- followed by MUL at 9/31 sites  [UNKNOWNS.md]
  2019  ad      P2.page=d   -> D@464 TMP22
  2020  fa      INC  TAP_THX by 1  (P2 word++ first)  (fa; probe23)
  2021  30      ADD A=TAP_THX      B=TAP_THY      -> TAP_THX
@@ -1008,7 +1008,7 @@
  2041  a7      P2.page=7   -> D@368 ACCQD4
  2042  7a      MUL A=ACCQD3       B=SH_TH_Z      -> ACCQD4
  2043  ad      P2.page=d   -> D@464 TMP22
- 2044  f7      f7
+ 2044  f7      ?f7    unidentified; prefix-shaped -- followed by MUL at 9/31 sites  [UNKNOWNS.md]
  2045  de      CLR  TMP22 := 0  (in place, no advance)  (de; probe31)
  2046  df      CLR  TAP_THX := 0  (P2 word++ first)  (df; probe23)
  2047  a4      P2.page=4   -> D@320 STXG
@@ -1030,7 +1030,7 @@
  2063  a3      P2.page=3   -> D@304 TMP1B
  2064  94      P1.page=4   -> B@320 STXG
  2065  88      P0.page=8   -> A@384 ACCQD0
- 2066  f6      f6
+ 2066  f6      ?f6    unidentified; prefix-shaped -- sits in f5's slot, before an ALU op  [UNKNOWNS.md]
  2067  32      MUL A=ACCQD1       B=STZG         -> TMP1B
  2068  df      CLR  TMP2B := 0  (P2 word++ first)  (df; probe23)
  2069  f2      FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
@@ -1078,7 +1078,7 @@
  2111  a3      P2.page=3   -> D@304 TMP1B
  2112  92      P1.page=2   -> B@288 TMP13
  2113  83      P0.page=3   -> A@304 TMP1B
- 2114  f6      f6
+ 2114  f6      ?f6    unidentified; prefix-shaped -- sits in f5's slot, before an ALU op  [UNKNOWNS.md]
  2115  28      ADD A=TMP2B        B=FINTX        -> TMP1B
  2116  ad      P2.page=d   -> D@464 TMP22
  2117  de      CLR  TMP22 := 0  (in place, no advance)  (de; probe31)
@@ -1337,7 +1337,7 @@
  2370  df      CLR  TMP2B := 0  (P2 word++ first)  (df; probe23)
  2371  df      CLR  TMP3B := 0  (P2 word++ first)  (df; probe23)
  2372  df      CLR  TMP4B := 0  (P2 word++ first)  (df; probe23)
- 2373  f6      f6
+ 2373  f6      ?f6    unidentified; prefix-shaped -- sits in f5's slot, before an ALU op  [UNKNOWNS.md]
  2374  a3      P2.page=3   -> D@304 TMP1B
  2375  30      ADD A=TMP2A        B=ORIENT       -> TMP1B
  2376  d9      IF.Z
@@ -1484,7 +1484,7 @@
  2517  8e      P0.page=e   -> A@480 TMP25
  2518  94      P1.page=4   -> B@320 STXG
  2519  a3      P2.page=3   -> D@304 TMP1B
- 2520  f7      f7
+ 2520  f7      ?f7    unidentified; prefix-shaped -- followed by MUL at 9/31 sites  [UNKNOWNS.md]
  2521  72      MUL A=ENDIAN       B=STZG         -> TMP1B
  2522  df      CLR  TMP2B := 0  (P2 word++ first)  (df; probe23)
  2523  f3      FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
@@ -1638,7 +1638,7 @@
  2675  b5      P1.bank=1
  2676  aa      P2.page=a   -> D@416 Y
  2677  c0      MOV   TMP1B        -> Y  (c0; probe25)
- 2678  fd      fd
+ 2678  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  2679  30      ADD A=TMP2B        B=A1           -> Y
  2680  83      P0.page=3   -> A@304 TMP1B
  2681  b7      P1.bank=3

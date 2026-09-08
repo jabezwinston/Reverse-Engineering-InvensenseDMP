@@ -337,7 +337,7 @@
   847  98      P1.page=8   -> B@128 TMP1A
   848  a8      P2.page=8   -> D@128 TMP1A
   849  f9      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
-  850  c9      c9
+  850  c9      ?MOV16 ATC -> TMP1A   ; CONJECTURE: assumed same as mantis c8-cf, no MPU-3050 to test
   851  88      P0.page=8   -> A@128 TMP1A
   852  a1      P2.page=1   -> D@16 ADC2
   853  fa      FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
@@ -355,19 +355,19 @@
   865  2e      MUL A=YGYR         B=0_0          -> ZGC
   866  fa      FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
   867  aa      P2.page=a   -> D@160 DZ
-  868  c9      c9
+  868  c9      ?MOV16 PTAT -> DZ   ; CONJECTURE: assumed same as mantis c8-cf, no MPU-3050 to test
   869  2c      ADD A=YGYR         B=0_0          -> XGC
-  870  cb      cb
+  870  cb      ?MOV16 YGYR -> XGC   ; CONJECTURE: assumed same as mantis c8-cf, no MPU-3050 to test
   871  a9      P2.page=9   -> D@144 XACCW
   872  4c      ADD A=XACC         B=0_0          -> XACCB
-  873  cd      cd
+  873  cd      ?MOV16 XACC -> XACCB   ; CONJECTURE: assumed same as mantis c8-cf, no MPU-3050 to test
   874  6c      ADD A=ZACC         B=0_0          -> YACCB
   875  f9      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
   876  89      P0.page=9   -> A@144 XACCW
   877  a5      P2.page=5   -> D@80 ANGVBX
-  878  ca      ca
-  879  cd      cd
-  880  cf      cf
+  878  ca      ?MOV16 XACCB -> ANGVBX   ; CONJECTURE: assumed same as mantis c8-cf, no MPU-3050 to test
+  879  cd      ?MOV16 YACCB -> ANGVBX   ; CONJECTURE: assumed same as mantis c8-cf, no MPU-3050 to test
+  880  cf      ?MOV16 ZACCB -> ANGVBX   ; CONJECTURE: assumed same as mantis c8-cf, no MPU-3050 to test
   881  c3      P1.bank=1
   882  9e      P1.page=e   -> B@480 TMP25
   883  a9      P2.page=9   -> D@144 XACCW
@@ -388,9 +388,9 @@
   898  5c      ADD A=ANGVBZ       B=ZACCB        -> ANGVBZ
   899  f9      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
   900  a9      P2.page=9   -> D@144 XACCW
-  901  c9      c9
-  902  cb      cb
-  903  cd      cd
+  901  c9      ?MOV16 ANGVBX -> XACCW   ; CONJECTURE: assumed same as mantis c8-cf, no MPU-3050 to test
+  902  cb      ?MOV16 ANGVBY -> XACCW   ; CONJECTURE: assumed same as mantis c8-cf, no MPU-3050 to test
+  903  cd      ?MOV16 ANGVBZ -> XACCW   ; CONJECTURE: assumed same as mantis c8-cf, no MPU-3050 to test
   904  97      P1.page=7   -> B@112 0_5
   905  97      P1.page=7   -> B@112 0_5
   906  97      P1.page=7   -> B@112 0_5
@@ -445,8 +445,8 @@
   955  a3      P2.page=3   -> D@304 TMP1B
   956  fa      FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
   957  48      ADD A=ACCXB        B=0_0          -> TMP1B
-  958  cd      cd
-  959  c9      c9
+  958  cd      ?MOV16 ACCXB -> TMP1B   ; CONJECTURE: assumed same as mantis c8-cf, no MPU-3050 to test
+  959  c9      ?MOV16 PREVPTAT -> TMP1B   ; CONJECTURE: assumed same as mantis c8-cf, no MPU-3050 to test
   960  f9      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
   961  c4      P2.bank=0
   962  a9      P2.page=9   -> D@144 XACCW

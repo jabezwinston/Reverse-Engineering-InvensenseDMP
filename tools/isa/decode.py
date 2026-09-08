@@ -31,6 +31,17 @@ def lineage_of(img, start):
     new = sum(code.count(b) for b in range(0xB0, 0xBC)) + sum(code.count(b) for b in range(0xF0, 0xF4))
     return "3050" if old > new else "mantis"
 
+# Bytes with no hardware-confirmed meaning.  These are rendered with a leading "?" so a
+# listing can never pass a guess off as a decode; the evidence and the experiment that would
+# settle each are in UNKNOWNS.md.
+CONJECTURE = {
+    0xF6: "?f6    unidentified; prefix-shaped -- sits in f5's slot, before an ALU op",
+    0xF7: "?f7    unidentified; prefix-shaped -- followed by MUL at 9/31 sites",
+    0xFC: "?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB",
+    0xFD: "?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD",
+}
+
+
 class Namer:
     def __init__(self, table):
         # table: name -> address. Build address -> best name (prefer 32-bit H names).
@@ -120,6 +131,14 @@ class Decoder:
             self.ram = False; return 1, "ROUTE -> FIFO  (dd; sticky until dc)  [probe16]"
         if b == 0xDC:
             self.ram = True; return 1, f"ROUTE -> RAM   M[P2..] {self.N.name(self.ptr(2))}  (dc; sticky until dd)"
+        if self.L == "3050" and 0xC8 <= b <= 0xCF:
+            # DINAC8..DINACF are 0xc8..0xcf in BOTH lineages' headers, and in mantis this half
+            # is MOV16.  Untestable here (the rig is an MPU-6050), so it stays a conjecture.
+            k = (b >> 1) & 3
+            return 1, (f"?MOV16 {self.N.name(self.ptr(0) + 4 * k)} -> {self.N.name(self.ptr(2))}"
+                       f"   ; CONJECTURE: assumed same as mantis c8-cf, no MPU-3050 to test")
+        if b in CONJECTURE and self.L == "mantis":
+            return 1, CONJECTURE[b] + "  [UNKNOWNS.md]"
         if b < 0x80:
             A, B, op = (b >> 5) & 3, (b >> 3) & 3, b & 7
             a, bb = self.ptr(0) + 4 * A, self.ptr(1) + 4 * B

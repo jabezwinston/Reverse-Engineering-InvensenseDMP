@@ -4,16 +4,33 @@ Reverse engineering the undocumented instruction set of the InvenSense DMP (Digi
 Processor) embedded in MPU-6050/6500/9250 and ICM-20948 IMUs, and building a disassembler and
 assembler for it.
 
-**Status: reopened (2026-09-08).** The closing conclusion — that the DMP's working registers
-are not RAM-mapped — was wrong, and the branch encoding is now known. Both were established
-statically from data the project already had, using the methods that resolved the BK3296 core.
-See **[ISA2.md](ISA2.md)** for the findings, the evidence and the plan; `tools/isa/` for the
-reproducible tests; `listings2/` for listings under the new pointer/ALU model; and
-`bench/isa_probe.py` for the queued hardware experiments. **The instruction set is decoded on silicon: 98.4% of MPU-6050-family code bytes** (ISA2.md Findings 6-16; `tools/dmpasm.py` output verified end to end, probe9). `dc`/`dd` route results to RAM or the FIFO (sticky; FIFO at rest), `c0`-`cf` are MOV/MOV16 from P0, `f8`-`fb`/`df` are INC/DEC/CLR, `f5` is signed MIN, `d1` is TEST with `d9`/`da` = IF.Z/IF.NZ as single-shot prefixes, `f4` is a 7-bit **forward-only** branch (no loops), and the low byte computes
-`M[P0+4A] op M[P1+4B]` with op in {ADD, B-A, MUL, -MUL} (Q30), `dc` stores the result to
-`M[P2]`. The DMP is a small but complete feed-forward computer, not just a
-reconfigurable pipeline. Custom DMP programs written in this
-repo's assembly language still run on real MPU-6050 silicon exactly as described below.
+**Status: the ISA is decoded on silicon — 99.5% of MPU-6050-family code bytes**
+(87 of 17297 unexplained). The project's closing conclusion — that the DMP's working registers
+are not RAM-mapped — was wrong, and everything below follows from reopening it.
+See **[ISA2.md](ISA2.md)** for the findings and the evidence behind each,
+**[FIRMWARE.md](FIRMWARE.md)** for what the shipped firmware actually computes,
+**[UNKNOWNS.md](UNKNOWNS.md)** for the bytes that are still open and the experiment that would
+settle each, `tools/isa/` for the decoder and the pseudo-code lifter, `listings2/` for the
+annotated listings, and `bench/` for the hardware probes.
+
+The instruction set (every rule below hardware-confirmed, ISA2.md Findings 6-18):
+
+| bytes | meaning |
+|---|---|
+| `8x` `9x` `ax`, `bx` | P0/P1/P2 page and bank; address = bank*256 + page*16 |
+| low byte | `M[P0+4A] op M[P1+4B]`, op in {ADD, B−A, MUL, −MUL}, Q30, **wrapping**; `op&4` pre-advances the destination word |
+| `dc` / `dd` | route results to RAM / to the FIFO — a sticky latch, FIFO at rest |
+| `c0`–`cf` | MOV / MOV16 from P0; odd values pre-advance the destination |
+| `de` / `df` | clear M[P2] in place / advance the word first, then clear |
+| `f8` `f9` / `fa` `fb` | INC / DEC M[P2], in place / after advancing |
+| `f5` | signed MIN |
+| `d1`, `d9` / `da` | TEST `Z := (result == 0)`, then IF.Z / IF.NZ — single-shot |
+| `f4 imm` | 7-bit **forward-only** branch; bit 7 set means the byte executes instead |
+| `f0`–`f3`, `ff` | FIFO word width; halt |
+
+The DMP is a small but complete **feed-forward computer**: no loops are expressible, so every
+image is straight-line code re-run from the top on each sample interrupt. Custom DMP programs
+written in this repo's assembly language run on real MPU-6050 silicon exactly as described below.
 
 ## What works today
 

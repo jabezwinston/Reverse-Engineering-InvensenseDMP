@@ -92,14 +92,19 @@ A first-order low pass per axis, then a threshold and a dwell timer. `BLPFNMTC` 
 time constant, `MNMTHR` the motion threshold, `MNMTM` the dwell counter, `MNMTMTHR` its limit:
 
 ```
-TMP1A = 1_0 - BLPFMTC;                     // 1 - tc
-BLPFNMX = BLPFNMX + TMP1A;   ...           // per-axis low-pass update
-TMP1B = TMP2A - BLPFNMX;     ...           // residual = input - filtered
-TMP1B = BLPFNMTC - MNMTHR;                 // compare against the threshold
-if (!Z)  MNMTM = 0;                        // moving -> reset the dwell counter
-if (Z)   MNMTMTHR++;                       // still  -> count up
-if (Z)   MNMFLAG++;                        // long enough -> raise no-motion
-         MNMTM = 0;
+TMP1A   = 1_0 - BLPFMTC;                   // 1 - tc
+BLPFNMX = BLPFNMX + TMP1A;   BLPFNMX = BLPFNMTC + TMP2A;    // per-axis low pass
+BLPFNMY = BLPFNMY + TMP1A;   BLPFNMY = BLPFNMTC + TMP3A;
+BLPFNMZ = BLPFNMZ + TMP1A;   BLPFNMZ = BLPFNMTC + TMP4A;
+TMP1B   = TMP2A - BLPFNMX;   TMP2B = TMP3A - BLPFNMY;       // residuals
+TMP3B   = TMP4A - BLPFNMZ;
+TMP1B   = BLPFNMTC - MNMTHR;               // compare against the motion threshold
+if (!Z) MNMFLAG = 0;                       // moving -> drop the no-motion flag  (`de`)
+        MNMTM = 0;                         //           and reset the dwell timer (`df`)
+if (Z)  MNMTMTHR++;                        // still  -> count up
+if (F3) TMP1B = MNMTMTHR - MNMTM;
+if (Z)  MNMFLAG++;                         // long enough -> raise no-motion
+        MNMTM = 0;
 ```
 
 This is the block the driver's "no motion / bias-on-still" calibration hangs off.
@@ -132,11 +137,14 @@ if (Z)  BLPFSTC = 0H2 * BLPFSX;
 The one place `f5` (signed MIN) is used in this image:
 
 ```
-TMP1A = min(XGC, DZ);                      // DZ = dead zone
-if (!Z) XGC = 0;                           // small rates are forced to zero
-        TMP1A = YGC + DZ;
-if (!Z) ZGC = 0;
+TMP1A = min(XGC, DZ);      if (!Z) XGC = 0;       // `df` -- advance, then clear
+TMP1A = YGC + DZ;          if (!Z) YGC = 0;       // `de` -- clear in place
+TMP1A = ZGC + DZ;          if (!Z) ZGC = 0;       // `df` -- advance, then clear
 ```
+
+This block is also the clearest firmware-side corroboration of [Finding 18](ISA2.md): the axes are
+cleared by an alternating `df` / `de` / `df`, and if `de` did nothing -- as eight rounds of probing
+concluded -- the Y axis would simply never be zeroed.
 
 ### 3.5 Quaternion integration (1448-1567)
 
@@ -185,8 +193,9 @@ ACCQD1 = 0 + ACCQD2;
 ACCQD2 = 0 + ACCQD3;
 ACCQD3 = 0 + ACCQD4;
 ACCQD4 = 0 + ACCQD5;
-...
-ACCQD5 = 0 + TEMP29;                       // newest sample in at the top
+ACCQD5 = 0 + ACCQD6;
+ACCQD6 = 0 + ACCQD7;
+ACCQD7 = 0 + TEMP29;                       // newest sample in at the top
 ```
 
 `0 + x` is how the machine does a 32-bit move between pages: `MOV` (`cx`) can only read through

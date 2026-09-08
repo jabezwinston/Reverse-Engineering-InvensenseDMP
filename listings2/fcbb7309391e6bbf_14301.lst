@@ -16,7 +16,7 @@
  4110  8d      P0.page=d   -> A@208 CTRL1
  4111  93      P1.page=3   -> B@48 BLPFMTC
  4112  20      ADD A=CTRL2        B=BLPFMTC      -> FIFO32
- 4113  fd      fd
+ 4113  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  4114  3f      NMUL A=CTRL2        B=BLPFMZ       -> FIFO32
  4115  88      P0.page=8   -> A@128 TMP1A
  4116  6e      MUL A=TMP4A        B=BLPFMX       -> FIFO32
@@ -27,17 +27,17 @@
  4121  be      bank-sel3 2   ; unknown
  4122  a2      P2.page=2   -> D@32 BLPFSTC
  4123  20      ADD A=CTRL2        B=BLPFMTC      -> FIFO32
- 4124  fd      fd
+ 4124  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  4125  31      RSUB A=CTRL2        B=BLPFMY       -> FIFO32
  4126  a0      P2.page=0   -> D@0 PTAT
  4127  2c      ADD A=CTRL2        B=BLPFMX       -> FIFO32
- 4128  fd      fd
+ 4128  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  4129  32      MUL A=CTRL2        B=BLPFMY       -> FIFO32
  4130  34      ADD A=CTRL2        B=BLPFMY       -> FIFO32
- 4131  fd      fd
+ 4131  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  4132  32      MUL A=CTRL2        B=BLPFMY       -> FIFO32
  4133  3c      ADD A=CTRL2        B=BLPFMZ       -> FIFO32
- 4134  fd      fd
+ 4134  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  4135  32      MUL A=CTRL2        B=BLPFMY       -> FIFO32
  4136  be      bank-sel3 2   ; unknown
  4137  b9      P2.bank=1
@@ -52,7 +52,7 @@
  4146  86      P0.page=6   -> A@96 ATC
  4147  9d      P1.page=d   -> B@208 CTRL1
  4148  08      ADD A=ATC          B=CTRL2        -> FIFO32
- 4149  fd      fd
+ 4149  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  4150  0f      NMUL A=ATC          B=CTRL2        -> FIFO32
  4151  bc      bank-sel3 0   ; unknown
  4152  bc      bank-sel3 0   ; unknown
@@ -90,13 +90,13 @@
  4184  a5      P2.page=5   -> D@80 ANGVBX
  4185  9d      P1.page=d   -> B@208 CTRL1
  4186  2c      ADD A=ANGVBY       B=CTRL2        -> FIFO32
- 4187  fd      fd
+ 4187  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  4188  37      NMUL A=ANGVBY       B=CTRL3        -> FIFO32
  4189  4c      ADD A=ANGVBZ       B=CTRL2        -> FIFO32
- 4190  fd      fd
+ 4190  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  4191  37      NMUL A=ANGVBY       B=CTRL3        -> FIFO32
  4192  6c      ADD A=BERR1        B=CTRL2        -> FIFO32
- 4193  fd      fd
+ 4193  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  4194  37      NMUL A=ANGVBY       B=CTRL3        -> FIFO32
  4195  f5      MIN prefix  next ALU op computes signed min(A,B)  [probe29, 16/16]
  4196  a5      P2.page=5   -> D@80 ANGVBX
@@ -178,13 +178,13 @@
  4272  be      bank-sel3 2   ; unknown
  4273  a6      P2.page=6   -> D@96 ATC
  4274  2c      ADD A=@612         B=@580         -> FIFO32
- 4275  fd      fd
+ 4275  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  4276  35      RSUB A=@612         B=@584         -> FIFO32
  4277  34      ADD A=@612         B=@584         -> FIFO32
- 4278  fd      fd
+ 4278  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  4279  35      RSUB A=@612         B=@584         -> FIFO32
  4280  3c      ADD A=@612         B=@588         -> FIFO32
- 4281  fd      fd
+ 4281  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  4282  35      RSUB A=@612         B=@584         -> FIFO32
  4283  bc      bank-sel3 0   ; unknown
  4284  b2      P0.bank=2
@@ -226,7 +226,7 @@
  4320  be      bank-sel3 2   ; unknown
  4321  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  4322  90      P1.page=0   -> B@0 PTAT
- 4323  fc      fc
+ 4323  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  4324  c3      MOV   ACT2         -> ATC  (P2 word++ first)  (c3; probe25)
  4325  00      ADD A=ATC          B=PTAT         -> FIFO32
  4326  d9      IF.Z
@@ -250,19 +250,19 @@
  4345  a9      P2.page=9   -> D@144 XACCW
  4346  80      P0.page=0   -> A@0 PTAT
  4347  90      P1.page=0   -> B@0 PTAT
- 4348  fc      fc
+ 4348  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  4349  51      RSUB A=XACC         B=XACC         -> FIFO32
  4350  00      ADD A=PTAT         B=PTAT         -> FIFO32
  4351  10      ADD A=PTAT         B=XACC         -> FIFO32
- 4352  fc      fc
+ 4352  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  4353  51      RSUB A=XACC         B=XACC         -> FIFO32
  4354  00      ADD A=PTAT         B=PTAT         -> FIFO32
  4355  10      ADD A=PTAT         B=XACC         -> FIFO32
- 4356  fc      fc
+ 4356  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  4357  51      RSUB A=XACC         B=XACC         -> FIFO32
  4358  00      ADD A=PTAT         B=PTAT         -> FIFO32
  4359  10      ADD A=PTAT         B=XACC         -> FIFO32
- 4360  fc      fc
+ 4360  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  4361  c1      MOV   PTAT         -> XACCB  (P2 word++ first)  (c1; probe25)
  4362  04      ADD A=PTAT         B=PTAT         -> FIFO32
  4363  d9      IF.Z
@@ -272,7 +272,7 @@
  4367  f4 11   B -> 4386
  4369  df      CLR  XACC := 0  (P2 word++ first)  (df; probe23)
  4370  d8      ALWAYS
- 4371  f6      f6
+ 4371  f6      ?f6    unidentified; prefix-shaped -- sits in f5's slot, before an ALU op  [UNKNOWNS.md]
  4372  a0      P2.page=0   -> D@0 PTAT
  4373  fa      INC  YGYR by 1  (P2 word++ first)  (fa; probe23)
  4374  80      P0.page=0   -> A@0 PTAT
@@ -288,7 +288,7 @@
  4385  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  4386  bd      bank-sel3 1   ; unknown
  4387  95      P1.page=5   -> B@80 ANGVBX
- 4388  fc      fc
+ 4388  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  4389  c1      MOV   PTAT         -> ZACC  (P2 word++ first)  (c1; probe25)
  4390  04      ADD A=PTAT         B=ANGVBX       -> FIFO32
  4391  d9      IF.Z
@@ -298,7 +298,7 @@
  4395  f4 11   B -> 4414
  4397  df      CLR  YGYR := 0  (P2 word++ first)  (df; probe23)
  4398  d8      ALWAYS
- 4399  f6      f6
+ 4399  f6      ?f6    unidentified; prefix-shaped -- sits in f5's slot, before an ALU op  [UNKNOWNS.md]
  4400  bc      bank-sel3 0   ; unknown
  4401  bc      bank-sel3 0   ; unknown
  4402  bc      bank-sel3 0   ; unknown
@@ -318,7 +318,7 @@
  4416  db      IF.3
  4417  84      [db] P0.page=4   -> A@64 BLPFC
  4418  93      P1.page=3   -> B@304 TMP1B
- 4419  f7      f7
+ 4419  f7      ?f7    unidentified; prefix-shaped -- followed by MUL at 9/31 sites  [UNKNOWNS.md]
  4420  6a      MUL A=BERR2N       B=TMP2B        -> FIFO32
  4421  b6      P1.bank=2
  4422  87      P0.page=7   -> A@112 0_5
@@ -335,7 +335,7 @@
  4433  bc      bank-sel3 0   ; unknown
  4434  bc      bank-sel3 0   ; unknown
  4435  bc      bank-sel3 0   ; unknown
- 4436  f6      f6
+ 4436  f6      ?f6    unidentified; prefix-shaped -- sits in f5's slot, before an ALU op  [UNKNOWNS.md]
  4437  b0      P0.bank=0
  4438  82      P0.page=2   -> A@32 BLPFSTC
  4439  b4      P1.bank=0
@@ -343,7 +343,7 @@
  4441  b8      P2.bank=0
  4442  a9      P2.page=9   -> D@144 XACCW
  4443  02      MUL A=BLPFSTC      B=0_5          -> FIFO32
- 4444  f7      f7
+ 4444  f7      ?f7    unidentified; prefix-shaped -- followed by MUL at 9/31 sites  [UNKNOWNS.md]
  4445  02      MUL A=BLPFSTC      B=0_5          -> FIFO32
  4446  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  4447  bc      bank-sel3 0   ; unknown
@@ -351,14 +351,14 @@
  4449  99      P1.page=9   -> B@144 XACCW
  4450  a7      P2.page=7   -> D@112 0_5
  4451  04      ADD A=XACCW        B=XACCW        -> FIFO32
- 4452  fd      fd
+ 4452  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  4453  37      NMUL A=XACCB        B=YACCB        -> FIFO32
  4454  a8      P2.page=8   -> D@128 TMP1A
  4455  df      CLR  TMP2A := 0  (P2 word++ first)  (df; probe23)
  4456  87      P0.page=7   -> A@112 0_5
  4457  98      P1.page=8   -> B@128 TMP1A
  4458  a7      P2.page=7   -> D@112 0_5
- 4459  fc      fc
+ 4459  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  4460  3d      RSUB A=0_0          B=TMP4A        -> FIFO32
  4461  00      ADD A=0_5          B=TMP1A        -> FIFO32
  4462  50      ADD A=1_0          B=TMP3A        -> FIFO32
@@ -370,7 +370,7 @@
  4468  df      CLR  TMP2A := 0  (P2 word++ first)  (df; probe23)
  4469  f9      DEC  TMP2A by 1  (f9; probe23)
  4470  d8      ALWAYS
- 4471  f6      f6
+ 4471  f6      ?f6    unidentified; prefix-shaped -- sits in f5's slot, before an ALU op  [UNKNOWNS.md]
  4472  bc      bank-sel3 0   ; unknown
  4473  bc      bank-sel3 0   ; unknown
  4474  bc      bank-sel3 0   ; unknown
@@ -400,7 +400,7 @@
  4498  f4 12   [d9] B.d9 -> 4518
  4500  47      NMUL A=INVGSF       B=CTRLSFNL     -> FIFO32
  4501  d8      ALWAYS
- 4502  f6      f6
+ 4502  f6      ?f6    unidentified; prefix-shaped -- sits in f5's slot, before an ALU op  [UNKNOWNS.md]
  4503  b8      P2.bank=0
  4504  a7      P2.page=7   -> D@112 0_5
  4505  1a      MUL A=ADC2         B=TMP12        -> FIFO32
@@ -420,7 +420,7 @@
  4520  8a      P0.page=a   -> A@928 @928
  4521  9d      P1.page=d   -> B@208 CTRL1
  4522  1a      MUL A=@928         B=CTRL4        -> FIFO16
- 4523  fd      fd
+ 4523  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  4524  1e      MUL A=@928         B=CTRL4        -> FIFO16
  4525  b7      P1.bank=3
  4526  9a      P1.page=a   -> B@928 @928
@@ -449,7 +449,7 @@
  4549  de      CLR  @520 := 0  (in place, no advance)  (de; probe31)
  4550  b1      P0.bank=1
  4551  b4      P1.bank=0
- 4552  f7      f7
+ 4552  f7      ?f7    unidentified; prefix-shaped -- followed by MUL at 9/31 sites  [UNKNOWNS.md]
  4553  a7      P2.page=7   -> D@624 @624
  4554  89      P0.page=9   -> A@400 XN2
  4555  91      P1.page=1   -> B@16 ADC2
@@ -550,7 +550,7 @@
  4651  a7      P2.page=7   -> D@112 0_5
  4652  88      P0.page=8   -> A@128 TMP1A
  4653  9f      P1.page=f   -> B@240 CTRLSFNL
- 4654  f7      f7
+ 4654  f7      ?f7    unidentified; prefix-shaped -- followed by MUL at 9/31 sites  [UNKNOWNS.md]
  4655  5a      MUL A=TMP3A        B=TMP12        -> FIFO32
  4656  f9      DEC  0_5 by 1  (f9; probe23)
  4657  da      IF.NZ
@@ -562,7 +562,7 @@
  4663  d0      P2 word += 2 -> D@136 TMP3A  (d0, mod 4; probe20)
  4664  7c      ADD A=TMP4A        B=CTRL4        -> FIFO16
  4665  d8      ALWAYS
- 4666  f7      f7
+ 4666  f7      ?f7    unidentified; prefix-shaped -- followed by MUL at 9/31 sites  [UNKNOWNS.md]
  4667  a7      P2.page=7   -> D@112 0_5
  4668  88      P0.page=8   -> A@128 TMP1A
  4669  9f      P1.page=f   -> B@240 CTRLSFNL
@@ -590,7 +590,7 @@
  4691  9f      P1.page=f   -> B@240 CTRLSFNL
  4692  70      ADD A=TMP4A        B=TMP11        -> FIFO16
  4693  d8      ALWAYS
- 4694  f7      f7
+ 4694  f7      ?f7    unidentified; prefix-shaped -- followed by MUL at 9/31 sites  [UNKNOWNS.md]
  4695  a7      P2.page=7   -> D@112 0_5
  4696  88      P0.page=8   -> A@128 TMP1A
  4697  9f      P1.page=f   -> B@240 CTRLSFNL
@@ -621,7 +621,7 @@
  4722  84      P0.page=4   -> A@64 BLPFC
  4723  98      P1.page=8   -> B@128 TMP1A
  4724  d0      P2 word += 2 -> D@136 TMP3A  (d0, mod 4; probe20)
- 4725  f7      f7
+ 4725  f7      ?f7    unidentified; prefix-shaped -- followed by MUL at 9/31 sites  [UNKNOWNS.md]
  4726  7e      MUL A=BERR2N       B=TMP4A        -> FIFO16
  4727  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  4728  b2      P0.bank=2
@@ -674,7 +674,7 @@
  4778  b1      P0.bank=1
  4779  8f      P0.page=f   -> A@496 BLPFNMTC
  4780  97      P1.page=7   -> B@112 0_5
- 4781  f7      f7
+ 4781  f7      ?f7    unidentified; prefix-shaped -- followed by MUL at 9/31 sites  [UNKNOWNS.md]
  4782  02      MUL A=BLPFNMTC     B=0_5          -> FIFO16
  4783  f9      DEC  0_5 by 1  (f9; probe23)
  4784  da      IF.NZ
@@ -682,7 +682,7 @@
  4787  7f      NMUL A=BLPFNMZ      B=1_5          -> FIFO16
  4788  d8      ALWAYS
  4789  b0      P0.bank=0
- 4790  f7      f7
+ 4790  f7      ?f7    unidentified; prefix-shaped -- followed by MUL at 9/31 sites  [UNKNOWNS.md]
  4791  a7      P2.page=7   -> D@112 0_5
  4792  88      P0.page=8   -> A@128 TMP1A
  4793  9f      P1.page=f   -> B@240 CTRLSFNL
@@ -701,14 +701,14 @@
  4807  2a      MUL A=@548         B=@548         -> FIFO32
  4808  f0      FMODE.0   ; 1=32-bit fifo, 2/3=16-bit
  4809  50      ADD A=@552         B=@552         -> FIFO
- 4810  fd      fd
+ 4810  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  4811  08      ADD A=@544         B=@548         -> FIFO
  4812  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  4813  a7      P2.page=7   -> D@112 0_5
  4814  84      P0.page=4   -> A@576 @576
  4815  94      P1.page=4   -> B@576 @576
  4816  02      MUL A=@576         B=@576         -> FIFO32
- 4817  fd      fd
+ 4817  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  4818  08      ADD A=@576         B=@580         -> FIFO32
  4819  b0      P0.bank=0
  4820  b4      P1.bank=0
@@ -744,10 +744,10 @@
  4852  92      P1.page=2   -> B@544 @544
  4853  a7      P2.page=7   -> D@112 0_5
  4854  16      MUL A=ATC          B=@552         -> FIFO32
- 4855  fd      fd
+ 4855  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  4856  04      ADD A=ATC          B=@544         -> FIFO32
  4857  0f      NMUL A=ATC          B=@548         -> FIFO32
- 4858  fd      fd
+ 4858  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  4859  04      ADD A=ATC          B=@544         -> FIFO32
  4860  ba      P2.bank=2
  4861  87      P0.page=7   -> A@112 0_5
@@ -804,10 +804,10 @@
  4915  90      P1.page=0   -> B@512 BLPFNMZL+2
  4916  af      P2.page=f   -> D@752 @752
  4917  6e      MUL A=@524         B=@516         -> FIFO32
- 4918  fd      fd
+ 4918  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  4919  04      ADD A=BLPFNMZL+2   B=BLPFNMZL+2   -> FIFO32
  4920  67      NMUL A=@524         B=BLPFNMZL+2   -> FIFO32
- 4921  fd      fd
+ 4921  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  4922  04      ADD A=BLPFNMZL+2   B=BLPFNMZL+2   -> FIFO32
  4923  8f      P0.page=f   -> A@752 @752
  4924  91      P1.page=1   -> B@528 @528
@@ -820,7 +820,7 @@
  4933  be      bank-sel3 2   ; unknown
  4934  bc      bank-sel3 0   ; unknown
  4935  bd      bank-sel3 1   ; unknown
- 4936  f7      f7
+ 4936  f7      ?f7    unidentified; prefix-shaped -- followed by MUL at 9/31 sites  [UNKNOWNS.md]
  4937  be      bank-sel3 2   ; unknown
  4938  b0      P0.bank=0
  4939  b4      P1.bank=0
@@ -1061,7 +1061,7 @@
  5180  d8      ALWAYS
  5181  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  5182  94      P1.page=4   -> B@64 BLPFC
- 5183  fc      fc
+ 5183  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  5184  c1      MOV   BLPFC        -> BERR2  (P2 word++ first)  (c1; probe25)
  5185  04      ADD A=BLPFC        B=BLPFC        -> FIFO32
  5186  d9      IF.Z
@@ -1074,7 +1074,7 @@
  5193  82      P0.page=2   -> A@288 TMP13
  5194  9e      P1.page=e   -> B@224 CTRLS1
  5195  06      MUL A=TMP13        B=CTRLS1       -> FIFO32
- 5196  fd      fd
+ 5196  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  5197  1e      MUL A=TMP13        B=CTRLS4       -> FIFO32
  5198  a6      P2.page=6   -> D@96 ATC
  5199  81      P0.page=1   -> A@272 1HB
@@ -1124,7 +1124,7 @@
  5243  bd      bank-sel3 1   ; unknown
  5244  bd      bank-sel3 1   ; unknown
  5245  d8      ALWAYS
- 5246  f7      f7
+ 5246  f7      ?f7    unidentified; prefix-shaped -- followed by MUL at 9/31 sites  [UNKNOWNS.md]
  5247  b8      P2.bank=0
  5248  b4      P1.bank=0
  5249  b0      P0.bank=0
@@ -1429,7 +1429,7 @@
  5556  b6      P1.bank=2
  5557  ba      P2.bank=2
  5558  91      P1.page=1   -> B@528 @528
- 5559  fc      fc
+ 5559  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  5560  c0      MOV   BLPFNMZL+2   -> @540  (c0; probe25)
  5561  28      ADD A=@516         B=@532         -> FIFO16
  5562  da      IF.NZ
@@ -1596,7 +1596,7 @@
  5728  f8      INC  BLPFNMZL+2 by 1  (f8; probe23)
  5729  f8      INC  BLPFNMZL+2 by 1  (f8; probe23)
  5730  f8      INC  BLPFNMZL+2 by 1  (f8; probe23)
- 5731  fd      fd
+ 5731  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  5732  0f      NMUL A=@720         B=@708         -> FIFO32
  5733  f5      MIN prefix  next ALU op computes signed min(A,B)  [probe29, 16/16]
  5734  af      P2.page=f   -> D@752 @752
@@ -1673,13 +1673,13 @@
  5808  9e      P1.page=e   -> B@480 TMP25
  5809  ae      P2.page=e   -> D@736 @736
  5810  34      ADD A=@564         B=ORIENT       -> FIFO32
- 5811  fd      fd
+ 5811  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  5812  0a      MUL A=@560         B=TMP27        -> FIFO32
  5813  54      ADD A=@568         B=ORIENT       -> FIFO32
- 5814  fd      fd
+ 5814  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  5815  0a      MUL A=@560         B=TMP27        -> FIFO32
  5816  74      ADD A=@572         B=ORIENT       -> FIFO32
- 5817  fd      fd
+ 5817  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  5818  0a      MUL A=@560         B=TMP27        -> FIFO32
  5819  f2      FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
  5820  a1      P2.page=1   -> D@528 @528
@@ -1767,7 +1767,7 @@
  5903  bc      bank-sel3 0   ; unknown
  5904  bd      bank-sel3 1   ; unknown
  5905  d8      ALWAYS
- 5906  f7      f7
+ 5906  f7      ?f7    unidentified; prefix-shaped -- followed by MUL at 9/31 sites  [UNKNOWNS.md]
  5907  bc      bank-sel3 0   ; unknown
  5908  bc      bank-sel3 0   ; unknown
  5909  bc      bank-sel3 0   ; unknown
@@ -1930,7 +1930,7 @@
  6071  d8      ALWAYS
  6072  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  6073  91      P1.page=1   -> B@784 @784
- 6074  fc      fc
+ 6074  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  6075  c0      MOV   @1008        -> @1012  (c0; probe25)
  6076  04      ADD A=@1008        B=@784         -> FIFO32
  6077  d9      IF.Z
@@ -1948,7 +1948,7 @@
  6091  d1      TEST  Z := (last ALU result == 0); d9 = IF.Z, da = IF.NZ  [probe19/20]
  6092  f3      FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
  6093  91      P1.page=1   -> B@784 @784
- 6094  fc      fc
+ 6094  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  6095  c0      MOV   @1008        -> @772  (c0; probe25)
  6096  07      NMUL A=@1008        B=@784         -> FIFO16
  6097  d9      IF.Z
@@ -2161,12 +2161,12 @@
  6310  85      P0.page=5   -> A@848 @848
  6311  95      P1.page=5   -> B@848 @848
  6312  56      MUL A=@856         B=@856         -> FIFO32
- 6313  fd      fd
+ 6313  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  6314  0f      NMUL A=@848         B=@852         -> FIFO32
  6315  86      P0.page=6   -> A@864 @864
  6316  96      P1.page=6   -> B@864 @864
  6317  06      MUL A=@864         B=@864         -> FIFO32
- 6318  fd      fd
+ 6318  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  6319  0f      NMUL A=@864         B=@868         -> FIFO32
  6320  f0      FMODE.0   ; 1=32-bit fifo, 2/3=16-bit
  6321  84      P0.page=4   -> A@832 @832
@@ -2174,18 +2174,18 @@
  6323  af      P2.page=f   -> D@1008 @1008
  6324  4c      ADD A=@840         B=@1012        -> FIFO
  6325  70      ADD A=@844         B=@1016        -> FIFO
- 6326  fd      fd
+ 6326  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  6327  0f      NMUL A=@832         B=@1012        -> FIFO
  6328  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  6329  86      P0.page=6   -> A@864 @864
  6330  96      P1.page=6   -> B@864 @864
  6331  2e      MUL A=@868         B=@868         -> FIFO32
- 6332  fd      fd
+ 6332  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  6333  0f      NMUL A=@864         B=@868         -> FIFO32
  6334  84      P0.page=4   -> A@832 @832
  6335  9f      P1.page=f   -> B@1008 @1008
  6336  72      MUL A=@844         B=@1016        -> FIFO32
- 6337  fd      fd
+ 6337  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  6338  0f      NMUL A=@832         B=@1012        -> FIFO32
  6339  df      CLR  @1016 := 0  (P2 word++ first)  (df; probe23)
  6340  af      P2.page=f   -> D@1008 @1008
@@ -2212,13 +2212,13 @@
  6362  83      P0.page=3   -> A@816 @816
  6363  91      P1.page=1   -> B@784 @784
  6364  28      ADD A=@820         B=@788         -> FIFO32
- 6365  fd      fd
+ 6365  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  6366  05      RSUB A=@816         B=@784         -> FIFO32
  6367  54      ADD A=@824         B=@792         -> FIFO32
- 6368  fd      fd
+ 6368  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  6369  05      RSUB A=@816         B=@784         -> FIFO32
  6370  7c      ADD A=@828         B=@796         -> FIFO32
- 6371  fd      fd
+ 6371  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  6372  05      RSUB A=@816         B=@784         -> FIFO32
  6373  b8      P2.bank=0
  6374  bd      bank-sel3 1   ; unknown
@@ -2427,7 +2427,7 @@
  6581  54      ADD A=@1016        B=@1016        -> FIFO
  6582  78      ADD A=@1020        B=@1020        -> FIFO
  6583  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
- 6584  fd      fd
+ 6584  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  6585  0f      NMUL A=@1008        B=@1012        -> FIFO32
  6586  a6      P2.page=6   -> D@352 MNMFLAG
  6587  b1      P0.bank=1
@@ -2438,7 +2438,7 @@
  6592  8f      P0.page=f   -> A@1008 @1008
  6593  9f      P1.page=f   -> B@1008 @1008
  6594  2e      MUL A=@1012        B=@1012        -> FIFO32
- 6595  fd      fd
+ 6595  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  6596  11      RSUB A=@1008        B=@1016        -> FIFO32
  6597  b1      P0.bank=1
  6598  b5      P1.bank=1
@@ -2459,11 +2459,11 @@
  6614  86      P0.page=6   -> A@352 MNMFLAG
  6615  99      P1.page=9   -> B@400 XN2
  6616  06      MUL A=MNMFLAG      B=XN2          -> FIFO32
- 6617  fd      fd
+ 6617  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  6618  10      ADD A=MNMFLAG      B=YN2          -> FIFO32
  6619  df      CLR  TAP_THY := 0  (P2 word++ first)  (df; probe23)
  6620  f8      INC  TAP_THY by 1  (f8; probe23)
- 6621  fd      fd
+ 6621  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  6622  0f      NMUL A=MNMFLAG      B=XN1          -> FIFO32
  6623  ad      P2.page=d   -> D@464 TMP22
  6624  8d      P0.page=d   -> A@464 TMP22
@@ -2475,18 +2475,18 @@
  6630  8f      P0.page=f   -> A@1008 @1008
  6631  9d      P1.page=d   -> B@464 TMP22
  6632  2a      MUL A=@1012        B=TAP_THX      -> FIFO32
- 6633  fd      fd
+ 6633  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  6634  0f      NMUL A=@1008        B=TAP_THX      -> FIFO32
  6635  b7      P1.bank=3
  6636  92      P1.page=2   -> B@800 @800
- 6637  fc      fc
+ 6637  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  6638  c0      MOV   @1008        -> @980  (c0; probe25)
  6639  04      ADD A=@1008        B=@800         -> FIFO32
  6640  d9      IF.Z
  6641  f4 18   [d9] B.d9 -> 6667
  6643  2b      NMUL A=@1012        B=@804         -> FIFO32
  6644  d8      ALWAYS
- 6645  fc      fc
+ 6645  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  6646  c0      MOV   @1008        -> @984  (c0; probe25)
  6647  08      ADD A=@1008        B=@804         -> FIFO32
  6648  d9      IF.Z
@@ -2511,7 +2511,7 @@
  6669  af      P2.page=f   -> D@752 @752
  6670  de      CLR  @752 := 0  (in place, no advance)  (de; probe31)
  6671  f9      DEC  @752 by 1  (f9; probe23)
- 6672  fd      fd
+ 6672  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  6673  0f      NMUL A=@752         B=@548         -> FIFO32
  6674  80      P0.page=0   -> A@512 BLPFNMZL+2
  6675  90      P1.page=0   -> B@512 BLPFNMZL+2
@@ -2523,7 +2523,7 @@
  6681  f0      FMODE.0   ; 1=32-bit fifo, 2/3=16-bit
  6682  50      ADD A=@520         B=@520         -> FIFO
  6683  78      ADD A=@524         B=@524         -> FIFO
- 6684  fd      fd
+ 6684  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  6685  0f      NMUL A=BLPFNMZL+2   B=@516         -> FIFO
  6686  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  6687  a2      P2.page=2   -> D@544 @544
@@ -2538,17 +2538,17 @@
  6696  94      P1.page=4   -> B@576 @576
  6697  f0      FMODE.0   ; 1=32-bit fifo, 2/3=16-bit
  6698  04      ADD A=@752         B=@576         -> FIFO
- 6699  fd      fd
+ 6699  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  6700  0f      NMUL A=@752         B=@580         -> FIFO
  6701  0c      ADD A=@752         B=@580         -> FIFO
  6702  30      ADD A=@756         B=@584         -> FIFO
- 6703  fd      fd
+ 6703  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  6704  0f      NMUL A=@752         B=@580         -> FIFO
  6705  1c      ADD A=@752         B=@588         -> FIFO
  6706  95      P1.page=5   -> B@592 @592
  6707  20      ADD A=@756         B=@592         -> FIFO
  6708  48      ADD A=@760         B=@596         -> FIFO
- 6709  fd      fd
+ 6709  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  6710  0f      NMUL A=@752         B=@596         -> FIFO
  6711  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  6712  99      P1.page=9   -> B@656 @656
@@ -2560,16 +2560,16 @@
  6718  82      P0.page=2   -> A@544 @544
  6719  99      P1.page=9   -> B@656 @656
  6720  02      MUL A=@544         B=@656         -> FIFO32
- 6721  fd      fd
+ 6721  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  6722  0f      NMUL A=@544         B=@660         -> FIFO32
  6723  2e      MUL A=@548         B=@660         -> FIFO32
- 6724  fd      fd
+ 6724  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  6725  0f      NMUL A=@544         B=@660         -> FIFO32
  6726  56      MUL A=@552         B=@664         -> FIFO32
- 6727  fd      fd
+ 6727  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  6728  0f      NMUL A=@544         B=@660         -> FIFO32
  6729  7e      MUL A=@556         B=@668         -> FIFO32
- 6730  fd      fd
+ 6730  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  6731  0f      NMUL A=@544         B=@660         -> FIFO32
  6732  ac      P2.page=c   -> D@704 @704
  6733  83      P0.page=3   -> A@560 @560
@@ -2579,7 +2579,7 @@
  6737  28      ADD A=@564         B=@756         -> FIFO
  6738  50      ADD A=@568         B=@760         -> FIFO
  6739  78      ADD A=@572         B=@764         -> FIFO
- 6740  fd      fd
+ 6740  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  6741  0f      NMUL A=@560         B=@756         -> FIFO
  6742  8c      P0.page=c   -> A@704 @704
  6743  90      P1.page=0   -> B@512 BLPFNMZL+2
@@ -2596,7 +2596,7 @@
  6754  89      P0.page=9   -> A@656 @656
  6755  af      P2.page=f   -> D@752 @752
  6756  9f      P1.page=f   -> B@752 @752
- 6757  fc      fc
+ 6757  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  6758  c0      MOV   @656         -> @752  (c0; probe25)
  6759  00      ADD A=@656         B=@752         -> FIFO32
  6760  d9      IF.Z
@@ -2606,7 +2606,7 @@
  6764  82      P0.page=2   -> A@544 @544
  6765  c1      MOV   @544         -> @764  (P2 word++ first)  (c1; probe25)
  6766  d8      ALWAYS
- 6767  fc      fc
+ 6767  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  6768  c0      MOV   @544         -> @764  (c0; probe25)
  6769  04      ADD A=@544         B=@752         -> FIFO32
  6770  d9      IF.Z
@@ -2616,7 +2616,7 @@
  6774  82      P0.page=2   -> A@544 @544
  6775  c3      MOV   @548         -> @764  (P2 word++ first)  (c3; probe25)
  6776  d8      ALWAYS
- 6777  fc      fc
+ 6777  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  6778  c0      MOV   @544         -> @764  (c0; probe25)
  6779  08      ADD A=@544         B=@756         -> FIFO32
  6780  d9      IF.Z
@@ -2626,7 +2626,7 @@
  6784  82      P0.page=2   -> A@544 @544
  6785  c5      MOV   @552         -> @760  (P2 word++ first)  (c5; probe25)
  6786  d8      ALWAYS
- 6787  fc      fc
+ 6787  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  6788  c0      MOV   @544         -> @760  (c0; probe25)
  6789  0c      ADD A=@544         B=@756         -> FIFO32
  6790  d9      IF.Z
@@ -2636,7 +2636,7 @@
  6794  82      P0.page=2   -> A@544 @544
  6795  c7      MOV   @556         -> @760  (P2 word++ first)  (c7; probe25)
  6796  d8      ALWAYS
- 6797  fc      fc
+ 6797  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  6798  c0      MOV   @544         -> @760  (c0; probe25)
  6799  10      ADD A=@544         B=@760         -> FIFO32
  6800  d9      IF.Z
@@ -2650,7 +2650,7 @@
  6809  c0      MOV   @688         -> @696  (c0; probe25)
  6810  9f      P1.page=f   -> B@752 @752
  6811  2e      MUL A=@692         B=@756         -> FIFO32
- 6812  fd      fd
+ 6812  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  6813  0f      NMUL A=@688         B=@756         -> FIFO32
  6814  a0      P2.page=0   -> D@512 BLPFNMZL+2
  6815  de      CLR  BLPFNMZL+2 := 0  (in place, no advance)  (de; probe31)
@@ -2662,7 +2662,7 @@
  6821  8f      P0.page=f   -> A@752 @752
  6822  9f      P1.page=f   -> B@752 @752
  6823  4a      MUL A=@760         B=@756         -> FIFO32
- 6824  fd      fd
+ 6824  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  6825  0f      NMUL A=@752         B=@756         -> FIFO32
  6826  ab      P2.page=b   -> D@688 @688
  6827  8b      P0.page=b   -> A@688 @688
@@ -2691,13 +2691,13 @@
  6851  8b      P0.page=b   -> A@688 @688
  6852  9f      P1.page=f   -> B@752 @752
  6853  3e      MUL A=@692         B=@764         -> FIFO32
- 6854  fd      fd
+ 6854  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  6855  0f      NMUL A=@688         B=@756         -> FIFO32
  6856  5a      MUL A=@696         B=@764         -> FIFO32
- 6857  fd      fd
+ 6857  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  6858  0f      NMUL A=@688         B=@756         -> FIFO32
  6859  9f      P1.page=f   -> B@752 @752
- 6860  fc      fc
+ 6860  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  6861  c0      MOV   @688         -> @756  (c0; probe25)
  6862  00      ADD A=@688         B=@752         -> FIFO32
  6863  d9      IF.Z
@@ -2706,7 +2706,7 @@
  6866  a2      P2.page=2   -> D@544 @544
  6867  c6      MOV   @764         -> @544  (c6; probe25)
  6868  d8      ALWAYS
- 6869  fc      fc
+ 6869  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  6870  c0      MOV   @752         -> @544  (c0; probe25)
  6871  04      ADD A=@752         B=@752         -> FIFO32
  6872  d9      IF.Z
@@ -2721,10 +2721,10 @@
  6881  8a      P0.page=a   -> A@672 @672
  6882  9b      P1.page=b   -> B@688 @688
  6883  1e      MUL A=@672         B=@700         -> FIFO32
- 6884  fd      fd
+ 6884  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  6885  0f      NMUL A=@672         B=@692         -> FIFO32
  6886  36      MUL A=@676         B=@696         -> FIFO32
- 6887  fd      fd
+ 6887  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  6888  0f      NMUL A=@672         B=@692         -> FIFO32
  6889  a4      P2.page=4   -> D@576 @576
  6890  8f      P0.page=f   -> A@752 @752
@@ -2734,7 +2734,7 @@
  6894  40      ADD A=@760         B=@672         -> FIFO32
  6895  d8      ALWAYS
  6896  9f      P1.page=f   -> B@752 @752
- 6897  fc      fc
+ 6897  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  6898  c0      MOV   @752         -> @672  (c0; probe25)
  6899  08      ADD A=@752         B=@756         -> FIFO32
  6900  d9      IF.Z
@@ -2750,10 +2750,10 @@
  6910  8a      P0.page=a   -> A@672 @672
  6911  9b      P1.page=b   -> B@688 @688
  6912  1e      MUL A=@672         B=@700         -> FIFO32
- 6913  fd      fd
+ 6913  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  6914  0f      NMUL A=@672         B=@692         -> FIFO32
  6915  56      MUL A=@680         B=@696         -> FIFO32
- 6916  fd      fd
+ 6916  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  6917  0f      NMUL A=@672         B=@692         -> FIFO32
  6918  a4      P2.page=4   -> D@576 @576
  6919  8f      P0.page=f   -> A@752 @752
@@ -2769,10 +2769,10 @@
  6929  8a      P0.page=a   -> A@672 @672
  6930  9b      P1.page=b   -> B@688 @688
  6931  3e      MUL A=@676         B=@700         -> FIFO32
- 6932  fd      fd
+ 6932  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  6933  0f      NMUL A=@672         B=@692         -> FIFO32
  6934  56      MUL A=@680         B=@696         -> FIFO32
- 6935  fd      fd
+ 6935  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  6936  0f      NMUL A=@672         B=@692         -> FIFO32
  6937  a4      P2.page=4   -> D@576 @576
  6938  d0      P2 word += 2 -> D@584 @584  (d0, mod 4; probe20)
@@ -2783,7 +2783,7 @@
  6943  4c      ADD A=@760         B=@676         -> FIFO32
  6944  d8      ALWAYS
  6945  9f      P1.page=f   -> B@752 @752
- 6946  fc      fc
+ 6946  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  6947  c0      MOV   @752         -> @676  (c0; probe25)
  6948  0c      ADD A=@752         B=@756         -> FIFO32
  6949  d9      IF.Z
@@ -2799,10 +2799,10 @@
  6959  8a      P0.page=a   -> A@672 @672
  6960  9b      P1.page=b   -> B@688 @688
  6961  1e      MUL A=@672         B=@700         -> FIFO32
- 6962  fd      fd
+ 6962  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  6963  0f      NMUL A=@672         B=@692         -> FIFO32
  6964  76      MUL A=@684         B=@696         -> FIFO32
- 6965  fd      fd
+ 6965  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  6966  0f      NMUL A=@672         B=@692         -> FIFO32
  6967  a4      P2.page=4   -> D@576 @576
  6968  d0      P2 word += 2 -> D@584 @584  (d0, mod 4; probe20)
@@ -2819,10 +2819,10 @@
  6979  8a      P0.page=a   -> A@672 @672
  6980  9b      P1.page=b   -> B@688 @688
  6981  3e      MUL A=@676         B=@700         -> FIFO32
- 6982  fd      fd
+ 6982  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  6983  0f      NMUL A=@672         B=@692         -> FIFO32
  6984  76      MUL A=@684         B=@696         -> FIFO32
- 6985  fd      fd
+ 6985  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  6986  0f      NMUL A=@672         B=@692         -> FIFO32
  6987  a5      P2.page=5   -> D@592 @592
  6988  8f      P0.page=f   -> A@752 @752
@@ -2838,10 +2838,10 @@
  6998  8a      P0.page=a   -> A@672 @672
  6999  9b      P1.page=b   -> B@688 @688
  7000  5e      MUL A=@680         B=@700         -> FIFO32
- 7001  fd      fd
+ 7001  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  7002  0f      NMUL A=@672         B=@692         -> FIFO32
  7003  76      MUL A=@684         B=@696         -> FIFO32
- 7004  fd      fd
+ 7004  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  7005  0f      NMUL A=@672         B=@692         -> FIFO32
  7006  a5      P2.page=5   -> D@592 @592
  7007  8f      P0.page=f   -> A@752 @752
@@ -2861,23 +2861,23 @@
  7022  9c      P1.page=c   -> B@704 @704
  7023  af      P2.page=f   -> D@752 @752
  7024  2a      MUL A=@692         B=@708         -> FIFO32
- 7025  fd      fd
+ 7025  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  7026  0f      NMUL A=@688         B=@708         -> FIFO32
  7027  8a      P0.page=a   -> A@672 @672
  7028  9f      P1.page=f   -> B@752 @752
  7029  b9      P2.bank=1
  7030  af      P2.page=f   -> D@496 BLPFNMTC
  7031  02      MUL A=@672         B=@752         -> FIFO32
- 7032  fd      fd
+ 7032  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  7033  0f      NMUL A=@672         B=@756         -> FIFO32
  7034  26      MUL A=@676         B=@752         -> FIFO32
- 7035  fd      fd
+ 7035  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  7036  0f      NMUL A=@672         B=@756         -> FIFO32
  7037  46      MUL A=@680         B=@752         -> FIFO32
- 7038  fd      fd
+ 7038  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  7039  0f      NMUL A=@672         B=@756         -> FIFO32
  7040  66      MUL A=@684         B=@752         -> FIFO32
- 7041  fd      fd
+ 7041  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  7042  0f      NMUL A=@672         B=@756         -> FIFO32
  7043  83      P0.page=3   -> A@560 @560
  7044  b5      P1.bank=1
@@ -2910,14 +2910,14 @@
  7071  d8      ALWAYS
  7072  f3      FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
  7073  9e      P1.page=e   -> B@736 @736
- 7074  fc      fc
+ 7074  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  7075  c0      MOV   @544         -> @724  (c0; probe25)
  7076  04      ADD A=@544         B=@736         -> FIFO16
  7077  d9      IF.Z
  7078  f4 17   [d9] B.d9 -> 7103
  7080  1b      NMUL A=@544         B=@748         -> FIFO16
  7081  d8      ALWAYS
- 7082  fc      fc
+ 7082  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  7083  c0      MOV   @544         -> @728  (c0; probe25)
  7084  08      ADD A=@544         B=@740         -> FIFO16
  7085  d9      IF.Z
@@ -2980,7 +2980,7 @@
  7145  89      P0.page=9   -> A@400 XN2
  7146  aa      P2.page=a   -> D@416 Y
  7147  7c      ADD A=YN1          B=ACCQD7       -> FIFO32
- 7148  fd      fd
+ 7148  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  7149  02      MUL A=XN2          B=ACCQD4       -> FIFO32
  7150  9a      P1.page=a   -> B@416 Y
  7151  68      ADD A=YN1          B=B0           -> FIFO32
@@ -2993,7 +2993,7 @@
  7158  99      P1.page=9   -> B@400 XN2
  7159  af      P2.page=f   -> D@496 BLPFNMTC
  7160  26      MUL A=XN1          B=XN2          -> FIFO32
- 7161  fd      fd
+ 7161  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  7162  0f      NMUL A=XN2          B=XN1          -> FIFO32
  7163  8f      P0.page=f   -> A@496 BLPFNMTC
  7164  95      P1.page=5   -> B@336 PVXG
@@ -3002,21 +3002,21 @@
  7167  9f      P1.page=f   -> B@496 BLPFNMTC
  7168  a9      P2.page=9   -> D@400 XN2
  7169  12      MUL A=XN2          B=BLPFNMY      -> FIFO32
- 7170  fd      fd
+ 7170  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  7171  0f      NMUL A=XN2          B=BLPFNMX      -> FIFO32
  7172  f4 1c   B -> 7202
  7174  80      P0.page=0   -> A@256 PREVPTAT
  7175  d8      ALWAYS
  7176  f3      FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
  7177  9e      P1.page=e   -> B@480 TMP25
- 7178  fc      fc
+ 7178  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  7179  c1      MOV   PREVPTAT     -> YN2  (P2 word++ first)  (c1; probe25)
  7180  04      ADD A=PREVPTAT     B=TMP25        -> FIFO16
  7181  d9      IF.Z
  7182  f4 1b   [d9] B.d9 -> 7211
  7184  48      ADD A=ACCXB        B=TMP27        -> FIFO16
  7185  d8      ALWAYS
- 7186  fc      fc
+ 7186  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  7187  c1      MOV   PREVPTAT     -> XN2  (P2 word++ first)  (c1; probe25)
  7188  08      ADD A=PREVPTAT     B=TMP27        -> FIFO16
  7189  d9      IF.Z
@@ -3051,7 +3051,7 @@
  7219  de      CLR  TMP1A := 0  (in place, no advance)  (de; probe31)
  7220  d8      ALWAYS
  7221  95      P1.page=5   -> B@80 ANGVBX
- 7222  fc      fc
+ 7222  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  7223  c1      MOV   BLPFC        -> TMP2A  (P2 word++ first)  (c1; probe25)
  7224  03      NMUL A=BLPFC        B=ANGVBX       -> FIFO32
  7225  d9      IF.Z
@@ -3062,12 +3062,12 @@
  7230  bc      bank-sel3 0   ; unknown
  7231  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  7232  98      P1.page=8   -> B@128 TMP1A
- 7233  fc      fc
+ 7233  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  7234  c0      MOV   BLPFC        -> TMP1A  (c0; probe25)
  7235  1c      ADD A=BLPFC        B=TMP4A        -> FIFO32
  7236  db      IF.3
  7237  95      [db] P1.page=5   -> B@80 ANGVBX
- 7238  fc      fc
+ 7238  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  7239  c0      MOV   BLPFC        -> TMP2A  (c0; probe25)
  7240  03      NMUL A=BLPFC        B=ANGVBX       -> FIFO32
  7241  a5      P2.page=5   -> D@80 ANGVBX
@@ -3085,17 +3085,17 @@
  7253  f8      INC  ANGVBX by 1  (f8; probe23)
  7254  d8      ALWAYS
  7255  a4      P2.page=4   -> D@64 BLPFC
- 7256  fc      fc
+ 7256  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  7257  80      P0.page=0   -> A@0 PTAT
  7258  04      ADD A=PTAT         B=ANGVBX       -> FIFO32
  7259  88      P0.page=8   -> A@128 TMP1A
  7260  95      P1.page=5   -> B@80 ANGVBX
  7261  a4      P2.page=4   -> D@64 BLPFC
- 7262  fc      fc
+ 7262  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  7263  08      ADD A=TMP1A        B=ANGVBY       -> FIFO32
  7264  04      ADD A=TMP1A        B=ANGVBX       -> FIFO32
  7265  20      ADD A=TMP2A        B=ANGVBX       -> FIFO32
- 7266  f7      f7
+ 7266  f7      ?f7    unidentified; prefix-shaped -- followed by MUL at 9/31 sites  [UNKNOWNS.md]
  7267  bc      bank-sel3 0   ; unknown
  7268  bc      bank-sel3 0   ; unknown
  7269  bd      bank-sel3 1   ; unknown
@@ -3104,7 +3104,7 @@
  7272  ac      P2.page=c   -> D@192 QT1
  7273  84      P0.page=4   -> A@64 BLPFC
  7274  9f      P1.page=f   -> B@496 BLPFNMTC
- 7275  f6      f6
+ 7275  f6      ?f6    unidentified; prefix-shaped -- sits in f5's slot, before an ALU op  [UNKNOWNS.md]
  7276  02      MUL A=BLPFC        B=BLPFNMTC     -> FIFO32
  7277  f8      INC  QT1 by 1  (f8; probe23)
  7278  f9      DEC  QT1 by 1  (f9; probe23)
@@ -3112,7 +3112,7 @@
  7280  db      IF.3
  7281  84      [db] P0.page=4   -> A@64 BLPFC
  7282  93      P1.page=3   -> B@304 TMP1B
- 7283  f7      f7
+ 7283  f7      ?f7    unidentified; prefix-shaped -- followed by MUL at 9/31 sites  [UNKNOWNS.md]
  7284  6a      MUL A=BERR2N       B=TMP2B        -> FIFO32
  7285  f9      DEC  QT1 by 1  (f9; probe23)
  7286  d9      IF.Z
@@ -3140,7 +3140,7 @@
  7308  d0      P2 word += 2 -> D@24 INVGSF  (d0, mod 4; probe20)
  7309  bc      bank-sel3 0   ; unknown
  7310  bc      bank-sel3 0   ; unknown
- 7311  f7      f7
+ 7311  f7      ?f7    unidentified; prefix-shaped -- followed by MUL at 9/31 sites  [UNKNOWNS.md]
  7312  be      bank-sel3 2   ; unknown
  7313  be      bank-sel3 2   ; unknown
  7314  b5      P1.bank=1
@@ -3158,7 +3158,7 @@
  7326  8c      P0.page=c   -> A@192 QT1
  7327  97      P1.page=7   -> B@112 0_5
  7328  18      ADD A=QT1          B=1_5          -> FIFO16
- 7329  f6      f6
+ 7329  f6      ?f6    unidentified; prefix-shaped -- sits in f5's slot, before an ALU op  [UNKNOWNS.md]
  7330  84      P0.page=4   -> A@64 BLPFC
  7331  9c      P1.page=c   -> B@192 QT1
  7332  02      MUL A=BLPFC        B=QT1          -> FIFO16
@@ -3170,7 +3170,7 @@
  7338  a5      P2.page=5   -> D@80 ANGVBX
  7339  df      CLR  ANGVBY := 0  (P2 word++ first)  (df; probe23)
  7340  d8      ALWAYS
- 7341  f7      f7
+ 7341  f7      ?f7    unidentified; prefix-shaped -- followed by MUL at 9/31 sites  [UNKNOWNS.md]
  7342  be      bank-sel3 2   ; unknown
  7343  be      bank-sel3 2   ; unknown
  7344  bd      bank-sel3 1   ; unknown
@@ -3193,7 +3193,7 @@
  7362  ac      P2.page=c   -> D@192 QT1
  7363  88      P0.page=8   -> A@128 TMP1A
  7364  9f      P1.page=f   -> B@240 CTRLSFNL
- 7365  f7      f7
+ 7365  f7      ?f7    unidentified; prefix-shaped -- followed by MUL at 9/31 sites  [UNKNOWNS.md]
  7366  5a      MUL A=TMP3A        B=TMP12        -> FIFO32
  7367  56      MUL A=TMP3A        B=TMP11        -> FIFO32
  7368  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
@@ -3202,7 +3202,7 @@
  7371  bd      bank-sel3 1   ; unknown
  7372  bd      bank-sel3 1   ; unknown
  7373  95      P1.page=5   -> B@80 ANGVBX
- 7374  fc      fc
+ 7374  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  7375  c0      MOV   TMP1A        -> QT2  (c0; probe25)
  7376  07      NMUL A=TMP1A        B=ANGVBX       -> FIFO32
  7377  da      IF.NZ
@@ -3210,12 +3210,12 @@
  7380  7c      ADD A=TMP4A        B=BERR1        -> FIFO32
  7381  d8      ALWAYS
  7382  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
- 7383  fc      fc
+ 7383  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  7384  c0      MOV   TMP1A        -> QT4  (c0; probe25)
  7385  00      ADD A=TMP1A        B=ANGVBX       -> FIFO32
  7386  db      IF.3
  7387  9c      [db] P1.page=c   -> B@192 QT1
- 7388  fc      fc
+ 7388  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  7389  c1      MOV   TMP1A        -> QT1  (P2 word++ first)  (c1; probe25)
  7390  00      ADD A=TMP1A        B=QT1          -> FIFO32
  7391  f4 1e   B -> 7423
@@ -3224,7 +3224,7 @@
  7395  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  7396  ac      P2.page=c   -> D@192 QT1
  7397  95      P1.page=5   -> B@80 ANGVBX
- 7398  fc      fc
+ 7398  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  7399  c0      MOV   TMP1A        -> QT1  (c0; probe25)
  7400  08      ADD A=TMP1A        B=ANGVBY       -> FIFO32
  7401  da      IF.NZ
@@ -3367,19 +3367,19 @@
  7542  81      P0.page=1   -> A@16 ADC2
  7543  91      P1.page=1   -> B@16 ADC2
  7544  02      MUL A=ADC2         B=ADC2         -> FIFO32
- 7545  fd      fd
+ 7545  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  7546  14      ADD A=ADC2         B=INVGSF       -> FIFO32
  7547  85      P0.page=5   -> A@80 ANGVBX
  7548  66      MUL A=BERR1        B=ADC2         -> FIFO32
- 7549  fd      fd
+ 7549  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  7550  1d      RSUB A=ANGVBX       B=1            -> FIFO32
  7551  88      P0.page=8   -> A@128 TMP1A
  7552  4e      MUL A=TMP3A        B=BIASUNC      -> FIFO32
- 7553  fd      fd
+ 7553  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  7554  1b      NMUL A=TMP1A        B=1            -> FIFO32
  7555  87      P0.page=7   -> A@112 0_5
  7556  d4      d4
- 7557  fd      fd
+ 7557  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  7558  54      ADD A=1_0          B=INVGSF       -> FIFO32
  7559  ad      P2.page=d   -> D@208 CTRL1
  7560  8d      P0.page=d   -> A@208 CTRL1
@@ -3389,7 +3389,7 @@
  7564  9c      P1.page=c   -> B@192 QT1
  7565  ab      P2.page=b   -> D@176 YACCW
  7566  d6      d6
- 7567  fd      fd
+ 7567  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  7568  06      MUL A=ADC2         B=QT1          -> FIFO
  7569  8d      P0.page=d   -> A@208 CTRL1
  7570  31      RSUB A=CTRL2        B=QT3          -> FIFO
@@ -3415,7 +3415,7 @@
  7591  96      P1.page=6   -> B@96 ATC
  7592  01      RSUB A=BLPFSTC      B=ATC          -> FIFO32
  7593  95      P1.page=5   -> B@80 ANGVBX
- 7594  fc      fc
+ 7594  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  7595  c1      MOV   BLPFSTC      -> XACCB  (P2 word++ first)  (c1; probe25)
  7596  00      ADD A=BLPFSTC      B=ANGVBX       -> FIFO32
  7597  da      IF.NZ
@@ -3441,13 +3441,13 @@
  7619  84      P0.page=4   -> A@64 BLPFC
  7620  95      P1.page=5   -> B@80 ANGVBX
  7621  34      ADD A=0H2          B=ANGVBZ       -> FIFO32
- 7622  fd      fd
+ 7622  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  7623  05      RSUB A=BLPFC        B=ANGVBX       -> FIFO32
  7624  54      ADD A=BERR2        B=ANGVBZ       -> FIFO32
- 7625  fd      fd
+ 7625  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  7626  05      RSUB A=BLPFC        B=ANGVBX       -> FIFO32
  7627  74      ADD A=BERR2N       B=ANGVBZ       -> FIFO32
- 7628  fd      fd
+ 7628  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  7629  05      RSUB A=BLPFC        B=ANGVBX       -> FIFO32
  7630  a9      P2.page=9   -> D@144 XACCW
  7631  94      P1.page=4   -> B@64 BLPFC
@@ -3497,7 +3497,7 @@
  7675  df      CLR  BERR2N := 0  (P2 word++ first)  (df; probe23)
  7676  a2      P2.page=2   -> D@32 BLPFSTC
  7677  95      P1.page=5   -> B@80 ANGVBX
- 7678  fc      fc
+ 7678  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  7679  c0      MOV   BLPFSTC      -> BLPFSTC  (c0; probe25)
  7680  01      RSUB A=BLPFSTC      B=ANGVBX       -> FIFO32
  7681  d9      IF.Z
@@ -3519,7 +3519,7 @@
  7697  d8      ALWAYS
  7698  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  7699  9a      P1.page=a   -> B@160 DZ
- 7700  fc      fc
+ 7700  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  7701  c1      MOV   BLPFMTC      -> TMP3A  (P2 word++ first)  (c1; probe25)
  7702  04      ADD A=BLPFMTC      B=DZ           -> FIFO32
  7703  d9      IF.Z
@@ -3587,7 +3587,7 @@
  7766  a7      P2.page=7   -> D@112 0_5
  7767  88      P0.page=8   -> A@128 TMP1A
  7768  9e      P1.page=e   -> B@224 CTRLS1
- 7769  f7      f7
+ 7769  f7      ?f7    unidentified; prefix-shaped -- followed by MUL at 9/31 sites  [UNKNOWNS.md]
  7770  7a      MUL A=TMP4A        B=CTRLS4       -> FIFO32
  7771  f9      DEC  0_5 by 1  (f9; probe23)
  7772  d9      IF.Z
@@ -3730,7 +3730,7 @@
  7913  54      ADD A=@1016        B=@1016        -> FIFO32
  7914  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  7915  97      P1.page=7   -> B@880 @880
- 7916  fc      fc
+ 7916  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  7917  c0      MOV   @1008        -> @1016  (c0; probe25)
  7918  04      ADD A=@1008        B=@880         -> FIFO32
  7919  db      IF.3
@@ -3742,7 +3742,7 @@
  7925  f8      INC  @900 by 1  (f8; probe23)
  7926  d8      ALWAYS
  7927  98      P1.page=8   -> B@896 @896
- 7928  fc      fc
+ 7928  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  7929  c0      MOV   @1008        -> @900  (c0; probe25)
  7930  08      ADD A=@1008        B=@900         -> FIFO32
  7931  d9      IF.Z
@@ -3750,7 +3750,7 @@
  7934  b4      P1.bank=0
  7935  d8      ALWAYS
  7936  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
- 7937  fc      fc
+ 7937  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  7938  c0      MOV   @1008        -> @900  (c0; probe25)
  7939  0c      ADD A=@1008        B=TMP2A        -> FIFO32
  7940  d9      IF.Z
@@ -3759,7 +3759,7 @@
  7944  d8      ALWAYS
  7945  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  7946  93      P1.page=3   -> B@48 BLPFMTC
- 7947  fc      fc
+ 7947  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  7948  c0      MOV   @1008        -> @904  (c0; probe25)
  7949  09      RSUB A=@1008        B=BLPFMX       -> FIFO32
  7950  d9      IF.Z
@@ -3770,7 +3770,7 @@
  7955  f8      INC  @896 by 1  (f8; probe23)
  7956  f8      INC  @896 by 1  (f8; probe23)
  7957  d8      ALWAYS
- 7958  fc      fc
+ 7958  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  7959  c0      MOV   @1008        -> @896  (c0; probe25)
  7960  04      ADD A=@1008        B=BLPFMTC      -> FIFO32
  7961  d9      IF.Z
@@ -3782,7 +3782,7 @@
  7967  f8      INC  @880 by 1  (f8; probe23)
  7968  d8      ALWAYS
  7969  f4 1f   B -> 8002
- 7971  f6      f6
+ 7971  f6      ?f6    unidentified; prefix-shaped -- sits in f5's slot, before an ALU op  [UNKNOWNS.md]
  7972  d8      ALWAYS
  7973  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  7974  a4      P2.page=4   -> D@832 @832
@@ -3813,7 +3813,7 @@
  7999  df      CLR  @820 := 0  (P2 word++ first)  (df; probe23)
  8000  d8      ALWAYS
  8001  93      P1.page=3   -> B@48 BLPFMTC
- 8002  fc      fc
+ 8002  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  8003  c0      MOV   @832         -> @820  (c0; probe25)
  8004  0a      MUL A=@832         B=BLPFMX       -> FIFO32
  8005  d9      IF.Z
@@ -3822,7 +3822,7 @@
  8008  f8      INC  @896 by 1  (f8; probe23)
  8009  d8      ALWAYS
  8010  f4 1f   B -> 8043
- 8012  f6      f6
+ 8012  f6      ?f6    unidentified; prefix-shaped -- sits in f5's slot, before an ALU op  [UNKNOWNS.md]
  8013  d8      ALWAYS
  8014  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  8015  a4      P2.page=4   -> D@832 @832
@@ -3841,7 +3841,7 @@
  8028  c2      MOV   @900         -> @784  (c2; probe25)
  8029  d8      ALWAYS
  8030  93      P1.page=3   -> B@48 BLPFMTC
- 8031  fc      fc
+ 8031  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  8032  c0      MOV   @896         -> @784  (c0; probe25)
  8033  0a      MUL A=@896         B=BLPFMX       -> FIFO32
  8034  d9      IF.Z
@@ -3851,7 +3851,7 @@
  8038  d8      ALWAYS
  8039  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  8040  91      P1.page=1   -> B@16 ADC2
- 8041  fc      fc
+ 8041  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  8042  c0      MOV   @896         -> @896  (c0; probe25)
  8043  04      ADD A=@896         B=ADC2         -> FIFO32
  8044  d9      IF.Z
@@ -3887,14 +3887,14 @@
  8074  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  8075  a7      P2.page=7   -> D@112 0_5
  8076  de      CLR  0_5 := 0  (in place, no advance)  (de; probe31)
- 8077  f7      f7
+ 8077  f7      ?f7    unidentified; prefix-shaped -- followed by MUL at 9/31 sites  [UNKNOWNS.md]
  8078  84      P0.page=4   -> A@64 BLPFC
  8079  9f      P1.page=f   -> B@240 CTRLSFNL
  8080  6a      MUL A=BERR2N       B=CTRLSFJT     -> FIFO32
  8081  87      P0.page=7   -> A@112 0_5
  8082  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  8083  d4      d4
- 8084  fd      fd
+ 8084  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  8085  3e      MUL A=0_0          B=TMP12        -> FIFO32
  8086  f9      DEC  0_0 by 1  (f9; probe23)
  8087  d9      IF.Z
@@ -3902,7 +3902,7 @@
  8090  48      ADD A=1_0          B=CTRLSFJT     -> FIFO32
  8091  d8      ALWAYS
  8092  f0      FMODE.0   ; 1=32-bit fifo, 2/3=16-bit
- 8093  f7      f7
+ 8093  f7      ?f7    unidentified; prefix-shaped -- followed by MUL at 9/31 sites  [UNKNOWNS.md]
  8094  a7      P2.page=7   -> D@112 0_5
  8095  88      P0.page=8   -> A@128 TMP1A
  8096  9f      P1.page=f   -> B@240 CTRLSFNL
@@ -4073,7 +4073,7 @@
  8265  b5      P1.bank=1
  8266  87      P0.page=7   -> A@112 0_5
  8267  93      P1.page=3   -> B@304 TMP1B
- 8268  f6      f6
+ 8268  f6      ?f6    unidentified; prefix-shaped -- sits in f5's slot, before an ALU op  [UNKNOWNS.md]
  8269  0a      MUL A=0_5          B=TMP2B        -> 0_5
  8270  f2      FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
  8271  b4      P1.bank=0
@@ -4138,7 +4138,7 @@
  8330  bc      bank-sel3 0   ; unknown
  8331  be      bank-sel3 2   ; unknown
  8332  be      bank-sel3 2   ; unknown
- 8333  f7      f7
+ 8333  f7      ?f7    unidentified; prefix-shaped -- followed by MUL at 9/31 sites  [UNKNOWNS.md]
  8334  b9      P2.bank=1
  8335  b0      P0.bank=0
  8336  b5      P1.bank=1
@@ -4156,7 +4156,7 @@
  8348  b4      P1.bank=0
  8349  f3      FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
  8350  98      P1.page=8   -> B@128 TMP1A
- 8351  fc      fc
+ 8351  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  8352  c0      MOV   TMP1A        -> YACCW  (c0; probe25)
  8353  04      ADD A=TMP1A        B=TMP1A        -> AFB1
  8354  da      IF.NZ
@@ -4243,7 +4243,7 @@
  8436  9c      P1.page=c   -> B@192 QT1
  8437  2c      ADD A=0H2          B=QT2          -> 0H2
  8438  d8      ALWAYS
- 8439  f7      f7
+ 8439  f7      ?f7    unidentified; prefix-shaped -- followed by MUL at 9/31 sites  [UNKNOWNS.md]
  8440  a7      P2.page=7   -> D@112 0_5
  8441  88      P0.page=8   -> A@128 TMP1A
  8442  9f      P1.page=f   -> B@240 CTRLSFNL
@@ -4290,7 +4290,7 @@
  8484  9d      P1.page=d   -> B@720 @720
  8485  3c      ADD A=0H2          B=@732         -> 0H2
  8486  d8      ALWAYS
- 8487  f7      f7
+ 8487  f7      ?f7    unidentified; prefix-shaped -- followed by MUL at 9/31 sites  [UNKNOWNS.md]
  8488  a7      P2.page=7   -> D@112 0_5
  8489  88      P0.page=8   -> A@128 TMP1A
  8490  9f      P1.page=f   -> B@752 @752
@@ -4298,7 +4298,7 @@
  8492  f9      DEC  0_5 by 1  (f9; probe23)
  8493  d9      IF.Z
  8494  f4 21   [d9] B.d9 -> 8529
- 8496  fd      fd
+ 8496  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  8497  d8      ALWAYS
  8498  f3      FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
  8499  a9      P2.page=9   -> D@144 XACCW
@@ -4371,16 +4371,16 @@
  8566  24      ADD A=0H2          B=@624         -> 0H2
  8567  a5      P2.page=5   -> D@80 ANGVBX
  8568  94      P1.page=4   -> B@576 @576
- 8569  f6      f6
+ 8569  f6      ?f6    unidentified; prefix-shaped -- sits in f5's slot, before an ALU op  [UNKNOWNS.md]
  8570  0a      MUL A=BLPFC        B=@580         -> ANGVBX
- 8571  f7      f7
+ 8571  f7      ?f7    unidentified; prefix-shaped -- followed by MUL at 9/31 sites  [UNKNOWNS.md]
  8572  85      P0.page=5   -> A@80 ANGVBX
  8573  02      MUL A=ANGVBX       B=@576         -> ANGVBX
  8574  f8      INC  ANGVBX by 1  (f8; probe23)
  8575  f9      DEC  ANGVBX by 1  (f9; probe23)
  8576  d1      TEST  Z := (last ALU result == 0); d9 = IF.Z, da = IF.NZ  [probe19/20]
  8577  d9      IF.Z
- 8578  f6      [d9] f6
+ 8578  f6      [d9] ?f6    unidentified; prefix-shaped -- sits in f5's slot, before an ALU op  [UNKNOWNS.md]
  8579  9b      P1.page=b   -> B@688 @688
  8580  02      MUL A=ANGVBX       B=@688         -> ANGVBX
  8581  d8      ALWAYS
@@ -4406,7 +4406,7 @@
  8602  f2      FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
  8603  c0      MOV   ANGVBX       -> BERR2  (c0; probe25)
  8604  dc      ROUTE -> RAM   M[P2..] BERR2  (dc; sticky until dd)
- 8605  f6      f6
+ 8605  f6      ?f6    unidentified; prefix-shaped -- sits in f5's slot, before an ALU op  [UNKNOWNS.md]
  8606  a7      P2.page=7   -> D@112 0_5
  8607  9f      P1.page=f   -> B@752 @752
  8608  02      MUL A=ANGVBX       B=@752         -> 0_5
@@ -4749,7 +4749,7 @@
  8946  c6      MOV   1_5          -> TMP13  (c6; probe25)
  8947  a6      P2.page=6   -> D@352 MNMFLAG
  8948  c4      MOV   1_0          -> MNMFLAG  (c4; probe25)
- 8949  f7      f7
+ 8949  f7      ?f7    unidentified; prefix-shaped -- followed by MUL at 9/31 sites  [UNKNOWNS.md]
  8950  b5      P1.bank=1
  8951  8e      P0.page=e   -> A@224 CTRLS1
  8952  96      P1.page=6   -> B@352 MNMFLAG
@@ -4768,12 +4768,12 @@
  8966  b1      P0.bank=1
  8967  86      P0.page=6   -> A@352 MNMFLAG
  8968  96      P1.page=6   -> B@352 MNMFLAG
- 8969  f7      f7
+ 8969  f7      ?f7    unidentified; prefix-shaped -- followed by MUL at 9/31 sites  [UNKNOWNS.md]
  8970  0a      MUL A=MNMFLAG      B=MNMTM        -> MNMTMTHR
  8971  df      CLR  MNMTHR := 0  (P2 word++ first)  (df; probe23)
  8972  f3      FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
  8973  30      ADD A=MNMTM        B=MNMTMTHR     -> MNMTHR
- 8974  fd      fd
+ 8974  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  8975  08      ADD A=MNMFLAG      B=MNMTM        -> MNMTHR
  8976  a2      P2.page=2   -> D@288 TMP13
  8977  82      P0.page=2   -> A@288 TMP13
@@ -4800,7 +4800,7 @@
  8998  b4      P1.bank=0
  8999  9d      P1.page=d   -> B@208 CTRL1
  9000  3e      MUL A=BLPFNMX      B=CTRL4        -> BLPFNMX
- 9001  fd      fd
+ 9001  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  9002  1e      MUL A=BLPFNMTC     B=CTRL4        -> BLPFNMY
  9003  b5      P1.bank=1
  9004  9f      P1.page=f   -> B@496 BLPFNMTC
@@ -4811,7 +4811,7 @@
  9009  f4 23   [d9] B.d9 -> 9046
  9011  ec      ec
  9012  d8      ALWAYS
- 9013  f7      f7
+ 9013  f7      ?f7    unidentified; prefix-shaped -- followed by MUL at 9/31 sites  [UNKNOWNS.md]
  9014  b8      P2.bank=0
  9015  b0      P0.bank=0
  9016  b4      P1.bank=0
@@ -4836,7 +4836,7 @@
  9036  f4 23   [d9] B.d9 -> 9073
  9038  f2      FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
  9039  d8      ALWAYS
- 9040  f6      f6
+ 9040  f6      ?f6    unidentified; prefix-shaped -- sits in f5's slot, before an ALU op  [UNKNOWNS.md]
  9041  b8      P2.bank=0
  9042  b0      P0.bank=0
  9043  b4      P1.bank=0
@@ -4869,7 +4869,7 @@
  9070  a7      P2.page=7   -> D@112 0_5
  9071  88      P0.page=8   -> A@128 TMP1A
  9072  9c      P1.page=c   -> B@192 QT1
- 9073  f7      f7
+ 9073  f7      ?f7    unidentified; prefix-shaped -- followed by MUL at 9/31 sites  [UNKNOWNS.md]
  9074  6a      MUL A=TMP4A        B=QT2          -> 0_5
  9075  f9      DEC  0_5 by 1  (f9; probe23)
  9076  d9      IF.Z
@@ -4880,7 +4880,7 @@
  9081  ab      P2.page=b   -> D@432 SEM1
  9082  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  9083  df      CLR  SH_TH_X := 0  (P2 word++ first)  (df; probe23)
- 9084  f7      f7
+ 9084  f7      ?f7    unidentified; prefix-shaped -- followed by MUL at 9/31 sites  [UNKNOWNS.md]
  9085  62      MUL A=TMP4A        B=QT1          -> SH_TH_X
  9086  f3      FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
  9087  f8      INC  SH_TH_X by 1  (f8; probe23)
@@ -4891,7 +4891,7 @@
  9092  de      CLR  SH_TH_X := 0  (in place, no advance)  (de; probe31)
  9093  f8      INC  SH_TH_X by 1  (f8; probe23)
  9094  d8      ALWAYS
- 9095  f7      f7
+ 9095  f7      ?f7    unidentified; prefix-shaped -- followed by MUL at 9/31 sites  [UNKNOWNS.md]
  9096  bb      P2.bank=3
  9097  af      P2.page=f   -> D@1008 @1008
  9098  7a      MUL A=TMP4A        B=QT4          -> @1008
@@ -4943,7 +4943,7 @@
  9145  be      bank-sel3 2   ; unknown
  9146  a7      P2.page=7   -> D@624 @624
  9147  c1      MOV   BLPFC        -> @628  (P2 word++ first)  (c1; probe25)
- 9148  f7      f7
+ 9148  f7      ?f7    unidentified; prefix-shaped -- followed by MUL at 9/31 sites  [UNKNOWNS.md]
  9149  88      P0.page=8   -> A@128 TMP1A
  9150  b4      P1.bank=0
  9151  9d      P1.page=d   -> B@208 CTRL1
@@ -4968,13 +4968,13 @@
  9171  ae      P2.page=e   -> D@224 CTRLS1
  9172  d0      P2 word += 2 -> D@232 CTRLS3  (d0, mod 4; probe20)
  9173  91      P1.page=1   -> B@16 ADC2
- 9174  fc      fc
+ 9174  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  9175  c0      MOV   @752         -> CTRLS3  (c0; probe25)
  9176  00      ADD A=@752         B=ADC2         -> CTRLS3
  9177  db      IF.3
  9178  b6      [db] P1.bank=2
  9179  95      P1.page=5   -> B@592 @592
- 9180  fc      fc
+ 9180  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  9181  c1      MOV   @752         -> CTRLS4  (P2 word++ first)  (c1; probe25)
  9182  04      ADD A=@752         B=@592         -> CTRLS1
  9183  d9      IF.Z
@@ -4985,13 +4985,13 @@
  9188  d8      ALWAYS
  9189  b4      P1.bank=0
  9190  91      P1.page=1   -> B@16 ADC2
- 9191  fc      fc
+ 9191  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  9192  c0      MOV   @752         -> CTRLS1  (c0; probe25)
  9193  04      ADD A=@752         B=ADC2         -> CTRLS2
  9194  db      IF.3
  9195  b6      [db] P1.bank=2
  9196  95      P1.page=5   -> B@592 @592
- 9197  fc      fc
+ 9197  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  9198  c1      MOV   @752         -> CTRLS3  (P2 word++ first)  (c1; probe25)
  9199  00      ADD A=@752         B=@592         -> CTRLS3
  9200  d9      IF.Z
@@ -5007,17 +5007,17 @@
  9210  ba      P2.bank=2
  9211  be      bank-sel3 2   ; unknown
  9212  f4 24   B -> 9250
- 9214  f6      f6
+ 9214  f6      ?f6    unidentified; prefix-shaped -- sits in f5's slot, before an ALU op  [UNKNOWNS.md]
  9215  d8      ALWAYS
  9216  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  9217  91      P1.page=1   -> B@528 @528
- 9218  fc      fc
+ 9218  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  9219  c0      MOV   @752         -> @744  (c0; probe25)
  9220  00      ADD A=@752         B=@528         -> @744
  9221  db      IF.3
  9222  b6      [db] P1.bank=2
  9223  95      P1.page=5   -> B@592 @592
- 9224  fc      fc
+ 9224  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  9225  c1      MOV   @752         -> @748  (P2 word++ first)  (c1; probe25)
  9226  04      ADD A=@752         B=@592         -> @736
  9227  f5      MIN prefix  next ALU op computes signed min(A,B)  [probe29, 16/16]
@@ -5046,20 +5046,20 @@
  9250  d8      ALWAYS
  9251  b4      P1.bank=0
  9252  91      P1.page=1   -> B@16 ADC2
- 9253  fc      fc
+ 9253  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  9254  c0      MOV   @752         -> @548  (c0; probe25)
  9255  04      ADD A=@752         B=ADC2         -> @552
  9256  db      IF.3
  9257  b6      [db] P1.bank=2
  9258  95      P1.page=5   -> B@592 @592
- 9259  fc      fc
+ 9259  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  9260  c1      MOV   @752         -> @556  (P2 word++ first)  (c1; probe25)
  9261  00      ADD A=@752         B=@592         -> @556
  9262  d9      IF.Z
  9263  af      [d9] P2.page=f   -> D@752 @752
  9264  de      CLR  @752 := 0  (in place, no advance)  (de; probe31)
  9265  f8      INC  @752 by 1  (f8; probe23)
- 9266  fd      fd
+ 9266  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  9267  07      NMUL A=@752         B=@592         -> @756
  9268  8f      P0.page=f   -> A@752 @752
  9269  95      P1.page=5   -> B@592 @592
@@ -5071,15 +5071,15 @@
  9275  a7      P2.page=7   -> D@624 @624
  9276  de      CLR  @624 := 0  (in place, no advance)  (de; probe31)
  9277  f8      INC  @624 by 1  (f8; probe23)
- 9278  fd      fd
+ 9278  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  9279  07      NMUL A=@752         B=@592         -> @628
  9280  df      CLR  @632 := 0  (P2 word++ first)  (df; probe23)
  9281  f8      INC  @632 by 1  (f8; probe23)
- 9282  fd      fd
+ 9282  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  9283  06      MUL A=@752         B=@592         -> @636
  9284  df      CLR  @640 := 0  (P2 word++ first)  (df; probe23)
  9285  f8      INC  @640 by 1  (f8; probe23)
- 9286  fd      fd
+ 9286  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  9287  04      ADD A=@752         B=@592         -> @628
  9288  8f      P0.page=f   -> A@752 @752
  9289  97      P1.page=7   -> B@624 @624
@@ -5124,7 +5124,7 @@
  9328  be      bank-sel3 2   ; unknown
  9329  a9      P2.page=9   -> D@144 XACCW
  9330  c1      MOV   BLPFC        -> XACCB  (P2 word++ first)  (c1; probe25)
- 9331  f7      f7
+ 9331  f7      ?f7    unidentified; prefix-shaped -- followed by MUL at 9/31 sites  [UNKNOWNS.md]
  9332  88      P0.page=8   -> A@128 TMP1A
  9333  b4      P1.bank=0
  9334  bd      bank-sel3 1   ; unknown
@@ -5141,11 +5141,11 @@
  9346  a9      P2.page=9   -> D@144 XACCW
  9347  de      CLR  XACCW := 0  (in place, no advance)  (de; probe31)
  9348  f8      INC  XACCW by 1  (f8; probe23)
- 9349  fd      fd
+ 9349  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  9350  04      ADD A=TMP1A        B=CTRL1        -> XACCB
  9351  df      CLR  YACCB := 0  (P2 word++ first)  (df; probe23)
  9352  f8      INC  YACCB by 1  (f8; probe23)
- 9353  fd      fd
+ 9353  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  9354  05      RSUB A=TMP1A        B=CTRL1        -> ZACCB
  9355  bc      bank-sel3 0   ; unknown
  9356  8e      P0.page=e   -> A@224 CTRLS1
@@ -5153,12 +5153,12 @@
  9358  ae      P2.page=e   -> D@224 CTRLS1
  9359  d0      P2 word += 2 -> D@232 CTRLS3  (d0, mod 4; probe20)
  9360  9a      P1.page=a   -> B@160 DZ
- 9361  fc      fc
+ 9361  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  9362  c0      MOV   CTRLS1       -> CTRLS3  (c0; probe25)
  9363  00      ADD A=CTRLS1       B=DZ           -> CTRLS3
  9364  db      IF.3
  9365  9b      [db] P1.page=b   -> B@176 YACCW
- 9366  fc      fc
+ 9366  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  9367  c0      MOV   CTRLS1       -> CTRLS3  (c0; probe25)
  9368  04      ADD A=CTRLS1       B=YACCW        -> CTRLS4
  9369  d9      IF.Z
@@ -5166,12 +5166,12 @@
  9371  40      ADD A=CTRLS3       B=XACCW        -> CTRLS4
  9372  d8      ALWAYS
  9373  9a      P1.page=a   -> B@160 DZ
- 9374  fc      fc
+ 9374  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  9375  c0      MOV   CTRLS1       -> CTRLS4  (c0; probe25)
  9376  04      ADD A=CTRLS1       B=DZ           -> CTRLS1
  9377  db      IF.3
  9378  9b      [db] P1.page=b   -> B@176 YACCW
- 9379  fc      fc
+ 9379  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  9380  c0      MOV   CTRLS1       -> CTRLS1  (c0; probe25)
  9381  00      ADD A=CTRLS1       B=YACCW        -> CTRLS1
  9382  d9      IF.Z
@@ -5189,12 +5189,12 @@
  9395  d8      ALWAYS
  9396  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  9397  9a      P1.page=a   -> B@160 DZ
- 9398  fc      fc
+ 9398  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  9399  c0      MOV   CTRLS1       -> CTRL1  (c0; probe25)
  9400  00      ADD A=CTRLS1       B=DZ           -> CTRL1
  9401  db      IF.3
  9402  9b      [db] P1.page=b   -> B@176 YACCW
- 9403  fc      fc
+ 9403  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  9404  c0      MOV   CTRLS1       -> CTRL1  (c0; probe25)
  9405  04      ADD A=CTRLS1       B=YACCW        -> CTRL2
  9406  f5      MIN prefix  next ALU op computes signed min(A,B)  [probe29, 16/16]
@@ -5206,15 +5206,15 @@
  9412  f1      [d9] FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
  9413  de      CLR  XACCW := 0  (in place, no advance)  (de; probe31)
  9414  f8      INC  XACCW by 1  (f8; probe23)
- 9415  fd      fd
+ 9415  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  9416  02      MUL A=XACCW        B=YACCW        -> XACCW
  9417  df      CLR  XACCB := 0  (P2 word++ first)  (df; probe23)
  9418  f8      INC  XACCB by 1  (f8; probe23)
- 9419  fd      fd
+ 9419  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  9420  07      NMUL A=XACCW        B=YACCW        -> YACCB
  9421  df      CLR  ZACCB := 0  (P2 word++ first)  (df; probe23)
  9422  f8      INC  ZACCB by 1  (f8; probe23)
- 9423  fd      fd
+ 9423  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  9424  07      NMUL A=XACCW        B=YACCW        -> XACCW
  9425  f8      INC  XACCW by 1  (f8; probe23)
  9426  df      CLR  XACCB := 0  (P2 word++ first)  (df; probe23)
@@ -5244,32 +5244,32 @@
  9450  b8      P2.bank=0
  9451  d8      ALWAYS
  9452  9a      P1.page=a   -> B@160 DZ
- 9453  fc      fc
+ 9453  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  9454  c0      MOV   XACCW        -> BLPFMX  (c0; probe25)
  9455  04      ADD A=XACCW        B=DZ           -> BLPFMY
  9456  db      IF.3
  9457  9b      [db] P1.page=b   -> B@176 YACCW
- 9458  fc      fc
+ 9458  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  9459  c0      MOV   XACCW        -> BLPFMY  (c0; probe25)
  9460  00      ADD A=XACCW        B=YACCW        -> BLPFMY
  9461  d9      IF.Z
  9462  a9      [d9] P2.page=9   -> D@144 XACCW
  9463  de      CLR  XACCW := 0  (in place, no advance)  (de; probe31)
  9464  f8      INC  XACCW by 1  (f8; probe23)
- 9465  fd      fd
+ 9465  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  9466  02      MUL A=XACCW        B=YACCW        -> XACCW
  9467  df      CLR  XACCB := 0  (P2 word++ first)  (df; probe23)
  9468  f8      INC  XACCB by 1  (f8; probe23)
- 9469  fd      fd
+ 9469  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  9470  07      NMUL A=XACCW        B=YACCW        -> YACCB
  9471  df      CLR  ZACCB := 0  (P2 word++ first)  (df; probe23)
  9472  f8      INC  ZACCB by 1  (f8; probe23)
- 9473  fd      fd
+ 9473  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  9474  07      NMUL A=XACCW        B=YACCW        -> XACCW
  9475  f8      INC  XACCW by 1  (f8; probe23)
  9476  df      CLR  XACCB := 0  (P2 word++ first)  (df; probe23)
  9477  f8      INC  XACCB by 1  (f8; probe23)
- 9478  fd      fd
+ 9478  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  9479  04      ADD A=XACCW        B=YACCW        -> YACCB
  9480  f9      DEC  YACCB by 1  (f9; probe23)
  9481  89      P0.page=9   -> A@144 XACCW
@@ -5695,7 +5695,7 @@
  9928  8e      P0.page=e   -> A@480 TMP25
  9929  9c      P1.page=c   -> B@704 @704
  9930  48      ADD A=ORIENT       B=@708         -> @704
- 9931  fd      fd
+ 9931  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
  9932  02      MUL A=TMP25        B=@704         -> @704
  9933  b2      P0.bank=2
  9934  8b      P0.page=b   -> A@688 @688
@@ -5716,7 +5716,7 @@
  9949  bd      bank-sel3 1   ; unknown
  9950  bd      bank-sel3 1   ; unknown
  9951  9b      P1.page=b   -> B@432 SEM1
- 9952  fc      fc
+ 9952  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  9953  c1      MOV   @704         -> @676  (P2 word++ first)  (c1; probe25)
  9954  03      NMUL A=@704         B=SEM1         -> @676
  9955  bd      bank-sel3 1   ; unknown
@@ -5768,13 +5768,13 @@
 10002  9f      P1.page=f   -> B@240 CTRLSFNL
 10003  aa      P2.page=a   -> D@160 DZ
 10004  28      ADD A=CTRLSFJT     B=CTRLSFJT     -> DZ
-10005  fd      fd
+10005  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
 10006  01      RSUB A=CTRLSFNL     B=CTRLSFNL     -> DZ
 10007  54      ADD A=TMP11        B=TMP11        -> XGC
-10008  fd      fd
+10008  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
 10009  01      RSUB A=CTRLSFNL     B=CTRLSFNL     -> XGC
 10010  7c      ADD A=TMP12        B=TMP12        -> YGC
-10011  fd      fd
+10011  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
 10012  01      RSUB A=CTRLSFNL     B=CTRLSFNL     -> YGC
 10013  8e      P0.page=e   -> A@224 CTRLS1
 10014  a9      P2.page=9   -> D@144 XACCW
@@ -5814,7 +5814,7 @@
 10048  bd      bank-sel3 1   ; unknown
 10049  b6      P1.bank=2
 10050  90      P1.page=0   -> B@512 BLPFNMZL+2
-10051  fc      fc
+10051  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
 10052  c2      MOV   AFB1         -> @636  (c2; probe25)
 10053  00      ADD A=YACCW        B=BLPFNMZL+2   -> @636
 10054  bd      bank-sel3 1   ; unknown
@@ -5900,15 +5900,15 @@
 10144  b4      P1.bank=0
 10145  9e      P1.page=e   -> B@224 CTRLS1
 10146  64      ADD A=@684         B=CTRLS1       -> CTRLS2
-10147  fd      fd
+10147  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
 10148  01      RSUB A=@672         B=CTRLS1       -> CTRLS2
 10149  8c      P0.page=c   -> A@704 @704
 10150  64      ADD A=@716         B=CTRLS1       -> CTRLS3
-10151  fd      fd
+10151  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
 10152  01      RSUB A=@704         B=CTRLS1       -> CTRLS3
 10153  8e      P0.page=e   -> A@736 @736
 10154  64      ADD A=@748         B=CTRLS1       -> CTRLS4
-10155  fd      fd
+10155  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
 10156  01      RSUB A=@736         B=CTRLS1       -> CTRLS4
 10157  b0      P0.bank=0
 10158  f0      FMODE.0   ; 1=32-bit fifo, 2/3=16-bit
@@ -5937,13 +5937,13 @@
 10181  9f      P1.page=f   -> B@240 CTRLSFNL
 10182  ad      P2.page=d   -> D@208 CTRL1
 10183  28      ADD A=CTRLSFJT     B=CTRLSFJT     -> CTRL1
-10184  fd      fd
+10184  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
 10185  01      RSUB A=CTRLSFNL     B=CTRLSFNL     -> CTRL1
 10186  54      ADD A=TMP11        B=TMP11        -> CTRL2
-10187  fd      fd
+10187  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
 10188  01      RSUB A=CTRLSFNL     B=CTRLSFNL     -> CTRL2
 10189  7c      ADD A=TMP12        B=TMP12        -> CTRL3
-10190  fd      fd
+10190  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
 10191  01      RSUB A=CTRLSFNL     B=CTRLSFNL     -> CTRL3
 10192  8e      P0.page=e   -> A@224 CTRLS1
 10193  ac      P2.page=c   -> D@192 QT1
@@ -5999,12 +5999,12 @@
 10244  7a      F5.2 A=TMP12        B=1            -> 0_5
 10245  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
 10246  9f      P1.page=f   -> B@240 CTRLSFNL
-10247  fc      fc
+10247  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
 10248  c0      MOV   CTRLSFNL     -> 0_5  (c0; probe25)
 10249  03      NMUL A=CTRLSFNL     B=CTRLSFNL     -> 0_5
 10250  db      IF.3
 10251  90      [db] P1.page=0   -> B@0 PTAT
-10252  fc      fc
+10252  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
 10253  c0      MOV   CTRLSFNL     -> 0_5  (c0; probe25)
 10254  00      ADD A=CTRLSFNL     B=PTAT         -> 0_5
 10255  d9      IF.Z
@@ -6020,7 +6020,7 @@
 10266  72      F5.2 A=TMP12        B=@792         -> ADC2
 10267  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
 10268  9f      P1.page=f   -> B@1008 @1008
-10269  fc      fc
+10269  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
 10270  c0      MOV   CTRLSFNL     -> ADC2  (c0; probe25)
 10271  03      NMUL A=CTRLSFNL     B=@1008        -> ADC2
 10272  d9      IF.Z
@@ -6050,7 +6050,7 @@
 10296  a1      [db] P2.page=1   -> D@16 ADC2
 10297  de      CLR  ADC2 := 0  (in place, no advance)  (de; probe31)
 10298  91      P1.page=1   -> B@784 @784
-10299  fc      fc
+10299  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
 10300  c1      MOV   PTAT         -> BIASUNC  (P2 word++ first)  (c1; probe25)
 10301  04      ADD A=PTAT         B=@784         -> INVGSF
 10302  d9      IF.Z
@@ -6149,7 +6149,7 @@
 10396  bd      bank-sel3 1   ; unknown
 10397  bd      bank-sel3 1   ; unknown
 10398  9b      P1.page=b   -> B@432 SEM1
-10399  fc      fc
+10399  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
 10400  c1      MOV   ADC2         -> XACCW  (P2 word++ first)  (c1; probe25)
 10401  03      NMUL A=ADC2         B=SEM1         -> XACCW
 10402  b4      P1.bank=0
@@ -6162,7 +6162,7 @@
 10410  aa      P2.page=a   -> D@160 DZ
 10411  de      CLR  DZ := 0  (in place, no advance)  (de; probe31)
 10412  99      P1.page=9   -> B@144 XACCW
-10413  fc      fc
+10413  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
 10414  c1      MOV   BLPFC        -> XGC  (P2 word++ first)  (c1; probe25)
 10415  00      ADD A=BLPFC        B=XACCW        -> XGC
 10416  d9      IF.Z
@@ -6184,7 +6184,7 @@
 10432  3a      F5.2 A=XACCB        B=BLPFSZ       -> BLPFSTC
 10433  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
 10434  92      P1.page=2   -> B@32 BLPFSTC
-10435  fc      fc
+10435  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
 10436  c0      MOV   XACCW        -> BLPFSTC  (c0; probe25)
 10437  03      NMUL A=XACCW        B=BLPFSTC      -> BLPFSTC
 10438  da      IF.NZ
@@ -6201,7 +6201,7 @@
 10449  f8      INC  DZ by 1  (f8; probe23)
 10450  d8      ALWAYS
 10451  99      P1.page=9   -> B@144 XACCW
-10452  fc      fc
+10452  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
 10453  c1      MOV   BLPFSTC      -> XGC  (P2 word++ first)  (c1; probe25)
 10454  03      NMUL A=BLPFSTC      B=XACCW        -> XGC
 10455  d9      IF.Z
@@ -6222,14 +6222,14 @@
 10470  f8      INC  DZ by 1  (f8; probe23)
 10471  d8      ALWAYS
 10472  9a      P1.page=a   -> B@160 DZ
-10473  fc      fc
+10473  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
 10474  c0      MOV   XACCW        -> DZ  (c0; probe25)
 10475  04      ADD A=XACCW        B=DZ           -> XGC
 10476  db      IF.3
 10477  a8      [db] P2.page=8   -> D@128 TMP1A
 10478  de      CLR  TMP1A := 0  (in place, no advance)  (de; probe31)
 10479  98      P1.page=8   -> B@128 TMP1A
-10480  fc      fc
+10480  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
 10481  c1      MOV   XACCW        -> TMP2A  (P2 word++ first)  (c1; probe25)
 10482  00      ADD A=XACCW        B=TMP1A        -> TMP2A
 10483  f8      INC  TMP2A by 1  (f8; probe23)
@@ -6258,11 +6258,11 @@
 10507  af      P2.page=f   -> D@496 BLPFNMTC
 10508  df      CLR  BLPFNMX := 0  (P2 word++ first)  (df; probe23)
 10509  28      ADD A=FINTX        B=BLPFNMX      -> BLPFNMX
-10510  fd      fd
+10510  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
 10511  03      NMUL A=TMP13        B=BLPFNMTC     -> BLPFNMX
 10512  df      CLR  BLPFNMY := 0  (P2 word++ first)  (df; probe23)
 10513  30      ADD A=FINTX        B=BLPFNMY      -> BLPFNMY
-10514  fd      fd
+10514  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
 10515  04      ADD A=TMP13        B=BLPFNMTC     -> BLPFNMZ
 10516  8f      P0.page=f   -> A@496 BLPFNMTC
 10517  9f      P1.page=f   -> B@496 BLPFNMTC
@@ -6416,7 +6416,7 @@
 10670  d0      P2 word += 2 -> D@268 ACCYB+2  (d0, mod 4; probe20)
 10671  de      CLR  ACCYB+2 := 0  (in place, no advance)  (de; probe31)
 10672  9f      P1.page=f   -> B@496 BLPFNMTC
-10673  fc      fc
+10673  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
 10674  c2      MOV   TMP2B        -> ACCYB+2  (c2; probe25)
 10675  01      RSUB A=TMP1B        B=BLPFNMTC     -> ACCYB+2
 10676  d9      IF.Z
@@ -6438,7 +6438,7 @@
 10692  a2      P2.page=2   -> D@800 @800
 10693  d0      P2 word += 2 -> D@808 @808  (d0, mod 4; probe20)
 10694  5c      ADD A=ORIENT       B=@796         -> @812
-10695  fd      fd
+10695  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
 10696  3f      NMUL A=TMP27        B=@796         -> @800
 10697  b5      P1.bank=1
 10698  b9      P2.bank=1
@@ -6456,7 +6456,7 @@
 10710  a1      P2.page=1   -> D@272 1HB
 10711  df      CLR  0 := 0  (P2 word++ first)  (df; probe23)
 10712  9f      P1.page=f   -> B@496 BLPFNMTC
-10713  fc      fc
+10713  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
 10714  c2      MOV   TMP2B        -> 0  (c2; probe25)
 10715  01      RSUB A=TMP1B        B=BLPFNMTC     -> 0
 10716  d9      IF.Z
@@ -6478,14 +6478,14 @@
 10732  a2      P2.page=2   -> D@800 @800
 10733  d0      P2 word += 2 -> D@808 @808  (d0, mod 4; probe20)
 10734  5c      ADD A=ORIENT       B=@796         -> @812
-10735  fd      fd
+10735  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
 10736  3f      NMUL A=TMP27        B=@796         -> @800
 10737  b5      P1.bank=1
 10738  b9      P2.bank=1
 10739  d8      ALWAYS
 10740  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
 10741  9f      P1.page=f   -> B@496 BLPFNMTC
-10742  fc      fc
+10742  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
 10743  c2      MOV   TMP27        -> TMP13  (c2; probe25)
 10744  01      RSUB A=TMP25        B=BLPFNMTC     -> TMP13
 10745  d9      IF.Z
@@ -6522,7 +6522,7 @@
 10777  d1      [db] TEST  Z := (last ALU result == 0); d9 = IF.Z, da = IF.NZ  [probe19/20]
 10778  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
 10779  9f      P1.page=f   -> B@496 BLPFNMTC
-10780  fc      fc
+10780  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
 10781  c1      MOV   PREVPTAT     -> @764  (P2 word++ first)  (c1; probe25)
 10782  04      ADD A=PREVPTAT     B=BLPFNMTC     -> @752
 10783  f2      FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
@@ -6598,7 +6598,7 @@
 10858  c7      MOV   TMP4B        -> @780  (P2 word++ first)  (c7; probe25)
 10859  b6      P1.bank=2
 10860  9d      P1.page=d   -> B@720 @720
-10861  fc      fc
+10861  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
 10862  c2      MOV   TMP2B        -> @780  (c2; probe25)
 10863  04      ADD A=TMP1B        B=@720         -> @768
 10864  d9      IF.Z
@@ -6813,7 +6813,7 @@
 11086  b5      P1.bank=1
 11087  bd      bank-sel3 1   ; unknown
 11088  9b      P1.page=b   -> B@432 SEM1
-11089  fc      fc
+11089  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
 11090  c1      MOV   @544         -> @752  (P2 word++ first)  (c1; probe25)
 11091  00      ADD A=@544         B=SEM1         -> @752
 11092  b6      P1.bank=2
@@ -6822,13 +6822,13 @@
 11095  bd      bank-sel3 1   ; unknown
 11096  db      IF.3
 11097  97      [db] P1.page=7   -> B@624 @624
-11098  fc      fc
+11098  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
 11099  c3      MOV   @548         -> @756  (P2 word++ first)  (c3; probe25)
 11100  04      ADD A=@544         B=@624         -> @760
-11101  fc      fc
+11101  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
 11102  c0      MOV   @544         -> @760  (c0; probe25)
 11103  00      ADD A=@544         B=@624         -> @760
-11104  fc      fc
+11104  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
 11105  c2      MOV   @548         -> @760  (c2; probe25)
 11106  04      ADD A=@544         B=@624         -> @764
 11107  d9      IF.Z
@@ -6865,7 +6865,7 @@
 11140  d8      ALWAYS
 11141  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
 11142  97      P1.page=7   -> B@624 @624
-11143  fc      fc
+11143  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
 11144  c1      MOV   @752         -> @628  (P2 word++ first)  (c1; probe25)
 11145  04      ADD A=@752         B=@624         -> @632
 11146  b1      P0.bank=1
@@ -6883,7 +6883,7 @@
 11158  da      IF.NZ
 11159  de      [da] CLR  PREVPTAT := 0  (in place, no advance)  (de; probe31)
 11160  d8      ALWAYS
-11161  fc      fc
+11161  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
 11162  c2      MOV   TMP2B        -> PREVPTAT  (c2; probe25)
 11163  04      ADD A=TMP1B        B=@624         -> ACCZB+2
 11164  d0      P2 word += 2 -> D@268 ACCYB+2  (d0, mod 4; probe20)
@@ -6901,7 +6901,7 @@
 11176  bd      bank-sel3 1   ; unknown
 11177  bd      bank-sel3 1   ; unknown
 11178  9f      P1.page=f   -> B@496 BLPFNMTC
-11179  fc      fc
+11179  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
 11180  c1      MOV   TMP25        -> BLPFNMY  (P2 word++ first)  (c1; probe25)
 11181  00      ADD A=TMP25        B=BLPFNMTC     -> BLPFNMY
 11182  d9      IF.Z
@@ -6983,14 +6983,14 @@
 11260  bd      bank-sel3 1   ; unknown
 11261  bd      bank-sel3 1   ; unknown
 11262  9b      P1.page=b   -> B@432 SEM1
-11263  fc      fc
+11263  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
 11264  c1      MOV   ACCQD4       -> BLPFNMZ  (P2 word++ first)  (c1; probe25)
 11265  00      ADD A=ACCQD4       B=SEM1         -> BLPFNMZ
 11266  bd      bank-sel3 1   ; unknown
 11267  bd      bank-sel3 1   ; unknown
 11268  db      IF.3
 11269  9f      [db] P1.page=f   -> B@496 BLPFNMTC
-11270  fc      fc
+11270  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
 11271  c0      MOV   ACCQD4       -> BLPFNMZ  (c0; probe25)
 11272  04      ADD A=ACCQD4       B=BLPFNMTC     -> BLPFNMTC
 11273  8f      P0.page=f   -> A@496 BLPFNMTC
@@ -7015,7 +7015,7 @@
 11292  06      F5.2 A=@816         B=BLPFNMTC     -> BLPFNMX
 11293  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
 11294  db      IF.3
-11295  fc      [db] fc
+11295  fc      [db] ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
 11296  c1      MOV   @816         -> BLPFNMY  (P2 word++ first)  (c1; probe25)
 11297  04      ADD A=@816         B=BLPFNMTC     -> BLPFNMZ
 11298  d9      IF.Z
@@ -7041,7 +7041,7 @@
 11318  02      MUL A=@944         B=@816         -> @1008
 11319  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
 11320  9f      P1.page=f   -> B@1008 @1008
-11321  fc      fc
+11321  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
 11322  c0      MOV   @944         -> @1008  (c0; probe25)
 11323  03      NMUL A=@944         B=@1008        -> @1008
 11324  d9      IF.Z
@@ -7062,7 +7062,7 @@
 11339  9f      P1.page=f   -> B@1008 @1008
 11340  06      F5.2 A=@816         B=@1008        -> @1012
 11341  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
-11342  fc      fc
+11342  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
 11343  c1      MOV   @816         -> @1016  (P2 word++ first)  (c1; probe25)
 11344  04      ADD A=@816         B=@1008        -> @1020
 11345  db      IF.3
@@ -7102,7 +7102,7 @@
 11379  06      F5.2 A=@1008        B=@816         -> @1012
 11380  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
 11381  9f      P1.page=f   -> B@1008 @1008
-11382  fc      fc
+11382  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
 11383  c1      MOV   @1008        -> @1016  (P2 word++ first)  (c1; probe25)
 11384  03      NMUL A=@1008        B=@1008        -> @1016
 11385  db      IF.3
@@ -7165,7 +7165,7 @@
 11444  31      RSUB A=PVYG         B=YACCB_PRE    -> BLPFNMTC
 11445  db      IF.3
 11446  9f      [db] P1.page=f   -> B@496 BLPFNMTC
-11447  fc      fc
+11447  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
 11448  c1      MOV   PVXG         -> BLPFNMX  (P2 word++ first)  (c1; probe25)
 11449  00      ADD A=PVXG         B=BLPFNMTC     -> BLPFNMX
 11450  da      IF.NZ
@@ -7216,7 +7216,7 @@
 11496  1d      RSUB A=BLPFNMTC     B=CTRLSFJT2    -> BLPFNMX
 11497  db      IF.3
 11498  90      [db] P1.page=0   -> B@256 PREVPTAT
-11499  fc      fc
+11499  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
 11500  c0      MOV   BLPFNMTC     -> BLPFNMX  (c0; probe25)
 11501  00      ADD A=BLPFNMTC     B=PREVPTAT     -> BLPFNMX
 11502  a0      P2.page=0   -> D@256 PREVPTAT
@@ -7247,7 +7247,7 @@
 11528  c7      MOV   ACCQD3       -> @780  (P2 word++ first)  (c7; probe25)
 11529  b5      P1.bank=1
 11530  90      P1.page=0   -> B@256 PREVPTAT
-11531  fc      fc
+11531  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
 11532  c2      MOV   ACCQD1       -> @780  (c2; probe25)
 11533  00      ADD A=ACCQD0       B=PREVPTAT     -> @780
 11534  d9      IF.Z
@@ -7337,7 +7337,7 @@
 11620  06      F5.2 A=@1008        B=@912         -> @1012
 11621  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
 11622  9f      P1.page=f   -> B@1008 @1008
-11623  fc      fc
+11623  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
 11624  c1      MOV   @1008        -> @1016  (P2 word++ first)  (c1; probe25)
 11625  03      NMUL A=@1008        B=@1008        -> @1016
 11626  d9      IF.Z
@@ -7359,11 +7359,11 @@
 11643  de      CLR  @808 := 0  (in place, no advance)  (de; probe31)
 11644  b6      P1.bank=2
 11645  9e      P1.page=e   -> B@736 @736
-11646  fc      fc
+11646  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
 11647  c0      MOV   @816         -> @808  (c0; probe25)
 11648  09      RSUB A=@816         B=@740         -> @808
 11649  db      IF.3
-11650  fc      [db] fc
+11650  fc      [db] ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
 11651  c1      MOV   @816         -> @812  (P2 word++ first)  (c1; probe25)
 11652  0a      MUL A=@816         B=@740         -> @812
 11653  d9      IF.Z
@@ -7551,7 +7551,7 @@
 11843  9f      P1.page=f   -> B@1008 @1008
 11844  06      F5.2 A=@912         B=@1008        -> @1012
 11845  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
-11846  fc      fc
+11846  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
 11847  c1      MOV   @912         -> @1016  (P2 word++ first)  (c1; probe25)
 11848  03      NMUL A=@912         B=@1008        -> @1016
 11849  db      IF.3
@@ -7617,7 +7617,7 @@
 11910  b5      P1.bank=1
 11911  9e      P1.page=e   -> B@480 TMP25
 11912  74      ADD A=@924         B=ORIENT       -> CTRLS3
-11913  fd      fd
+11913  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
 11914  3f      NMUL A=@916         B=ENDIAN       -> CTRLS4
 11915  bc      bank-sel3 0   ; unknown
 11916  bc      bank-sel3 0   ; unknown
@@ -7626,7 +7626,7 @@
 11919  34      ADD A=SH_TH_X      B=ORIENT       -> CTRLS1
 11920  b7      P1.bank=3
 11921  9f      P1.page=f   -> B@1008 @1008
-11922  fc      fc
+11922  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
 11923  c0      MOV   SEM1         -> CTRLS1  (c0; probe25)
 11924  00      ADD A=SEM1         B=@1008        -> CTRLS1
 11925  bc      bank-sel3 0   ; unknown
@@ -7668,7 +7668,7 @@
 11962  db      IF.3
 11963  f1      [db] FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
 11964  9e      P1.page=e   -> B@224 CTRLS1
-11965  fc      fc
+11965  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
 11966  c3      MOV   TMP2A        -> @812  (P2 word++ first)  (c3; probe25)
 11967  01      RSUB A=TMP1A        B=CTRLS1       -> @812
 11968  d9      IF.Z
@@ -7693,7 +7693,7 @@
 11988  d8      ALWAYS
 11989  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
 11990  9e      P1.page=e   -> B@224 CTRLS1
-11991  fc      fc
+11991  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
 11992  c3      MOV   TMP2A        -> @804  (P2 word++ first)  (c3; probe25)
 11993  01      RSUB A=TMP1A        B=CTRLS1       -> @804
 11994  d9      IF.Z
@@ -7703,7 +7703,7 @@
 11998  32      F5.2 A=CTRLS2       B=CTRLS3       -> @992
 11999  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
 12000  db      IF.3
-12001  fc      [db] fc
+12001  fc      [db] ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
 12002  c0      MOV   CTRLS1       -> @992  (c0; probe25)
 12003  01      RSUB A=CTRLS1       B=CTRLS1       -> @992
 12004  88      P0.page=8   -> A@128 TMP1A
@@ -7854,7 +7854,7 @@
 12151  66      MUL A=@1020        B=@944         -> @1012
 12152  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
 12153  9f      P1.page=f   -> B@1008 @1008
-12154  fc      fc
+12154  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
 12155  c0      MOV   @1008        -> @1012  (c0; probe25)
 12156  03      NMUL A=@1008        B=@1008        -> @1012
 12157  d9      IF.Z
@@ -7877,7 +7877,7 @@
 12174  af      P2.page=f   -> D@1008 @1008
 12175  de      CLR  @1008 := 0  (in place, no advance)  (de; probe31)
 12176  00      ADD A=@864         B=@1008        -> @1008
-12177  fd      fd
+12177  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
 12178  08      ADD A=@864         B=@1012        -> @1008
 12179  87      P0.page=7   -> A@880 @880
 12180  00      ADD A=@880         B=@1008        -> @1008
@@ -7975,7 +7975,7 @@
 12273  d8      ALWAYS
 12274  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
 12275  9d      P1.page=d   -> B@464 TMP22
-12276  fc      fc
+12276  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
 12277  c3      MOV   TMP2B        -> BLPFNMY  (P2 word++ first)  (c3; probe25)
 12278  04      ADD A=TMP1B        B=TMP22        -> BLPFNMZ
 12279  af      P2.page=f   -> D@496 BLPFNMTC
@@ -8111,11 +8111,11 @@
 12413  f3      FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
 12414  b5      P1.bank=1
 12415  9c      P1.page=c   -> B@448 TEMP29
-12416  fc      fc
+12416  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
 12417  c3      MOV   @852         -> TEMP29  (P2 word++ first)  (c3; probe25)
 12418  04      ADD A=@848         B=TEMP29       -> XACCB_PRE
 12419  db      IF.3
-12420  fc      [db] fc
+12420  fc      [db] ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
 12421  c2      MOV   @852         -> XACCB_PRE  (c2; probe25)
 12422  00      ADD A=@848         B=TEMP29       -> XACCB_PRE
 12423  d9      IF.Z
@@ -8153,7 +8153,7 @@
 12455  df      CLR  0 := 0  (P2 word++ first)  (df; probe23)
 12456  b5      P1.bank=1
 12457  9b      P1.page=b   -> B@432 SEM1
-12458  fc      fc
+12458  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
 12459  c1      MOV   @800         -> ASR22  (P2 word++ first)  (c1; probe25)
 12460  00      ADD A=@800         B=SEM1         -> ASR22
 12461  b8      P2.bank=0
@@ -8368,7 +8368,7 @@
 12671  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
 12672  b5      P1.bank=1
 12673  9b      P1.page=b   -> B@432 SEM1
-12674  fc      fc
+12674  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
 12675  c1      MOV   ADC2         -> ZACCB  (P2 word++ first)  (c1; probe25)
 12676  03      NMUL A=ADC2         B=SEM1         -> ZACCB
 12677  b4      P1.bank=0
@@ -8388,7 +8388,7 @@
 12693  d8      ALWAYS
 12694  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
 12695  9a      P1.page=a   -> B@160 DZ
-12696  fc      fc
+12696  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
 12697  c0      MOV   XACCW        -> XACCW  (c0; probe25)
 12698  04      ADD A=XACCW        B=DZ           -> XACCB
 12699  a7      P2.page=7   -> D@112 0_5
@@ -8518,7 +8518,7 @@
 12826  fa      INC  @892 by 1  (P2 word++ first)  (fa; probe23)
 12827  b5      P1.bank=1
 12828  9c      P1.page=c   -> B@448 TEMP29
-12829  fc      fc
+12829  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
 12830  c2      MOV   @932         -> @892  (c2; probe25)
 12831  07      NMUL A=@928         B=TEMP29       -> @880
 12832  d9      IF.Z
@@ -8545,7 +8545,7 @@
 12854  d8      ALWAYS
 12855  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
 12856  91      P1.page=1   -> B@784 @784
-12857  fc      fc
+12857  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
 12858  c1      MOV   @880         -> @928  (P2 word++ first)  (c1; probe25)
 12859  0a      MUL A=@880         B=@788         -> @928
 12860  d9      IF.Z
@@ -8565,7 +8565,7 @@
 12875  a6      P2.page=6   -> D@608 @608
 12876  d0      P2 word += 2 -> D@616 @616  (d0, mod 4; probe20)
 12877  38      ADD A=@772         B=@988         -> @616
-12878  fd      fd
+12878  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
 12879  31      RSUB A=@772         B=@984         -> @616
 12880  bb      P2.bank=3
 12881  af      P2.page=f   -> D@1008 @1008
@@ -8577,7 +8577,7 @@
 12887  8f      P0.page=f   -> A@1008 @1008
 12888  90      P1.page=0   -> B@768 @768
 12889  08      ADD A=@1008        B=@772         -> @1008
-12890  fd      fd
+12890  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
 12891  0f      NMUL A=@1008        B=@772         -> @1012
 12892  8d      P0.page=d   -> A@976 @976
 12893  9f      P1.page=f   -> B@1008 @1008
@@ -8609,7 +8609,7 @@
 12920  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
 12921  b5      P1.bank=1
 12922  9b      P1.page=b   -> B@432 SEM1
-12923  fc      fc
+12923  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
 12924  c1      MOV   @976         -> @620  (P2 word++ first)  (c1; probe25)
 12925  03      NMUL A=@976         B=SEM1         -> @620
 12926  d9      IF.Z
@@ -8770,7 +8770,7 @@
 13084  c6      MOV   @988         -> @624  (c6; probe25)
 13085  b5      P1.bank=1
 13086  9c      P1.page=c   -> B@448 TEMP29
-13087  fc      fc
+13087  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
 13088  c2      MOV   @980         -> @624  (c2; probe25)
 13089  04      ADD A=@976         B=TEMP29       -> @628
 13090  d9      IF.Z
@@ -8792,7 +8792,7 @@
 13106  b6      P1.bank=2
 13107  97      P1.page=7   -> B@624 @624
 13108  00      ADD A=@624         B=@624         -> 0
-13109  fd      fd
+13109  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
 13110  3e      MUL A=@628         B=@636         -> ASR22
 13111  b1      P0.bank=1
 13112  81      P0.page=1   -> A@272 1HB
@@ -9151,7 +9151,7 @@
 13466  9d      P1.page=d   -> B@464 TMP22
 13467  54      ADD A=TAP_THY      B=TAP_THY      -> B0
 13468  78      ADD A=TAP_THZ      B=TAP_THZ      -> B0
-13469  fd      fd
+13469  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
 13470  7f      NMUL A=TAP_THZ      B=TAP_THZ      -> A1
 13471  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
 13472  8a      P0.page=a   -> A@416 Y
@@ -9248,7 +9248,7 @@
 13565  b6      P1.bank=2
 13566  97      P1.page=7   -> B@624 @624
 13567  2c      ADD A=@628         B=@628         -> @880
-13568  fd      fd
+13568  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
 13569  01      RSUB A=@624         B=@624         -> @880
 13570  e0      e0
 13571  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
@@ -9310,7 +9310,7 @@
 13627  28      ADD A=@532         B=@628         -> @884
 13628  50      ADD A=@536         B=@632         -> @884
 13629  78      ADD A=@540         B=@636         -> @884
-13630  fd      fd
+13630  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
 13631  7f      NMUL A=@540         B=@636         -> @888
 13632  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
 13633  a7      P2.page=7   -> D@880 @880
@@ -9374,13 +9374,13 @@
 13694  9e      P1.page=e   -> B@480 TMP25
 13695  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
 13696  02      MUL A=@752         B=TMP25        -> @752
-13697  fd      fd
+13697  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
 13698  03      NMUL A=@752         B=TMP25        -> @752
 13699  26      MUL A=@756         B=TMP25        -> @756
-13700  fd      fd
+13700  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
 13701  03      NMUL A=@752         B=TMP25        -> @756
 13702  46      MUL A=@760         B=TMP25        -> @760
-13703  fd      fd
+13703  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
 13704  03      NMUL A=@752         B=TMP25        -> @760
 13705  bd      bank-sel3 1   ; unknown
 13706  bd      bank-sel3 1   ; unknown
@@ -9458,7 +9458,7 @@
 13783  b3      P0.bank=3
 13784  8f      P0.page=f   -> A@1008 @1008
 13785  d7      d7
-13786  fd      fd
+13786  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
 13787  3e      MUL A=@1012        B=@1004        -> @664
 13788  f2      FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
 13789  8d      P0.page=d   -> A@976 @976
@@ -9468,11 +9468,11 @@
 13793  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
 13794  8f      P0.page=f   -> A@1008 @1008
 13795  d5      d5
-13796  fd      fd
+13796  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
 13797  30      ADD A=@1012        B=@1000        -> @656
 13798  d4      d4
 13799  d0      P2 word += 2 -> D@664 @664  (d0, mod 4; probe20)
-13800  fd      fd
+13800  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
 13801  70      ADD A=@1020        B=@1000        -> @664
 13802  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
 13803  d0      P2 word += 2 -> D@656 @656  (d0, mod 4; probe20)
@@ -9508,7 +9508,7 @@
 13833  de      CLR  @752 := 0  (in place, no advance)  (de; probe31)
 13834  f8      INC  @752 by 1  (f8; probe23)
 13835  d4      d4
-13836  fd      fd
+13836  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
 13837  0c      ADD A=@1008        B=ACCQD5       -> @756
 13838  b7      P1.bank=3
 13839  8f      P0.page=f   -> A@1008 @1008
@@ -9525,10 +9525,10 @@
 13851  f8      INC  @764 by 1  (f8; probe23)
 13852  d0      P2 word += 2 -> D@756 @756  (d0, mod 4; probe20)
 13853  37      NMUL A=@1012        B=ACCQD6       -> @760
-13854  fd      fd
+13854  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
 13855  0e      MUL A=@1008        B=ACCQD5       -> @764
 13856  3f      NMUL A=@1012        B=ACCQD7       -> @752
-13857  fd      fd
+13857  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
 13858  0e      MUL A=@1008        B=ACCQD5       -> @756
 13859  8d      P0.page=d   -> A@976 @976
 13860  b7      P1.bank=3
@@ -9552,7 +9552,7 @@
 13878  de      CLR  @752 := 0  (in place, no advance)  (de; probe31)
 13879  f8      INC  @752 by 1  (f8; probe23)
 13880  d4      d4
-13881  fd      fd
+13881  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
 13882  0c      ADD A=@976         B=@1012        -> @756
 13883  8f      P0.page=f   -> A@1008 @1008
 13884  9e      P1.page=e   -> B@992 @992
@@ -9568,10 +9568,10 @@
 13895  f8      INC  @760 by 1  (f8; probe23)
 13896  d0      P2 word += 2 -> D@752 @752  (d0, mod 4; probe20)
 13897  37      NMUL A=@1012        B=ACCQD6       -> @756
-13898  fd      fd
+13898  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
 13899  0e      MUL A=@1008        B=ACCQD5       -> @760
 13900  3f      NMUL A=@1012        B=ACCQD7       -> @764
-13901  fd      fd
+13901  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
 13902  0e      MUL A=@1008        B=ACCQD5       -> @752
 13903  8e      P0.page=e   -> A@992 @992
 13904  b7      P1.bank=3
@@ -9598,7 +9598,7 @@
 13925  8f      P0.page=f   -> A@1008 @1008
 13926  f0      FMODE.0   ; 1=32-bit fifo, 2/3=16-bit
 13927  d4      d4
-13928  fd      fd
+13928  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
 13929  30      ADD A=@1012        B=@1016        -> @752
 13930  9f      P1.page=f   -> B@1008 @1008
 13931  f5      MIN prefix  next ALU op computes signed min(A,B)  [probe29, 16/16]
@@ -9628,10 +9628,10 @@
 13955  8f      P0.page=f   -> A@1008 @1008
 13956  d0      P2 word += 2 -> D@764 @764  (d0, mod 4; probe20)
 13957  d4      d4
-13958  fd      fd
+13958  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
 13959  40      ADD A=@1016        B=@1008        -> @764
 13960  d5      d5
-13961  fd      fd
+13961  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
 13962  40      ADD A=@1016        B=@1008        -> @764
 13963  b1      P0.bank=1
 13964  88      P0.page=8   -> A@384 ACCQD0
@@ -9693,10 +9693,10 @@
 14021  8a      P0.page=a   -> A@928 @928
 14022  af      P2.page=f   -> D@752 @752
 14023  d4      d4
-14024  fd      fd
+14024  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
 14025  00      ADD A=@928         B=XN2          -> @752
 14026  d5      d5
-14027  fd      fd
+14027  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
 14028  40      ADD A=@936         B=XN2          -> @752
 14029  8f      P0.page=f   -> A@1008 @1008
 14030  d0      P2 word += 2 -> D@760 @760  (d0, mod 4; probe20)
@@ -9722,10 +9722,10 @@
 14050  8a      P0.page=a   -> A@928 @928
 14051  af      P2.page=f   -> D@752 @752
 14052  d6      d6
-14053  fd      fd
+14053  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
 14054  00      ADD A=@928         B=XN2          -> @752
 14055  d7      d7
-14056  fd      fd
+14056  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
 14057  40      ADD A=@936         B=XN2          -> @752
 14058  8f      P0.page=f   -> A@1008 @1008
 14059  9a      P1.page=a   -> B@416 Y
@@ -9752,12 +9752,12 @@
 14080  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
 14081  8f      P0.page=f   -> A@1008 @1008
 14082  d4      d4
-14083  fd      fd
+14083  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
 14084  30      ADD A=@1012        B=A1           -> @752
 14085  b7      P1.bank=3
 14086  9f      P1.page=f   -> B@1008 @1008
 14087  02      MUL A=@1008        B=@1008        -> @752
-14088  fd      fd
+14088  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
 14089  1e      MUL A=@1008        B=@1020        -> @756
 14090  d0      P2 word += 2 -> D@764 @764  (d0, mod 4; probe20)
 14091  10      ADD A=@1008        B=@1016        -> @764
@@ -9878,7 +9878,7 @@
 14211  f0      FMODE.0   ; 1=32-bit fifo, 2/3=16-bit
 14212  da      IF.NZ
 14213  df      [da] CLR  @684 := 0  (P2 word++ first)  (df; probe23)
-14214  f6      f6
+14214  f6      ?f6    unidentified; prefix-shaped -- sits in f5's slot, before an ALU op  [UNKNOWNS.md]
 14215  e2      e2
 14216  f0      FMODE.0   ; 1=32-bit fifo, 2/3=16-bit
 14217  d9      IF.Z
@@ -9917,16 +9917,16 @@
 14250  df      CLR  ACCYB+2 := 0  (P2 word++ first)  (df; probe23)
 14251  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
 14252  d4      d4
-14253  fd      fd
+14253  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
 14254  70      ADD A=@764         B=XACC         -> ACCYB+2
 14255  d5      d5
-14256  fd      fd
+14256  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
 14257  70      ADD A=@764         B=XACC         -> ACCYB+2
 14258  d6      d6
-14259  fd      fd
+14259  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
 14260  70      ADD A=@764         B=XACC         -> ACCYB+2
 14261  d7      d7
-14262  fd      fd
+14262  fd      ?fd    suppresses the store (dc fd 40 writes nothing); all 3 sites are MOV/fd/ADD  [UNKNOWNS.md]
 14263  70      ADD A=@764         B=XACC         -> ACCYB+2
 14264  b6      P1.bank=2
 14265  9f      P1.page=f   -> B@752 @752

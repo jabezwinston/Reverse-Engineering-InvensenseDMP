@@ -12,7 +12,7 @@
  1034  81      [d9] P0.page=1   -> A@16 ADC2
  1035  96      P1.page=6   -> B@352 MNMFLAG
  1036  f8      INC  MNMFLAG by 1  (f8; probe23)
- 1037  f7      f7
+ 1037  f7      ?f7    unidentified; prefix-shaped -- followed by MUL at 9/31 sites  [UNKNOWNS.md]
  1038  3e      MUL A=BIASUNC      B=MNMTHR       -> FIFO16
  1039  d8      ALWAYS
  1040  f3      FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
@@ -671,12 +671,12 @@
  1709  84      [d9] P0.page=4   -> A@64 BLPFC
  1710  c4      MOV   BERR2        -> TMP4A  (c4; probe25)
  1711  cd      MOV16 BERR2        -> TMP1A  (P2 word++ first)  (cd; probe25)
- 1712  fc      fc
+ 1712  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  1713  db      IF.3
  1714  6d      [db] RSUB A=BERR2N       B=TMP2A        -> FIFO32
  1715  d9      IF.Z
  1716  a8      [d9] P2.page=8   -> D@128 TMP1A
- 1717  fc      fc
+ 1717  fc      ?fc    alters the ALU result (dc fc 40 = +0.55 vs +1.00); 11/19 sites precede RSUB  [UNKNOWNS.md]
  1718  db      IF.3
  1719  25      [db] RSUB A=0H2          B=TMP1A        -> FIFO32
  1720  da      IF.NZ
