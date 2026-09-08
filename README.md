@@ -9,7 +9,7 @@ are not RAM-mapped — was wrong, and the branch encoding is now known. Both wer
 statically from data the project already had, using the methods that resolved the BK3296 core.
 See **[ISA2.md](ISA2.md)** for the findings, the evidence and the plan; `tools/isa/` for the
 reproducible tests; `listings2/` for listings under the new pointer/ALU model; and
-`bench/isa_probe.py` for the queued hardware experiments. **The ALU is fully decoded on silicon** (ISA2.md Findings 6-7): the low byte computes
+`bench/isa_probe.py` for the queued hardware experiments. **The ALU, result routing, pointer walk and predicates are decoded on silicon** (ISA2.md Findings 6-10; `tools/dmpasm.py` output verified end to end, probe9): `dc`/`dd` route every following result to RAM or the FIFO (sticky; FIFO at rest), `df` walks P2 by one word, `d8`-`db` are single-shot conditional prefixes, and the low byte computes
 `M[P0+4A] op M[P1+4B]` with op in {ADD, B-A, MUL, -MUL} (Q30), `dc` stores the result to
 `M[P2]`, and `f4` is a forward branch. The DMP is a small but complete computer, not just a
 reconfigurable pipeline. Custom DMP programs written in this

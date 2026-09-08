@@ -7,8 +7,11 @@
     low byte v = 0 AA BB ooo :  A-word = P0 + 4*AA, B-word = P1 + 4*BB, op = ooo
                                  (bench: emitted value = M[B-word] + M[A-word] in FIFO mode)
     f4 imm (mantis) / fc imm (3050): branch to site+2+imm   [proven vs eMD labels]
-    d8/d9/da/db: single-shot conditional prefixes on the NEXT instruction [probe10, HW]
-                 d8 always; d9/db true at rest; da false at rest (vendor: gesture-event gate)
+    d1: TEST Z := (result == 0).  d8 always; d9 IF.Z; da IF.NZ; db IF.3 (true at rest):
+        single-shot conditional prefixes on the NEXT instruction        [probe10/19/20, HW]
+    P2 word index (2 bits, mod 4): df/fa/fb/odd-cx pre-advance 1, d0 += 2; op&4 adds 1 for that op
+    f8/f9: INC/DEC M[P2] by 1 LSB; fa/fb: same after advancing; df: advance then CLR  [probe23, HW]
+    c0..c7 (mantis): MOV M[P1 + 4*(x>>1)] -> M[P2]; x&1 pre-advances P2   [probe21, HW]
     dc/dd: result routing RAM/FIFO (sticky two-way switch; FIFO at rest)   df: P2 += 4   [probe9-16, HW]
     f0..f3 (mantis) / f8..fb (3050): FIFO width/mode        [bench]
 
@@ -68,12 +71,29 @@ class Decoder:
             sel, bank = (b >> 1) & 3, b & 1
             self.bank[sel] = bank; return 1, f"P{sel}.bank={bank}"
         if 0xD8 <= b <= 0xDB:
-            self.cond = f"{b:02x}"; return 1, {0xD8: "ALWAYS", 0xD9: "IF.1", 0xDA: "IF.2", 0xDB: "IF.3"}[b]
+            self.cond = f"{b:02x}"; return 1, {0xD8: "ALWAYS", 0xD9: "IF.Z", 0xDA: "IF.NZ", 0xDB: "IF.3"}[b]
         if b in self.fmode:
             self.width = b & 3; return 1, f"FMODE.{b&3}   ; 1=32-bit fifo, 2/3=16-bit"
+        if self.L == "mantis" and 0xF8 <= b <= 0xFB:
+            if b & 2: self.p2off = (getattr(self, "p2off", 0) + 4) % 16
+            verb = "DEC" if b & 1 else "INC"
+            return 1, f"{verb}  {self.N.name(self.ptr(2))} by 1{'  (P2 word++ first)' if b & 2 else ''}  ({b:02x}; probe23)"
+        if b == 0xFA and self.L == "mantis":
+            self.p2off = getattr(self, "p2off", 0) + 4
+            return 1, f"P2 += 4      -> D@{self.ptr(2)} {self.N.name(self.ptr(2))}  (fa, probe18; same effect as df)"
+        if b == 0xD1:
+            return 1, "TEST  Z := (last ALU result == 0); d9 = IF.Z, da = IF.NZ  [probe19/20]"
+        if b == 0xD0:
+            self.p2off = (getattr(self, "p2off", 0) + 8) % 16
+            return 1, f"P2 word += 2 -> D@{self.ptr(2)} {self.N.name(self.ptr(2))}  (d0, mod 4; probe20)"
+        if self.L == "mantis" and 0xC0 <= b <= 0xC7:
+            k = (b >> 1) & 3                       # source word of the P1 page; bit0 = pre-advance P2
+            if b & 1: self.p2off = (getattr(self, "p2off", 0) + 4) % 16
+            src = self.ptr(1) + 4 * k
+            return 1, f"MOV  {self.N.name(src):<12} -> {self.N.name(self.ptr(2))}{'  (P2 word++ first)' if b & 1 else ''}  ({b:02x}; probe21)"
         if b == 0xDF:
             self.p2off = getattr(self, "p2off", 0) + 4
-            return 1, f"P2 += 4      -> D@{self.ptr(2)} {self.N.name(self.ptr(2))}  (df, probe13)"
+            return 1, f"CLR  {self.N.name(self.ptr(2))} := 0  (P2 word++ first)  (df; probe23)"
         if b == 0xDD:
             self.ram = False; return 1, "ROUTE -> FIFO  (dd; sticky until dc)  [probe16]"
         if b == 0xDC:

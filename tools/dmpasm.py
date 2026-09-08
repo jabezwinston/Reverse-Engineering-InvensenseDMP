@@ -28,10 +28,14 @@ big-endian Q30 (2^30 = 1.0), range [-2,+2), addition wraps (modular).
   branch N                           f4 (mantis) / fc (3050); target = here+2+N,
                                      forward only, 0 <= N <= 0x7f (Finding 2)
   fmode N                            f0..f3: FIFO width/mode (1=32-bit, 2/3=16-bit)
-  always / if N                      d8 / d9,da,db: conditional prefix on the NEXT
-                                     instruction only (single-shot, probe10). At rest
-                                     if 1 and if 3 are true, if 2 false (vendor: if 2
-                                     gates gesture/motion events).
+  test                               d1: Z := (last ALU result == 0)
+  if z / if nz  (= if 1 / if 2)      d9 / da: run the NEXT instruction only if Z / not Z
+  always / if 3                      d8 / db (db: true at rest, meaning open)
+  clr.next                           df: P2 word++, then M[P2] := 0   (p2inc [N] = N of these)
+  inc / dec                          f8 / f9: M[P2] += 1 / -= 1 (one LSB)
+  inc.next / dec.next                fa / fb: P2 word++, then INC / DEC
+  p2inc2                             d0: P2 word += 2, mod 4
+  mov k[,inc]                        c0..c7: copy M[P1+4k] -> M[P2]; inc pre-advances P2
 
 Legacy FIFO-emit form (stock preambles) still assembles:
   selbank gyro|quat|accel|delay|0x9N
@@ -132,6 +136,10 @@ def assemble(text, lineage="mantis"):
             # --- ALU (compute; emits to FIFO in fifo mode, else use store) ---
             elif op in ALU_OPS:
                 out.append(_alu_byte(op, arg))
+            elif op == "test":                   # d1: Z := (last ALU result == 0)
+                out.append(0xD1)
+            elif op == "if" and arg.lower() in ("z", "nz"):
+                out.append(0xD9 if arg.lower() == "z" else 0xDA)
             elif op == "always":                 # d8: next instruction unconditional
                 out.append(0xD8)
             elif op == "if":                     # d9/da/db: predicate the NEXT instruction only
@@ -141,6 +149,17 @@ def assemble(text, lineage="mantis"):
                 out.append(0xD8 + n)
             elif op in ("store.off", "fifo"):    # dd: route results to FIFO (sticky) [probe16]
                 out.append(0xDD)
+            elif op == "mov":                    # cx: M[P1+4k] -> M[P2]; "mov k" or "mov k,inc"
+                toks = [t.strip().lower() for t in arg.split(",")]
+                k = int(toks[0], 0)
+                if not 0 <= k <= 3: raise AsmError("mov k: source word k is 0..3")
+                out.append(0xC0 | (k << 1) | (1 if len(toks) > 1 and toks[1] == "inc" else 0))
+            elif op in ("inc", "dec", "inc.next", "dec.next"):   # f8 f9 fa fb
+                out.append(0xF8 | (1 if op.startswith("dec") else 0) | (2 if op.endswith(".next") else 0))
+            elif op == "clr.next":               # df: P2 word++, then M[P2] = 0
+                out.append(0xDF)
+            elif op == "p2inc2":                 # d0
+                out.append(0xD0)
             elif op == "p2inc":                  # df: P2 += 4 (probe13); repeat N times
                 out.extend([0xDF] * (int(arg, 0) if arg else 1))
             elif op == "store" and not arg:

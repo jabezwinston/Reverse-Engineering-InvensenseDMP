@@ -382,6 +382,70 @@ the predicates (probe14), the routing state and the interrupt/FIFO counts unchan
 alone or repeated. Its corpus neighbours (`f8`, `d8`, `df`, `f4`) suggest control/FIFO framing
 rather than data; it needs a detector this rig does not yet have.
 
+## Finding 11 — `d1` is TEST, and `d9`/`da` are IF.Z / IF.NZ (HARDWARE CONFIRMED 2026-09-08)
+
+Finding 8 left the predicate conditions unidentified. `d1` (0.77% of code, and the single most
+common byte *preceding* `d9` and `da` in the corpus — 98 and 52 occurrences) sets them.
+probe19/20, store idiom with `d1` between the ALU op and the predicate, asking whether the
+predicated second op (`44`) ran:
+
+    result of op1   d1 d9 44 (IF.1)   d1 da 44 (IF.2)   d1 db 44 (IF.3)
+    +1.5            not run           RAN               not run
+    -0.5            not run           RAN               not run
+     0.0            RAN               not run           RAN
+    -1.0 (wrapped)  not run           RAN               not run
+
+**`d1` computes Z := (last ALU result == 0); `d9` = IF.Z, `da` = IF.NZ.** `db` follows Z as
+well here. Without a `d1` the flag holds its previous value, which is why probe10/11/12 saw the
+prefixes as constants: nothing in those payloads ever set the flag. This also explains the
+vendor ground truth in Finding 8 — `dmp_set_interrupt_mode` gesture mode and the 3050 motion
+state machine swap `d9`/`da` to invert a zero test, not to select a hardware event line.
+`f8`/`f9`/`c0` do not set the flag (probe20 B).
+
+## Finding 12 — the `cx` family is MOV, and `f8`–`fb`/`df` are INC/DEC/CLR (HARDWARE CONFIRMED)
+
+The P2 word index is a 2-bit field (mod 4), separate from the page. Several opcodes pre-advance
+it, and `d0` adds 2 (probe20 C: `d0 d0 d0 40` -> word 2; `df d0 40` -> word 3; `df df df df 40`
+-> wraps to word 0; `c1 c1 c1 c1 40` -> wraps).
+
+**`c0`–`c7` (mantis) = MOV `M[P1 + 4*(x>>1)]` -> `M[P2]`, with `x&1` pre-advancing the P2 word.**
+probe21/22: `c2` alone stored 0.0, `c4` 1.0, `c6` 1.5 — exactly P1 page 7 words 1, 2, 3 — and
+`c4` after an ADD stored 1.0, overwriting the sum, so it is a copy and not an accumulator op.
+`c5` wrote 1.0 to word 1 (pre-advance). Decoded in the corpus this reads sensibly:
+`c2` = MOV BIASUNC -> BLPFNMZL+2, `c1` = MOV ADC2 -> ... (P2 word++ first).
+
+**`f8`/`f9` = INC/DEC `M[P2]` by one LSB; `fa`/`fb` = the same after pre-advancing the word;
+`df` = pre-advance then CLR (`M[P2] := 0`).** probe23 with a distinctive accumulator
+0x22CB47A2 and a 0x7E7E7E7E sentinel:
+
+    10 f8 -> 0x240 = 22cb47a3      10 fa -> 0x244 = 7e7e7ed5   (sentinel 7e7e7e7e + 0x57? no:
+    10 f9 -> 0x240 = 22cb47a1      10 fb -> 0x244 = 7e7e7e27    the sentinel itself, ±1 per pass)
+    40 f8 -> 0x240 = 60000001      10 df -> 0x244 = 00000000
+    40 f9 -> 0x240 = 5fffffff
+
+The `fa`/`fb` and standalone cells increment the *sentinel* by one per DMP pass (0x7e7e7e7e ->
+0x7e7e7ed5 is +0x57 = 87 passes in the window), confirming these act on memory, not on the
+accumulator, and that `df`'s earlier "P2 += 4" reading (Finding 9) was the pre-advance half of
+a clear: `dc df 40` stored at word 1 because `df` advanced, and the CLR was then overwritten by
+the op. Finding 9's conclusion that words 2 and 3 are reachable stands; the mechanism is named
+correctly here.
+
+## Finding 13 — `de` does nothing observable; `f5` unresolved
+
+`de` (1.41% of code) survives every detector: it does not store, does not move the destination,
+does not change the operands, does not set or clear Z, does not alter routing, the interrupt
+rate or the FIFO stream, and does not reset the P2 word index (probe24: `dc df de 40` still
+lands at word 1). Its corpus neighbours are `f8`, `d8`, `df`, `f4`. Best remaining hypothesis:
+a synchronisation or bank-latch byte whose effect is invisible to a RAM/FIFO detector.
+
+`f5` changes results in a way no single rule fits (probe20 D: ADD(1.0,1.0) -> +1.0,
+ADD(0.5,1.5) -> +0.5, ADD(0.5,0.0) -> 0.0, MUL(1.0,0.5) -> 0.0, RSUB -> no store). Left open.
+
+**Decoder coverage after Findings 11-13: 93.2% of corpus code bytes carry a meaning**
+(was 83.0%). The largest remaining unknowns are `de` (343), `bc`/`bd`/`be` (632 together,
+a family that scrambles the rig when executed at the probe site), `f5`/`fd`/`fc` and the
+`f4 imm>=0x80` form.
+
 ## Plan
 
 ### P1 — static, no hardware (this session)
