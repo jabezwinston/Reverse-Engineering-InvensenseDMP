@@ -1,3 +1,4 @@
 __pycache__/
 *.pyc
-bench/build/
+bench/build/*.elf
+bench/build/*.map

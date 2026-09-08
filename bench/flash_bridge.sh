@@ -26,7 +26,7 @@ BOOT_APP0="$(ls "$CORE_DIR"/*/tools/partitions/boot_app0.bin | head -1)"
 # Four small parts (~350 KB) rather than the padded 4 MB merged image: the tunnel is slow.
 echo "== flashing bootloader/partitions/boot_app0/app to $PORT at $BAUD baud"
 set -x
-esptool --chip esp32 --port "$PORT" --baud "$BAUD" --before default-reset --after hard-reset \
+esptool --chip esp32 --port "$PORT" --baud "$BAUD" --before "${BEFORE:-default-reset}" --after hard-reset --connect-attempts "${ATTEMPTS:-7}" \
     write-flash -z --flash-mode dio --flash-freq 80m --flash-size detect \
     0x1000  "$OUT/esp32_dmp_bridge.ino.bootloader.bin" \
     0x8000  "$OUT/esp32_dmp_bridge.ino.partitions.bin" \
