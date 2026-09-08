@@ -11,7 +11,10 @@ from symbols import symbols, code_labels, ROOT
 IMAGES = {p.stat().st_size: p for p in (ROOT / "corpus/images").glob("*.bin")}
 def load(size): return IMAGES[size].read_bytes()
 
-def code_start(size): return 4096 if size > 14000 else 1024
+def code_start(size):
+    # Family A (MotionApps20/41, Mantis) starts at PRGM_START 0x0300; Family B at 0x0400;
+    # the 3050-era 1024 image around 512; ICM-20948 at 4096.
+    return 4096 if size > 14000 else 1024 if size > 2000 else 512 if size == 1024 else 768
 def br_opcode(img, start):
     # MPU-3050-style encoding uses f8 as block base -> imm-taker fc ; mantis-style uses f0 -> f4
     code = img[start:]

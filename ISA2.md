@@ -168,6 +168,15 @@ FIFO packet block; `ff` (56×, followed by `d8`) ends a program; `f4` followed b
   write `4c cd 6c`): the odd `cx` byte is the assembler's "unset axis" form of the same
   one-operand move.
 
+## Correction — Family A code starts at 0x0300
+
+MotionApps20 writes `0x03 0x00` to registers 0x70/0x71. Round 7 read that as a "config value";
+it is the program start address, 0x0300 = 768. The 1929 image bears it out: bytes 0x200–0x2ff are
+237/256 zero (data), bytes 0x300–0x3ff are 202/256 high (code). The earlier "boundary at 1024"
+held only for Family B. `tools/isa` and `listings2/` now decode 1923/1929/1962 from 768; the
+destination-rule test gets stricter with the extra 256 bytes of code (constant-page writes:
+P2 rules 0, in-place rules 6–10, shuffled control 9; sensor-input writes 0 under the P2 rules).
+
 ## Plan
 
 ### P1 — static, no hardware (this session)

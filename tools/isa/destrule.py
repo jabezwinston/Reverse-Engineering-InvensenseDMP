@@ -66,7 +66,7 @@ def main():
     rules["D=P2+4A(op&4)else4B"] = lambda A, B, p, op: p[2] + 4 * (A if op & 4 else B)
     rules["D=P2+4B(op&4)else4A"] = lambda A, B, p, op: p[2] + 4 * (B if op & 4 else A)
     for size in (1024, 1923, 1929):
-        img = IMAGES[size].read_bytes(); start = 512 if size == 1024 else 1024
+        img = IMAGES[size].read_bytes(); start = code_start(size)
         L = lineage_of(img, start)
         print(f"\n=== {size} B  lineage={L}  code [{start}:{len(img)}]")
         for name, rule in rules.items():

@@ -1,9 +1,265 @@
-; lineage=mantis start=1024
+; lineage=mantis start=768
+  768  d8      ALWAYS
+  769  dc      dc
+  770  ba      P2.bank=2
+  771  a2      P2.page=2   -> D@544 @544
+  772  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
+  773  de      de
+  774  b2      P0.bank=2
+  775  b8      P2.bank=0
+  776  b4      P1.bank=0
+  777  a8      P2.page=8   -> D@128 TMP1A
+  778  81      P0.page=1   -> A@528 @528
+  779  91      P1.page=1   -> B@16 ADC2
+  780  f7      f7
+  781  4a      op2  A=@536           B=BIASUNC        (D?=TMP2A)
+  782  90      P1.page=0   -> B@0 PTAT
+  783  7f      op7  A=@540           B=ZACC           (D?=TMP4A)
+  784  91      P1.page=1   -> B@16 ADC2
+  785  6a      op2  A=@540           B=BIASUNC        (D?=TMP2A)
+  786  f3      FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
+  787  f9      f9
+  788  db      IF.3
+  789  a8      P2.page=8   -> D@128 TMP1A
+  790  f9      f9
+  791  b0      P0.bank=0
+  792  ba      P2.bank=2
+  793  a0      P2.page=0   -> D@512 BLPFNMZL+2
+  794  80      P0.page=0   -> A@0 PTAT
+  795  f2      FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
+  796  ce      ce
+  797  81      P0.page=1   -> A@16 ADC2
+  798  f3      FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
+  799  c2      c2
+  800  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
+  801  c1      c1
+  802  f2      FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
+  803  c3      c3
+  804  f3      FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
+  805  cc      cc
+  806  a2      P2.page=2   -> D@544 @544
+  807  b2      P0.bank=2
+  808  80      P0.page=0   -> A@512 BLPFNMZL+2
+  809  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
+  810  c6      c6
+  811  d8      ALWAYS
+  812  80      P0.page=0   -> A@512 BLPFNMZL+2
+  813  ba      P2.bank=2
+  814  a7      P2.page=7   -> D@624 @624
+  815  df      df
+  816  df      df
+  817  df      df
+  818  f2      FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
+  819  a7      P2.page=7   -> D@624 @624
+  820  c3      c3
+  821  cb      cb
+  822  c5      c5
+  823  b6      P1.bank=2
+  824  f0      FMODE.0   ; 1=32-bit fifo, 2/3=16-bit
+  825  87      P0.page=7   -> A@624 @624
+  826  a2      P2.page=2   -> D@544 @544
+  827  94      P1.page=4   -> B@576 @576
+  828  24      op4  A=@628           B=@576           (D?=@544)
+  829  48      op0  A=@632           B=@580           (D?=@548)
+  830  70      op0  A=@636           B=@584           (D?=@552)
+  831  3c      op4  A=@628           B=@588           (D?=@556)
+  832  95      P1.page=5   -> B@592 @592
+  833  40      op0  A=@632           B=@592           (D?=@544)
+  834  68      op0  A=@636           B=@596           (D?=@548)
+  835  34      op4  A=@628           B=@600           (D?=@552)
+  836  58      op0  A=@632           B=@604           (D?=@556)
+  837  9b      P1.page=b   -> B@688 @688
+  838  78      op0  A=@636           B=@700           (D?=@556)
+  839  a2      P2.page=2   -> D@544 @544
+  840  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
+  841  83      P0.page=3   -> A@560 @560
+  842  92      P1.page=2   -> B@544 @544
+  843  2d      op5  A=@564           B=@548           (D?=@548)
+  844  55      op5  A=@568           B=@552           (D?=@552)
+  845  7d      op5  A=@572           B=@556           (D?=@556)
+  846  d8      ALWAYS
+  847  b1      P0.bank=1
+  848  b4      P1.bank=0
+  849  b8      P2.bank=0
+  850  a1      P2.page=1   -> D@16 ADC2
+  851  d0      d0
+  852  91      P1.page=1   -> B@16 ADC2
+  853  80      P0.page=0   -> A@256 PREVPTAT
+  854  f2      FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
+  855  70      op0  A=ACCYB+2        B=INVGSF         (D?=INVGSF)
+  856  f3      FMODE.3   ; 1=32-bit fifo, 2/3=16-bit
+  857  70      op0  A=ACCYB+2        B=INVGSF         (D?=INVGSF)
+  858  f2      FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
+  859  7c      op4  A=ACCYB+2        B=1              (D?=1)
+  860  80      P0.page=0   -> A@256 PREVPTAT
+  861  a8      P2.page=8   -> D@128 TMP1A
+  862  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
+  863  01      op1  A=PREVPTAT       B=ADC2           (D?=TMP1A)
+  864  b0      P0.bank=0
+  865  98      P1.page=8   -> B@128 TMP1A
+  866  87      P0.page=7   -> A@112 0_5
+  867  d9      IF.1
+  868  43      [d9] op3  A=1_0            B=TMP1A          (D?=TMP1A)
+  869  d8      ALWAYS
+  870  86      P0.page=6   -> A@96 ATC
+  871  c9      c9
+  872  88      P0.page=8   -> A@128 TMP1A
+  873  ba      P2.bank=2
+  874  a1      P2.page=1   -> D@528 @528
+  875  f2      FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
+  876  0e      op6  A=TMP1A          B=TMP2A          (D?=@532)
+  877  b8      P2.bank=0
+  878  97      P1.page=7   -> B@112 0_5
+  879  80      P0.page=0   -> A@0 PTAT
+  880  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
+  881  a9      P2.page=9   -> D@144 XACCW
+  882  df      df
+  883  df      df
+  884  df      df
+  885  aa      P2.page=a   -> D@160 DZ
+  886  df      df
+  887  df      df
+  888  df      df
+  889  f2      FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
+  890  aa      P2.page=a   -> D@160 DZ
+  891  4c      op4  A=XACC           B=0_0            (D?=XGC)
+  892  cd      cd
+  893  6c      op4  A=ZACC           B=0_0            (D?=XGC)
+  894  a9      P2.page=9   -> D@144 XACCW
+  895  0c      op4  A=PTAT           B=0_0            (D?=XACCB)
+  896  c9      c9
+  897  2c      op4  A=YGYR           B=0_0            (D?=XACCB)
+  898  97      P1.page=7   -> B@112 0_5
+  899  97      P1.page=7   -> B@112 0_5
+  900  97      P1.page=7   -> B@112 0_5
+  901  97      P1.page=7   -> B@112 0_5
+  902  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
+  903  a9      P2.page=9   -> D@144 XACCW
+  904  89      P0.page=9   -> A@144 XACCW
+  905  26      op6  A=XACCB          B=0_5            (D?=XACCW)
+  906  46      op6  A=YACCB          B=0_5            (D?=XACCW)
+  907  66      op6  A=ZACCB          B=0_5            (D?=XACCW)
+  908  b0      P0.bank=0
+  909  b4      P1.bank=0
+  910  ba      P2.bank=2
+  911  80      P0.page=0   -> A@0 PTAT
+  912  ac      P2.page=c   -> D@704 @704
+  913  de      de
+  914  f2      FMODE.2   ; 1=32-bit fifo, 2/3=16-bit
+  915  ca      ca
+  916  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
+  917  b2      P0.bank=2
+  918  8c      P0.page=c   -> A@704 @704
+  919  02      op2  A=@704           B=0_5            (D?=@704)
+  920  a9      P2.page=9   -> D@656 @656
+  921  b6      P1.bank=2
+  922  98      P1.page=8   -> B@640 @640
+  923  00      op0  A=@704           B=@640           (D?=@656)
+  924  89      P0.page=9   -> A@656 @656
+  925  0e      op6  A=@656           B=@644           (D?=@660)
+  926  16      op6  A=@656           B=@648           (D?=@664)
+  927  1e      op6  A=@656           B=@652           (D?=@668)
+  928  b8      P2.bank=0
+  929  a9      P2.page=9   -> D@144 XACCW
+  930  b4      P1.bank=0
+  931  99      P1.page=9   -> B@144 XACCW
+  932  2c      op4  A=@660           B=XACCB          (D?=XACCB)
+  933  54      op4  A=@664           B=YACCB          (D?=YACCB)
+  934  7c      op4  A=@668           B=ZACCB          (D?=ZACCB)
+  935  b0      P0.bank=0
+  936  8a      P0.page=a   -> A@160 DZ
+  937  a8      P2.page=8   -> D@128 TMP1A
+  938  96      P1.page=6   -> B@96 ATC
+  939  36      op6  A=XGC            B=GSF            (D?=TMP3A)
+  940  56      op6  A=YGC            B=GSF            (D?=TMP3A)
+  941  76      op6  A=ZGC            B=GSF            (D?=TMP3A)
+  942  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
+  943  b9      P2.bank=1
+  944  af      P2.page=f   -> D@496 BLPFNMTC
+  945  b4      P1.bank=0
+  946  b0      P0.bank=0
+  947  83      P0.page=3   -> A@48 BLPFMTC
+  948  c0      c0
+  949  b8      P2.bank=0
+  950  a8      P2.page=8   -> D@128 TMP1A
+  951  97      P1.page=7   -> B@112 0_5
+  952  11      op1  A=BLPFMTC        B=1_0            (D?=TMP3A)
+  953  b1      P0.bank=1
+  954  8f      P0.page=f   -> A@496 BLPFNMTC
+  955  98      P1.page=8   -> B@128 TMP1A
+  956  b9      P2.bank=1
+  957  af      P2.page=f   -> D@496 BLPFNMTC
+  958  f0      FMODE.0   ; 1=32-bit fifo, 2/3=16-bit
+  959  24      op4  A=BLPFNMX        B=TMP1A          (D?=BLPFNMTC)
+  960  08      op0  A=BLPFNMTC       B=TMP2A          (D?=BLPFNMX)
+  961  44      op4  A=BLPFNMY        B=TMP1A          (D?=BLPFNMTC)
+  962  10      op0  A=BLPFNMTC       B=TMP3A          (D?=BLPFNMY)
+  963  64      op4  A=BLPFNMZ        B=TMP1A          (D?=BLPFNMTC)
+  964  18      op0  A=BLPFNMTC       B=TMP4A          (D?=BLPFNMZ)
+  965  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
+  966  a3      P2.page=3   -> D@304 TMP1B
+  967  29      op1  A=BLPFNMX        B=TMP2A          (D?=TMP2B)
+  968  55      op5  A=BLPFNMY        B=TMP3A          (D?=TMP3B)
+  969  7d      op5  A=BLPFNMZ        B=TMP4A          (D?=TMP4B)
+  970  af      P2.page=f   -> D@496 BLPFNMTC
+  971  83      P0.page=3   -> A@304 TMP1B
+  972  b5      P1.bank=1
+  973  93      P1.page=3   -> B@304 TMP1B
+  974  af      P2.page=f   -> D@496 BLPFNMTC
+  975  f0      FMODE.0   ; 1=32-bit fifo, 2/3=16-bit
+  976  00      op0  A=TMP1B          B=TMP1B          (D?=BLPFNMTC)
+  977  28      op0  A=TMP2B          B=TMP2B          (D?=BLPFNMX)
+  978  50      op0  A=TMP3B          B=TMP3B          (D?=BLPFNMY)
+  979  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
+  980  a3      P2.page=3   -> D@304 TMP1B
+  981  86      P0.page=6   -> A@352 MNMFLAG
+  982  9f      P1.page=f   -> B@496 BLPFNMTC
+  983  61      op1  A=MNMTHR         B=BLPFNMTC       (D?=TMP1B)
+  984  a6      P2.page=6   -> D@352 MNMFLAG
+  985  da      IF.2
+  986  de      de
+  987  df      df
+  988  d9      IF.1
+  989  fa      fa
+  990  a3      P2.page=3   -> D@304 TMP1B
+  991  86      P0.page=6   -> A@352 MNMFLAG
+  992  96      P1.page=6   -> B@352 MNMFLAG
+  993  db      IF.3
+  994  31      [db] op1  A=MNMTM          B=MNMTMTHR       (D?=TMP3B)
+  995  a6      P2.page=6   -> D@352 MNMFLAG
+  996  d9      IF.1
+  997  f8      f8
+  998  df      df
+  999  ba      P2.bank=2
+ 1000  a6      P2.page=6   -> D@608 @608
+ 1001  8f      P0.page=f   -> A@496 BLPFNMTC
+ 1002  c2      c2
+ 1003  c5      c5
+ 1004  c7      c7
+ 1005  b2      P0.bank=2
+ 1006  8c      P0.page=c   -> A@704 @704
+ 1007  c1      c1
+ 1008  b8      P2.bank=0
+ 1009  a2      P2.page=2   -> D@32 BLPFSTC
+ 1010  df      df
+ 1011  df      df
+ 1012  df      df
+ 1013  a3      P2.page=3   -> D@48 BLPFMTC
+ 1014  df      df
+ 1015  df      df
+ 1016  df      df
+ 1017  d8      ALWAYS
+ 1018  d8      ALWAYS
+ 1019  f1      FMODE.1   ; 1=32-bit fifo, 2/3=16-bit
+ 1020  b8      P2.bank=0
+ 1021  a8      P2.page=8   -> D@128 TMP1A
+ 1022  b2      P0.bank=2
+ 1023  86      P0.page=6   -> A@608 @608
  1024  b4      P1.bank=0
  1025  98      P1.page=8   -> B@128 TMP1A
- 1026  0d      op5  A=PTAT           B=TMP2A          (D?=YGYR)
- 1027  35      op5  A=YGYR           B=TMP3A          (D?=XACC)
- 1028  5d      op5  A=XACC           B=TMP4A          (D?=ZACC)
+ 1026  0d      op5  A=@608           B=TMP2A          (D?=TMP2A)
+ 1027  35      op5  A=@612           B=TMP3A          (D?=TMP3A)
+ 1028  5d      op5  A=@616           B=TMP4A          (D?=TMP4A)
  1029  b8      P2.bank=0
  1030  aa      P2.page=a   -> D@160 DZ
  1031  98      P1.page=8   -> B@128 TMP1A

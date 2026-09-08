@@ -92,7 +92,7 @@ if __name__ == "__main__":
     ap.add_argument("--symbols", default="auto")
     a = ap.parse_args()
     img = pathlib.Path(a.image).read_bytes(); size = len(img)
-    start = a.start if a.start is not None else (4096 if size > 14000 else 1024 if size > 1024 else 512)
+    start = a.start if a.start is not None else (4096 if size > 14000 else 1024 if size > 2000 else 512 if size == 1024 else 768)
     end = a.end or size
     syms = symbols()
     if a.symbols == "auto":

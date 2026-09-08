@@ -15,6 +15,9 @@
 //   R <len>                  read FIFO   -> "OK <hex>"
 //   I                        INT state   -> "OK <level> <count>"
 //   Z                        clear INT counter -> "OK"
+//   T <ms>                   single step: reset+start DMP, wait for one INT edge (or
+//                            <ms> timeout), stop DMP  -> "OK <ints> <elapsed_us>"
+//                            (host-side stepping over a slow link runs many samples)
 
 #include <Wire.h>
 
@@ -190,6 +193,20 @@ void handle(char *s) {
     case 'Z':
       intCount = 0; Serial.println("OK");
       return;
+    case 'T': {
+      unsigned ms = 600;
+      sscanf(s + 1, "%u", &ms);
+      if (!wr1(RA_USER_CTRL, 0x00)) { Serial.println("ERR i2c"); return; }
+      intCount = 0;
+      if (!wr1(RA_USER_CTRL, 0x4C) || !wr1(RA_USER_CTRL, 0xC0)) { Serial.println("ERR i2c"); return; }
+      uint32_t t0 = micros();
+      while (intCount == 0 && (micros() - t0) < ms * 1000UL) { }
+      wr1(RA_USER_CTRL, 0x00);           // stop within microseconds of the edge
+      uint32_t dt = micros() - t0;
+      uint32_t n = intCount;
+      Serial.print("OK "); Serial.print(n); Serial.print(' '); Serial.println(dt);
+      return;
+    }
   }
   Serial.println("ERR cmd");
 }
