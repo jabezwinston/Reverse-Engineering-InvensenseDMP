@@ -613,10 +613,31 @@ What the bench has already ruled out:
 * **RSUB does not advance the destination either** -- probe7 established that ops 0-3 all write
   the un-advanced word, so a run mixing ADD and RSUB is still a run on one word.
 
+The run *lengths* line up with the arithmetic the surrounding symbols imply, which is the
+strongest hint available. In the 3065 image at 2677 there are five consecutive stores to `Y`,
+the output word of the biquad whose state (`XN1`, `XN2`, `YN1`, `YN2`) and coefficients (`B0`,
+`A1`, `A2`) sit next to it in `dmpmap.h`:
+
+```
+2677  c0   Y = TMP1B;
+2678  fd   <fd>
+2679  30   Y = TMP2B + A1;
+2683  10   Y = TMP1B + @1016;
+2688  02   Y = SEM1 * TMP1B;
+2689  02   Y = SEM1 * TMP1B;        <- the identical byte again
+```
+
+A direct-form biquad is `y = b0*x + b1*x1 + b2*x2 - a1*y1 - a2*y2` -- five terms, five stores.
+The length-4 runs sit on quaternion components, which need four. So the run-length histogram
+(2, 3, 4, 5) looks like a histogram of *sum arity*, not of dead code.
+
 The remaining candidates are an accumulate mode selected by something outside the op field, or a
-second result destination that a RAM detector at P2 cannot see. The discriminating experiment is
-to replay a real firmware run (`20 09 71 58`) against known operands and compare the final word
-with both the last term and the signed sum.
+second result destination that a RAM detector at P2 cannot see. Note that `fd` appears at the head
+of the biquad run, which would be a natural place for an "accumulate the following run" prefix --
+but `fd` cannot simply be that, because `dc fd 40` writes *nothing*, where an accumulate into a
+zeroed word would have written +1.5. The discriminating experiment is to replay a real firmware run
+(`20 09 71 58`) against known operands and compare the final word against both the last term and
+the signed sum of all four.
 
 ## Finding 18 — `de` writes a zero through the current route (was "no observable effect")
 
