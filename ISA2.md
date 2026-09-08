@@ -588,12 +588,35 @@ Cost of the error: the destination column of every listing. Regenerating `listin
 fix changed 1775 lines across the 12 images, and it is what makes the quaternion update read as
 `QT1..QT4 += TMP1A..TMP4A` instead of three redundant writes to QT2.
 
-**Open, and not resolved by this:** the firmware contains runs of `op&4`-clear ALU ops sharing
-one destination -- 1527..1530 computes four terms into `ANGVBX`, then four into `ANGVBY`, then
-four into `ANGVBZ`, which is the shape of a quaternion rotation whose terms need *summing*.
-Under the confirmed rule the first three writes of each group are dead. Either the DMP has an
-accumulate mode that a single-word RAM detector cannot see, or those writes really are dead
-code. `40 08` says plain ADD assigns, so any such mode is not simply "op0 accumulates".
+**Open, and not resolved by this -- quantified.** The firmware is full of runs of consecutive
+ALU stores that, under the confirmed rule, all land on the same word:
+
+| run length | occurrences |
+|---|---|
+| 2 | 166 |
+| 3 | 138 |
+| 4 | 58 |
+| 5 | 3 |
+
+That is **365 runs covering 993 instructions, about 6% of all code bytes** in the 11 images. Some
+of them repeat the *identical byte* back to back (`... 2c 50 50 78 78 ...` at 1481 of the 1923
+image), and the length-4 runs sit exactly where a quaternion rotation needs four terms *summed*
+(1527..1530 into `ANGVBX`, 1531..1534 into `ANGVBY`, 1535..1538 into `ANGVBZ`).
+
+Under the confirmed rule every write in such a run except the last is dead. 6% of a hand-written
+1.9 kB firmware being dead code is not credible, so something in the machine is not yet modelled.
+What the bench has already ruled out:
+
+* **op0 does not accumulate.** `40 08` measures +0.50, the second op's value, not the +2.0 sum.
+* **No one-instruction store delay.** A pipelined result register would make `40 08` store +1.50;
+  it stores +0.50.
+* **RSUB does not advance the destination either** -- probe7 established that ops 0-3 all write
+  the un-advanced word, so a run mixing ADD and RSUB is still a run on one word.
+
+The remaining candidates are an accumulate mode selected by something outside the op field, or a
+second result destination that a RAM detector at P2 cannot see. The discriminating experiment is
+to replay a real firmware run (`20 09 71 58`) against known operands and compare the final word
+with both the last term and the signed sum.
 
 ## Finding 18 — `de` writes a zero through the current route (was "no observable effect")
 
