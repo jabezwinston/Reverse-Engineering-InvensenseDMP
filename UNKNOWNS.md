@@ -110,9 +110,8 @@ images decode to **100 %**. What remains, each with the experiment that would se
 | **MPU: predicate scope** | single-shot on the MPU (probe10); sticky until the next `d8`–`db` on DMP3 | on the MPU: `d9 c4 c6 ff` with the condition false, and a `d8 ff` safety tail |
 | **MPU: the flag** | Z set by `d1` only (Findings 8/11); on DMP3 every ALU op, INC and DEC set F := result < 0 and `d1` sets F := result == 0. The MPU images predicate after ALU ops 39 times in 1929 with no `d1` at all | on the MPU: `<op> d9 c6` over zero / positive / negative results |
 | **MPU: `c8`–`cf`** | MOV16 from vendor names; on DMP3 the family swaps the half-words (`45670123`) | on the MPU: `c8` under `f1`/`f2`/`f3`, RAM-routed, byte-asymmetric source |
-| `fd n` after an ALU op | the vendor's `20 fd 3f` / `2c fd 32` (eMD 1.1.0 replaced `MUL by 0.5` with `ADD, fd 3f`) says the shifter also takes the last ALU result; measured only after `d4`–`d7` loads | `00 fd 3f` over known words: is the stored value (A+B) >> 1 |
 | the I/O space index map | [INFER]. Not the host register file (probe56: host registers invisible, a store through it changes none); index 0 = `ea`, live bytes at 0x1d0 and 0x250–0x2a4 | the same sweep with the sensors in known states (gyro standby, accel standby, a known FSYNC level) and the FIFO at known fill; then match the live bytes to the raw sensor words in the FIFO |
-| `fc X Y` with X ≠ c0 | `fc c0 Y` is the zero test of P1 word B (Finding 27, 24 operand pairs). `fc c1` differs in 5 of 12 pairs under Y=00, `fc c2` at B = 3 only; the vendor uses c1 35 times, c2 11, c3 6, and `51`/`3d`/`80`/`08` once each | vary one P1 word and one M[P2] word at a time under `fc c1 00`/`fc c2 18`; the odd bit is the MOV family's pre-advance, so M[P2] is the first suspect |
+| `fc cX Y` for Y ∉ {00, 01, 03, 05} | `fc cX 00/01/03/05` tests P1 word X for zero / nonzero (Finding 27; probe65/66). With Y's B field set, or Y = 02, 04, 0c, no zero in any RAM word (one or two at a time) fires the test; 37 vendor sites are `fc cX 04`, 12 have B ≠ 0 | these forms test a condition that is not a RAM word: candidates are the I/O space (index P1 word X under mode 4?), a sensor/data-ready flag, or the FIFO; sweep them with the sensors in standby vs running and with the FIFO full vs empty |
 | `bf` | P0/P1 unaffected; a P2 store after it lands nowhere (probe54 E). Unattested | none needed |
 | FSYNC | wired to D4; reaches the chip (`TEMP_OUT_L` bit 0). `e7` and `db` do not read it | if any instruction reads it, the candidates left are the I/O space indices |
 | INC/DEC under FIFO routing | modify the last emitted word rather than M[P2]; with nothing emitted yet in the pass they flood the FIFO (probe54 B: `f8`/`fa` right after `f4 d8`, 13–17 kB per "pass") — vendor never does this | none needed — document as "route the destination to RAM" |
@@ -121,7 +120,8 @@ images decode to **100 %**. What remains, each with the experiment that would se
 Resolved this session and removed from the list: `f6`/`f7` end mode 4 (probe54 B); ALU under
 mode 4 (there is none — mode 4 is branch-target mode, Finding 26); `c8`–`cf` on DMP3
 (half-word swap); the assembler's ICM forms (`dmpasm`, `.lineage icm`); `fc` (a three-byte
-zero test) and the loop hazard (F is frozen under an armed predicate) — Finding 27.
+zero test), the loop hazard (F is frozen under an armed predicate), `fd n` after an ALU op (it
+shifts the result; a MUL's full product) and the skipped-`f4` rule — Finding 27.
 
 ## Bench discipline these results depend on
 

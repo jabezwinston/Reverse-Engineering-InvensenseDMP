@@ -1214,8 +1214,8 @@ leaves M[P2] untouched), and it leaves **no ALU result**: `d1` right after it re
 for every operand pair.  What it sets is F, and over 12 (A0, B0) pairs chosen so that every
 signed and unsigned reading disagrees, the answer is not a comparison at all:
 
-    fc c0 Y     F := (M[P1 + 4*B] == 0)        B = Y's B field;  Y's op bit 0 inverts (!= 0)
-                P0 and Y's A field are ignored  (`00` `20` `40` agree; `01` `09` `11` `19` agree)
+    fc cX Y     F := (M[P1 + 4*(X & 3)] == 0)   Y's op bit 0 inverts (!= 0); Y's A field, P0
+                and P2 are ignored  (`00` `20` `40` agree; `01` `09` `11` `19` agree)
 
 `(+5,+3)`, `(+3,+5)`, `(−5,+5)`, `(+5,−5)`, `(+5,+5)`, `(0,+7)`: `fc c0 00` clears F and
 `fc c0 01` sets it; `(0,0)`, `(+7,0)`, `(−7,0)`: the reverse.  A loop whose exit is
@@ -1225,12 +1225,17 @@ signed and unsigned reading disagrees, the answer is not a comparison at all:
 `fc c0 00 d9 f4 …` (13 sites), `fc c0 04 d9` (18), `fc c0 08 d9` (6), `fc c1 04 d9` (12) are
 **"if this word is zero, jump"** — the feature gates: `fc c1 04` at 0x14cf tests
 `DATA_OUT_CTL1`, the others test the enable words and counters that the host writes.  The
-`d8 fc c0 08 d9 f4` fall-throughs Finding 26 could not read are *else, if word 1 is zero,
-jump*.  Under mode 4 the two operand bytes are consumed like any instruction's.  The X byte:
-`c0` in 57 sites, `c1` 35, `c2` 11, `c3` 6, four others; `fc c1` and `fc c2` differ from
-`fc c0` in a minority of cells (with `c1`: 5 of 12 pairs under `00`, none of the `01`
-pairs; with `c2`: only at B = 3), which looks like a pre-advance or a second word entering
-the test — the operand rule for X ≠ c0 is open (UNKNOWNS.md §7).  On the MPU `fc` was
+`d8 fc c0 08 d9 f4` fall-throughs Finding 26 could not read are *else, test P1 word 0 (with
+Y's B field set — see below), if zero jump*.  Under mode 4 the two operand bytes are consumed like any instruction's.  The X byte
+selects the word (`probe65`: one zero moved through the 24 words of P0's, P1's and P2's
+pages and the pages after them — a zero in P1 word k fires `fc ck 00` and nothing else;
+`c0` 57 sites, `c1` 35, `c2` 11, `c3` 6).  Y's B field does **not** select a word, and
+neither does it make a two-word test: with B ≠ 0 (`08`, `10`, `18`) no zero in any RAM word,
+one or two at a time across P0's, P1's and P2's pages, fires the test (`probe66`).  The same
+holds for `fc c0 02`, `04` and `0c`, while `01`, `03` and `05` invert like `01`.  So the
+confirmed zero test is `fc cX Y` for Y ∈ {00, 01, 03, 05}; the forms with Y's B field set
+or Y = 02/04/0c — **37 vendor sites are `fc cX 04`**, the commonest of all — test a condition
+that is not a RAM word.  The decoder renders those `TEST?`.  (UNKNOWNS.md §7.)  On the MPU `fc` was
 measured as a one-byte SWAP prefix (probe35, 32/32); the two parts simply differ here, as
 they do for `d2`–`d7` and `e0`–`e7`, and the 2639 image's single `fc 61 d9 f8` may be either.
 
@@ -1255,6 +1260,27 @@ every count** (`k = 1..32` fillers of `d8`: 2.05 and 4.1 iterations per pass for
 and 3).  `programs/loop_icm.s` now has the `d8`.  The vendor's other loop shape — compare at
 the top with `fc c0 00 d9`, INC at the bottom, unconditional `f4` back (0x1af1–0x1bfb) —
 obeys the rule automatically because its `d8` follows the conditional exit.
+
+**4. The shifter follows every ALU op** (`probe64`).  `00 fd 3f` emits the sum `1c000000`
+and then `0e000000`; `fd 30` gives `00001c00`, `fd 01` gives `38000000`, `21 fd 3f` gives
+the RSUB `ec000000` then `f6000000` (arithmetic), and `fd 3f fd 3f` compounds to `07000000`.
+After a MUL the register holds the **64-bit product**: `0a` (0.25 × 3 LSB) emits 0 and
+`fd 0f` then emits `00006000` = the product shifted left by 15 with the low word's bits
+pulled up — the vendor's `2a fd 0f` after every MUL is a product rescale, and `20 fd 3f` in
+eMD 1.1.0 is "add, halve".  The last loader wins (`00 d4 fd 3f` shifts the loaded word,
+`d4 00 fd 3f` shifts the sum); a MOV neither loads nor disturbs it (`c0 fd 3f` stores 0,
+`00 c2 fd 3f` still shifts the sum); `d8` is transparent; RAM-routed the same, `fd 7f`
+storing in the next word.  So Finding 25's "bare `fd` stores 0" was the register empty after
+reset, and the 40-odd vendor shifts that follow an ALU op with no `d4`–`d7` load are now
+read as scaling that result.
+
+**5. A skipped `f4` enters mode 4** (`probe64` C), which is the last piece of the vendor's
+discipline and the reason probe58 C's compare-at-top loop never counted.  With F = 1 and
+`da f4 exit d8 ae f8`, the not-taken jump is skipped by the sticky predicate — and the `ae`
+after the `d8` is an I/O load, so the INC lands nowhere; `d8 f1 ae f8` increments, `d8 bb
+ae f8` does not (a bank load does not end the mode), `d8 f8` with P2 untouched does.  So the
+`d8 fX` the vendor writes after every conditional jump is for the fall-through as much as for
+the target.  The assembler's mode-4 tracking already arms on every `jump`/`call`.
 
 ## Decoder corrections (2026-09-08, no new hardware)
 

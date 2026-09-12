@@ -154,7 +154,7 @@
 0x109e  8d        P0.page=d   -> A@1232 ACCEL_CAL_RESET
 0x109f  93        P1.page=3   -> B@1072 @1072
 0x10a0  20        ADD A=@1236        B=@1072        -> @1072
-0x10a1  fd 3f     SHIFT  arithmetic right by 1; store word ? (no SHIFTER.LOAD in this run: stores 0) -> @1072  (fd 3f; probe51)
+0x10a1  fd 3f     SHIFT  arithmetic right by 1; store the last ALU result -> @1072  (fd 3f; probe51/64)
 0x10a3  88        P0.page=8   -> A@1152 @1152
 0x10a4  6e        MUL A=GYRO_FULLSCALE B=@1076        -> @1076
 0x10a5  76        MUL A=GYRO_FULLSCALE B=@1080        -> @1080
@@ -164,14 +164,14 @@
 0x10a9  be        P2.blk++ -> 2   (+1 KB, mod 4; probe47)
 0x10aa  a2        P2.page=2   -> D@2080 @2080
 0x10ab  20        ADD A=@1236        B=@1072        -> @2080
-0x10ac  fd 31     SHIFT  arithmetic right by 15; store word ? (no SHIFTER.LOAD in this run: stores 0) -> @2080  (fd 31; probe51)
+0x10ac  fd 31     SHIFT  arithmetic right by 15; store the last ALU result -> @2080  (fd 31; probe51/64)
 0x10ae  a0        P2.page=0   -> D@2048 @2048
 0x10af  2c        ADD A=@1236        B=@1076        -> @2052
-0x10b0  fd 32     SHIFT  arithmetic right by 14; store word ? (no SHIFTER.LOAD in this run: stores 0) -> @2052  (fd 32; probe51)
+0x10b0  fd 32     SHIFT  arithmetic right by 14; store the last ALU result -> @2052  (fd 32; probe51/64)
 0x10b2  34        ADD A=@1236        B=@1080        -> @2056
-0x10b3  fd 32     SHIFT  arithmetic right by 14; store word ? (no SHIFTER.LOAD in this run: stores 0) -> @2056  (fd 32; probe51)
+0x10b3  fd 32     SHIFT  arithmetic right by 14; store the last ALU result -> @2056  (fd 32; probe51/64)
 0x10b5  3c        ADD A=@1236        B=@1084        -> @2060
-0x10b6  fd 32     SHIFT  arithmetic right by 14; store word ? (no SHIFTER.LOAD in this run: stores 0) -> @2060  (fd 32; probe51)
+0x10b6  fd 32     SHIFT  arithmetic right by 14; store the last ALU result -> @2060  (fd 32; probe51/64)
 0x10b8  be        P2.blk++ -> 3   (+1 KB, mod 4; probe47)
 0x10b9  b9        P2.bank=1
 0x10ba  ac        P2.page=c   -> D@3520 @3520
@@ -185,7 +185,7 @@
 0x10c2  86        P0.page=6   -> A@2144 GYRO_LAST_TEMPR
 0x10c3  9d        P1.page=d   -> B@1232 ACCEL_CAL_RESET
 0x10c4  08        ADD A=GYRO_LAST_TEMPR B=@1236        -> @1056
-0x10c5  fd 0f     SHIFT  left by 15 (pulls the next word's fraction in); store word ? (no SHIFTER.LOAD in this run: stores 0) -> @1056  (fd 0f; probe51)
+0x10c5  fd 0f     SHIFT  left by 15 (pulls the next word's fraction in); store the last ALU result -> @1056  (fd 0f; probe51/64)
 0x10c7  bc        P0.blk++ -> 3   (+1 KB, mod 4; probe47)
 0x10c8  bc        P0.blk++ -> 0   (+1 KB, mod 4; probe47)
 0x10c9  bc        P0.blk++ -> 1   (+1 KB, mod 4; probe47)
@@ -222,11 +222,11 @@
 0x10e8  a5        P2.page=5   -> D@80 MOTION_EVENT_CTL+2
 0x10e9  9d        P1.page=d   -> B@1232 ACCEL_CAL_RESET
 0x10ea  2c        ADD A=@84          B=@1236        -> @84
-0x10eb  fd 37     SHIFT  arithmetic right by 9; store word ? (no SHIFTER.LOAD in this run: stores 0) -> @84  (fd 37; probe51)
+0x10eb  fd 37     SHIFT  arithmetic right by 9; store the last ALU result -> @84  (fd 37; probe51/64)
 0x10ed  4c        ADD A=@88          B=@1236        -> @88
-0x10ee  fd 37     SHIFT  arithmetic right by 9; store word ? (no SHIFTER.LOAD in this run: stores 0) -> @88  (fd 37; probe51)
+0x10ee  fd 37     SHIFT  arithmetic right by 9; store the last ALU result -> @88  (fd 37; probe51/64)
 0x10f0  6c        ADD A=@92          B=@1236        -> @92
-0x10f1  fd 37     SHIFT  arithmetic right by 9; store word ? (no SHIFTER.LOAD in this run: stores 0) -> @92  (fd 37; probe51)
+0x10f1  fd 37     SHIFT  arithmetic right by 9; store the last ALU result -> @92  (fd 37; probe51/64)
 0x10f3  f5        MIN prefix  next ALU op computes signed min(A,B)  [probe29, 16/16]
 0x10f4  a5        P2.page=5   -> D@80 MOTION_EVENT_CTL+2
 0x10f5  85        P0.page=5   -> A@80 MOTION_EVENT_CTL+2
@@ -307,11 +307,11 @@
 0x1140  be        P2.blk++ -> 2   (+1 KB, mod 4; probe47)
 0x1141  a6        P2.page=6   -> D@2144 GYRO_LAST_TEMPR
 0x1142  2c        ADD A=@612         B=@580         -> @2148
-0x1143  fd 35     SHIFT  arithmetic right by 11; store word ? (no SHIFTER.LOAD in this run: stores 0) -> @2148  (fd 35; probe51)
+0x1143  fd 35     SHIFT  arithmetic right by 11; store the last ALU result -> @2148  (fd 35; probe51/64)
 0x1145  34        ADD A=@612         B=@584         -> @2152
-0x1146  fd 35     SHIFT  arithmetic right by 11; store word ? (no SHIFTER.LOAD in this run: stores 0) -> @2152  (fd 35; probe51)
+0x1146  fd 35     SHIFT  arithmetic right by 11; store the last ALU result -> @2152  (fd 35; probe51/64)
 0x1148  3c        ADD A=@612         B=@588         -> @2156
-0x1149  fd 35     SHIFT  arithmetic right by 11; store word ? (no SHIFTER.LOAD in this run: stores 0) -> @2156  (fd 35; probe51)
+0x1149  fd 35     SHIFT  arithmetic right by 11; store the last ALU result -> @2156  (fd 35; probe51/64)
 0x114b  bc        P0.blk++ -> 1   (+1 KB, mod 4; probe47)
 0x114c  b2        P0.bank=2
 0x114d  8e        P0.page=e   -> A@1760 @1760
@@ -352,7 +352,7 @@
 0x1170  be        P2.blk++ -> 1   (+1 KB, mod 4; probe47)
 0x1171  f1        WIDTH.1   ; 32-bit store  [probe37]
 0x1172  90        P1.page=0   -> B@1024 BIT_MSG_INT_3
-0x1173  fc c3 00  TESTZ  F := (BIT_MSG_INT_3 == 0)   (fc c3 00; no store; probe63)  ; X != c0: operand rule open (probe61/63)
+0x1173  fc c3 00  TESTZ  F := (WOM_CNTR_T == 0)   (fc c3 00; no store; probe63/65)
 0x1176  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x1177  f4 11 df  [d9] JUMP.d9 -> 0x11df
 0x117a  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
@@ -373,13 +373,13 @@
 0x1189  a9        P2.page=9   -> D@1168 @1168
 0x118a  80        P0.page=0   -> A@1024 BIT_MSG_INT_3
 0x118b  90        P1.page=0   -> B@1024 BIT_MSG_INT_3
-0x118c  fc 51 00  TESTZ  F := (BIT_MSG_INT_3 == 0)   (fc 51 00; no store; probe63)  ; X != c0: operand rule open (probe61/63)
+0x118c  fc 51 00  TESTZ  F := (@1028 == 0)   (fc 51 00; no store; probe63/65)
 0x118f  10        ADD A=BIT_MSG_INT_3 B=WOM_STATUS+2 -> @1168
-0x1190  fc 51 00  TESTZ  F := (BIT_MSG_INT_3 == 0)   (fc 51 00; no store; probe63)  ; X != c0: operand rule open (probe61/63)
+0x1190  fc 51 00  TESTZ  F := (@1028 == 0)   (fc 51 00; no store; probe63/65)
 0x1193  10        ADD A=BIT_MSG_INT_3 B=WOM_STATUS+2 -> @1168
-0x1194  fc 51 00  TESTZ  F := (BIT_MSG_INT_3 == 0)   (fc 51 00; no store; probe63)  ; X != c0: operand rule open (probe61/63)
+0x1194  fc 51 00  TESTZ  F := (@1028 == 0)   (fc 51 00; no store; probe63/65)
 0x1197  10        ADD A=BIT_MSG_INT_3 B=WOM_STATUS+2 -> @1168
-0x1198  fc c1 04  TESTZ  F := (BIT_MSG_INT_3 == 0)   (fc c1 04; no store; probe63)  ; X != c0: operand rule open (probe61/63)
+0x1198  fc c1 04  TEST?  fc c1 04: P1 word 1 and a condition no RAM zero triggers  (Y = 04; probe66, open)
 0x119b  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x119c  f2        [d9] WIDTH.2   ; 16-bit store, upper half-word  [probe37]
 0x119d  a0        [d9] P2.page=0   -> D@1024 BIT_MSG_INT_3
@@ -401,7 +401,7 @@
 0x11b1  f1        WIDTH.1   ; 32-bit store  [probe37]
 0x11b2  bd        P1.blk++ -> 2   (+1 KB, mod 4; probe47)
 0x11b3  95        P1.page=5   -> B@2128 @2128
-0x11b4  fc c1 04  TESTZ  F := (@2128 == 0)   (fc c1 04; no store; probe63)  ; X != c0: operand rule open (probe61/63)
+0x11b4  fc c1 04  TEST?  fc c1 04: P1 word 1 and a condition no RAM zero triggers  (Y = 04; probe66, open)
 0x11b7  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x11b8  bd        [d9] P1.blk++ -> 3   (+1 KB, mod 4; probe47)
 0x11b9  bd        [d9] P1.blk++ -> 0   (+1 KB, mod 4; probe47)
@@ -461,13 +461,13 @@
 0x11f1  99        P1.page=9   -> B@144 @144
 0x11f2  a7        P2.page=7   -> D@1136 @1136
 0x11f3  04        ADD A=@1168        B=@144         -> @1140
-0x11f4  fd 37     SHIFT  arithmetic right by 9; store word ? (no SHIFTER.LOAD in this run: stores 0) -> @1140  (fd 37; probe51)
+0x11f4  fd 37     SHIFT  arithmetic right by 9; store the last ALU result -> @1140  (fd 37; probe51/64)
 0x11f6  a8        P2.page=8   -> D@1152 @1152
 0x11f7  df        CLR  @1156 := 0  (P2 word++ first)  (df; probe23)
 0x11f8  87        P0.page=7   -> A@1136 @1136
 0x11f9  98        P1.page=8   -> B@128 ODR_CNTR_GEOMAG
 0x11fa  a7        P2.page=7   -> D@1136 @1136
-0x11fb  fc 3d 00  TESTZ  F := (ODR_CNTR_GEOMAG == 0)   (fc 3d 00; no store; probe63)  ; X != c0: operand rule open (probe61/63)
+0x11fb  fc 3d 00  TESTZ  F := (ODR_CNTR_PQUAT6 == 0)   (fc 3d 00; no store; probe63/65)
 0x11fe  50        ADD A=@1144        B=ODR_CNTR_QUAT9 -> @1136
 0x11ff  f8        INC  @1136 by 1  F := result < 0  (f8; probe23)
 0x1200  f9        DEC  @1136 by 1  F := result < 0  (f9; probe23)
@@ -525,7 +525,7 @@
 0x1238  8a        P0.page=a   -> A@928 PEDSTD_DECI
 0x1239  9d        P1.page=d   -> B@3280 @3280
 0x123a  1a        MUL A=PEDSTD_DECI  B=@3292        -> PEDSTD_DECI.lo
-0x123b  fd 1e     SHIFT  left by 30 (pulls the next word's fraction in); store word ? (no SHIFTER.LOAD in this run: stores 0) -> PEDSTD_DECI  (fd 1e; probe51)
+0x123b  fd 1e     SHIFT  left by 30 (pulls the next word's fraction in); store the 64-bit product -> PEDSTD_DECI  (fd 1e; probe51/64)
 0x123d  b7        P1.bank=3
 0x123e  9a        P1.page=a   -> B@4000 @4000
 0x123f  08        ADD A=PEDSTD_DECI  B=@4004        -> PEDSTD_DECI.lo
@@ -799,13 +799,13 @@
 0x1357  2a        MUL A=@548         B=@3620        -> @96
 0x1358  f0        WIDTH.0   ; A operand contributes 0 (single-shot)  [probe37]
 0x1359  50        ADD A=@552         B=@3624        -> @96
-0x135a  fd 08     SHIFT  left by 8 (pulls the next word's fraction in); store word ? (no SHIFTER.LOAD in this run: stores 0) -> @96  (fd 08; probe51)
+0x135a  fd 08     SHIFT  left by 8 (pulls the next word's fraction in); store the last ALU result -> @96  (fd 08; probe51/64)
 0x135c  f1        WIDTH.1   ; 32-bit store  [probe37]
 0x135d  a7        P2.page=7   -> D@112 @112
 0x135e  84        P0.page=4   -> A@576 @576
 0x135f  94        P1.page=4   -> B@3648 @3648
 0x1360  02        MUL A=@576         B=@3648        -> @112
-0x1361  fd 08     SHIFT  left by 8 (pulls the next word's fraction in); store word ? (no SHIFTER.LOAD in this run: stores 0) -> @112  (fd 08; probe51)
+0x1361  fd 08     SHIFT  left by 8 (pulls the next word's fraction in); store the 64-bit product -> @112  (fd 08; probe51/64)
 0x1363  b0        P0.bank=0
 0x1364  b4        P1.bank=0
 0x1365  86        P0.page=6   -> A@96 @96
@@ -838,9 +838,9 @@
 0x1384  92        P1.page=2   -> B@3616 @3616
 0x1385  a7        P2.page=7   -> D@112 @112
 0x1386  16        MUL A=@96          B=@3624        -> @116
-0x1387  fd 04     SHIFT  left by 4 (pulls the next word's fraction in); store word ? (no SHIFTER.LOAD in this run: stores 0) -> @116  (fd 04; probe51)
+0x1387  fd 04     SHIFT  left by 4 (pulls the next word's fraction in); store the 64-bit product -> @116  (fd 04; probe51/64)
 0x1389  0f        NMUL A=@96          B=@3620        -> @120
-0x138a  fd 04     SHIFT  left by 4 (pulls the next word's fraction in); store word ? (no SHIFTER.LOAD in this run: stores 0) -> @120  (fd 04; probe51)
+0x138a  fd 04     SHIFT  left by 4 (pulls the next word's fraction in); store the 64-bit product -> @120  (fd 04; probe51/64)
 0x138c  ba        P2.bank=2
 0x138d  87        P0.page=7   -> A@112 @112
 0x138e  91        P1.page=1   -> B@3600 BAC_MAG_ON
@@ -893,9 +893,9 @@
 0x13c3  90        P1.page=0   -> B@2560 EIS_AUTH_OUTPUT
 0x13c4  af        P2.page=f   -> D@3824 @3824
 0x13c5  6e        MUL A=@3596        B=EIS_AUTH_INPUT -> @3828
-0x13c6  fd 04     SHIFT  left by 4 (pulls the next word's fraction in); store word ? (no SHIFTER.LOAD in this run: stores 0) -> @3828  (fd 04; probe51)
+0x13c6  fd 04     SHIFT  left by 4 (pulls the next word's fraction in); store the 64-bit product -> @3828  (fd 04; probe51/64)
 0x13c8  67        NMUL A=@3596        B=EIS_AUTH_OUTPUT -> @3832
-0x13c9  fd 04     SHIFT  left by 4 (pulls the next word's fraction in); store word ? (no SHIFTER.LOAD in this run: stores 0) -> @3832  (fd 04; probe51)
+0x13c9  fd 04     SHIFT  left by 4 (pulls the next word's fraction in); store the 64-bit product -> @3832  (fd 04; probe51/64)
 0x13cb  8f        P0.page=f   -> A@3824 @3824
 0x13cc  91        P1.page=1   -> B@2576 @2576
 0x13cd  a7        P2.page=7   -> D@3696 @3696
@@ -1138,7 +1138,7 @@
 0x14cc  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
 0x14cd  f1        WIDTH.1   ; 32-bit store  [probe37]
 0x14ce  94        P1.page=4   -> B@64 DATA_OUT_CTL1
-0x14cf  fc c1 04  TESTZ  F := (DATA_OUT_CTL1 == 0)   (fc c1 04; no store; probe63)  ; X != c0: operand rule open (probe61/63)
+0x14cf  fc c1 04  TEST?  fc c1 04: P1 word 1 and a condition no RAM zero triggers  (Y = 04; probe66, open)
 0x14d2  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x14d3  a4        [d9] P2.page=4   -> D@1088 @1088
 0x14d4  fb        [d9] DEC  @1092 by 1  (P2 word++ first)  F := result < 0  (fb; probe23)
@@ -1149,7 +1149,7 @@
 0x14d9  82        [d9] P0.page=2   -> A@1312 @1312
 0x14da  9e        [d9] P1.page=e   -> B@224 @224
 0x14db  06        [d9] MUL A=@1312        B=@224         -> @1076
-0x14dc  fd 1e     [d9] SHIFT  left by 30 (pulls the next word's fraction in); store word ? (no SHIFTER.LOAD in this run: stores 0) -> @1076  (fd 1e; probe51)
+0x14dc  fd 1e     [d9] SHIFT  left by 30 (pulls the next word's fraction in); store the 64-bit product -> @1076  (fd 1e; probe51/64)
 0x14de  a6        [d9] P2.page=6   -> D@1120 @1120
 0x14df  81        [d9] P0.page=1   -> A@1296 @1296
 0x14e0  96        [d9] P1.page=6   -> B@96 @96
@@ -1494,7 +1494,7 @@
 0x1644  b6        P1.bank=2
 0x1645  ba        P2.bank=2
 0x1646  91        P1.page=1   -> B@528 Q0_QUAT6
-0x1647  fc c0 28  TESTZ  F := (Q1_QUAT6 == 0)   (fc c0 28; no store; probe63)
+0x1647  fc c0 28  TEST?  fc c0 28: P1 word 0 and a condition no RAM zero triggers  (Y = 28; probe66, open)
 0x164a  da        IF.NOT-F   (sticky until d8; F frozen while armed)
 0x164b  a1        [da] P2.page=1   -> D@1552 ACCEL_ACCURACY
 0x164c  f8        [da] INC  ACCEL_ACCURACY by 1  F := result < 0  (f8; probe23)
@@ -1654,7 +1654,7 @@
 0x16f0  f8        INC  @1536 by 1  F := result < 0  (f8; probe23)
 0x16f1  f8        INC  @1536 by 1  F := result < 0  (f8; probe23)
 0x16f2  f8        INC  @1536 by 1  F := result < 0  (f8; probe23)
-0x16f3  fd 0f     SHIFT  left by 15 (pulls the next word's fraction in); store word ? (no SHIFTER.LOAD in this run: stores 0) -> @1536  (fd 0f; probe51)
+0x16f3  fd 0f     SHIFT  left by 15 (pulls the next word's fraction in); store the last ALU result -> @1536  (fd 0f; probe51/64)
 0x16f5  f5        MIN prefix  next ALU op computes signed min(A,B)  [probe29, 16/16]
 0x16f6  af        P2.page=f   -> D@1776 @1776
 0x16f7  88        P0.page=8   -> A@1664 @1664
@@ -1727,11 +1727,11 @@
 0x1740  9e        P1.page=e   -> B@480 ACC_SCALE
 0x1741  ae        P2.page=e   -> D@1760 @1760
 0x1742  34        ADD A=@1588        B=@488         -> ACCEL_BIAS_X
-0x1743  fd 0a     SHIFT  left by 10 (pulls the next word's fraction in); store word ? (no SHIFTER.LOAD in this run: stores 0) -> ACCEL_BIAS_X  (fd 0a; probe51)
+0x1743  fd 0a     SHIFT  left by 10 (pulls the next word's fraction in); store the last ALU result -> ACCEL_BIAS_X  (fd 0a; probe51/64)
 0x1745  54        ADD A=@1592        B=@488         -> ACCEL_BIAS_Y
-0x1746  fd 0a     SHIFT  left by 10 (pulls the next word's fraction in); store word ? (no SHIFTER.LOAD in this run: stores 0) -> ACCEL_BIAS_Y  (fd 0a; probe51)
+0x1746  fd 0a     SHIFT  left by 10 (pulls the next word's fraction in); store the last ALU result -> ACCEL_BIAS_Y  (fd 0a; probe51/64)
 0x1748  74        ADD A=@1596        B=@488         -> ACCEL_BIAS_Z
-0x1749  fd 0a     SHIFT  left by 10 (pulls the next word's fraction in); store word ? (no SHIFTER.LOAD in this run: stores 0) -> ACCEL_BIAS_Z  (fd 0a; probe51)
+0x1749  fd 0a     SHIFT  left by 10 (pulls the next word's fraction in); store the last ALU result -> ACCEL_BIAS_Z  (fd 0a; probe51/64)
 0x174b  f2        WIDTH.2   ; 16-bit store, upper half-word  [probe37]
 0x174c  a1        P2.page=1   -> D@1552 ACCEL_ACCURACY
 0x174d  de        CLR  ACCEL_ACCURACY := 0  (in place, no advance)  (de; probe31)
@@ -1975,7 +1975,7 @@
 0x1847  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
 0x1848  f1        WIDTH.1   ; 32-bit store  [probe37]
 0x1849  91        P1.page=1   -> B@784 @784
-0x184a  fc c0 04  TESTZ  F := (@784 == 0)   (fc c0 04; no store; probe63)
+0x184a  fc c0 04  TEST?  fc c0 04: P1 word 0 and a condition no RAM zero triggers  (Y = 04; probe66, open)
 0x184d  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x184e  f4 18 a3  [d9] JUMP.d9 -> 0x18a3
 0x1851  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
@@ -1989,7 +1989,7 @@
 0x1859  f4 19 d1  JUMP -> 0x19d1
 0x185c  f3        WIDTH.3   ; 16-bit store, lower half-word  [probe37]
 0x185d  91        P1.page=1   -> B@784 @784
-0x185e  fc c0 07  TESTNZ  F := (@784 != 0)   (fc c0 07; no store; probe63)
+0x185e  fc c0 07  TEST?  fc c0 07: P1 word 0 and a condition no RAM zero triggers  (Y = 07; probe66, open)
 0x1861  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x1862  f4 18 a3  [d9] JUMP.d9 -> 0x18a3
 0x1865  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
@@ -2194,27 +2194,27 @@
 0x1936  85        P0.page=5   -> A@1872 @1872
 0x1937  95        P1.page=5   -> B@848 @848
 0x1938  56        MUL A=@1880        B=@856         -> @2036
-0x1939  fd 0f     SHIFT  left by 15 (pulls the next word's fraction in); store word ? (no SHIFTER.LOAD in this run: stores 0) -> @2036  (fd 0f; probe51)
+0x1939  fd 0f     SHIFT  left by 15 (pulls the next word's fraction in); store the 64-bit product -> @2036  (fd 0f; probe51/64)
 0x193b  86        P0.page=6   -> A@1888 @1888
 0x193c  96        P1.page=6   -> B@864 PEDSTD_STEPCTR
 0x193d  06        MUL A=@1888        B=PEDSTD_STEPCTR -> @2040
-0x193e  fd 0f     SHIFT  left by 15 (pulls the next word's fraction in); store word ? (no SHIFTER.LOAD in this run: stores 0) -> @2040  (fd 0f; probe51)
+0x193e  fd 0f     SHIFT  left by 15 (pulls the next word's fraction in); store the 64-bit product -> @2040  (fd 0f; probe51/64)
 0x1940  f0        WIDTH.0   ; A operand contributes 0 (single-shot)  [probe37]
 0x1941  84        P0.page=4   -> A@1856 @1856
 0x1942  9f        P1.page=f   -> B@1008 @1008
 0x1943  af        P2.page=f   -> D@2032 @2032
 0x1944  4c        ADD A=@1864        B=@1012        -> @2036
 0x1945  70        ADD A=@1868        B=@1016        -> @2036
-0x1946  fd 0f     SHIFT  left by 15 (pulls the next word's fraction in); store word ? (no SHIFTER.LOAD in this run: stores 0) -> @2036  (fd 0f; probe51)
+0x1946  fd 0f     SHIFT  left by 15 (pulls the next word's fraction in); store the last ALU result -> @2036  (fd 0f; probe51/64)
 0x1948  f1        WIDTH.1   ; 32-bit store  [probe37]
 0x1949  86        P0.page=6   -> A@1888 @1888
 0x194a  96        P1.page=6   -> B@864 PEDSTD_STEPCTR
 0x194b  2e        MUL A=@1892        B=@868         -> @2040
-0x194c  fd 0f     SHIFT  left by 15 (pulls the next word's fraction in); store word ? (no SHIFTER.LOAD in this run: stores 0) -> @2040  (fd 0f; probe51)
+0x194c  fd 0f     SHIFT  left by 15 (pulls the next word's fraction in); store the 64-bit product -> @2040  (fd 0f; probe51/64)
 0x194e  84        P0.page=4   -> A@1856 @1856
 0x194f  9f        P1.page=f   -> B@1008 @1008
 0x1950  72        MUL A=@1868        B=@1016        -> @2040
-0x1951  fd 0f     SHIFT  left by 15 (pulls the next word's fraction in); store word ? (no SHIFTER.LOAD in this run: stores 0) -> @2040  (fd 0f; probe51)
+0x1951  fd 0f     SHIFT  left by 15 (pulls the next word's fraction in); store the 64-bit product -> @2040  (fd 0f; probe51/64)
 0x1953  df        CLR  @2044 := 0  (P2 word++ first)  (df; probe23)
 0x1954  af        P2.page=f   -> D@2032 @2032
 0x1955  2c        ADD A=@1860        B=@1012        -> @2036
@@ -2238,11 +2238,11 @@
 0x196a  83        P0.page=3   -> A@1840 CPASS_COVARIANCE
 0x196b  91        P1.page=1   -> B@784 @784
 0x196c  28        ADD A=@1844        B=@788         -> @1968
-0x196d  fd 05     SHIFT  left by 5 (pulls the next word's fraction in); store word ? (no SHIFTER.LOAD in this run: stores 0) -> @1968  (fd 05; probe51)
+0x196d  fd 05     SHIFT  left by 5 (pulls the next word's fraction in); store the last ALU result -> @1968  (fd 05; probe51/64)
 0x196f  54        ADD A=@1848        B=@792         -> @1972
-0x1970  fd 05     SHIFT  left by 5 (pulls the next word's fraction in); store word ? (no SHIFTER.LOAD in this run: stores 0) -> @1972  (fd 05; probe51)
+0x1970  fd 05     SHIFT  left by 5 (pulls the next word's fraction in); store the last ALU result -> @1972  (fd 05; probe51/64)
 0x1972  7c        ADD A=@1852        B=PEDSTD_BP_B  -> @1976
-0x1973  fd 05     SHIFT  left by 5 (pulls the next word's fraction in); store word ? (no SHIFTER.LOAD in this run: stores 0) -> @1976  (fd 05; probe51)
+0x1973  fd 05     SHIFT  left by 5 (pulls the next word's fraction in); store the last ALU result -> @1976  (fd 05; probe51/64)
 0x1975  b8        P2.bank=0
 0x1976  bd        P1.blk++ -> 1   (+1 KB, mod 4; probe47)
 0x1977  bd        P1.blk++ -> 2   (+1 KB, mod 4; probe47)
@@ -2446,7 +2446,7 @@
 0x1a45  54        ADD A=@2040        B=@1016        -> @1428
 0x1a46  78        ADD A=@2044        B=@1020        -> @1428
 0x1a47  f1        WIDTH.1   ; 32-bit store  [probe37]
-0x1a48  fd 0f     SHIFT  left by 15 (pulls the next word's fraction in); store word ? (no SHIFTER.LOAD in this run: stores 0) -> @1428  (fd 0f; probe51)
+0x1a48  fd 0f     SHIFT  left by 15 (pulls the next word's fraction in); store the last ALU result -> @1428  (fd 0f; probe51/64)
 0x1a4a  a6        P2.page=6   -> D@1376 @1376
 0x1a4b  b1        P0.bank=1
 0x1a4c  89        P0.page=9   -> A@1424 @1424
@@ -2456,7 +2456,7 @@
 0x1a50  8f        P0.page=f   -> A@2032 @2032
 0x1a51  9f        P1.page=f   -> B@1008 @1008
 0x1a52  2e        MUL A=@2036        B=@1012        -> @1524
-0x1a53  fd 11     SHIFT  left by 17 (pulls the next word's fraction in); store word ? (no SHIFTER.LOAD in this run: stores 0) -> @1524  (fd 11; probe51)
+0x1a53  fd 11     SHIFT  left by 17 (pulls the next word's fraction in); store the 64-bit product -> @1524  (fd 11; probe51/64)
 0x1a55  b1        P0.bank=1
 0x1a56  b5        P1.bank=1
 0x1a57  a9        P2.page=9   -> D@1424 @1424
@@ -2475,10 +2475,10 @@
 0x1a66  86        P0.page=6   -> A@1376 @1376
 0x1a67  99        P1.page=9   -> B@400 CPASS_MTX_22
 0x1a68  06        MUL A=@1376        B=CPASS_MTX_22 -> @1492
-0x1a69  fd 10     SHIFT  left by 16 (pulls the next word's fraction in); store word ? (no SHIFTER.LOAD in this run: stores 0) -> @1492  (fd 10; probe51)
+0x1a69  fd 10     SHIFT  left by 16 (pulls the next word's fraction in); store the 64-bit product -> @1492  (fd 10; probe51/64)
 0x1a6b  df        CLR  @1496 := 0  (P2 word++ first)  (df; probe23)
 0x1a6c  f8        INC  @1496 by 1  F := result < 0  (f8; probe23)
-0x1a6d  fd 0f     SHIFT  left by 15 (pulls the next word's fraction in); store word ? (no SHIFTER.LOAD in this run: stores 0) -> @1496  (fd 0f; probe51)
+0x1a6d  fd 0f     SHIFT  left by 15 (pulls the next word's fraction in); store ? (nothing loaded in this run: stores 0) -> @1496  (fd 0f; probe51/64)
 0x1a6f  ad        P2.page=d   -> D@1488 ACCEL_VARIANCE_THRES
 0x1a70  8d        P0.page=d   -> A@1488 ACCEL_VARIANCE_THRES
 0x1a71  9d        P1.page=d   -> B@464 @464
@@ -2489,14 +2489,14 @@
 0x1a76  8f        P0.page=f   -> A@2032 @2032
 0x1a77  9d        P1.page=d   -> B@464 @464
 0x1a78  2a        MUL A=@2036        B=@468         -> @2000
-0x1a79  fd 0f     SHIFT  left by 15 (pulls the next word's fraction in); store word ? (no SHIFTER.LOAD in this run: stores 0) -> @2000  (fd 0f; probe51)
+0x1a79  fd 0f     SHIFT  left by 15 (pulls the next word's fraction in); store the 64-bit product -> @2000  (fd 0f; probe51/64)
 0x1a7b  b7        P1.bank=3
 0x1a7c  92        P1.page=2   -> B@800 @800
-0x1a7d  fc c0 04  TESTZ  F := (@800 == 0)   (fc c0 04; no store; probe63)
+0x1a7d  fc c0 04  TEST?  fc c0 04: P1 word 0 and a condition no RAM zero triggers  (Y = 04; probe66, open)
 0x1a80  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x1a81  f4 18 2b  [d9] JUMP.d9 -> 0x182b
 0x1a84  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
-0x1a85  fc c0 08  TESTZ  F := (@804 == 0)   (fc c0 08; no store; probe63)
+0x1a85  fc c0 08  TEST?  fc c0 08: P1 word 0 and a condition no RAM zero triggers  (Y = 08; probe66, open)
 0x1a88  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x1a89  f4 19 92  [d9] JUMP.d9 -> 0x1992
 0x1a8c  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
@@ -2517,7 +2517,7 @@
 0x1a9d  af        P2.page=f   -> D@1776 @1776
 0x1a9e  de        CLR  @1776 := 0  (in place, no advance)  (de; probe31)
 0x1a9f  f9        DEC  @1776 by 1  F := result < 0  (f9; probe23)
-0x1aa0  fd 0f     SHIFT  left by 15 (pulls the next word's fraction in); store word ? (no SHIFTER.LOAD in this run: stores 0) -> @1776  (fd 0f; probe51)
+0x1aa0  fd 0f     SHIFT  left by 15 (pulls the next word's fraction in); store ? (nothing loaded in this run: stores 0) -> @1776  (fd 0f; probe51/64)
 0x1aa2  80        P0.page=0   -> A@1536 @1536
 0x1aa3  90        P1.page=0   -> B@512 BIT_MSG_INT_2
 0x1aa4  2c        ADD A=@1540        B=@516         -> @1780
@@ -2528,7 +2528,7 @@
 0x1aa9  f0        WIDTH.0   ; A operand contributes 0 (single-shot)  [probe37]
 0x1aaa  50        ADD A=@1544        B=@520         -> @1536
 0x1aab  78        ADD A=@1548        B=@524         -> @1536
-0x1aac  fd 0f     SHIFT  left by 15 (pulls the next word's fraction in); store word ? (no SHIFTER.LOAD in this run: stores 0) -> @1536  (fd 0f; probe51)
+0x1aac  fd 0f     SHIFT  left by 15 (pulls the next word's fraction in); store the last ALU result -> @1536  (fd 0f; probe51/64)
 0x1aae  f1        WIDTH.1   ; 32-bit store  [probe37]
 0x1aaf  a2        P2.page=2   -> D@1568 @1568
 0x1ab0  82        P0.page=2   -> A@1568 @1568
@@ -2542,15 +2542,15 @@
 0x1ab8  94        P1.page=4   -> B@576 @576
 0x1ab9  f0        WIDTH.0   ; A operand contributes 0 (single-shot)  [probe37]
 0x1aba  04        ADD A=@1776        B=@576         -> @1684
-0x1abb  fd 0f     SHIFT  left by 15 (pulls the next word's fraction in); store word ? (no SHIFTER.LOAD in this run: stores 0) -> @1684  (fd 0f; probe51)
+0x1abb  fd 0f     SHIFT  left by 15 (pulls the next word's fraction in); store the last ALU result -> @1684  (fd 0f; probe51/64)
 0x1abd  0c        ADD A=@1776        B=@580         -> @1688
 0x1abe  30        ADD A=@1780        B=@584         -> @1688
-0x1abf  fd 0f     SHIFT  left by 15 (pulls the next word's fraction in); store word ? (no SHIFTER.LOAD in this run: stores 0) -> @1688  (fd 0f; probe51)
+0x1abf  fd 0f     SHIFT  left by 15 (pulls the next word's fraction in); store the last ALU result -> @1688  (fd 0f; probe51/64)
 0x1ac1  1c        ADD A=@1776        B=@588         -> @1692
 0x1ac2  95        P1.page=5   -> B@592 CPASS_ACCURACY
 0x1ac3  20        ADD A=@1780        B=CPASS_ACCURACY -> @1692
 0x1ac4  48        ADD A=@1784        B=MAR_MODE+2   -> @1692
-0x1ac5  fd 0f     SHIFT  left by 15 (pulls the next word's fraction in); store word ? (no SHIFTER.LOAD in this run: stores 0) -> @1692  (fd 0f; probe51)
+0x1ac5  fd 0f     SHIFT  left by 15 (pulls the next word's fraction in); store the last ALU result -> @1692  (fd 0f; probe51/64)
 0x1ac7  f1        WIDTH.1   ; 32-bit store  [probe37]
 0x1ac8  99        P1.page=9   -> B@656 @656
 0x1ac9  c1        MOV   @1776        -> @1680  (P2 word++ first)  (c1; probe25)
@@ -2561,13 +2561,13 @@
 0x1ace  82        P0.page=2   -> A@1568 @1568
 0x1acf  99        P1.page=9   -> B@656 @656
 0x1ad0  02        MUL A=@1568        B=@656         -> @1696
-0x1ad1  fd 0f     SHIFT  left by 15 (pulls the next word's fraction in); store word ? (no SHIFTER.LOAD in this run: stores 0) -> @1696  (fd 0f; probe51)
+0x1ad1  fd 0f     SHIFT  left by 15 (pulls the next word's fraction in); store the 64-bit product -> @1696  (fd 0f; probe51/64)
 0x1ad3  2e        MUL A=@1572        B=@660         -> @1700
-0x1ad4  fd 0f     SHIFT  left by 15 (pulls the next word's fraction in); store word ? (no SHIFTER.LOAD in this run: stores 0) -> @1700  (fd 0f; probe51)
+0x1ad4  fd 0f     SHIFT  left by 15 (pulls the next word's fraction in); store the 64-bit product -> @1700  (fd 0f; probe51/64)
 0x1ad6  56        MUL A=@1576        B=@664         -> @1704
-0x1ad7  fd 0f     SHIFT  left by 15 (pulls the next word's fraction in); store word ? (no SHIFTER.LOAD in this run: stores 0) -> @1704  (fd 0f; probe51)
+0x1ad7  fd 0f     SHIFT  left by 15 (pulls the next word's fraction in); store the 64-bit product -> @1704  (fd 0f; probe51/64)
 0x1ad9  7e        MUL A=@1580        B=@668         -> @1708
-0x1ada  fd 0f     SHIFT  left by 15 (pulls the next word's fraction in); store word ? (no SHIFTER.LOAD in this run: stores 0) -> @1708  (fd 0f; probe51)
+0x1ada  fd 0f     SHIFT  left by 15 (pulls the next word's fraction in); store the 64-bit product -> @1708  (fd 0f; probe51/64)
 0x1adc  ac        P2.page=c   -> D@1728 @1728
 0x1add  83        P0.page=3   -> A@1584 @1584
 0x1ade  9f        P1.page=f   -> B@752 @752
@@ -2576,7 +2576,7 @@
 0x1ae1  28        ADD A=@1588        B=@756         -> @1732
 0x1ae2  50        ADD A=@1592        B=@760         -> @1732
 0x1ae3  78        ADD A=@1596        B=@764         -> @1732
-0x1ae4  fd 0f     SHIFT  left by 15 (pulls the next word's fraction in); store word ? (no SHIFTER.LOAD in this run: stores 0) -> @1732  (fd 0f; probe51)
+0x1ae4  fd 0f     SHIFT  left by 15 (pulls the next word's fraction in); store the last ALU result -> @1732  (fd 0f; probe51/64)
 0x1ae6  8c        P0.page=c   -> A@1728 @1728
 0x1ae7  90        P1.page=0   -> B@512 BIT_MSG_INT_2
 0x1ae8  f1        WIDTH.1   ; 32-bit store  [probe37]
@@ -2592,7 +2592,7 @@
 0x1af2  89        P0.page=9   -> A@1680 @1680
 0x1af3  af        P2.page=f   -> D@1776 @1776
 0x1af4  9f        P1.page=f   -> B@752 @752
-0x1af5  fc c0 00  TESTZ  F := (@752 == 0)   (fc c0 00; no store; probe63)
+0x1af5  fc c0 00  TESTZ  F := (@752 == 0)   (fc c0 00; no store; probe63/65)
 0x1af8  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x1af9  c1        [d9] MOV   @1680        -> @1780  (P2 word++ first)  (c1; probe25)
 0x1afa  8a        [d9] P0.page=a   -> A@1696 @1696
@@ -2600,7 +2600,7 @@
 0x1afc  82        [d9] P0.page=2   -> A@1568 @1568
 0x1afd  c1        [d9] MOV   @1568        -> @1788  (P2 word++ first)  (c1; probe25)
 0x1afe  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
-0x1aff  fc c0 04  TESTZ  F := (@752 == 0)   (fc c0 04; no store; probe63)
+0x1aff  fc c0 04  TEST?  fc c0 04: P1 word 0 and a condition no RAM zero triggers  (Y = 04; probe66, open)
 0x1b02  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x1b03  c3        [d9] MOV   @1572        -> @1776  (P2 word++ first)  (c3; probe25)
 0x1b04  8a        [d9] P0.page=a   -> A@1696 @1696
@@ -2608,7 +2608,7 @@
 0x1b06  82        [d9] P0.page=2   -> A@1568 @1568
 0x1b07  c3        [d9] MOV   @1572        -> @1784  (P2 word++ first)  (c3; probe25)
 0x1b08  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
-0x1b09  fc c0 08  TESTZ  F := (@756 == 0)   (fc c0 08; no store; probe63)
+0x1b09  fc c0 08  TEST?  fc c0 08: P1 word 0 and a condition no RAM zero triggers  (Y = 08; probe66, open)
 0x1b0c  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x1b0d  c5        [d9] MOV   @1576        -> @1788  (P2 word++ first)  (c5; probe25)
 0x1b0e  8a        [d9] P0.page=a   -> A@1696 @1696
@@ -2616,7 +2616,7 @@
 0x1b10  82        [d9] P0.page=2   -> A@1568 @1568
 0x1b11  c5        [d9] MOV   @1576        -> @1780  (P2 word++ first)  (c5; probe25)
 0x1b12  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
-0x1b13  fc c0 0c  TESTZ  F := (@756 == 0)   (fc c0 0c; no store; probe63)
+0x1b13  fc c0 0c  TEST?  fc c0 0c: P1 word 0 and a condition no RAM zero triggers  (Y = 0c; probe66, open)
 0x1b16  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x1b17  c7        [d9] MOV   @1580        -> @1784  (P2 word++ first)  (c7; probe25)
 0x1b18  8a        [d9] P0.page=a   -> A@1696 @1696
@@ -2624,7 +2624,7 @@
 0x1b1a  82        [d9] P0.page=2   -> A@1568 @1568
 0x1b1b  c7        [d9] MOV   @1580        -> @1776  (P2 word++ first)  (c7; probe25)
 0x1b1c  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
-0x1b1d  fc c0 10  TESTZ  F := (@760 == 0)   (fc c0 10; no store; probe63)
+0x1b1d  fc c0 10  TEST?  fc c0 10: P1 word 0 and a condition no RAM zero triggers  (Y = 10; probe66, open)
 0x1b20  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x1b21  f4 1b fb  [d9] JUMP.d9 -> 0x1bfb
 0x1b24  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
@@ -2635,7 +2635,7 @@
 0x1b29  c0        MOV   @1712        -> @1720  (c0; probe25)
 0x1b2a  9f        P1.page=f   -> B@752 @752
 0x1b2b  2e        MUL A=@1716        B=@756         -> @1724
-0x1b2c  fd 0f     SHIFT  left by 15 (pulls the next word's fraction in); store word ? (no SHIFTER.LOAD in this run: stores 0) -> @1724  (fd 0f; probe51)
+0x1b2c  fd 0f     SHIFT  left by 15 (pulls the next word's fraction in); store the 64-bit product -> @1724  (fd 0f; probe51/64)
 0x1b2e  a0        P2.page=0   -> D@1536 @1536
 0x1b2f  de        CLR  @1536 := 0  (in place, no advance)  (de; probe31)
 0x1b30  ab        P2.page=b   -> D@1712 @1712
@@ -2646,7 +2646,7 @@
 0x1b35  8f        P0.page=f   -> A@1776 @1776
 0x1b36  9f        P1.page=f   -> B@752 @752
 0x1b37  4a        MUL A=@1784        B=@756         -> @1536
-0x1b38  fd 0f     SHIFT  left by 15 (pulls the next word's fraction in); store word ? (no SHIFTER.LOAD in this run: stores 0) -> @1536  (fd 0f; probe51)
+0x1b38  fd 0f     SHIFT  left by 15 (pulls the next word's fraction in); store the 64-bit product -> @1536  (fd 0f; probe51/64)
 0x1b3a  ab        P2.page=b   -> D@1712 @1712
 0x1b3b  8b        P0.page=b   -> A@1712 @1712
 0x1b3c  90        P1.page=0   -> B@512 BIT_MSG_INT_2
@@ -2673,18 +2673,18 @@
 0x1b53  8b        P0.page=b   -> A@1712 @1712
 0x1b54  9f        P1.page=f   -> B@752 @752
 0x1b55  3e        MUL A=@1716        B=@764         -> @1788
-0x1b56  fd 0f     SHIFT  left by 15 (pulls the next word's fraction in); store word ? (no SHIFTER.LOAD in this run: stores 0) -> @1788  (fd 0f; probe51)
+0x1b56  fd 0f     SHIFT  left by 15 (pulls the next word's fraction in); store the 64-bit product -> @1788  (fd 0f; probe51/64)
 0x1b58  5a        MUL A=@1720        B=@764         -> @1788
-0x1b59  fd 0f     SHIFT  left by 15 (pulls the next word's fraction in); store word ? (no SHIFTER.LOAD in this run: stores 0) -> @1788  (fd 0f; probe51)
+0x1b59  fd 0f     SHIFT  left by 15 (pulls the next word's fraction in); store the 64-bit product -> @1788  (fd 0f; probe51/64)
 0x1b5b  9f        P1.page=f   -> B@752 @752
-0x1b5c  fc c0 00  TESTZ  F := (@752 == 0)   (fc c0 00; no store; probe63)
+0x1b5c  fc c0 00  TESTZ  F := (@752 == 0)   (fc c0 00; no store; probe63/65)
 0x1b5f  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x1b60  f1        [d9] WIDTH.1   ; 32-bit store  [probe37]
 0x1b61  8f        [d9] P0.page=f   -> A@1776 @1776
 0x1b62  a2        [d9] P2.page=2   -> D@1568 @1568
 0x1b63  c6        [d9] MOV   @1788        -> @1568  (c6; probe25)
 0x1b64  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
-0x1b65  fc c0 04  TESTZ  F := (@752 == 0)   (fc c0 04; no store; probe63)
+0x1b65  fc c0 04  TEST?  fc c0 04: P1 word 0 and a condition no RAM zero triggers  (Y = 04; probe66, open)
 0x1b68  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x1b69  8f        [d9] P0.page=f   -> A@1776 @1776
 0x1b6a  a2        [d9] P2.page=2   -> D@1568 @1568
@@ -2697,9 +2697,9 @@
 0x1b71  8a        [d9] P0.page=a   -> A@1696 @1696
 0x1b72  9b        [d9] P1.page=b   -> B@688 @688
 0x1b73  1e        [d9] MUL A=@1696        B=@700         -> @1780
-0x1b74  fd 0f     [d9] SHIFT  left by 15 (pulls the next word's fraction in); store word ? (no SHIFTER.LOAD in this run: stores 0) -> @1780  (fd 0f; probe51)
+0x1b74  fd 0f     [d9] SHIFT  left by 15 (pulls the next word's fraction in); store the 64-bit product -> @1780  (fd 0f; probe51/64)
 0x1b76  36        [d9] MUL A=@1700        B=@696         -> @1784
-0x1b77  fd 0f     [d9] SHIFT  left by 15 (pulls the next word's fraction in); store word ? (no SHIFTER.LOAD in this run: stores 0) -> @1784  (fd 0f; probe51)
+0x1b77  fd 0f     [d9] SHIFT  left by 15 (pulls the next word's fraction in); store the 64-bit product -> @1784  (fd 0f; probe51/64)
 0x1b79  a4        [d9] P2.page=4   -> D@1600 @1600
 0x1b7a  8f        [d9] P0.page=f   -> A@1776 @1776
 0x1b7b  30        [d9] ADD A=@1780        B=@696         -> @1600
@@ -2708,7 +2708,7 @@
 0x1b7e  40        [d9] ADD A=@1784        B=@672         -> @1696
 0x1b7f  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
 0x1b80  9f        P1.page=f   -> B@752 @752
-0x1b81  fc c0 08  TESTZ  F := (@756 == 0)   (fc c0 08; no store; probe63)
+0x1b81  fc c0 08  TEST?  fc c0 08: P1 word 0 and a condition no RAM zero triggers  (Y = 08; probe66, open)
 0x1b84  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x1b85  8f        [d9] P0.page=f   -> A@1776 @1776
 0x1b86  a2        [d9] P2.page=2   -> D@1568 @1568
@@ -2722,9 +2722,9 @@
 0x1b8e  8a        [d9] P0.page=a   -> A@1696 @1696
 0x1b8f  9b        [d9] P1.page=b   -> B@688 @688
 0x1b90  1e        [d9] MUL A=@1696        B=@700         -> @1780
-0x1b91  fd 0f     [d9] SHIFT  left by 15 (pulls the next word's fraction in); store word ? (no SHIFTER.LOAD in this run: stores 0) -> @1780  (fd 0f; probe51)
+0x1b91  fd 0f     [d9] SHIFT  left by 15 (pulls the next word's fraction in); store the 64-bit product -> @1780  (fd 0f; probe51/64)
 0x1b93  56        [d9] MUL A=@1704        B=@696         -> @1784
-0x1b94  fd 0f     [d9] SHIFT  left by 15 (pulls the next word's fraction in); store word ? (no SHIFTER.LOAD in this run: stores 0) -> @1784  (fd 0f; probe51)
+0x1b94  fd 0f     [d9] SHIFT  left by 15 (pulls the next word's fraction in); store the 64-bit product -> @1784  (fd 0f; probe51/64)
 0x1b96  a4        [d9] P2.page=4   -> D@1600 @1600
 0x1b97  8f        [d9] P0.page=f   -> A@1776 @1776
 0x1b98  34        [d9] ADD A=@1780        B=@696         -> @1604
@@ -2739,9 +2739,9 @@
 0x1ba1  8a        [d9] P0.page=a   -> A@1696 @1696
 0x1ba2  9b        [d9] P1.page=b   -> B@688 @688
 0x1ba3  3e        [d9] MUL A=@1700        B=@700         -> @1780
-0x1ba4  fd 0f     [d9] SHIFT  left by 15 (pulls the next word's fraction in); store word ? (no SHIFTER.LOAD in this run: stores 0) -> @1780  (fd 0f; probe51)
+0x1ba4  fd 0f     [d9] SHIFT  left by 15 (pulls the next word's fraction in); store the 64-bit product -> @1780  (fd 0f; probe51/64)
 0x1ba6  56        [d9] MUL A=@1704        B=@696         -> @1784
-0x1ba7  fd 0f     [d9] SHIFT  left by 15 (pulls the next word's fraction in); store word ? (no SHIFTER.LOAD in this run: stores 0) -> @1784  (fd 0f; probe51)
+0x1ba7  fd 0f     [d9] SHIFT  left by 15 (pulls the next word's fraction in); store the 64-bit product -> @1784  (fd 0f; probe51/64)
 0x1ba9  a4        [d9] P2.page=4   -> D@1600 @1600
 0x1baa  d0        [d9] P2 word += 2 -> D@1608 @1608  (d0, mod 4; probe20)
 0x1bab  8f        [d9] P0.page=f   -> A@1776 @1776
@@ -2751,7 +2751,7 @@
 0x1baf  4c        [d9] ADD A=@1784        B=@676         -> @1700
 0x1bb0  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
 0x1bb1  9f        P1.page=f   -> B@752 @752
-0x1bb2  fc c0 0c  TESTZ  F := (@756 == 0)   (fc c0 0c; no store; probe63)
+0x1bb2  fc c0 0c  TEST?  fc c0 0c: P1 word 0 and a condition no RAM zero triggers  (Y = 0c; probe66, open)
 0x1bb5  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x1bb6  8f        [d9] P0.page=f   -> A@1776 @1776
 0x1bb7  a2        [d9] P2.page=2   -> D@1568 @1568
@@ -2765,9 +2765,9 @@
 0x1bbf  8a        [d9] P0.page=a   -> A@1696 @1696
 0x1bc0  9b        [d9] P1.page=b   -> B@688 @688
 0x1bc1  1e        [d9] MUL A=@1696        B=@700         -> @1780
-0x1bc2  fd 0f     [d9] SHIFT  left by 15 (pulls the next word's fraction in); store word ? (no SHIFTER.LOAD in this run: stores 0) -> @1780  (fd 0f; probe51)
+0x1bc2  fd 0f     [d9] SHIFT  left by 15 (pulls the next word's fraction in); store the 64-bit product -> @1780  (fd 0f; probe51/64)
 0x1bc4  76        [d9] MUL A=@1708        B=@696         -> @1784
-0x1bc5  fd 0f     [d9] SHIFT  left by 15 (pulls the next word's fraction in); store word ? (no SHIFTER.LOAD in this run: stores 0) -> @1784  (fd 0f; probe51)
+0x1bc5  fd 0f     [d9] SHIFT  left by 15 (pulls the next word's fraction in); store the 64-bit product -> @1784  (fd 0f; probe51/64)
 0x1bc7  a4        [d9] P2.page=4   -> D@1600 @1600
 0x1bc8  d0        [d9] P2 word += 2 -> D@1608 @1608  (d0, mod 4; probe20)
 0x1bc9  8f        [d9] P0.page=f   -> A@1776 @1776
@@ -2783,9 +2783,9 @@
 0x1bd3  8a        [d9] P0.page=a   -> A@1696 @1696
 0x1bd4  9b        [d9] P1.page=b   -> B@688 @688
 0x1bd5  3e        [d9] MUL A=@1700        B=@700         -> @1780
-0x1bd6  fd 0f     [d9] SHIFT  left by 15 (pulls the next word's fraction in); store word ? (no SHIFTER.LOAD in this run: stores 0) -> @1780  (fd 0f; probe51)
+0x1bd6  fd 0f     [d9] SHIFT  left by 15 (pulls the next word's fraction in); store the 64-bit product -> @1780  (fd 0f; probe51/64)
 0x1bd8  76        [d9] MUL A=@1708        B=@696         -> @1784
-0x1bd9  fd 0f     [d9] SHIFT  left by 15 (pulls the next word's fraction in); store word ? (no SHIFTER.LOAD in this run: stores 0) -> @1784  (fd 0f; probe51)
+0x1bd9  fd 0f     [d9] SHIFT  left by 15 (pulls the next word's fraction in); store the 64-bit product -> @1784  (fd 0f; probe51/64)
 0x1bdb  a5        [d9] P2.page=5   -> D@1616 @1616
 0x1bdc  8f        [d9] P0.page=f   -> A@1776 @1776
 0x1bdd  30        [d9] ADD A=@1780        B=@696         -> @1616
@@ -2800,9 +2800,9 @@
 0x1be6  8a        [d9] P0.page=a   -> A@1696 @1696
 0x1be7  9b        [d9] P1.page=b   -> B@688 @688
 0x1be8  5e        [d9] MUL A=@1704        B=@700         -> @1780
-0x1be9  fd 0f     [d9] SHIFT  left by 15 (pulls the next word's fraction in); store word ? (no SHIFTER.LOAD in this run: stores 0) -> @1780  (fd 0f; probe51)
+0x1be9  fd 0f     [d9] SHIFT  left by 15 (pulls the next word's fraction in); store the 64-bit product -> @1780  (fd 0f; probe51/64)
 0x1beb  76        [d9] MUL A=@1708        B=@696         -> @1784
-0x1bec  fd 0f     [d9] SHIFT  left by 15 (pulls the next word's fraction in); store word ? (no SHIFTER.LOAD in this run: stores 0) -> @1784  (fd 0f; probe51)
+0x1bec  fd 0f     [d9] SHIFT  left by 15 (pulls the next word's fraction in); store the 64-bit product -> @1784  (fd 0f; probe51/64)
 0x1bee  a5        [d9] P2.page=5   -> D@1616 @1616
 0x1bef  8f        [d9] P0.page=f   -> A@1776 @1776
 0x1bf0  34        [d9] ADD A=@1780        B=@696         -> @1620
@@ -2820,19 +2820,19 @@
 0x1bfe  9c        P1.page=c   -> B@704 @704
 0x1bff  af        P2.page=f   -> D@1776 @1776
 0x1c00  2a        MUL A=@1716        B=@708         -> @1776
-0x1c01  fd 0f     SHIFT  left by 15 (pulls the next word's fraction in); store word ? (no SHIFTER.LOAD in this run: stores 0) -> @1776  (fd 0f; probe51)
+0x1c01  fd 0f     SHIFT  left by 15 (pulls the next word's fraction in); store the 64-bit product -> @1776  (fd 0f; probe51/64)
 0x1c03  8a        P0.page=a   -> A@1696 @1696
 0x1c04  9f        P1.page=f   -> B@752 @752
 0x1c05  b9        P2.bank=1
 0x1c06  af        P2.page=f   -> D@1520 @1520
 0x1c07  02        MUL A=@1696        B=@752         -> @1520
-0x1c08  fd 0f     SHIFT  left by 15 (pulls the next word's fraction in); store word ? (no SHIFTER.LOAD in this run: stores 0) -> @1520  (fd 0f; probe51)
+0x1c08  fd 0f     SHIFT  left by 15 (pulls the next word's fraction in); store the 64-bit product -> @1520  (fd 0f; probe51/64)
 0x1c0a  26        MUL A=@1700        B=@752         -> @1524
-0x1c0b  fd 0f     SHIFT  left by 15 (pulls the next word's fraction in); store word ? (no SHIFTER.LOAD in this run: stores 0) -> @1524  (fd 0f; probe51)
+0x1c0b  fd 0f     SHIFT  left by 15 (pulls the next word's fraction in); store the 64-bit product -> @1524  (fd 0f; probe51/64)
 0x1c0d  46        MUL A=@1704        B=@752         -> @1528
-0x1c0e  fd 0f     SHIFT  left by 15 (pulls the next word's fraction in); store word ? (no SHIFTER.LOAD in this run: stores 0) -> @1528  (fd 0f; probe51)
+0x1c0e  fd 0f     SHIFT  left by 15 (pulls the next word's fraction in); store the 64-bit product -> @1528  (fd 0f; probe51/64)
 0x1c10  66        MUL A=@1708        B=@752         -> @1532
-0x1c11  fd 0f     SHIFT  left by 15 (pulls the next word's fraction in); store word ? (no SHIFTER.LOAD in this run: stores 0) -> @1532  (fd 0f; probe51)
+0x1c11  fd 0f     SHIFT  left by 15 (pulls the next word's fraction in); store the 64-bit product -> @1532  (fd 0f; probe51/64)
 0x1c13  83        P0.page=3   -> A@1584 @1584
 0x1c14  b5        P1.bank=1
 0x1c15  9f        P1.page=f   -> B@496 @496
@@ -2864,11 +2864,11 @@
 0x1c2f  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
 0x1c30  f3        WIDTH.3   ; 16-bit store, lower half-word  [probe37]
 0x1c31  9e        P1.page=e   -> B@736 @736
-0x1c32  fc c0 04  TESTZ  F := (@736 == 0)   (fc c0 04; no store; probe63)
+0x1c32  fc c0 04  TEST?  fc c0 04: P1 word 0 and a condition no RAM zero triggers  (Y = 04; probe66, open)
 0x1c35  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x1c36  f4 17 1b  [d9] JUMP.d9 -> 0x171b
 0x1c39  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
-0x1c3a  fc c0 08  TESTZ  F := (@740 == 0)   (fc c0 08; no store; probe63)
+0x1c3a  fc c0 08  TEST?  fc c0 08: P1 word 0 and a condition no RAM zero triggers  (Y = 08; probe66, open)
 0x1c3d  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x1c3e  f4 19 16  [d9] JUMP.d9 -> 0x1916
 0x1c41  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
@@ -2926,7 +2926,7 @@
 0x1c79  89        P0.page=9   -> A@1424 @1424
 0x1c7a  aa        P2.page=a   -> D@1440 @1440
 0x1c7b  7c        ADD A=@1436        B=CPASS_STATUS_CHK -> @1444
-0x1c7c  fd 02     SHIFT  left by 2 (pulls the next word's fraction in); store word ? (no SHIFTER.LOAD in this run: stores 0) -> @1444  (fd 02; probe51)
+0x1c7c  fd 02     SHIFT  left by 2 (pulls the next word's fraction in); store the last ALU result -> @1444  (fd 02; probe51/64)
 0x1c7e  9a        P1.page=a   -> B@416 @416
 0x1c7f  68        ADD A=@1436        B=@420         -> @1444
 0x1c80  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
@@ -2938,7 +2938,7 @@
 0x1c86  99        [da] P1.page=9   -> B@400 CPASS_MTX_22
 0x1c87  af        [da] P2.page=f   -> D@1520 @1520
 0x1c88  26        [da] MUL A=@1428        B=CPASS_MTX_22 -> @1524
-0x1c89  fd 0f     [da] SHIFT  left by 15 (pulls the next word's fraction in); store word ? (no SHIFTER.LOAD in this run: stores 0) -> @1524  (fd 0f; probe51)
+0x1c89  fd 0f     [da] SHIFT  left by 15 (pulls the next word's fraction in); store the 64-bit product -> @1524  (fd 0f; probe51/64)
 0x1c8b  8f        [da] P0.page=f   -> A@1520 @1520
 0x1c8c  95        [da] P1.page=5   -> B@336 @336
 0x1c8d  25        [da] RSUB A=@1524        B=@336         -> @1528
@@ -2946,16 +2946,16 @@
 0x1c8f  9f        [da] P1.page=f   -> B@496 @496
 0x1c90  a9        [da] P2.page=9   -> D@1424 @1424
 0x1c91  12        [da] MUL A=@1424        B=@504         -> @1424
-0x1c92  fd 0f     [da] SHIFT  left by 15 (pulls the next word's fraction in); store word ? (no SHIFTER.LOAD in this run: stores 0) -> @1424  (fd 0f; probe51)
+0x1c92  fd 0f     [da] SHIFT  left by 15 (pulls the next word's fraction in); store the 64-bit product -> @1424  (fd 0f; probe51/64)
 0x1c94  f4 1c 80  [da] JUMP.da -> 0x1c80
 0x1c97  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
 0x1c98  f3        WIDTH.3   ; 16-bit store, lower half-word  [probe37]
 0x1c99  9e        P1.page=e   -> B@480 ACC_SCALE
-0x1c9a  fc c1 04  TESTZ  F := (ACC_SCALE == 0)   (fc c1 04; no store; probe63)  ; X != c0: operand rule open (probe61/63)
+0x1c9a  fc c1 04  TEST?  fc c1 04: P1 word 1 and a condition no RAM zero triggers  (Y = 04; probe66, open)
 0x1c9d  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x1c9e  f4 1b 48  [d9] JUMP.d9 -> 0x1b48
 0x1ca1  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
-0x1ca2  fc c1 08  TESTZ  F := (@484 == 0)   (fc c1 08; no store; probe63)  ; X != c0: operand rule open (probe61/63)
+0x1ca2  fc c1 08  TEST?  fc c1 08: P1 word 1 and a condition no RAM zero triggers  (Y = 08; probe66, open)
 0x1ca5  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x1ca6  f4 1a 63  [d9] JUMP.d9 -> 0x1a63
 0x1ca9  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
@@ -2987,7 +2987,7 @@
 0x1cc3  de        [da] CLR  @2176 := 0  (in place, no advance)  (de; probe31)
 0x1cc4  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
 0x1cc5  95        P1.page=5   -> B@1104 @1104
-0x1cc6  fc c1 03  TESTNZ  F := (@1104 != 0)   (fc c1 03; no store; probe63)  ; X != c0: operand rule open (probe61/63)
+0x1cc6  fc c1 03  TESTNZ  F := (@1108 != 0)   (fc c1 03; no store; probe63/65)
 0x1cc9  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x1cca  a8        [d9] P2.page=8   -> D@2176 @2176
 0x1ccb  de        [d9] CLR  @2176 := 0  (in place, no advance)  (de; probe31)
@@ -2996,10 +2996,10 @@
 0x1cce  bc        P0.blk++ -> 2   (+1 KB, mod 4; probe47)
 0x1ccf  f1        WIDTH.1   ; 32-bit store  [probe37]
 0x1cd0  98        P1.page=8   -> B@1152 @1152
-0x1cd1  fc c0 1c  TESTZ  F := (GYRO_FULLSCALE == 0)   (fc c0 1c; no store; probe63)
+0x1cd1  fc c0 1c  TEST?  fc c0 1c: P1 word 0 and a condition no RAM zero triggers  (Y = 1c; probe66, open)
 0x1cd4  db        IF.F   (db; identical to d9 in every DMP3 cell, probe52/54)
 0x1cd5  95        [db] P1.page=5   -> B@1104 @1104
-0x1cd6  fc c0 03  [db] TESTNZ  F := (@1104 != 0)   (fc c0 03; no store; probe63)
+0x1cd6  fc c0 03  [db] TESTNZ  F := (@1104 != 0)   (fc c0 03; no store; probe63/65)
 0x1cd9  a5        [db] P2.page=5   -> D@2128 @2128
 0x1cda  de        [db] CLR  @2128 := 0  (in place, no advance)  (de; probe31)
 0x1cdb  a4        [db] P2.page=4   -> D@2112 @2112
@@ -3015,11 +3015,11 @@
 0x1ce5  f8        [d9] INC  @2128 by 1  F := result < 0  (f8; probe23)
 0x1ce6  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
 0x1ce7  a4        P2.page=4   -> D@2112 @2112
-0x1ce8  fc 80 04  TESTZ  F := (@1104 == 0)   (fc 80 04; no store; probe63)  ; X != c0: operand rule open (probe61/63)
+0x1ce8  fc 80 04  TEST?  fc 80 04: P1 word 0 and a condition no RAM zero triggers  (Y = 04; probe66, open)
 0x1ceb  88        P0.page=8   -> A@2176 @2176
 0x1cec  95        P1.page=5   -> B@1104 @1104
 0x1ced  a4        P2.page=4   -> D@2112 @2112
-0x1cee  fc 08 04  TESTZ  F := (@1104 == 0)   (fc 08 04; no store; probe63)  ; X != c0: operand rule open (probe61/63)
+0x1cee  fc 08 04  TEST?  fc 08 04: P1 word 0 and a condition no RAM zero triggers  (Y = 04; probe66, open)
 0x1cf1  20        ADD A=@2180        B=@1104        -> @2112
 0x1cf2  f7        TRUNC @2112 &= 0xFFFF0000   clear the low half-word  (the next ALU op does not store)  [probe36]
 0x1cf3  bc        P0.blk++ -> 3   (+1 KB, mod 4; probe47)
@@ -3127,21 +3127,21 @@
 0x1d5b  bd        P1.blk++ -> 0   (+1 KB, mod 4; probe47)
 0x1d5c  bd        P1.blk++ -> 1   (+1 KB, mod 4; probe47)
 0x1d5d  95        P1.page=5   -> B@1104 @1104
-0x1d5e  fc c0 07  TESTNZ  F := (@1104 != 0)   (fc c0 07; no store; probe63)
+0x1d5e  fc c0 07  TEST?  fc c0 07: P1 word 0 and a condition no RAM zero triggers  (Y = 07; probe66, open)
 0x1d61  da        IF.NOT-F   (sticky until d8; F frozen while armed)
 0x1d62  f4 1e 7c  [da] JUMP.da -> 0x1e7c
 0x1d65  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
 0x1d66  f1        WIDTH.1   ; 32-bit store  [probe37]
-0x1d67  fc c0 00  TESTZ  F := (@1104 == 0)   (fc c0 00; no store; probe63)
+0x1d67  fc c0 00  TESTZ  F := (@1104 == 0)   (fc c0 00; no store; probe63/65)
 0x1d6a  db        IF.F   (db; identical to d9 in every DMP3 cell, probe52/54)
 0x1d6b  9c        [db] P1.page=c   -> B@1216 @1216
-0x1d6c  fc c1 00  [db] TESTZ  F := (@1216 == 0)   (fc c1 00; no store; probe63)  ; X != c0: operand rule open (probe61/63)
+0x1d6c  fc c1 00  [db] TESTZ  F := (@1220 == 0)   (fc c1 00; no store; probe63/65)
 0x1d6f  f4 1e a1  [db] JUMP.db -> 0x1ea1
 0x1d72  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
 0x1d73  f1        WIDTH.1   ; 32-bit store  [probe37]
 0x1d74  ac        P2.page=c   -> D@2240 @2240
 0x1d75  95        P1.page=5   -> B@1104 @1104
-0x1d76  fc c0 08  TESTZ  F := (@1108 == 0)   (fc c0 08; no store; probe63)
+0x1d76  fc c0 08  TEST?  fc c0 08: P1 word 0 and a condition no RAM zero triggers  (Y = 08; probe66, open)
 0x1d79  da        IF.NOT-F   (sticky until d8; F frozen while armed)
 0x1d7a  f4 1d be  [da] JUMP.da -> 0x1dbe
 0x1d7d  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
@@ -3276,16 +3276,16 @@
 0x1e06  81        P0.page=1   -> A@3088 @3088
 0x1e07  91        P1.page=1   -> B@1040 WOM_ENABLE+2
 0x1e08  02        MUL A=@3088        B=WOM_ENABLE+2 -> @2240
-0x1e09  fd 14     SHIFT  left by 20 (pulls the next word's fraction in); store word 0 -> @2240  (fd 14; probe51)
+0x1e09  fd 14     SHIFT  left by 20 (pulls the next word's fraction in); store the 64-bit product -> @2240  (fd 14; probe51/64)
 0x1e0b  85        P0.page=5   -> A@3152 @3152
 0x1e0c  66        MUL A=@3164        B=WOM_ENABLE+2 -> @2244
-0x1e0d  fd 1d     SHIFT  left by 29 (pulls the next word's fraction in); store word 0 -> @2244  (fd 1d; probe51)
+0x1e0d  fd 1d     SHIFT  left by 29 (pulls the next word's fraction in); store the 64-bit product -> @2244  (fd 1d; probe51/64)
 0x1e0f  88        P0.page=8   -> A@3200 @3200
 0x1e10  4e        MUL A=@3208        B=@1044        -> @2248
-0x1e11  fd 1b     SHIFT  left by 27 (pulls the next word's fraction in); store word 0 -> @2248  (fd 1b; probe51)
+0x1e11  fd 1b     SHIFT  left by 27 (pulls the next word's fraction in); store the 64-bit product -> @2248  (fd 1b; probe51/64)
 0x1e13  87        P0.page=7   -> A@3184 @3184
 0x1e14  d4        SHIFTER.LOAD  4 words from @3184, select word 0  (d4; probe51)
-0x1e15  fd 54     SHIFT  left by 20 (pulls the next word's fraction in); store word 0 -> @2252  (P2 word++ first)  (fd 54; probe51)
+0x1e15  fd 54     SHIFT  left by 20 (pulls the next word's fraction in); store word 0 of the d4-d7 load -> @2252  (P2 word++ first)  (fd 54; probe51/64)
 0x1e17  ad        P2.page=d   -> D@2256 @2256
 0x1e18  8d        P0.page=d   -> A@3280 @3280
 0x1e19  4e        MUL A=@3288        B=@1044        -> @2260
@@ -3294,7 +3294,7 @@
 0x1e1c  9c        P1.page=c   -> B@1216 @1216
 0x1e1d  ab        P2.page=b   -> D@2224 @2224
 0x1e1e  d6        SHIFTER.LOAD  4 words from @3088, select word 2  (d6; probe51)
-0x1e1f  fd 06     SHIFT  left by 6 (pulls the next word's fraction in); store word 2 -> @2224  (fd 06; probe51)
+0x1e1f  fd 06     SHIFT  left by 6 (pulls the next word's fraction in); store word 2 of the d4-d7 load -> @2224  (fd 06; probe51/64)
 0x1e21  8d        P0.page=d   -> A@3280 @3280
 0x1e22  31        RSUB A=@3284        B=@1224        -> @2224
 0x1e23  8c        P0.page=c   -> A@3264 @3264
@@ -3318,7 +3318,7 @@
 0x1e37  96        P1.page=6   -> B@1120 @1120
 0x1e38  01        RSUB A=ACCEL_CAL_SCALE_COVQ_IN_RANGE B=@1120        -> @2192
 0x1e39  95        P1.page=5   -> B@1104 @1104
-0x1e3a  fc c1 00  TESTZ  F := (@1104 == 0)   (fc c1 00; no store; probe63)  ; X != c0: operand rule open (probe61/63)
+0x1e3a  fc c1 00  TESTZ  F := (@1108 == 0)   (fc c1 00; no store; probe63/65)
 0x1e3d  da        IF.NOT-F   (sticky until d8; F frozen while armed)
 0x1e3e  f4 1e 50  [da] JUMP.da -> 0x1e50
 0x1e41  db        IF.F   (db; identical to d9 in every DMP3 cell, probe52/54)
@@ -3340,11 +3340,11 @@
 0x1e53  84        P0.page=4   -> A@3136 @3136
 0x1e54  95        P1.page=5   -> B@1104 @1104
 0x1e55  34        ADD A=@3140        B=@1112        -> @2116
-0x1e56  fd 05     SHIFT  left by 5 (pulls the next word's fraction in); store word 2 -> @2116  (fd 05; probe51)
+0x1e56  fd 05     SHIFT  left by 5 (pulls the next word's fraction in); store the last ALU result -> @2116  (fd 05; probe51/64)
 0x1e58  54        ADD A=@3144        B=@1112        -> @2120
-0x1e59  fd 05     SHIFT  left by 5 (pulls the next word's fraction in); store word 2 -> @2120  (fd 05; probe51)
+0x1e59  fd 05     SHIFT  left by 5 (pulls the next word's fraction in); store the last ALU result -> @2120  (fd 05; probe51/64)
 0x1e5b  74        ADD A=@3148        B=@1112        -> @2124
-0x1e5c  fd 05     SHIFT  left by 5 (pulls the next word's fraction in); store word 2 -> @2124  (fd 05; probe51)
+0x1e5c  fd 05     SHIFT  left by 5 (pulls the next word's fraction in); store the last ALU result -> @2124  (fd 05; probe51/64)
 0x1e5e  a9        P2.page=9   -> D@2192 @2192
 0x1e5f  94        P1.page=4   -> B@1088 @1088
 0x1e60  f5        MIN prefix  next ALU op computes signed min(A,B)  [probe29, 16/16]
@@ -3393,7 +3393,7 @@
 0x1e8b  df        CLR  @2124 := 0  (P2 word++ first)  (df; probe23)
 0x1e8c  a2        P2.page=2   -> D@2080 @2080
 0x1e8d  95        P1.page=5   -> B@1104 @1104
-0x1e8e  fc c0 01  TESTNZ  F := (@1104 != 0)   (fc c0 01; no store; probe63)
+0x1e8e  fc c0 01  TESTNZ  F := (@1104 != 0)   (fc c0 01; no store; probe63/65)
 0x1e91  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x1e92  80        [d9] P0.page=0   -> A@3072 @3072
 0x1e93  c3        [d9] MOV   @3076        -> @2084  (P2 word++ first)  (c3; probe25)
@@ -3413,7 +3413,7 @@
 0x1ea1  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
 0x1ea2  f1        WIDTH.1   ; 32-bit store  [probe37]
 0x1ea3  9a        P1.page=a   -> B@1184 BAC_PS_ON
-0x1ea4  fc c1 04  TESTZ  F := (BAC_PS_ON == 0)   (fc c1 04; no store; probe63)  ; X != c0: operand rule open (probe61/63)
+0x1ea4  fc c1 04  TEST?  fc c1 04: P1 word 1 and a condition no RAM zero triggers  (Y = 04; probe66, open)
 0x1ea7  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x1ea8  ac        [d9] P2.page=c   -> D@2240 @2240
 0x1ea9  82        [d9] P0.page=2   -> A@3104 ACCEL_CAL_SCALE_COVQ_IN_RANGE
@@ -3617,7 +3617,7 @@
 0x1f79  54        ADD A=@3064        B=@1016        -> @3064
 0x1f7a  f1        WIDTH.1   ; 32-bit store  [probe37]
 0x1f7b  97        P1.page=7   -> B@880 @880
-0x1f7c  fc c0 04  TESTZ  F := (@880 == 0)   (fc c0 04; no store; probe63)
+0x1f7c  fc c0 04  TEST?  fc c0 04: P1 word 0 and a condition no RAM zero triggers  (Y = 04; probe66, open)
 0x1f7f  db        IF.F   (db; identical to d9 in every DMP3 cell, probe52/54)
 0x1f80  8f        [db] P0.page=f   -> A@3056 @3056
 0x1f81  af        [db] P2.page=f   -> D@3056 @3056
@@ -3627,18 +3627,18 @@
 0x1f85  f8        [db] INC  BAC_ACT_T_OFF by 1  F := result < 0  (f8; probe23)
 0x1f86  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
 0x1f87  98        P1.page=8   -> B@896 @896
-0x1f88  fc c0 08  TESTZ  F := (@900 == 0)   (fc c0 08; no store; probe63)
+0x1f88  fc c0 08  TEST?  fc c0 08: P1 word 0 and a condition no RAM zero triggers  (Y = 08; probe66, open)
 0x1f8b  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x1f8c  f4 1f b4  [d9] JUMP.d9 -> 0x1fb4
 0x1f8f  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
 0x1f90  f1        WIDTH.1   ; 32-bit store  [probe37]
-0x1f91  fc c0 0c  TESTZ  F := (@900 == 0)   (fc c0 0c; no store; probe63)
+0x1f91  fc c0 0c  TEST?  fc c0 0c: P1 word 0 and a condition no RAM zero triggers  (Y = 0c; probe66, open)
 0x1f94  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x1f95  f4 1f dd  [d9] JUMP.d9 -> 0x1fdd
 0x1f98  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
 0x1f99  f1        WIDTH.1   ; 32-bit store  [probe37]
 0x1f9a  93        P1.page=3   -> B@816 PEDSTD_TIMH+2
-0x1f9b  fc c0 09  TESTNZ  F := (@820 != 0)   (fc c0 09; no store; probe63)
+0x1f9b  fc c0 09  TEST?  fc c0 09: P1 word 0 and a condition no RAM zero triggers  (Y = 09; probe66, open)
 0x1f9e  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x1f9f  a4        [d9] P2.page=4   -> D@2880 @2880
 0x1fa0  de        [d9] CLR  @2880 := 0  (in place, no advance)  (de; probe31)
@@ -3647,7 +3647,7 @@
 0x1fa3  f8        [d9] INC  BAC_ACT_T_ON by 1  F := result < 0  (f8; probe23)
 0x1fa4  f8        [d9] INC  BAC_ACT_T_ON by 1  F := result < 0  (f8; probe23)
 0x1fa5  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
-0x1fa6  fc c0 04  TESTZ  F := (PEDSTD_TIMH+2 == 0)   (fc c0 04; no store; probe63)
+0x1fa6  fc c0 04  TEST?  fc c0 04: P1 word 0 and a condition no RAM zero triggers  (Y = 04; probe66, open)
 0x1fa9  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x1faa  85        [d9] P0.page=5   -> A@2896 BAC_TILT_INIT
 0x1fab  a1        [d9] P2.page=1   -> D@2832 BAC_STILL_S_F
@@ -3687,7 +3687,7 @@
 0x1fcf  df        [d9] CLR  BAC_STATE_PREV := 0  (P2 word++ first)  (df; probe23)
 0x1fd0  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
 0x1fd1  93        P1.page=3   -> B@816 PEDSTD_TIMH+2
-0x1fd2  fc c0 0a  TESTZ  F := (@820 == 0)   (fc c0 0a; no store; probe63)
+0x1fd2  fc c0 0a  TEST?  fc c0 0a: P1 word 0 and a condition no RAM zero triggers  (Y = 0a; probe66, open)
 0x1fd5  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x1fd6  a8        [d9] P2.page=8   -> D@2944 BAC_ACT_T_ON
 0x1fd7  de        [d9] CLR  BAC_ACT_T_ON := 0  (in place, no advance)  (de; probe31)
@@ -3712,7 +3712,7 @@
 0x1fec  c2        [db] MOV   BAC_ACT_T_OFF -> BAC_STILL_S_F  (c2; probe25)
 0x1fed  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
 0x1fee  93        P1.page=3   -> B@816 PEDSTD_TIMH+2
-0x1fef  fc c0 0a  TESTZ  F := (@820 == 0)   (fc c0 0a; no store; probe63)
+0x1fef  fc c0 0a  TEST?  fc c0 0a: P1 word 0 and a condition no RAM zero triggers  (Y = 0a; probe66, open)
 0x1ff2  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x1ff3  a8        [d9] P2.page=8   -> D@2944 BAC_ACT_T_ON
 0x1ff4  de        [d9] CLR  BAC_ACT_T_ON := 0  (in place, no advance)  (de; probe31)
@@ -3720,7 +3720,7 @@
 0x1ff6  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
 0x1ff7  f1        WIDTH.1   ; 32-bit store  [probe37]
 0x1ff8  91        P1.page=1   -> B@784 @784
-0x1ff9  fc c0 04  TESTZ  F := (@784 == 0)   (fc c0 04; no store; probe63)
+0x1ff9  fc c0 04  TEST?  fc c0 04: P1 word 0 and a condition no RAM zero triggers  (Y = 04; probe66, open)
 0x1ffc  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x1ffd  a7        [d9] P2.page=7   -> D@2928 BAC_ACT_OFF
 0x1ffe  fa        [d9] INC  @2932 by 1  (P2 word++ first)  F := result < 0  (fa; probe23)
@@ -3761,7 +3761,7 @@
 0x2021  87        P0.page=7   -> A@3184 @3184
 0x2022  f1        WIDTH.1   ; 32-bit store  [probe37]
 0x2023  d4        SHIFTER.LOAD  4 words from @3184, select word 0  (d4; probe51)
-0x2024  fd 3e     SHIFT  arithmetic right by 2; store word 0 -> @3184  (fd 3e; probe51)
+0x2024  fd 3e     SHIFT  arithmetic right by 2; store word 0 of the d4-d7 load -> @3184  (fd 3e; probe51/64)
 0x2026  f9        DEC  @3184 by 1  F := result < 0  (f9; probe23)
 0x2027  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x2028  f4 20 48  [d9] JUMP.d9 -> 0x2048
@@ -4017,7 +4017,7 @@
 0x212c  b4        P1.bank=0
 0x212d  f3        WIDTH.3   ; 16-bit store, lower half-word  [probe37]
 0x212e  98        P1.page=8   -> B@1152 @1152
-0x212f  fc c0 04  TESTZ  F := (@1152 == 0)   (fc c0 04; no store; probe63)
+0x212f  fc c0 04  TEST?  fc c0 04: P1 word 0 and a condition no RAM zero triggers  (Y = 04; probe66, open)
 0x2132  da        IF.NOT-F   (sticky until d8; F frozen while armed)
 0x2133  f4 21 86  [da] JUMP.da -> 0x2186
 0x2136  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
@@ -4626,7 +4626,7 @@
 0x239b  df        CLR  @3432 := 0  (P2 word++ first)  (df; probe23)
 0x239c  f3        WIDTH.3   ; 16-bit store, lower half-word  [probe37]
 0x239d  30        ADD A=@3428        B=@1384        -> @3432.lo
-0x239e  fd 08     SHIFT  left by 8 (pulls the next word's fraction in); store word 0 -> @3432  (fd 08; probe51)
+0x239e  fd 08     SHIFT  left by 8 (pulls the next word's fraction in); store the last ALU result -> @3432  (fd 08; probe51/64)
 0x23a0  a2        P2.page=2   -> D@3360 B2S_MTX_22
 0x23a1  82        P0.page=2   -> A@3360 B2S_MTX_22
 0x23a2  10        ADD A=B2S_MTX_22   B=@1384        -> B2S_MTX_22.lo
@@ -4652,7 +4652,7 @@
 0x23b6  b4        P1.bank=0
 0x23b7  9d        P1.page=d   -> B@1232 ACCEL_CAL_RESET
 0x23b8  3e        MUL A=@3572        B=@1244        -> @3572.lo
-0x23b9  fd 1e     SHIFT  left by 30 (pulls the next word's fraction in); store word 0 -> @3572  (fd 1e; probe51)
+0x23b9  fd 1e     SHIFT  left by 30 (pulls the next word's fraction in); store the 64-bit product -> @3572  (fd 1e; probe51/64)
 0x23bb  b5        P1.bank=1
 0x23bc  9f        P1.page=f   -> B@1520 @1520
 0x23bd  30        ADD A=@3572        B=@1528        -> @3572.lo
@@ -4814,11 +4814,11 @@
 0x2463  ae        P2.page=e   -> D@1248 @1248
 0x2464  d0        P2 word += 2 -> D@1256 GYRO_SLOPE_Y  (d0, mod 4; probe20)
 0x2465  91        P1.page=1   -> B@16 icm_20948_Quat9_Bytes+2
-0x2466  fc c0 00  TESTZ  F := (icm_20948_Quat9_Bytes+2 == 0)   (fc c0 00; no store; probe63)
+0x2466  fc c0 00  TESTZ  F := (icm_20948_Quat9_Bytes+2 == 0)   (fc c0 00; no store; probe63/65)
 0x2469  db        IF.F   (db; identical to d9 in every DMP3 cell, probe52/54)
 0x246a  b6        [db] P1.bank=2
 0x246b  95        [db] P1.page=5   -> B@592 CPASS_ACCURACY
-0x246c  fc c1 04  [db] TESTZ  F := (CPASS_ACCURACY == 0)   (fc c1 04; no store; probe63)  ; X != c0: operand rule open (probe61/63)
+0x246c  fc c1 04  [db] TEST?  fc c1 04: P1 word 1 and a condition no RAM zero triggers  (Y = 04; probe66, open)
 0x246f  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x2470  f8        [d9] INC  GYRO_SLOPE_Y by 1  F := result < 0  (f8; probe23)
 0x2471  f8        [d9] INC  GYRO_SLOPE_Y by 1  F := result < 0  (f8; probe23)
@@ -4827,11 +4827,11 @@
 0x2474  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
 0x2475  b4        P1.bank=0
 0x2476  91        P1.page=1   -> B@16 icm_20948_Quat9_Bytes+2
-0x2477  fc c0 04  TESTZ  F := (icm_20948_Quat9_Bytes+2 == 0)   (fc c0 04; no store; probe63)
+0x2477  fc c0 04  TEST?  fc c0 04: P1 word 0 and a condition no RAM zero triggers  (Y = 04; probe66, open)
 0x247a  db        IF.F   (db; identical to d9 in every DMP3 cell, probe52/54)
 0x247b  b6        [db] P1.bank=2
 0x247c  95        [db] P1.page=5   -> B@592 CPASS_ACCURACY
-0x247d  fc c1 00  [db] TESTZ  F := (CPASS_ACCURACY == 0)   (fc c1 00; no store; probe63)  ; X != c0: operand rule open (probe61/63)
+0x247d  fc c1 00  [db] TESTZ  F := (MAR_MODE+2 == 0)   (fc c1 00; no store; probe63/65)
 0x2480  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x2481  f8        [d9] INC  GYRO_SLOPE_Y by 1  F := result < 0  (f8; probe23)
 0x2482  f8        [d9] INC  GYRO_SLOPE_Y by 1  F := result < 0  (f8; probe23)
@@ -4848,11 +4848,11 @@
 0x248f  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
 0x2490  f1        WIDTH.1   ; 32-bit store  [probe37]
 0x2491  91        P1.page=1   -> B@528 Q0_QUAT6
-0x2492  fc c0 00  TESTZ  F := (Q0_QUAT6 == 0)   (fc c0 00; no store; probe63)
+0x2492  fc c0 00  TESTZ  F := (Q0_QUAT6 == 0)   (fc c0 00; no store; probe63/65)
 0x2495  db        IF.F   (db; identical to d9 in every DMP3 cell, probe52/54)
 0x2496  b6        [db] P1.bank=2
 0x2497  95        [db] P1.page=5   -> B@592 CPASS_ACCURACY
-0x2498  fc c1 04  [db] TESTZ  F := (CPASS_ACCURACY == 0)   (fc c1 04; no store; probe63)  ; X != c0: operand rule open (probe61/63)
+0x2498  fc c1 04  [db] TEST?  fc c1 04: P1 word 1 and a condition no RAM zero triggers  (Y = 04; probe66, open)
 0x249b  f5        [db] MIN prefix  next ALU op computes signed min(A,B)  [probe29, 16/16]
 0x249c  87        [db] P0.page=7   -> A@1648 @1648
 0x249d  95        [db] P1.page=5   -> B@592 CPASS_ACCURACY
@@ -4879,16 +4879,16 @@
 0x24b2  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
 0x24b3  b4        P1.bank=0
 0x24b4  91        P1.page=1   -> B@16 icm_20948_Quat9_Bytes+2
-0x24b5  fc c0 04  TESTZ  F := (icm_20948_Quat9_Bytes+2 == 0)   (fc c0 04; no store; probe63)
+0x24b5  fc c0 04  TEST?  fc c0 04: P1 word 0 and a condition no RAM zero triggers  (Y = 04; probe66, open)
 0x24b8  db        IF.F   (db; identical to d9 in every DMP3 cell, probe52/54)
 0x24b9  b6        [db] P1.bank=2
 0x24ba  95        [db] P1.page=5   -> B@592 CPASS_ACCURACY
-0x24bb  fc c1 00  [db] TESTZ  F := (CPASS_ACCURACY == 0)   (fc c1 00; no store; probe63)  ; X != c0: operand rule open (probe61/63)
+0x24bb  fc c1 00  [db] TESTZ  F := (MAR_MODE+2 == 0)   (fc c1 00; no store; probe63/65)
 0x24be  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x24bf  af        [d9] P2.page=f   -> D@2800 @2800
 0x24c0  de        [d9] CLR  @2800 := 0  (in place, no advance)  (de; probe31)
 0x24c1  f8        [d9] INC  @2800 by 1  F := result < 0  (f8; probe23)
-0x24c2  fd 07     [d9] SHIFT  left by 7 (pulls the next word's fraction in); store word 0 -> @2800  (fd 07; probe51)
+0x24c2  fd 07     [d9] SHIFT  left by 7 (pulls the next word's fraction in); store the 64-bit product -> @2800  (fd 07; probe51/64)
 0x24c4  8f        [d9] P0.page=f   -> A@1776 @1776
 0x24c5  95        [d9] P1.page=5   -> B@592 CPASS_ACCURACY
 0x24c6  10        [d9] ADD A=@1776        B=@600         -> @2800
@@ -4899,13 +4899,13 @@
 0x24cb  a7        [d9] P2.page=7   -> D@2672 @2672
 0x24cc  de        [d9] CLR  @2672 := 0  (in place, no advance)  (de; probe31)
 0x24cd  f8        [d9] INC  @2672 by 1  F := result < 0  (f8; probe23)
-0x24ce  fd 07     [d9] SHIFT  left by 7 (pulls the next word's fraction in); store word 0 -> @2672  (fd 07; probe51)
+0x24ce  fd 07     [d9] SHIFT  left by 7 (pulls the next word's fraction in); store the last ALU result -> @2672  (fd 07; probe51/64)
 0x24d0  df        [d9] CLR  @2676 := 0  (P2 word++ first)  (df; probe23)
 0x24d1  f8        [d9] INC  @2676 by 1  F := result < 0  (f8; probe23)
-0x24d2  fd 06     [d9] SHIFT  left by 6 (pulls the next word's fraction in); store word 0 -> @2676  (fd 06; probe51)
+0x24d2  fd 06     [d9] SHIFT  left by 6 (pulls the next word's fraction in); store ? (nothing loaded in this run: stores 0) -> @2676  (fd 06; probe51/64)
 0x24d4  df        [d9] CLR  @2680 := 0  (P2 word++ first)  (df; probe23)
 0x24d5  f8        [d9] INC  @2680 by 1  F := result < 0  (f8; probe23)
-0x24d6  fd 04     [d9] SHIFT  left by 4 (pulls the next word's fraction in); store word 0 -> @2680  (fd 04; probe51)
+0x24d6  fd 04     [d9] SHIFT  left by 4 (pulls the next word's fraction in); store ? (nothing loaded in this run: stores 0) -> @2680  (fd 04; probe51/64)
 0x24d8  8f        [d9] P0.page=f   -> A@1776 @1776
 0x24d9  97        [d9] P1.page=7   -> B@624 @624
 0x24da  af        [d9] P2.page=f   -> D@2800 @2800
@@ -4965,29 +4965,29 @@
 0x2512  a9        P2.page=9   -> D@144 @144
 0x2513  de        CLR  @144 := 0  (in place, no advance)  (de; probe31)
 0x2514  f8        INC  @144 by 1  F := result < 0  (f8; probe23)
-0x2515  fd 04     SHIFT  left by 4 (pulls the next word's fraction in); store word 0 -> @144  (fd 04; probe51)
+0x2515  fd 04     SHIFT  left by 4 (pulls the next word's fraction in); store the 64-bit product -> @144  (fd 04; probe51/64)
 0x2517  df        CLR  ODR_CNTR_CPASS_CALIBR := 0  (P2 word++ first)  (df; probe23)
 0x2518  f8        INC  ODR_CNTR_CPASS_CALIBR by 1  F := result < 0  (f8; probe23)
-0x2519  fd 05     SHIFT  left by 5 (pulls the next word's fraction in); store word 0 -> ODR_CNTR_CPASS_CALIBR  (fd 05; probe51)
+0x2519  fd 05     SHIFT  left by 5 (pulls the next word's fraction in); store ? (nothing loaded in this run: stores 0) -> ODR_CNTR_CPASS_CALIBR  (fd 05; probe51/64)
 0x251b  bc        P0.blk++ -> 0   (+1 KB, mod 4; probe47)
 0x251c  8e        P0.page=e   -> A@224 @224
 0x251d  be        P2.blk++ -> 1   (+1 KB, mod 4; probe47)
 0x251e  ae        P2.page=e   -> D@1248 @1248
 0x251f  d0        P2 word += 2 -> D@1256 GYRO_SLOPE_Y  (d0, mod 4; probe20)
 0x2520  9a        P1.page=a   -> B@2208 @2208
-0x2521  fc c0 00  TESTZ  F := (@2208 == 0)   (fc c0 00; no store; probe63)
+0x2521  fc c0 00  TESTZ  F := (@2208 == 0)   (fc c0 00; no store; probe63/65)
 0x2524  db        IF.F   (db; identical to d9 in every DMP3 cell, probe52/54)
 0x2525  9b        [db] P1.page=b   -> B@2224 @2224
-0x2526  fc c0 04  [db] TESTZ  F := (@2224 == 0)   (fc c0 04; no store; probe63)
+0x2526  fc c0 04  [db] TEST?  fc c0 04: P1 word 0 and a condition no RAM zero triggers  (Y = 04; probe66, open)
 0x2529  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x252a  99        [d9] P1.page=9   -> B@2192 @2192
 0x252b  40        [d9] ADD A=@232         B=@2192        -> GYRO_SLOPE_Y
 0x252c  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
 0x252d  9a        P1.page=a   -> B@2208 @2208
-0x252e  fc c0 04  TESTZ  F := (@2208 == 0)   (fc c0 04; no store; probe63)
+0x252e  fc c0 04  TEST?  fc c0 04: P1 word 0 and a condition no RAM zero triggers  (Y = 04; probe66, open)
 0x2531  db        IF.F   (db; identical to d9 in every DMP3 cell, probe52/54)
 0x2532  9b        [db] P1.page=b   -> B@2224 @2224
-0x2533  fc c0 00  [db] TESTZ  F := (@2224 == 0)   (fc c0 00; no store; probe63)
+0x2533  fc c0 00  [db] TESTZ  F := (@2224 == 0)   (fc c0 00; no store; probe63/65)
 0x2536  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x2537  99        [d9] P1.page=9   -> B@2192 @2192
 0x2538  48        [d9] ADD A=@232         B=@2196        -> GYRO_SLOPE_Y
@@ -5002,10 +5002,10 @@
 0x2543  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
 0x2544  f1        WIDTH.1   ; 32-bit store  [probe37]
 0x2545  9a        P1.page=a   -> B@2208 @2208
-0x2546  fc c0 00  TESTZ  F := (@2208 == 0)   (fc c0 00; no store; probe63)
+0x2546  fc c0 00  TESTZ  F := (@2208 == 0)   (fc c0 00; no store; probe63/65)
 0x2549  db        IF.F   (db; identical to d9 in every DMP3 cell, probe52/54)
 0x254a  9b        [db] P1.page=b   -> B@2224 @2224
-0x254b  fc c0 04  [db] TESTZ  F := (@2224 == 0)   (fc c0 04; no store; probe63)
+0x254b  fc c0 04  [db] TEST?  fc c0 04: P1 word 0 and a condition no RAM zero triggers  (Y = 04; probe66, open)
 0x254e  f5        [db] MIN prefix  next ALU op computes signed min(A,B)  [probe29, 16/16]
 0x254f  89        [db] P0.page=9   -> A@3216 @3216
 0x2550  a9        [db] P2.page=9   -> D@144 @144
@@ -5015,13 +5015,13 @@
 0x2554  f1        [d9] WIDTH.1   ; 32-bit store  [probe37]
 0x2555  de        [d9] CLR  @144 := 0  (in place, no advance)  (de; probe31)
 0x2556  f8        [d9] INC  @144 by 1  F := result < 0  (f8; probe23)
-0x2557  fd 02     [d9] SHIFT  left by 2 (pulls the next word's fraction in); store word 0 -> @144  (fd 02; probe51)
+0x2557  fd 02     [d9] SHIFT  left by 2 (pulls the next word's fraction in); store the 64-bit product -> @144  (fd 02; probe51/64)
 0x2559  df        [d9] CLR  ODR_CNTR_CPASS_CALIBR := 0  (P2 word++ first)  (df; probe23)
 0x255a  f8        [d9] INC  ODR_CNTR_CPASS_CALIBR by 1  F := result < 0  (f8; probe23)
-0x255b  fd 07     [d9] SHIFT  left by 7 (pulls the next word's fraction in); store word 0 -> ODR_CNTR_CPASS_CALIBR  (fd 07; probe51)
+0x255b  fd 07     [d9] SHIFT  left by 7 (pulls the next word's fraction in); store ? (nothing loaded in this run: stores 0) -> ODR_CNTR_CPASS_CALIBR  (fd 07; probe51/64)
 0x255d  df        [d9] CLR  ODR_CNTR_GYRO_CALIBR := 0  (P2 word++ first)  (df; probe23)
 0x255e  f8        [d9] INC  ODR_CNTR_GYRO_CALIBR by 1  F := result < 0  (f8; probe23)
-0x255f  fd 07     [d9] SHIFT  left by 7 (pulls the next word's fraction in); store word 0 -> ODR_CNTR_GYRO_CALIBR  (fd 07; probe51)
+0x255f  fd 07     [d9] SHIFT  left by 7 (pulls the next word's fraction in); store ? (nothing loaded in this run: stores 0) -> ODR_CNTR_GYRO_CALIBR  (fd 07; probe51/64)
 0x2561  f8        [d9] INC  ODR_CNTR_GYRO_CALIBR by 1  F := result < 0  (f8; probe23)
 0x2562  df        [d9] CLR  ODR_CNTR_PRESSURE := 0  (P2 word++ first)  (df; probe23)
 0x2563  89        [d9] P0.page=9   -> A@3216 @3216
@@ -5050,25 +5050,25 @@
 0x257a  b8        [d9] P2.bank=0
 0x257b  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
 0x257c  9a        P1.page=a   -> B@2208 @2208
-0x257d  fc c0 04  TESTZ  F := (@2208 == 0)   (fc c0 04; no store; probe63)
+0x257d  fc c0 04  TEST?  fc c0 04: P1 word 0 and a condition no RAM zero triggers  (Y = 04; probe66, open)
 0x2580  db        IF.F   (db; identical to d9 in every DMP3 cell, probe52/54)
 0x2581  9b        [db] P1.page=b   -> B@2224 @2224
-0x2582  fc c0 00  [db] TESTZ  F := (@2224 == 0)   (fc c0 00; no store; probe63)
+0x2582  fc c0 00  [db] TESTZ  F := (@2224 == 0)   (fc c0 00; no store; probe63/65)
 0x2585  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x2586  a9        [d9] P2.page=9   -> D@144 @144
 0x2587  de        [d9] CLR  @144 := 0  (in place, no advance)  (de; probe31)
 0x2588  f8        [d9] INC  @144 by 1  F := result < 0  (f8; probe23)
-0x2589  fd 02     [d9] SHIFT  left by 2 (pulls the next word's fraction in); store word 0 -> @144  (fd 02; probe51)
+0x2589  fd 02     [d9] SHIFT  left by 2 (pulls the next word's fraction in); store ? (nothing loaded in this run: stores 0) -> @144  (fd 02; probe51/64)
 0x258b  df        [d9] CLR  ODR_CNTR_CPASS_CALIBR := 0  (P2 word++ first)  (df; probe23)
 0x258c  f8        [d9] INC  ODR_CNTR_CPASS_CALIBR by 1  F := result < 0  (f8; probe23)
-0x258d  fd 07     [d9] SHIFT  left by 7 (pulls the next word's fraction in); store word 0 -> ODR_CNTR_CPASS_CALIBR  (fd 07; probe51)
+0x258d  fd 07     [d9] SHIFT  left by 7 (pulls the next word's fraction in); store ? (nothing loaded in this run: stores 0) -> ODR_CNTR_CPASS_CALIBR  (fd 07; probe51/64)
 0x258f  df        [d9] CLR  ODR_CNTR_GYRO_CALIBR := 0  (P2 word++ first)  (df; probe23)
 0x2590  f8        [d9] INC  ODR_CNTR_GYRO_CALIBR by 1  F := result < 0  (f8; probe23)
-0x2591  fd 07     [d9] SHIFT  left by 7 (pulls the next word's fraction in); store word 0 -> ODR_CNTR_GYRO_CALIBR  (fd 07; probe51)
+0x2591  fd 07     [d9] SHIFT  left by 7 (pulls the next word's fraction in); store ? (nothing loaded in this run: stores 0) -> ODR_CNTR_GYRO_CALIBR  (fd 07; probe51/64)
 0x2593  f8        [d9] INC  ODR_CNTR_GYRO_CALIBR by 1  F := result < 0  (f8; probe23)
 0x2594  df        [d9] CLR  ODR_CNTR_PRESSURE := 0  (P2 word++ first)  (df; probe23)
 0x2595  f8        [d9] INC  ODR_CNTR_PRESSURE by 1  F := result < 0  (f8; probe23)
-0x2596  fd 04     [d9] SHIFT  left by 4 (pulls the next word's fraction in); store word 0 -> ODR_CNTR_PRESSURE  (fd 04; probe51)
+0x2596  fd 04     [d9] SHIFT  left by 4 (pulls the next word's fraction in); store ? (nothing loaded in this run: stores 0) -> ODR_CNTR_PRESSURE  (fd 04; probe51/64)
 0x2598  f9        [d9] DEC  ODR_CNTR_PRESSURE by 1  F := result < 0  (f9; probe23)
 0x2599  89        [d9] P0.page=9   -> A@3216 @3216
 0x259a  ba        [d9] P2.bank=2
@@ -5466,7 +5466,7 @@
 0x2758  8e        P0.page=e   -> A@480 ACC_SCALE
 0x2759  9c        P1.page=c   -> B@3776 @3776
 0x275a  48        ADD A=@488         B=@3780        -> @1728
-0x275b  fd 02     SHIFT  left by 2 (pulls the next word's fraction in); store word 0 -> @1728  (fd 02; probe51)
+0x275b  fd 02     SHIFT  left by 2 (pulls the next word's fraction in); store the last ALU result -> @1728  (fd 02; probe51/64)
 0x275d  b2        P0.bank=2
 0x275e  8b        P0.page=b   -> A@688 @688
 0x275f  02        MUL A=@688         B=@3776        -> @1728
@@ -5486,7 +5486,7 @@
 0x276d  bd        P1.blk++ -> 0   (+1 KB, mod 4; probe47)
 0x276e  bd        P1.blk++ -> 1   (+1 KB, mod 4; probe47)
 0x276f  9b        P1.page=b   -> B@1456 ACCEL_ALPHA_VAR
-0x2770  fc c1 03  TESTNZ  F := (ACCEL_ALPHA_VAR != 0)   (fc c1 03; no store; probe63)  ; X != c0: operand rule open (probe61/63)
+0x2770  fc c1 03  TESTNZ  F := (@1460 != 0)   (fc c1 03; no store; probe63/65)
 0x2773  bd        P1.blk++ -> 2   (+1 KB, mod 4; probe47)
 0x2774  bd        P1.blk++ -> 3   (+1 KB, mod 4; probe47)
 0x2775  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
@@ -5535,11 +5535,11 @@
 0x27a2  9f        P1.page=f   -> B@240 @240
 0x27a3  aa        P2.page=a   -> D@2208 @2208
 0x27a4  28        ADD A=ACC_SCALE2   B=@244         -> @2208
-0x27a5  fd 01     SHIFT  left by 1 (pulls the next word's fraction in); store word 0 -> @2208  (fd 01; probe51)
+0x27a5  fd 01     SHIFT  left by 1 (pulls the next word's fraction in); store the last ALU result -> @2208  (fd 01; probe51/64)
 0x27a7  54        ADD A=@1272        B=@248         -> GYRO_ACCURACY+2
-0x27a8  fd 01     SHIFT  left by 1 (pulls the next word's fraction in); store word 0 -> GYRO_ACCURACY+2  (fd 01; probe51)
+0x27a8  fd 01     SHIFT  left by 1 (pulls the next word's fraction in); store the last ALU result -> GYRO_ACCURACY+2  (fd 01; probe51/64)
 0x27aa  7c        ADD A=@1276        B=@252         -> GYRO_BIAS_SET+2
-0x27ab  fd 01     SHIFT  left by 1 (pulls the next word's fraction in); store word 0 -> GYRO_BIAS_SET+2  (fd 01; probe51)
+0x27ab  fd 01     SHIFT  left by 1 (pulls the next word's fraction in); store the last ALU result -> GYRO_BIAS_SET+2  (fd 01; probe51/64)
 0x27ad  8e        P0.page=e   -> A@1248 @1248
 0x27ae  a9        P2.page=9   -> D@2192 @2192
 0x27af  c2        MOV   GYRO_SLOPE_X -> @2192  (c2; probe25)
@@ -5578,7 +5578,7 @@
 0x27d0  bd        P1.blk++ -> 1   (+1 KB, mod 4; probe47)
 0x27d1  b6        P1.bank=2
 0x27d2  90        P1.page=0   -> B@1536 @1536
-0x27d3  fc c2 00  TESTZ  F := (@1536 == 0)   (fc c2 00; no store; probe63)  ; X != c0: operand rule open (probe61/63)
+0x27d3  fc c2 00  TESTZ  F := (@1544 == 0)   (fc c2 00; no store; probe63/65)
 0x27d6  bd        P1.blk++ -> 2   (+1 KB, mod 4; probe47)
 0x27d7  bd        P1.blk++ -> 3   (+1 KB, mod 4; probe47)
 0x27d8  bd        P1.blk++ -> 0   (+1 KB, mod 4; probe47)
@@ -5652,13 +5652,13 @@
 0x2830  b4        P1.bank=0
 0x2831  9e        P1.page=e   -> B@224 @224
 0x2832  64        ADD A=@1708        B=@224         -> @2276
-0x2833  fd 01     SHIFT  left by 1 (pulls the next word's fraction in); store word 0 -> @2276  (fd 01; probe51)
+0x2833  fd 01     SHIFT  left by 1 (pulls the next word's fraction in); store the last ALU result -> @2276  (fd 01; probe51/64)
 0x2835  8c        P0.page=c   -> A@1728 @1728
 0x2836  64        ADD A=@1740        B=@224         -> @2280
-0x2837  fd 01     SHIFT  left by 1 (pulls the next word's fraction in); store word 0 -> @2280  (fd 01; probe51)
+0x2837  fd 01     SHIFT  left by 1 (pulls the next word's fraction in); store the last ALU result -> @2280  (fd 01; probe51/64)
 0x2839  8e        P0.page=e   -> A@1760 @1760
 0x283a  64        ADD A=ACCEL_BIAS_Z B=@224         -> @2284
-0x283b  fd 01     SHIFT  left by 1 (pulls the next word's fraction in); store word 0 -> @2284  (fd 01; probe51)
+0x283b  fd 01     SHIFT  left by 1 (pulls the next word's fraction in); store the last ALU result -> @2284  (fd 01; probe51/64)
 0x283d  b0        P0.bank=0
 0x283e  f0        WIDTH.0   ; A operand contributes 0 (single-shot)  [probe37]
 0x283f  8d        P0.page=d   -> A@1232 ACCEL_CAL_RESET
@@ -5686,11 +5686,11 @@
 0x2855  9f        P1.page=f   -> B@240 @240
 0x2856  ad        P2.page=d   -> D@2256 @2256
 0x2857  28        ADD A=ACC_SCALE2   B=@244         -> @2256
-0x2858  fd 01     SHIFT  left by 1 (pulls the next word's fraction in); store word 0 -> @2256  (fd 01; probe51)
+0x2858  fd 01     SHIFT  left by 1 (pulls the next word's fraction in); store the last ALU result -> @2256  (fd 01; probe51/64)
 0x285a  54        ADD A=@1272        B=@248         -> @2260
-0x285b  fd 01     SHIFT  left by 1 (pulls the next word's fraction in); store word 0 -> @2260  (fd 01; probe51)
+0x285b  fd 01     SHIFT  left by 1 (pulls the next word's fraction in); store the last ALU result -> @2260  (fd 01; probe51/64)
 0x285d  7c        ADD A=@1276        B=@252         -> @2264
-0x285e  fd 01     SHIFT  left by 1 (pulls the next word's fraction in); store word 0 -> @2264  (fd 01; probe51)
+0x285e  fd 01     SHIFT  left by 1 (pulls the next word's fraction in); store the last ALU result -> @2264  (fd 01; probe51/64)
 0x2860  8e        P0.page=e   -> A@1248 @1248
 0x2861  ac        P2.page=c   -> D@2240 @2240
 0x2862  c2        MOV   GYRO_SLOPE_X -> @2240  (c2; probe25)
@@ -5744,10 +5744,10 @@
 0x2894  7a        F5.2 A=@1276        B=@28          -> @2288
 0x2895  f1        WIDTH.1   ; 32-bit store  [probe37]
 0x2896  9f        P1.page=f   -> B@240 @240
-0x2897  fc c0 03  TESTNZ  F := (@240 != 0)   (fc c0 03; no store; probe63)
+0x2897  fc c0 03  TESTNZ  F := (@240 != 0)   (fc c0 03; no store; probe63/65)
 0x289a  db        IF.F   (db; identical to d9 in every DMP3 cell, probe52/54)
 0x289b  90        [db] P1.page=0   -> B@0 @0
-0x289c  fc c0 00  [db] TESTZ  F := (@0 == 0)   (fc c0 00; no store; probe63)
+0x289c  fc c0 00  [db] TESTZ  F := (@0 == 0)   (fc c0 00; no store; probe63/65)
 0x289f  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x28a0  a1        [d9] P2.page=1   -> D@2064 @2064
 0x28a1  de        [d9] CLR  @2064 := 0  (in place, no advance)  (de; probe31)
@@ -5760,7 +5760,7 @@
 0x28aa  72        F5.2 A=@1276        B=@24          -> @2064
 0x28ab  f1        WIDTH.1   ; 32-bit store  [probe37]
 0x28ac  9f        P1.page=f   -> B@240 @240
-0x28ad  fc c0 03  TESTNZ  F := (@240 != 0)   (fc c0 03; no store; probe63)
+0x28ad  fc c0 03  TESTNZ  F := (@240 != 0)   (fc c0 03; no store; probe63/65)
 0x28b0  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x28b1  a1        [d9] P2.page=1   -> D@2064 @2064
 0x28b2  de        [d9] CLR  @2064 := 0  (in place, no advance)  (de; probe31)
@@ -5788,7 +5788,7 @@
 0x28c8  a1        [db] P2.page=1   -> D@2064 @2064
 0x28c9  de        [db] CLR  @2064 := 0  (in place, no advance)  (de; probe31)
 0x28ca  91        [db] P1.page=1   -> B@16 icm_20948_Quat9_Bytes+2
-0x28cb  fc c1 04  [db] TESTZ  F := (icm_20948_Quat9_Bytes+2 == 0)   (fc c1 04; no store; probe63)  ; X != c0: operand rule open (probe61/63)
+0x28cb  fc c1 04  [db] TEST?  fc c1 04: P1 word 1 and a condition no RAM zero triggers  (Y = 04; probe66, open)
 0x28ce  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x28cf  a1        [d9] P2.page=1   -> D@2064 @2064
 0x28d0  f8        [d9] INC  @2064 by 1  F := result < 0  (f8; probe23)
@@ -5884,7 +5884,7 @@
 0x292c  bd        P1.blk++ -> 0   (+1 KB, mod 4; probe47)
 0x292d  bd        P1.blk++ -> 1   (+1 KB, mod 4; probe47)
 0x292e  9b        P1.page=b   -> B@1456 ACCEL_ALPHA_VAR
-0x292f  fc c1 03  TESTNZ  F := (ACCEL_ALPHA_VAR != 0)   (fc c1 03; no store; probe63)  ; X != c0: operand rule open (probe61/63)
+0x292f  fc c1 03  TESTNZ  F := (@1460 != 0)   (fc c1 03; no store; probe63/65)
 0x2932  b4        P1.bank=0
 0x2933  bd        P1.blk++ -> 2   (+1 KB, mod 4; probe47)
 0x2934  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
@@ -5894,7 +5894,7 @@
 0x293a  aa        P2.page=a   -> D@160 ODR_GEOMAG
 0x293b  de        CLR  ODR_GEOMAG := 0  (in place, no advance)  (de; probe31)
 0x293c  99        P1.page=9   -> B@2192 @2192
-0x293d  fc c1 00  TESTZ  F := (@2192 == 0)   (fc c1 00; no store; probe63)  ; X != c0: operand rule open (probe61/63)
+0x293d  fc c1 00  TESTZ  F := (@2196 == 0)   (fc c1 00; no store; probe63/65)
 0x2940  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x2941  aa        [d9] P2.page=a   -> D@160 ODR_GEOMAG
 0x2942  fa        [d9] INC  ODR_PQUAT6 by 1  (P2 word++ first)  F := result < 0  (fa; probe23)
@@ -5914,7 +5914,7 @@
 0x2950  3a        F5.2 A=@3220        B=@2092        -> @32
 0x2951  f1        WIDTH.1   ; 32-bit store  [probe37]
 0x2952  92        P1.page=2   -> B@2080 @2080
-0x2953  fc c0 03  TESTNZ  F := (@2080 != 0)   (fc c0 03; no store; probe63)
+0x2953  fc c0 03  TESTNZ  F := (@2080 != 0)   (fc c0 03; no store; probe63/65)
 0x2956  da        IF.NOT-F   (sticky until d8; F frozen while armed)
 0x2957  df        [da] CLR  @36 := 0  (P2 word++ first)  (df; probe23)
 0x2958  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
@@ -5929,7 +5929,7 @@
 0x2961  f8        [db] INC  ODR_GEOMAG by 1  F := result < 0  (f8; probe23)
 0x2962  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
 0x2963  99        P1.page=9   -> B@2192 @2192
-0x2964  fc c1 03  TESTNZ  F := (@2192 != 0)   (fc c1 03; no store; probe63)  ; X != c0: operand rule open (probe61/63)
+0x2964  fc c1 03  TESTNZ  F := (@2196 != 0)   (fc c1 03; no store; probe63/65)
 0x2967  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x2968  aa        [d9] P2.page=a   -> D@160 ODR_GEOMAG
 0x2969  df        [d9] CLR  ODR_PQUAT6 := 0  (P2 word++ first)  (df; probe23)
@@ -5948,12 +5948,12 @@
 0x2976  f8        [db] INC  ODR_GEOMAG by 1  F := result < 0  (f8; probe23)
 0x2977  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
 0x2978  9a        P1.page=a   -> B@2208 @2208
-0x2979  fc c0 04  TESTZ  F := (@2208 == 0)   (fc c0 04; no store; probe63)
+0x2979  fc c0 04  TEST?  fc c0 04: P1 word 0 and a condition no RAM zero triggers  (Y = 04; probe66, open)
 0x297c  db        IF.F   (db; identical to d9 in every DMP3 cell, probe52/54)
 0x297d  a8        [db] P2.page=8   -> D@128 ODR_CNTR_GEOMAG
 0x297e  de        [db] CLR  ODR_CNTR_GEOMAG := 0  (in place, no advance)  (de; probe31)
 0x297f  98        [db] P1.page=8   -> B@2176 @2176
-0x2980  fc c1 00  [db] TESTZ  F := (@2176 == 0)   (fc c1 00; no store; probe63)  ; X != c0: operand rule open (probe61/63)
+0x2980  fc c1 00  [db] TESTZ  F := (@2180 == 0)   (fc c1 00; no store; probe63/65)
 0x2983  f8        [db] INC  ODR_CNTR_GEOMAG by 1  F := result < 0  (f8; probe23)
 0x2984  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
 0x2985  f1        WIDTH.1   ; 32-bit store  [probe37]
@@ -5979,10 +5979,10 @@
 0x299b  af        P2.page=f   -> D@1520 @1520
 0x299c  df        CLR  @1524 := 0  (P2 word++ first)  (df; probe23)
 0x299d  28        ADD A=DMPRATE_CNTR B=@3572        -> @1524
-0x299e  fd 03     SHIFT  left by 3 (pulls the next word's fraction in); store word 0 -> @1524  (fd 03; probe51)
+0x299e  fd 03     SHIFT  left by 3 (pulls the next word's fraction in); store the last ALU result -> @1524  (fd 03; probe51/64)
 0x29a0  df        CLR  @1528 := 0  (P2 word++ first)  (df; probe23)
 0x29a1  30        ADD A=DMPRATE_CNTR B=@3576        -> @1528
-0x29a2  fd 04     SHIFT  left by 4 (pulls the next word's fraction in); store word 0 -> @1528  (fd 04; probe51)
+0x29a2  fd 04     SHIFT  left by 4 (pulls the next word's fraction in); store the last ALU result -> @1528  (fd 04; probe51/64)
 0x29a4  8f        P0.page=f   -> A@496 @496
 0x29a5  9f        P1.page=f   -> B@3568 @3568
 0x29a6  34        ADD A=@500         B=@3576        -> @1532
@@ -6130,7 +6130,7 @@
 0x2a3e  d0        [db] P2 word += 2 -> D@1292 QFB_THR_9X  (d0, mod 4; probe20)
 0x2a3f  de        [db] CLR  QFB_THR_9X := 0  (in place, no advance)  (de; probe31)
 0x2a40  9f        [db] P1.page=f   -> B@3568 @3568
-0x2a41  fc c2 01  [db] TESTNZ  F := (@3568 != 0)   (fc c2 01; no store; probe63)  ; X != c0: operand rule open (probe61/63)
+0x2a41  fc c2 01  [db] TESTNZ  F := (@3576 != 0)   (fc c2 01; no store; probe63/65)
 0x2a44  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x2a45  f2        [d9] WIDTH.2   ; 16-bit store, upper half-word  [probe37]
 0x2a46  af        [d9] P2.page=f   -> D@1520 @1520
@@ -6150,7 +6150,7 @@
 0x2a54  a2        [d9] P2.page=2   -> D@1824 CPASS_CAL_INIT
 0x2a55  d0        [d9] P2 word += 2 -> D@1832 @1832  (d0, mod 4; probe20)
 0x2a56  5c        [d9] ADD A=@488         B=@3868        -> @1836
-0x2a57  fd 3f     [d9] SHIFT  arithmetic right by 1; store word 0 -> @1836  (fd 3f; probe51)
+0x2a57  fd 3f     [d9] SHIFT  arithmetic right by 1; store the last ALU result -> @1836  (fd 3f; probe51/64)
 0x2a59  b5        [d9] P1.bank=1
 0x2a5a  b9        [d9] P2.bank=1
 0x2a5b  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
@@ -6167,7 +6167,7 @@
 0x2a66  a1        [db] P2.page=1   -> D@1296 @1296
 0x2a67  df        [db] CLR  @1300 := 0  (P2 word++ first)  (df; probe23)
 0x2a68  9f        [db] P1.page=f   -> B@3568 @3568
-0x2a69  fc c2 01  [db] TESTNZ  F := (@3568 != 0)   (fc c2 01; no store; probe63)  ; X != c0: operand rule open (probe61/63)
+0x2a69  fc c2 01  [db] TESTNZ  F := (@3576 != 0)   (fc c2 01; no store; probe63/65)
 0x2a6c  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x2a6d  f2        [d9] WIDTH.2   ; 16-bit store, upper half-word  [probe37]
 0x2a6e  af        [d9] P2.page=f   -> D@1520 @1520
@@ -6187,13 +6187,13 @@
 0x2a7c  a2        [d9] P2.page=2   -> D@1824 CPASS_CAL_INIT
 0x2a7d  d0        [d9] P2 word += 2 -> D@1832 @1832  (d0, mod 4; probe20)
 0x2a7e  5c        [d9] ADD A=@488         B=@3868        -> @1836
-0x2a7f  fd 3f     [d9] SHIFT  arithmetic right by 1; store word 0 -> @1836  (fd 3f; probe51)
+0x2a7f  fd 3f     [d9] SHIFT  arithmetic right by 1; store the last ALU result -> @1836  (fd 3f; probe51/64)
 0x2a81  b5        [d9] P1.bank=1
 0x2a82  b9        [d9] P2.bank=1
 0x2a83  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
 0x2a84  f1        WIDTH.1   ; 32-bit store  [probe37]
 0x2a85  9f        P1.page=f   -> B@3568 @3568
-0x2a86  fc c2 01  TESTNZ  F := (@3568 != 0)   (fc c2 01; no store; probe63)  ; X != c0: operand rule open (probe61/63)
+0x2a86  fc c2 01  TESTNZ  F := (@3576 != 0)   (fc c2 01; no store; probe63/65)
 0x2a89  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x2a8a  f4 2a ba  [d9] JUMP.d9 -> 0x2aba
 0x2a8d  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
@@ -6227,7 +6227,7 @@
 0x2aa9  d1        [db] TEST  F := (last ALU result == 0)  (without d1, F is the result's sign)  [probe52]
 0x2aaa  f1        [db] WIDTH.1   ; 32-bit store  [probe37]
 0x2aab  9f        [db] P1.page=f   -> B@3568 @3568
-0x2aac  fc c1 04  [db] TESTZ  F := (@3568 == 0)   (fc c1 04; no store; probe63)  ; X != c0: operand rule open (probe61/63)
+0x2aac  fc c1 04  [db] TEST?  fc c1 04: P1 word 1 and a condition no RAM zero triggers  (Y = 04; probe66, open)
 0x2aaf  f2        [db] WIDTH.2   ; 16-bit store, upper half-word  [probe37]
 0x2ab0  8f        [db] P0.page=f   -> A@496 @496
 0x2ab1  9f        [db] P1.page=f   -> B@3568 @3568
@@ -6296,7 +6296,7 @@
 0x2afa  c7        MOV   BM_BATCH_THLD -> QFB_THR_9X  (P2 word++ first)  (c7; probe25)
 0x2afb  b6        P1.bank=2
 0x2afc  9d        P1.page=d   -> B@3792 @3792
-0x2afd  fc c2 04  TESTZ  F := (@3792 == 0)   (fc c2 04; no store; probe63)  ; X != c0: operand rule open (probe61/63)
+0x2afd  fc c2 04  TEST?  fc c2 04: P1 word 2 and a condition no RAM zero triggers  (Y = 04; probe66, open)
 0x2b00  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x2b01  ba        [d9] P2.bank=2
 0x2b02  ad        [d9] P2.page=d   -> D@1744 @1744
@@ -6496,16 +6496,16 @@
 0x2bde  b5        P1.bank=1
 0x2bdf  bd        P1.blk++ -> 1   (+1 KB, mod 4; probe47)
 0x2be0  9b        P1.page=b   -> B@1456 ACCEL_ALPHA_VAR
-0x2be1  fc c1 00  TESTZ  F := (ACCEL_ALPHA_VAR == 0)   (fc c1 00; no store; probe63)  ; X != c0: operand rule open (probe61/63)
+0x2be1  fc c1 00  TESTZ  F := (@1460 == 0)   (fc c1 00; no store; probe63/65)
 0x2be4  b6        P1.bank=2
 0x2be5  bd        P1.blk++ -> 2   (+1 KB, mod 4; probe47)
 0x2be6  bd        P1.blk++ -> 3   (+1 KB, mod 4; probe47)
 0x2be7  bd        P1.blk++ -> 0   (+1 KB, mod 4; probe47)
 0x2be8  db        IF.F   (db; identical to d9 in every DMP3 cell, probe52/54)
 0x2be9  97        [db] P1.page=7   -> B@624 @624
-0x2bea  fc c3 04  [db] TESTZ  F := (@624 == 0)   (fc c3 04; no store; probe63)  ; X != c0: operand rule open (probe61/63)
-0x2bed  fc c0 00  [db] TESTZ  F := (@624 == 0)   (fc c0 00; no store; probe63)
-0x2bf0  fc c2 04  [db] TESTZ  F := (@624 == 0)   (fc c2 04; no store; probe63)  ; X != c0: operand rule open (probe61/63)
+0x2bea  fc c3 04  [db] TEST?  fc c3 04: P1 word 3 and a condition no RAM zero triggers  (Y = 04; probe66, open)
+0x2bed  fc c0 00  [db] TESTZ  F := (@624 == 0)   (fc c0 00; no store; probe63/65)
+0x2bf0  fc c2 04  [db] TEST?  fc c2 04: P1 word 2 and a condition no RAM zero triggers  (Y = 04; probe66, open)
 0x2bf3  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x2bf4  a7        [d9] P2.page=7   -> D@2672 @2672
 0x2bf5  df        [d9] CLR  @2676 := 0  (P2 word++ first)  (df; probe23)
@@ -6538,7 +6538,7 @@
 0x2c14  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
 0x2c15  f1        WIDTH.1   ; 32-bit store  [probe37]
 0x2c16  97        P1.page=7   -> B@624 @624
-0x2c17  fc c1 04  TESTZ  F := (@624 == 0)   (fc c1 04; no store; probe63)  ; X != c0: operand rule open (probe61/63)
+0x2c17  fc c1 04  TEST?  fc c1 04: P1 word 1 and a condition no RAM zero triggers  (Y = 04; probe66, open)
 0x2c1a  b1        P0.bank=1
 0x2c1b  bc        P0.blk++ -> 2   (+1 KB, mod 4; probe47)
 0x2c1c  bc        P0.blk++ -> 3   (+1 KB, mod 4; probe47)
@@ -6554,7 +6554,7 @@
 0x2c26  da        IF.NOT-F   (sticky until d8; F frozen while armed)
 0x2c27  de        [da] CLR  MAGN_THR_9X := 0  (in place, no advance)  (de; probe31)
 0x2c28  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
-0x2c29  fc c2 04  TESTZ  F := (@624 == 0)   (fc c2 04; no store; probe63)  ; X != c0: operand rule open (probe61/63)
+0x2c29  fc c2 04  TEST?  fc c2 04: P1 word 2 and a condition no RAM zero triggers  (Y = 04; probe66, open)
 0x2c2c  d0        P2 word += 2 -> D@1288 MAGN_LPF_THR_9X  (d0, mod 4; probe20)
 0x2c2d  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x2c2e  c7        [d9] MOV   BM_BATCH_THLD -> QFB_THR_9X  (P2 word++ first)  (c7; probe25)
@@ -6570,7 +6570,7 @@
 0x2c38  bd        P1.blk++ -> 2   (+1 KB, mod 4; probe47)
 0x2c39  bd        P1.blk++ -> 3   (+1 KB, mod 4; probe47)
 0x2c3a  9f        P1.page=f   -> B@3568 @3568
-0x2c3b  fc c1 00  TESTZ  F := (@3568 == 0)   (fc c1 00; no store; probe63)  ; X != c0: operand rule open (probe61/63)
+0x2c3b  fc c1 00  TESTZ  F := (@3572 == 0)   (fc c1 00; no store; probe63/65)
 0x2c3e  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x2c3f  f4 2c bb  [d9] JUMP.d9 -> 0x2cbb
 0x2c42  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
@@ -6648,12 +6648,12 @@
 0x2c8c  bd        P1.blk++ -> 0   (+1 KB, mod 4; probe47)
 0x2c8d  bd        P1.blk++ -> 1   (+1 KB, mod 4; probe47)
 0x2c8e  9b        P1.page=b   -> B@1456 ACCEL_ALPHA_VAR
-0x2c8f  fc c1 00  TESTZ  F := (ACCEL_ALPHA_VAR == 0)   (fc c1 00; no store; probe63)  ; X != c0: operand rule open (probe61/63)
+0x2c8f  fc c1 00  TESTZ  F := (@1460 == 0)   (fc c1 00; no store; probe63/65)
 0x2c92  bd        P1.blk++ -> 2   (+1 KB, mod 4; probe47)
 0x2c93  bd        P1.blk++ -> 3   (+1 KB, mod 4; probe47)
 0x2c94  db        IF.F   (db; identical to d9 in every DMP3 cell, probe52/54)
 0x2c95  9f        [db] P1.page=f   -> B@3568 @3568
-0x2c96  fc c0 04  [db] TESTZ  F := (@3568 == 0)   (fc c0 04; no store; probe63)
+0x2c96  fc c0 04  [db] TEST?  fc c0 04: P1 word 0 and a condition no RAM zero triggers  (Y = 04; probe66, open)
 0x2c99  8f        [db] P0.page=f   -> A@496 @496
 0x2c9a  9e        [db] P1.page=e   -> B@3552 @3552
 0x2c9b  2d        [db] RSUB A=@500         B=@3556        -> @1532
@@ -6676,7 +6676,7 @@
 0x2cac  06        [d9] F5.2 A=PEDSTD_TIMH+2 B=@3568        -> @1524
 0x2cad  f1        [d9] WIDTH.1   ; 32-bit store  [probe37]
 0x2cae  db        IF.F   (db; identical to d9 in every DMP3 cell, probe52/54)
-0x2caf  fc c1 04  [db] TESTZ  F := (@3568 == 0)   (fc c1 04; no store; probe63)  ; X != c0: operand rule open (probe61/63)
+0x2caf  fc c1 04  [db] TEST?  fc c1 04: P1 word 1 and a condition no RAM zero triggers  (Y = 04; probe66, open)
 0x2cb2  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x2cb3  b8        [d9] P2.bank=0
 0x2cb4  be        [d9] P2.blk++ -> 2   (+1 KB, mod 4; probe47)
@@ -6700,7 +6700,7 @@
 0x2cc6  02        MUL A=@944         B=@3888        -> @2032
 0x2cc7  f1        WIDTH.1   ; 32-bit store  [probe37]
 0x2cc8  9f        P1.page=f   -> B@4080 @4080
-0x2cc9  fc c0 03  TESTNZ  F := (@4080 != 0)   (fc c0 03; no store; probe63)
+0x2cc9  fc c0 03  TESTNZ  F := (@4080 != 0)   (fc c0 03; no store; probe63/65)
 0x2ccc  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x2ccd  8f        [d9] P0.page=f   -> A@1008 @1008
 0x2cce  a9        [d9] P2.page=9   -> D@1936 @1936
@@ -6719,7 +6719,7 @@
 0x2cdb  9f        P1.page=f   -> B@4080 @4080
 0x2cdc  06        F5.2 A=PEDSTD_TIMH+2 B=@4080        -> @2036
 0x2cdd  f1        WIDTH.1   ; 32-bit store  [probe37]
-0x2cde  fc c1 04  TESTZ  F := (@4080 == 0)   (fc c1 04; no store; probe63)  ; X != c0: operand rule open (probe61/63)
+0x2cde  fc c1 04  TEST?  fc c1 04: P1 word 1 and a condition no RAM zero triggers  (Y = 04; probe66, open)
 0x2ce1  db        IF.F   (db; identical to d9 in every DMP3 cell, probe52/54)
 0x2ce2  95        [db] P1.page=5   -> B@3920 @3920
 0x2ce3  71        [db] RSUB A=@828         B=FP_VAR_ALPHA -> @2036
@@ -6757,7 +6757,7 @@
 0x2d03  06        F5.2 A=@1008        B=@3888        -> @2036
 0x2d04  f1        WIDTH.1   ; 32-bit store  [probe37]
 0x2d05  9f        P1.page=f   -> B@4080 @4080
-0x2d06  fc c1 03  TESTNZ  F := (@4080 != 0)   (fc c1 03; no store; probe63)  ; X != c0: operand rule open (probe61/63)
+0x2d06  fc c1 03  TESTNZ  F := (@4084 != 0)   (fc c1 03; no store; probe63/65)
 0x2d09  db        IF.F   (db; identical to d9 in every DMP3 cell, probe52/54)
 0x2d0a  83        [db] P0.page=3   -> A@816 PEDSTD_TIMH+2
 0x2d0b  a9        [db] P2.page=9   -> D@1936 @1936
@@ -6816,7 +6816,7 @@
 0x2d44  31        RSUB A=@340         B=@3528        -> @1520
 0x2d45  db        IF.F   (db; identical to d9 in every DMP3 cell, probe52/54)
 0x2d46  9f        [db] P1.page=f   -> B@3568 @3568
-0x2d47  fc c1 00  [db] TESTZ  F := (@3568 == 0)   (fc c1 00; no store; probe63)  ; X != c0: operand rule open (probe61/63)
+0x2d47  fc c1 00  [db] TESTZ  F := (@3572 == 0)   (fc c1 00; no store; probe63/65)
 0x2d4a  da        IF.NOT-F   (sticky until d8; F frozen while armed)
 0x2d4b  f4 2d 62  [da] JUMP.da -> 0x2d62
 0x2d4e  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
@@ -6864,7 +6864,7 @@
 0x2d78  1d        RSUB A=@496         B=@3404        -> @1524
 0x2d79  db        IF.F   (db; identical to d9 in every DMP3 cell, probe52/54)
 0x2d7a  90        [db] P1.page=0   -> B@3328 B2S_MTX_00
-0x2d7b  fc c0 00  [db] TESTZ  F := (B2S_MTX_00 == 0)   (fc c0 00; no store; probe63)
+0x2d7b  fc c0 00  [db] TESTZ  F := (B2S_MTX_00 == 0)   (fc c0 00; no store; probe63/65)
 0x2d7e  a0        [db] P2.page=0   -> D@1280 MAGN_THR_9X
 0x2d7f  d0        [db] P2 word += 2 -> D@1288 MAGN_LPF_THR_9X  (d0, mod 4; probe20)
 0x2d80  de        [db] CLR  MAGN_LPF_THR_9X := 0  (in place, no advance)  (de; probe31)
@@ -6892,7 +6892,7 @@
 0x2d98  c7        MOV   CPASS_MTX_21 -> @1804  (P2 word++ first)  (c7; probe25)
 0x2d99  b5        P1.bank=1
 0x2d9a  90        P1.page=0   -> B@3328 B2S_MTX_00
-0x2d9b  fc c2 00  TESTZ  F := (B2S_MTX_00 == 0)   (fc c2 00; no store; probe63)  ; X != c0: operand rule open (probe61/63)
+0x2d9b  fc c2 00  TESTZ  F := (B2S_MTX_02 == 0)   (fc c2 00; no store; probe63/65)
 0x2d9e  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x2d9f  b2        [d9] P0.bank=2
 0x2da0  8e        [d9] P0.page=e   -> A@736 @736
@@ -6978,7 +6978,7 @@
 0x2df4  06        F5.2 A=@1008        B=@3984        -> @2036
 0x2df5  f1        WIDTH.1   ; 32-bit store  [probe37]
 0x2df6  9f        P1.page=f   -> B@4080 @4080
-0x2df7  fc c1 03  TESTNZ  F := (@4080 != 0)   (fc c1 03; no store; probe63)  ; X != c0: operand rule open (probe61/63)
+0x2df7  fc c1 03  TESTNZ  F := (@4084 != 0)   (fc c1 03; no store; probe63/65)
 0x2dfa  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x2dfb  8a        [d9] P0.page=a   -> A@928 PEDSTD_DECI
 0x2dfc  aa        [d9] P2.page=a   -> D@1952 CPASS_REF_MAG_3D
@@ -6997,9 +6997,9 @@
 0x2e0b  de        CLR  @1832 := 0  (in place, no advance)  (de; probe31)
 0x2e0c  b6        P1.bank=2
 0x2e0d  9e        P1.page=e   -> B@3808 @3808
-0x2e0e  fc c0 09  TESTNZ  F := (@3812 != 0)   (fc c0 09; no store; probe63)
+0x2e0e  fc c0 09  TEST?  fc c0 09: P1 word 0 and a condition no RAM zero triggers  (Y = 09; probe66, open)
 0x2e11  db        IF.F   (db; identical to d9 in every DMP3 cell, probe52/54)
-0x2e12  fc c1 0a  [db] TESTZ  F := (@3812 == 0)   (fc c1 0a; no store; probe63)  ; X != c0: operand rule open (probe61/63)
+0x2e12  fc c1 0a  [db] TEST?  fc c1 0a: P1 word 1 and a condition no RAM zero triggers  (Y = 0a; probe66, open)
 0x2e15  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x2e16  b8        [d9] P2.bank=0
 0x2e17  ae        [d9] P2.page=e   -> D@1248 @1248
@@ -7177,7 +7177,7 @@
 0x2ed3  9f        P1.page=f   -> B@4080 @4080
 0x2ed4  06        F5.2 A=@912         B=@4080        -> @2036
 0x2ed5  f1        WIDTH.1   ; 32-bit store  [probe37]
-0x2ed6  fc c1 03  TESTNZ  F := (@4080 != 0)   (fc c1 03; no store; probe63)  ; X != c0: operand rule open (probe61/63)
+0x2ed6  fc c1 03  TESTNZ  F := (@4084 != 0)   (fc c1 03; no store; probe63/65)
 0x2ed9  db        IF.F   (db; identical to d9 in every DMP3 cell, probe52/54)
 0x2eda  8d        [db] P0.page=d   -> A@976 PEDSTD_SB2+2
 0x2edb  9d        [db] P1.page=d   -> B@4048 @4048
@@ -7240,7 +7240,7 @@
 0x2f16  b5        P1.bank=1
 0x2f17  9e        P1.page=e   -> B@3552 @3552
 0x2f18  74        ADD A=@924         B=@3560        -> @2280
-0x2f19  fd 3f     SHIFT  arithmetic right by 1; store word 0 -> @2280  (fd 3f; probe51)
+0x2f19  fd 3f     SHIFT  arithmetic right by 1; store the last ALU result -> @2280  (fd 3f; probe51/64)
 0x2f1b  bc        P0.blk++ -> 1   (+1 KB, mod 4; probe47)
 0x2f1c  bc        P0.blk++ -> 2   (+1 KB, mod 4; probe47)
 0x2f1d  b1        P0.bank=1
@@ -7248,7 +7248,7 @@
 0x2f1f  34        ADD A=@2484        B=@3560        -> @2284
 0x2f20  b7        P1.bank=3
 0x2f21  9f        P1.page=f   -> B@4080 @4080
-0x2f22  fc c0 00  TESTZ  F := (@4080 == 0)   (fc c0 00; no store; probe63)
+0x2f22  fc c0 00  TESTZ  F := (@4080 == 0)   (fc c0 00; no store; probe63/65)
 0x2f25  bc        P0.blk++ -> 3   (+1 KB, mod 4; probe47)
 0x2f26  bc        P0.blk++ -> 0   (+1 KB, mod 4; probe47)
 0x2f27  bc        P0.blk++ -> 1   (+1 KB, mod 4; probe47)
@@ -7287,7 +7287,7 @@
 0x2f4a  db        IF.F   (db; identical to d9 in every DMP3 cell, probe52/54)
 0x2f4b  f1        [db] WIDTH.1   ; 32-bit store  [probe37]
 0x2f4c  9e        [db] P1.page=e   -> B@224 @224
-0x2f4d  fc c3 01  [db] TESTNZ  F := (@224 != 0)   (fc c3 01; no store; probe63)  ; X != c0: operand rule open (probe61/63)
+0x2f4d  fc c3 01  [db] TESTNZ  F := (@236 != 0)   (fc c3 01; no store; probe63/65)
 0x2f50  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x2f51  f2        [d9] WIDTH.2   ; 16-bit store, upper half-word  [probe37]
 0x2f52  be        [d9] P2.blk++ -> 3   (+1 KB, mod 4; probe47)
@@ -7309,7 +7309,7 @@
 0x2f64  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
 0x2f65  f1        WIDTH.1   ; 32-bit store  [probe37]
 0x2f66  9e        P1.page=e   -> B@224 @224
-0x2f67  fc c3 01  TESTNZ  F := (@224 != 0)   (fc c3 01; no store; probe63)  ; X != c0: operand rule open (probe61/63)
+0x2f67  fc c3 01  TESTNZ  F := (@236 != 0)   (fc c3 01; no store; probe63/65)
 0x2f6a  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x2f6b  f5        [d9] MIN prefix  next ALU op computes signed min(A,B)  [probe29, 16/16]
 0x2f6c  8e        [d9] P0.page=e   -> A@1248 @1248
@@ -7317,7 +7317,7 @@
 0x2f6e  32        [d9] F5.2 A=GYRO_SLOPE_X B=@232         -> @3040
 0x2f6f  f1        [d9] WIDTH.1   ; 32-bit store  [probe37]
 0x2f70  db        IF.F   (db; identical to d9 in every DMP3 cell, probe52/54)
-0x2f71  fc c0 01  [db] TESTNZ  F := (@224 != 0)   (fc c0 01; no store; probe63)
+0x2f71  fc c0 01  [db] TESTNZ  F := (@224 != 0)   (fc c0 01; no store; probe63/65)
 0x2f74  88        [db] P0.page=8   -> A@1152 @1152
 0x2f75  be        [db] P2.blk++ -> 3   (+1 KB, mod 4; probe47)
 0x2f76  bb        [db] P2.bank=3
@@ -7464,7 +7464,7 @@
 0x3007  66        MUL A=@1020        B=@4016        -> @2036
 0x3008  f1        WIDTH.1   ; 32-bit store  [probe37]
 0x3009  9f        P1.page=f   -> B@4080 @4080
-0x300a  fc c0 03  TESTNZ  F := (@4080 != 0)   (fc c0 03; no store; probe63)
+0x300a  fc c0 03  TESTNZ  F := (@4080 != 0)   (fc c0 03; no store; probe63/65)
 0x300d  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x300e  f5        [d9] MIN prefix  next ALU op computes signed min(A,B)  [probe29, 16/16]
 0x300f  a8        [d9] P2.page=8   -> D@1920 @1920
@@ -7485,7 +7485,7 @@
 0x301e  af        P2.page=f   -> D@2032 @2032
 0x301f  de        CLR  @2032 := 0  (in place, no advance)  (de; probe31)
 0x3020  00        ADD A=PEDSTD_STEPCTR B=@4080        -> @2032
-0x3021  fd 08     SHIFT  left by 8 (pulls the next word's fraction in); store word 0 -> @2032  (fd 08; probe51)
+0x3021  fd 08     SHIFT  left by 8 (pulls the next word's fraction in); store the last ALU result -> @2032  (fd 08; probe51/64)
 0x3023  87        P0.page=7   -> A@880 @880
 0x3024  00        ADD A=@880         B=@4080        -> @2032
 0x3025  8f        P0.page=f   -> A@1008 @1008
@@ -7581,7 +7581,7 @@
 0x3081  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
 0x3082  f1        WIDTH.1   ; 32-bit store  [probe37]
 0x3083  9d        P1.page=d   -> B@3536 @3536
-0x3084  fc c3 04  TESTZ  F := (@3536 == 0)   (fc c3 04; no store; probe63)  ; X != c0: operand rule open (probe61/63)
+0x3084  fc c3 04  TEST?  fc c3 04: P1 word 3 and a condition no RAM zero triggers  (Y = 04; probe66, open)
 0x3087  af        P2.page=f   -> D@1520 @1520
 0x3088  b2        P0.bank=2
 0x3089  89        P0.page=9   -> A@656 @656
@@ -7711,9 +7711,9 @@
 0x310d  f3        WIDTH.3   ; 16-bit store, lower half-word  [probe37]
 0x310e  b5        P1.bank=1
 0x310f  9c        P1.page=c   -> B@1472 ACCEL_A_VAR
-0x3110  fc c3 04  TESTZ  F := (ACCEL_A_VAR == 0)   (fc c3 04; no store; probe63)  ; X != c0: operand rule open (probe61/63)
+0x3110  fc c3 04  TEST?  fc c3 04: P1 word 3 and a condition no RAM zero triggers  (Y = 04; probe66, open)
 0x3113  db        IF.F   (db; identical to d9 in every DMP3 cell, probe52/54)
-0x3114  fc c2 00  [db] TESTZ  F := (ACCEL_A_VAR == 0)   (fc c2 00; no store; probe63)  ; X != c0: operand rule open (probe61/63)
+0x3114  fc c2 00  [db] TESTZ  F := (@1480 == 0)   (fc c2 00; no store; probe63/65)
 0x3117  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x3118  f2        [d9] WIDTH.2   ; 16-bit store, upper half-word  [probe37]
 0x3119  ac        [d9] P2.page=c   -> D@3520 @3520
@@ -7749,7 +7749,7 @@
 0x3137  df        [db] CLR  B2S_MTX_12 := 0  (P2 word++ first)  (df; probe23)
 0x3138  b5        [db] P1.bank=1
 0x3139  9b        [db] P1.page=b   -> B@1456 ACCEL_ALPHA_VAR
-0x313a  fc c1 00  [db] TESTZ  F := (ACCEL_ALPHA_VAR == 0)   (fc c1 00; no store; probe63)  ; X != c0: operand rule open (probe61/63)
+0x313a  fc c1 00  [db] TESTZ  F := (@1460 == 0)   (fc c1 00; no store; probe63/65)
 0x313d  b8        [db] P2.bank=0
 0x313e  be        [db] P2.blk++ -> 0   (+1 KB, mod 4; probe47)
 0x313f  a7        [db] P2.page=7   -> D@112 @112
@@ -7961,7 +7961,7 @@
 0x320f  f1        WIDTH.1   ; 32-bit store  [probe37]
 0x3210  b5        P1.bank=1
 0x3211  9b        P1.page=b   -> B@1456 ACCEL_ALPHA_VAR
-0x3212  fc c1 03  TESTNZ  F := (ACCEL_ALPHA_VAR != 0)   (fc c1 03; no store; probe63)  ; X != c0: operand rule open (probe61/63)
+0x3212  fc c1 03  TESTNZ  F := (@1460 != 0)   (fc c1 03; no store; probe63/65)
 0x3215  b4        P1.bank=0
 0x3216  bd        P1.blk++ -> 2   (+1 KB, mod 4; probe47)
 0x3217  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
@@ -7977,7 +7977,7 @@
 0x3225  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
 0x3226  f1        WIDTH.1   ; 32-bit store  [probe37]
 0x3227  9a        P1.page=a   -> B@2208 @2208
-0x3228  fc c0 04  TESTZ  F := (@2208 == 0)   (fc c0 04; no store; probe63)
+0x3228  fc c0 04  TEST?  fc c0 04: P1 word 0 and a condition no RAM zero triggers  (Y = 04; probe66, open)
 0x322b  a7        P2.page=7   -> D@112 @112
 0x322c  d0        P2 word += 2 -> D@120 @120  (d0, mod 4; probe20)
 0x322d  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
@@ -8102,7 +8102,7 @@
 0x32aa  fa        INC  @3964 by 1  (P2 word++ first)  F := result < 0  (fa; probe23)
 0x32ab  b5        P1.bank=1
 0x32ac  9c        P1.page=c   -> B@1472 ACCEL_A_VAR
-0x32ad  fc c2 07  TESTNZ  F := (ACCEL_A_VAR != 0)   (fc c2 07; no store; probe63)  ; X != c0: operand rule open (probe61/63)
+0x32ad  fc c2 07  TEST?  fc c2 07: P1 word 2 and a condition no RAM zero triggers  (Y = 07; probe66, open)
 0x32b0  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x32b1  f8        [d9] INC  @3964 by 1  F := result < 0  (f8; probe23)
 0x32b2  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
@@ -8126,7 +8126,7 @@
 0x32c6  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
 0x32c7  f1        WIDTH.1   ; 32-bit store  [probe37]
 0x32c8  91        P1.page=1   -> B@1808 CPASS_EST_FIRST_BIAS
-0x32c9  fc c1 0a  TESTZ  F := (CPASS_BIAS_OFFSET == 0)   (fc c1 0a; no store; probe63)  ; X != c0: operand rule open (probe61/63)
+0x32c9  fc c1 0a  TEST?  fc c1 0a: P1 word 1 and a condition no RAM zero triggers  (Y = 0a; probe66, open)
 0x32cc  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x32cd  f4 33 07  [d9] JUMP.d9 -> 0x3307
 0x32d0  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
@@ -8143,7 +8143,7 @@
 0x32db  a6        P2.page=6   -> D@3680 @3680
 0x32dc  d0        P2 word += 2 -> D@3688 @3688  (d0, mod 4; probe20)
 0x32dd  38        ADD A=@2820        B=@2012        -> @3688
-0x32de  fd 31     SHIFT  arithmetic right by 15; store word 0 -> @3688  (fd 31; probe51)
+0x32de  fd 31     SHIFT  arithmetic right by 15; store the last ALU result -> @3688  (fd 31; probe51/64)
 0x32e0  bb        P2.bank=3
 0x32e1  af        P2.page=f   -> D@4080 @4080
 0x32e2  de        CLR  @4080 := 0  (in place, no advance)  (de; probe31)
@@ -8154,7 +8154,7 @@
 0x32e7  8f        P0.page=f   -> A@3056 @3056
 0x32e8  90        P1.page=0   -> B@1792 @1792
 0x32e9  08        ADD A=@3056        B=@1796        -> @4080
-0x32ea  fd 0f     SHIFT  left by 15 (pulls the next word's fraction in); store word 0 -> @4080  (fd 0f; probe51)
+0x32ea  fd 0f     SHIFT  left by 15 (pulls the next word's fraction in); store the last ALU result -> @4080  (fd 0f; probe51/64)
 0x32ec  8d        P0.page=d   -> A@3024 @3024
 0x32ed  9f        P1.page=f   -> B@2032 @2032
 0x32ee  65        RSUB A=@3036        B=@2032        -> @4084
@@ -8184,7 +8184,7 @@
 0x3308  f1        WIDTH.1   ; 32-bit store  [probe37]
 0x3309  b5        P1.bank=1
 0x330a  9b        P1.page=b   -> B@1456 ACCEL_ALPHA_VAR
-0x330b  fc c1 03  TESTNZ  F := (ACCEL_ALPHA_VAR != 0)   (fc c1 03; no store; probe63)  ; X != c0: operand rule open (probe61/63)
+0x330b  fc c1 03  TESTNZ  F := (@1460 != 0)   (fc c1 03; no store; probe63/65)
 0x330e  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x330f  bc        [d9] P0.blk++ -> 3   (+1 KB, mod 4; probe47)
 0x3310  bd        [d9] P1.blk++ -> 2   (+1 KB, mod 4; probe47)
@@ -8340,7 +8340,7 @@
 0x33ac  c6        MOV   @988         -> @624  (c6; probe25)
 0x33ad  b5        P1.bank=1
 0x33ae  9c        P1.page=c   -> B@3520 @3520
-0x33af  fc c2 04  TESTZ  F := (@3520 == 0)   (fc c2 04; no store; probe63)  ; X != c0: operand rule open (probe61/63)
+0x33af  fc c2 04  TEST?  fc c2 04: P1 word 2 and a condition no RAM zero triggers  (Y = 04; probe66, open)
 0x33b2  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x33b3  b1        [d9] P0.bank=1
 0x33b4  81        [d9] P0.page=1   -> A@272 PED_Y_RATIO
@@ -8360,7 +8360,7 @@
 0x33c2  b6        [da] P1.bank=2
 0x33c3  97        [da] P1.page=7   -> B@3696 @3696
 0x33c4  00        [da] ADD A=@624         B=@3696        -> @276
-0x33c5  fd 3e     [da] SHIFT  arithmetic right by 2; store word 0 -> @276  (fd 3e; probe51)
+0x33c5  fd 3e     [da] SHIFT  arithmetic right by 2; store the last ALU result -> @276  (fd 3e; probe51/64)
 0x33c7  b1        [da] P0.bank=1
 0x33c8  81        [da] P0.page=1   -> A@272 PED_Y_RATIO
 0x33c9  25        [da] RSUB A=@276         B=@3696        -> @280
@@ -8717,7 +8717,7 @@
 0x352a  9d        [da] P1.page=d   -> B@3536 @3536
 0x352b  54        [da] ADD A=@472         B=@3544        -> @420
 0x352c  78        [da] ADD A=@476         B=@3548        -> @420
-0x352d  fd 7f     [da] SHIFT  arithmetic right by 1; store word 0 -> @424  (P2 word++ first)  (fd 7f; probe51)
+0x352d  fd 7f     [da] SHIFT  arithmetic right by 1; store the last ALU result -> @424  (P2 word++ first)  (fd 7f; probe51/64)
 0x352f  f1        [da] WIDTH.1   ; 32-bit store  [probe37]
 0x3530  8a        [da] P0.page=a   -> A@416 @416
 0x3531  92        [da] P1.page=2   -> B@3360 B2S_MTX_22
@@ -8811,7 +8811,7 @@
 0x358d  b6        P1.bank=2
 0x358e  97        P1.page=7   -> B@3696 @3696
 0x358f  2c        ADD A=@628         B=@3700        -> @880
-0x3590  fd 01     SHIFT  left by 1 (pulls the next word's fraction in); store word 0 -> @880  (fd 01; probe51)
+0x3590  fd 01     SHIFT  left by 1 (pulls the next word's fraction in); store the last ALU result -> @880  (fd 01; probe51/64)
 0x3592  e0        RET   (e0; ends every called routine and the image)  [probe46]
 0x3593  f1        WIDTH.1   ; 32-bit store  [probe37]
 0x3594  c2        MOV   @628         -> @880  (c2; probe25)
@@ -8872,7 +8872,7 @@
 0x35cb  28        ADD A=Q1_QUAT6     B=@3700        -> @884
 0x35cc  50        ADD A=Q2_QUAT6     B=@3704        -> @884
 0x35cd  78        ADD A=Q3_QUAT6     B=@3708        -> @884
-0x35ce  fd 7f     SHIFT  arithmetic right by 1; store word 0 -> @888  (P2 word++ first)  (fd 7f; probe51)
+0x35ce  fd 7f     SHIFT  arithmetic right by 1; store the last ALU result -> @888  (P2 word++ first)  (fd 7f; probe51/64)
 0x35d0  f1        WIDTH.1   ; 32-bit store  [probe37]
 0x35d1  a7        P2.page=7   -> D@880 @880
 0x35d2  87        P0.page=7   -> A@624 @624
@@ -8932,11 +8932,11 @@
 0x360e  9e        P1.page=e   -> B@3552 @3552
 0x360f  f1        WIDTH.1   ; 32-bit store  [probe37]
 0x3610  02        MUL A=@3824        B=@3552        -> @3824
-0x3611  fd 03     SHIFT  left by 3 (pulls the next word's fraction in); store word 0 -> @3824  (fd 03; probe51)
+0x3611  fd 03     SHIFT  left by 3 (pulls the next word's fraction in); store the 64-bit product -> @3824  (fd 03; probe51/64)
 0x3613  26        MUL A=@3828        B=@3552        -> @3828
-0x3614  fd 03     SHIFT  left by 3 (pulls the next word's fraction in); store word 0 -> @3828  (fd 03; probe51)
+0x3614  fd 03     SHIFT  left by 3 (pulls the next word's fraction in); store the 64-bit product -> @3828  (fd 03; probe51/64)
 0x3616  46        MUL A=@3832        B=@3552        -> @3832
-0x3617  fd 03     SHIFT  left by 3 (pulls the next word's fraction in); store word 0 -> @3832  (fd 03; probe51)
+0x3617  fd 03     SHIFT  left by 3 (pulls the next word's fraction in); store the 64-bit product -> @3832  (fd 03; probe51/64)
 0x3619  bd        P1.blk++ -> 0   (+1 KB, mod 4; probe47)
 0x361a  bd        P1.blk++ -> 1   (+1 KB, mod 4; probe47)
 0x361b  bd        P1.blk++ -> 2   (+1 KB, mod 4; probe47)
@@ -9008,7 +9008,7 @@
 0x3667  b3        P0.bank=3
 0x3668  8f        P0.page=f   -> A@4080 @4080
 0x3669  d7        SHIFTER.LOAD  4 words from @4080, select word 3  (d7; probe51)
-0x366a  fd 3e     SHIFT  arithmetic right by 2; store word 3 -> @3728  (fd 3e; probe51)
+0x366a  fd 3e     SHIFT  arithmetic right by 2; store word 3 of the d4-d7 load -> @3728  (fd 3e; probe51/64)
 0x366c  f2        WIDTH.2   ; 16-bit store, upper half-word  [probe37]
 0x366d  8d        P0.page=d   -> A@4048 @4048
 0x366e  c1        MOV   @4048        -> @3732  (P2 word++ first)  (c1; probe25)
@@ -9017,10 +9017,10 @@
 0x3671  f1        WIDTH.1   ; 32-bit store  [probe37]
 0x3672  8f        P0.page=f   -> A@4080 @4080
 0x3673  d5        SHIFTER.LOAD  4 words from @4080, select word 1  (d5; probe51)
-0x3674  fd 30     SHIFT  arithmetic right by 16; store word 1 -> @3736  (fd 30; probe51)
+0x3674  fd 30     SHIFT  arithmetic right by 16; store word 1 of the d4-d7 load -> @3736  (fd 30; probe51/64)
 0x3676  d4        SHIFTER.LOAD  4 words from @4080, select word 0  (d4; probe51)
 0x3677  d0        P2 word += 2 -> D@3728 @3728  (d0, mod 4; probe20)
-0x3678  fd 70     SHIFT  arithmetic right by 16; store word 0 -> @3732  (P2 word++ first)  (fd 70; probe51)
+0x3678  fd 70     SHIFT  arithmetic right by 16; store word 0 of the d4-d7 load -> @3732  (P2 word++ first)  (fd 70; probe51/64)
 0x367a  f1        WIDTH.1   ; 32-bit store  [probe37]
 0x367b  d0        P2 word += 2 -> D@3740 @3740  (d0, mod 4; probe20)
 0x367c  2a        MUL A=@4084        B=BAC_ACT_ON_OFF+2 -> @3740
@@ -9055,7 +9055,7 @@
 0x3699  de        CLR  @3824 := 0  (in place, no advance)  (de; probe31)
 0x369a  f8        INC  @3824 by 1  F := result < 0  (f8; probe23)
 0x369b  d4        SHIFTER.LOAD  4 words from @4080, select word 0  (d4; probe51)
-0x369c  fd 0c     SHIFT  left by 12 (pulls the next word's fraction in); store word 0 -> @3824  (fd 0c; probe51)
+0x369c  fd 0c     SHIFT  left by 12 (pulls the next word's fraction in); store word 0 of the d4-d7 load -> @3824  (fd 0c; probe51/64)
 0x369e  b7        P1.bank=3
 0x369f  8f        P0.page=f   -> A@4080 @4080
 0x36a0  9d        P1.page=d   -> B@3024 @3024
@@ -9070,9 +9070,9 @@
 0x36ab  f8        INC  @3828 by 1  F := result < 0  (f8; probe23)
 0x36ac  d0        P2 word += 2 -> D@3836 @3836  (d0, mod 4; probe20)
 0x36ad  37        NMUL A=@4084        B=@2424        -> @3824.hi
-0x36ae  fd 0e     SHIFT  left by 14 (pulls the next word's fraction in); store word 0 -> @3824  (fd 0e; probe51)
+0x36ae  fd 0e     SHIFT  left by 14 (pulls the next word's fraction in); store the 64-bit product -> @3824  (fd 0e; probe51/64)
 0x36b0  3f        NMUL A=@4084        B=@2428        -> @3828.hi
-0x36b1  fd 0e     SHIFT  left by 14 (pulls the next word's fraction in); store word 0 -> @3828  (fd 0e; probe51)
+0x36b1  fd 0e     SHIFT  left by 14 (pulls the next word's fraction in); store the 64-bit product -> @3828  (fd 0e; probe51/64)
 0x36b3  8d        P0.page=d   -> A@4048 @4048
 0x36b4  b7        P1.bank=3
 0x36b5  9f        P1.page=f   -> B@3056 @3056
@@ -9095,7 +9095,7 @@
 0x36c6  de        CLR  @3824 := 0  (in place, no advance)  (de; probe31)
 0x36c7  f8        INC  @3824 by 1  F := result < 0  (f8; probe23)
 0x36c8  d4        SHIFTER.LOAD  4 words from @4048, select word 0  (d4; probe51)
-0x36c9  fd 0c     SHIFT  left by 12 (pulls the next word's fraction in); store word 0 -> @3824  (fd 0c; probe51)
+0x36c9  fd 0c     SHIFT  left by 12 (pulls the next word's fraction in); store word 0 of the d4-d7 load -> @3824  (fd 0c; probe51/64)
 0x36cb  8f        P0.page=f   -> A@4080 @4080
 0x36cc  9e        P1.page=e   -> B@3040 @3040
 0x36cd  05        RSUB A=@4080        B=@3040        -> @3828.hi
@@ -9109,9 +9109,9 @@
 0x36d7  f8        INC  @3828 by 1  F := result < 0  (f8; probe23)
 0x36d8  d0        P2 word += 2 -> D@3836 @3836  (d0, mod 4; probe20)
 0x36d9  37        NMUL A=@4084        B=@2424        -> @3824.hi
-0x36da  fd 0e     SHIFT  left by 14 (pulls the next word's fraction in); store word 0 -> @3824  (fd 0e; probe51)
+0x36da  fd 0e     SHIFT  left by 14 (pulls the next word's fraction in); store the 64-bit product -> @3824  (fd 0e; probe51/64)
 0x36dc  3f        NMUL A=@4084        B=@2428        -> @3828.hi
-0x36dd  fd 0e     SHIFT  left by 14 (pulls the next word's fraction in); store word 0 -> @3828  (fd 0e; probe51)
+0x36dd  fd 0e     SHIFT  left by 14 (pulls the next word's fraction in); store the 64-bit product -> @3828  (fd 0e; probe51/64)
 0x36df  8e        P0.page=e   -> A@4064 @4064
 0x36e0  b7        P1.bank=3
 0x36e1  9f        P1.page=f   -> B@3056 @3056
@@ -9137,7 +9137,7 @@
 0x36f5  8f        P0.page=f   -> A@4080 @4080
 0x36f6  f0        WIDTH.0   ; A operand contributes 0 (single-shot)  [probe37]
 0x36f7  d4        SHIFTER.LOAD  4 words from @4080, select word 0  (d4; probe51)
-0x36f8  fd 30     SHIFT  arithmetic right by 16; store word 0 -> @3824  (fd 30; probe51)
+0x36f8  fd 30     SHIFT  arithmetic right by 16; store word 0 of the d4-d7 load -> @3824  (fd 30; probe51/64)
 0x36fa  9f        P1.page=f   -> B@3056 @3056
 0x36fb  f5        MIN prefix  next ALU op computes signed min(A,B)  [probe29, 16/16]
 0x36fc  00        MIN  A=@4080        B=@3056        -> @3824
@@ -9166,9 +9166,9 @@
 0x3713  8f        P0.page=f   -> A@4080 @4080
 0x3714  d0        P2 word += 2 -> D@3836 @3836  (d0, mod 4; probe20)
 0x3715  d4        SHIFTER.LOAD  4 words from @4080, select word 0  (d4; probe51)
-0x3716  fd 40     SHIFT  left by 0 (pulls the next word's fraction in); store word 0 -> @3824  (P2 word++ first)  (fd 40; probe51)
+0x3716  fd 40     SHIFT  left by 0 (pulls the next word's fraction in); store word 0 of the d4-d7 load -> @3824  (P2 word++ first)  (fd 40; probe51/64)
 0x3718  d5        SHIFTER.LOAD  4 words from @4080, select word 1  (d5; probe51)
-0x3719  fd 40     SHIFT  left by 0 (pulls the next word's fraction in); store word 1 -> @3828  (P2 word++ first)  (fd 40; probe51)
+0x3719  fd 40     SHIFT  left by 0 (pulls the next word's fraction in); store word 1 of the d4-d7 load -> @3828  (P2 word++ first)  (fd 40; probe51/64)
 0x371b  b1        P0.bank=1
 0x371c  88        P0.page=8   -> A@3456 @3456
 0x371d  d0        P2 word += 2 -> D@3836 @3836  (d0, mod 4; probe20)
@@ -9228,9 +9228,9 @@
 0x3755  8a        P0.page=a   -> A@4000 @4000
 0x3756  af        P2.page=f   -> D@3824 @3824
 0x3757  d4        SHIFTER.LOAD  4 words from @4000, select word 0  (d4; probe51)
-0x3758  fd 00     SHIFT  left by 0 (pulls the next word's fraction in); store word 0 -> @3824  (fd 00; probe51)
+0x3758  fd 00     SHIFT  left by 0 (pulls the next word's fraction in); store word 0 of the d4-d7 load -> @3824  (fd 00; probe51/64)
 0x375a  d5        SHIFTER.LOAD  4 words from @4000, select word 1  (d5; probe51)
-0x375b  fd 40     SHIFT  left by 0 (pulls the next word's fraction in); store word 1 -> @3828  (P2 word++ first)  (fd 40; probe51)
+0x375b  fd 40     SHIFT  left by 0 (pulls the next word's fraction in); store word 1 of the d4-d7 load -> @3828  (P2 word++ first)  (fd 40; probe51/64)
 0x375d  8f        P0.page=f   -> A@4080 @4080
 0x375e  d0        P2 word += 2 -> D@3836 @3836  (d0, mod 4; probe20)
 0x375f  f5        MIN prefix  next ALU op computes signed min(A,B)  [probe29, 16/16]
@@ -9255,9 +9255,9 @@
 0x3772  8a        P0.page=a   -> A@4000 @4000
 0x3773  af        P2.page=f   -> D@3824 @3824
 0x3774  d6        SHIFTER.LOAD  4 words from @4000, select word 2  (d6; probe51)
-0x3775  fd 00     SHIFT  left by 0 (pulls the next word's fraction in); store word 2 -> @3824  (fd 00; probe51)
+0x3775  fd 00     SHIFT  left by 0 (pulls the next word's fraction in); store word 2 of the d4-d7 load -> @3824  (fd 00; probe51/64)
 0x3777  d7        SHIFTER.LOAD  4 words from @4000, select word 3  (d7; probe51)
-0x3778  fd 40     SHIFT  left by 0 (pulls the next word's fraction in); store word 3 -> @3828  (P2 word++ first)  (fd 40; probe51)
+0x3778  fd 40     SHIFT  left by 0 (pulls the next word's fraction in); store word 3 of the d4-d7 load -> @3828  (P2 word++ first)  (fd 40; probe51/64)
 0x377a  8f        P0.page=f   -> A@4080 @4080
 0x377b  9a        P1.page=a   -> B@2464 @2464
 0x377c  d0        P2 word += 2 -> D@3836 @3836  (d0, mod 4; probe20)
@@ -9283,11 +9283,11 @@
 0x3790  f1        WIDTH.1   ; 32-bit store  [probe37]
 0x3791  8f        P0.page=f   -> A@4080 @4080
 0x3792  d4        SHIFTER.LOAD  4 words from @4080, select word 0  (d4; probe51)
-0x3793  fd 30     SHIFT  arithmetic right by 16; store word 0 -> @3824  (fd 30; probe51)
+0x3793  fd 30     SHIFT  arithmetic right by 16; store word 0 of the d4-d7 load -> @3824  (fd 30; probe51/64)
 0x3795  b7        P1.bank=3
 0x3796  9f        P1.page=f   -> B@3056 @3056
 0x3797  02        MUL A=@4080        B=@3056        -> @3824
-0x3798  fd 1e     SHIFT  left by 30 (pulls the next word's fraction in); store word 0 -> @3824  (fd 1e; probe51)
+0x3798  fd 1e     SHIFT  left by 30 (pulls the next word's fraction in); store the 64-bit product -> @3824  (fd 1e; probe51/64)
 0x379a  d0        P2 word += 2 -> D@3832 @3832  (d0, mod 4; probe20)
 0x379b  10        ADD A=@4080        B=@3064        -> @3832
 0x379c  af        P2.page=f   -> D@3824 @3824
@@ -9441,13 +9441,13 @@
 0x383a  df        CLR  @252 := 0  (P2 word++ first)  (df; probe23)
 0x383b  f1        WIDTH.1   ; 32-bit store  [probe37]
 0x383c  d4        SHIFTER.LOAD  4 words from @752, select word 0  (d4; probe51)
-0x383d  fd 70     SHIFT  arithmetic right by 16; store word 0 -> @240  (P2 word++ first)  (fd 70; probe51)
+0x383d  fd 70     SHIFT  arithmetic right by 16; store word 0 of the d4-d7 load -> @240  (P2 word++ first)  (fd 70; probe51/64)
 0x383f  d5        SHIFTER.LOAD  4 words from @752, select word 1  (d5; probe51)
-0x3840  fd 70     SHIFT  arithmetic right by 16; store word 1 -> @244  (P2 word++ first)  (fd 70; probe51)
+0x3840  fd 70     SHIFT  arithmetic right by 16; store word 1 of the d4-d7 load -> @244  (P2 word++ first)  (fd 70; probe51/64)
 0x3842  d6        SHIFTER.LOAD  4 words from @752, select word 2  (d6; probe51)
-0x3843  fd 70     SHIFT  arithmetic right by 16; store word 2 -> @248  (P2 word++ first)  (fd 70; probe51)
+0x3843  fd 70     SHIFT  arithmetic right by 16; store word 2 of the d4-d7 load -> @248  (P2 word++ first)  (fd 70; probe51/64)
 0x3845  d7        SHIFTER.LOAD  4 words from @752, select word 3  (d7; probe51)
-0x3846  fd 70     SHIFT  arithmetic right by 16; store word 3 -> @252  (P2 word++ first)  (fd 70; probe51)
+0x3846  fd 70     SHIFT  arithmetic right by 16; store word 3 of the d4-d7 load -> @252  (P2 word++ first)  (fd 70; probe51/64)
 0x3848  b6        P1.bank=2
 0x3849  9f        P1.page=f   -> B@3824 @3824
 0x384a  0c        ADD A=@752         B=@3828        -> @240

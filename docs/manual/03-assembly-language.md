@@ -105,7 +105,7 @@ assembler prints the byte string, so assembling once and counting is the reliabl
 | `lo` / `lo.next` | `d2` / `d3` | store the low word of the last product |
 | `int` | `e2` | raise DMP_INT1 |
 | `clr` | `de` | clear M[P2] in place |
-| `tz B` / `tnz B` | `fc c0 yy` | F := (P1 word B == 0) / (!= 0), nothing stored; `tz 0` / `if f` / `jump skip` is the vendor's feature gate |
+| `tz k` / `tnz k` | `fc ck 00/01` | F := (P1 word k == 0) / (!= 0), nothing stored; `tz 0` / `if f` / `jump skip` is the vendor's feature gate |
 
 After a `jump`, `call` or `mode4` the machine is in **branch-target mode**: every byte below
 0x80 is read as the high byte of a target until a width byte (`fmode`, `min`, `min16`, `trunc`)

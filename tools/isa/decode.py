@@ -117,13 +117,18 @@ class Decoder:
             return 1, f"SHIFTER.LOAD  4 words from {self.N.name(self.ptr(0))}, select word {b - 0xD4}  ({b:02x}; probe51)"
         if L == "icm" and b == 0xFD and i + 1 < len(self.img):
             # probe51: fd n is a two-byte SHIFT of the 4-word register, not NOSTORE.
+            # probe64: the register is also loaded by every ALU op -- the last loader wins -- so
+            # `20 fd 3f` halves a sum and `0a fd 0f` rescales a product (the register holds the
+            # 64-bit product: MUL, then left by 15, stores product >> 15).  Shifts compound.
             n = self.img[i + 1]; sh = n & 0x1F
             if n & 0x40: self.p2off = (getattr(self, "p2off", 0) + 4) % 16
             k = getattr(self, "shw", None)
-            what = f"word {k}" if k is not None else "word ? (no SHIFTER.LOAD in this run: stores 0)"
+            what = (f"word {k} of the d4-d7 load" if isinstance(k, int) else "the last ALU result" if k == "alu"
+                    else "the 64-bit product" if k == "mul" else "? (nothing loaded in this run: stores 0)")
             how = f"arithmetic right by {32 - sh}" if n & 0x20 else f"left by {sh} (pulls the next word's fraction in)"
             dest = self.N.name(self.ptr(2)) if self.ram else "FIFO"
-            return 2, (f"SHIFT  {how}; store {what} -> {dest}{'  (P2 word++ first)' if n & 0x40 else ''}  (fd {n:02x}; probe51)")
+            self.shw = "shifted"
+            return 2, (f"SHIFT  {how}; store {what} -> {dest}{'  (P2 word++ first)' if n & 0x40 else ''}  (fd {n:02x}; probe51/64)")
         fam = b >> 4
         if fam == 8: self.page[0] = b & 0xf; return 1, f"P0.page={b&0xf:x}   -> A@{self.ptr(0)} {self.N.name(self.ptr(0))}" + self.io()
         if fam == 9: self.page[1] = b & 0xf; return 1, f"P1.page={b&0xf:x}   -> B@{self.ptr(1)} {self.N.name(self.ptr(1))}" + self.io()
@@ -193,11 +198,18 @@ class Decoder:
             # vendor writes X = c0..c3 and Y in {00 04 08 0c 01 09 03 07}; the odd X forms and
             # X = c2 test something else in a few cells (open).  Both operand bytes are consumed
             # under mode 4 too, so `d8 fc c0 08 d9 f4` is "if word 1 is zero, jump".
+            # probe65 (one zero moved through 24 words): X's low two bits select the P1 WORD
+            # (c0 -> word 0 .. c3 -> word 3); Y's B field does not select a word -- with B != 0
+            # no single zero fires the test at all (probe66 looks for a two-word form).
             x, y = self.img[i + 1], self.img[i + 2]
             Bf, inv = (y >> 3) & 3, y & 1
-            w = self.N.name(self.ptr(1) + 4 * Bf)
-            note = "" if x == 0xC0 else "  ; X != c0: operand rule open (probe61/63)"
-            return 3, f"TEST{'NZ' if inv else 'Z'}  F := ({w} {'!=' if inv else '=='} 0)   (fc {x:02x} {y:02x}; no store; probe63){note}"
+            w = self.N.name(self.ptr(1) + 4 * (x & 3))
+            if y in (0x00, 0x01, 0x03, 0x05):
+                return 3, f"TEST{'NZ' if inv else 'Z'}  F := ({w} {'!=' if inv else '=='} 0)   (fc {x:02x} {y:02x}; no store; probe63/65)"
+            # probe66: with Y's B field set, or Y = 02 / 04 / 0c, no zero in any RAM word (one or
+            # two at a time, P0/P1/P2 pages and the pages after them) makes the test fire -- these
+            # forms test a condition that is not a RAM word.  37 vendor sites are `fc cX 04`.
+            return 3, f"TEST?  fc {x:02x} {y:02x}: P1 word {x & 3} and a condition no RAM zero triggers  (Y = {y:02x}; probe66, open)"
         if b == 0xFC and self.L in ("mantis", "icm"):
             # probe35: the A field indexes P1 and the B field indexes P0.  32/32 cells over two
             # independent operand vectors.  Paired with RSUB (B-A) this gets the opposite
@@ -302,6 +314,7 @@ class Decoder:
             else:
                 dest = f"FIFO{ {1: 32, 2: 16, 3: 16}.get(self.width, '') }"
             self.half = False
+            if L == "icm": self.shw = "mul" if op & 2 else "alu"      # the shifter's register follows every ALU op (probe64)
             return 1, f"{ALU} A={self.N.name(a):<12} B={self.N.name(bb):<12} -> {dest}"
         return 1, f"{b:02x}"
 

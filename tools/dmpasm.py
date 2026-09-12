@@ -68,11 +68,13 @@ DMP3 / ICM-20948 forms (`.lineage icm`; manual chapter 8, ISA2.md Findings 24-26
   load k                             d4..d7: load the 4-word shifter from P0, select word k
   shl s[,adv] / sar s[,adv]          fd n: shift the register left by s (1..31, pulling the next
                                      word's fraction in) or arithmetic right by s (1..32) and
-                                     store the selected word; adv pre-advances P2
+                                     store the selected word; adv pre-advances P2.  The register
+                                     holds the last ALU result (a MUL's full 64-bit product) or
+                                     the words a `load k` fetched, whichever came last; shifts compound
   lo / lo.next                       d2 / d3: store the low word of the last product
   int                                e2: raise DMP_INT1
   clr                                de: M[P2] := 0 in place  (e7 is the same)
-  tz B / tnz B                       fc c0 yy: F := (P1 word B == 0) / (!= 0), nothing stored --
+  tz k / tnz k                       fc cK 00/01: F := (P1 word k == 0) / (!= 0), nothing stored --
                                      the vendor's feature gate: `tz 0` / `if f` / `jump skip`.
 The flag F is updated by ALU ops, inc and dec ONLY while no predicate is armed (after
 `always`); `test`, `tz` and `tnz` update it regardless.  So a loop's counter must be decremented
@@ -216,11 +218,11 @@ def assemble(text, lineage="mantis", warn=None):
                 icm_only("ret"); out.append(0xE0)
             elif op == "mode4":
                 icm_only("mode4"); out.append(0xF4); mode4 = True
-            elif op in ("tz", "tnz"):            # fc c0 <B<<3 | inv>: F := (P1 word B == 0) / (!= 0), no store
+            elif op in ("tz", "tnz"):            # fc cX <inv>: F := (P1 word X == 0) / (!= 0), no store (probe65)
                 icm_only(op)
                 Bw = int(arg, 0)
-                if not 0 <= Bw <= 3: raise AsmError(f"{op} B: B is 0..3 (a P1 word)")
-                out += bytes([0xFC, 0xC0, (Bw << 3) | (1 if op == "tnz" else 0)])
+                if not 0 <= Bw <= 3: raise AsmError(f"{op} k: k is 0..3 (a P1 word)")
+                out += bytes([0xFC, 0xC0 | Bw, 1 if op == "tnz" else 0])
             elif op == "int":
                 icm_only("int"); out.append(0xE2)
             elif op == "clr":
