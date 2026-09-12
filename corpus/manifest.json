@@ -531,6 +531,20 @@
    "symbol": "dmpMemory",
    "era": "jb-mr1-release",
    "path": "libsensors_iio/software/core/mllite/linux/ml_load_dmp.c"
+  },
+  {
+   "sha256": "98c8ee6cccebe21428ecb3c9545e24ce89adb09259ba840582a0bb3f0be82326",
+   "size": 14290,
+   "symbol": "(bare fragment)",
+   "era": "_external",
+   "path": "sparkfun_emd_nucleo_1.0_icm20948_img.dmp3a.h_14290"
+  },
+  {
+   "sha256": "98c8ee6cccebe21428ecb3c9545e24ce89adb09259ba840582a0bb3f0be82326",
+   "size": 14290,
+   "symbol": "(bare fragment)",
+   "era": "_external",
+   "path": "libidd_icm20948_img.dmp3a.h"
   }
  ],
  "unique": {
@@ -743,6 +757,19 @@
    ],
    "paths": [
     "libsensors_iio/software/core/mllite/linux/ml_load_dmp.c"
+   ]
+  },
+  "98c8ee6cccebe21428ecb3c9545e24ce89adb09259ba840582a0bb3f0be82326": {
+   "size": 14290,
+   "symbols": [
+    "(bare fragment)"
+   ],
+   "eras": [
+    "_external"
+   ],
+   "paths": [
+    "sparkfun_emd_nucleo_1.0_icm20948_img.dmp3a.h_14290",
+    "libidd_icm20948_img.dmp3a.h"
    ]
   }
  }

@@ -7,7 +7,7 @@ disassembler and assembler for it.
 **Status: the ISA is decoded on silicon — 99.92 % of MPU-6050-family code bytes**
 (17284 of 17297 hardware-confirmed; the remaining 13 are 3050-lineage bytes that need an
 MPU-3050 to test and are rendered as marked conjecture), **and 100 % of the ICM-20948's
-DMP3 code** (10349 of 10349, measured on an ICM-20948).
+DMP3 code** (both published images, 10349 + 10338 bytes, measured on an ICM-20948).
 
 > **Start here: [docs/manual/](docs/manual/) — the programmer's manual.** Machine model,
 > complete instruction reference, assembly language, idioms, host interface, memory map, and the
@@ -42,8 +42,11 @@ written in this repo's assembly language run on real MPU-6050 silicon exactly as
 **The ICM-20948's DMP3 is the same machine, grown up** ([manual chapter 8](docs/manual/08-dmp3-icm20948.md),
 ISA2.md Finding 24): 16 KB of memory, a 12-bit data pointer with a 1 KB block field (`bc`/`bd`/`be`),
 `f4 hi lo` as a 16-bit absolute **jump**, bit 14 for **call** and `e0` for **return** — so loops
-and subroutines exist — and a mode 4 that every `f4` enters and `f1`/`f3` leave, under which the
-pointers address the chip's registers instead of RAM. It also has a 4-word Q30 shifter
+and subroutines exist — and a **branch-target mode** that every `f4` enters and any width byte
+leaves: while it is set, every byte below 0x80 begins another 16-bit target (`f4 16 14 d8 17 74`
+is if-jump, else-jump) and page loads address the chip's registers instead of RAM. A second
+published DMP3 image (eMD 1.0, 14290 B) differs from the first by one 11-byte edit and moved
+every target's low byte by exactly 11 — the static proof (ISA2.md Finding 26). It also has a 4-word Q30 shifter
 (`d4`–`d7` + `fd n`) and a double-precision product (`d2`/`d3`), an interrupt instruction
 (`e2`), sticky predicates that read the sign of the last result (or zero, after `d1`). Same
 ALU, same routing, same widths; a multiply costs the same as an add and the whole machine
@@ -87,11 +90,11 @@ The DMP emits a register selection the stock firmware never produces.
 | `UNKNOWNS.md` | what is still open, and the experiment that would settle each |
 | `FINDINGS.md` | corpus acquisition and the static-analysis phase (historical) |
 | `PLAN.md` | the original plan of record (historical) |
-| `corpus/` | 12 unique firmware images + vendor sources, with provenance; `ROSETTA.md` |
+| `corpus/` | 13 unique firmware images (two of them DMP3) + vendor sources, with provenance; `ROSETTA.md` |
 | `tools/` | extraction, analysis, decoder (`isa/decode.py`), lifter (`isa/pseudo.py`), assembler (`dmpasm.py`) |
-| `bench/` | hardware rig: ESP32 bridge (MPU-6050 or ICM-20948, auto-detected), init, 53 probes, `icm.py`, `RESULTS.md` |
+| `bench/` | hardware rig: ESP32 bridge (MPU-6050 or ICM-20948, auto-detected), init, 57 probes, `icm.py`, `RESULTS.md` |
 | `programs/` | example DMP programs |
-| `listings2/` | annotated listings of all 12 corpus images under the current model |
+| `listings2/` | annotated listings of all 13 corpus images under the current model |
 | `listings/` | listings under the superseded first-pass model (historical) |
 
 ## Hardware rig

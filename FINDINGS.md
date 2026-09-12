@@ -125,6 +125,23 @@ map and the DMP3 data labels that `tools/isa/symbols.py:dmp3map()` reads. This a
 the "code begins at image offset 4096" line below: the boundary is at DMP address 0x1000, which
 is image offset 0xf70 (ISA2.md Finding 24).
 
+*2026-09-12, later:* a **second DMP3 image** — `icm20948_img.dmp3a.h_14290` from the
+`ICM20948_eMD_nucleo_1.0` folder of the same SparkFun repository (eMD 1.0; the 14301-byte
+image is eMD-SmartMotion 1.1.0-MP) — takes the corpus to **13 unique images**. The same bytes
+ship in `Dotolie/libIDD` (`src/Invn/Images/icm20948_img.dmp3a.h`, kept here as
+`libidd_icm20948_img.dmp3a.h`) and as `dobodu/ICM20948_DMP_Micropython/icm20948_dmp.bin`;
+ZaneL's Teensy library, IOsonata, `vedranMv/tm4c_icm20948` and
+`isouriadakis/Arduino_ICM20948_DMP_Full-Function` all carry the 14301-byte image. The pair
+differs by one 11-byte code edit and is the first DMP3 differential pair (ISA2.md Finding 26).
+Also added for symbol work: `libidd_Icm20948Dmp3Driver.c` (the eMD DMP3 driver, memory map
+with names), `thunderboard_Icm20648Dmp3Driver.c` (the ICM-20648 twin of it, from
+`pnt325/EFR32BG22-Thunerboard-ICM20648-DMP-QUATER_6`; same load address 0x90 and entry
+0x1000) and `tx2_inv530_dmp3Default.h` (the InvenSense kernel driver's DMP3 map for the
+ICM-20628/20728, `antmicro/tx2-deep-learning-kit-bsp`). **No ICM-20648/20649 DMP3 image is
+published anywhere found**: the Thunderboard repository ships the driver without the image,
+and TDK's own GitHub organisations (`tdk-invn-oss`, `InvenSenseInc`) carry only the newer
+ICM-42xxx/45xxx parts, which have no DMP3.
+
 ## MPU-6050 ↔ MPU-6500 are nearly the same program
 
 **1929 B (MotionApps20, MPU-6050) vs 1923 B (dmpDefaultMantis, MPU-6500): similarity 0.9777,

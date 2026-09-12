@@ -94,6 +94,12 @@ is a harmless pointer load. Padding with it **destroys P2**, which matters if yo
 
 Source word `k` = 0,1,2,3 for `c0/c2/c4/c6` respectively.
 
+> The 16-bit reading of `c8`–`cf` is from vendor names; it has not been measured on the MPU. On
+> DMP3 the family copies the word with its **half-words exchanged** (`01234567` → `45670123`),
+> and under `f2`/`f3` that is how a low half-word reaches an upper half and vice versa
+> ([chapter 8](08-dmp3-icm20948.md#88-what-else-differs)). Re-measure before relying on
+> either reading on the MPU.
+
 **MOV reads P0, not P1** **[HW, probe25]**. An earlier reading said P1; it was measured with both
 pointers on the same page and could not tell them apart. Re-measured with P0 on the constant page
 and P1 elsewhere, `c0 c2 c4 c6` returned P0's four words.

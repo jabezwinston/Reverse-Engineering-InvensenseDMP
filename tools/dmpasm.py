@@ -54,6 +54,30 @@ Legacy FIFO-emit form (stock preambles) still assembles:
 A bare ALU op with no `store` and no `dc` emits its result to the FIFO when a
 FIFO mode is active (bench round 10); with `store`/dc it writes RAM instead.
 
+DMP3 / ICM-20948 forms (`.lineage icm`; manual chapter 8, ISA2.md Findings 24-26)
+------------------------------------------------------------------------------
+  .org ADDR                          where the code will live (default 0x1000, the entry point)
+  label:                             a code label (its own line, or before an instruction)
+  jump LABEL|ADDR                    f4 hi lo: 16-bit absolute jump.  Enters mode 4.
+  call LABEL|ADDR                    f4 hi lo with bit 14: call; `ret` (e0) returns
+  ret                                e0
+  mode4                              a bare f4 (no target): enter mode 4 without jumping
+  if f / if nf                       d9 / da on DMP3: F = sign of the last result (== 0 after test)
+       Predicates are STICKY on DMP3: a false one skips everything up to the next always/if.
+  p0blk / p1blk / p2blk              bc / bd / be: add 1 KB (mod 4) to that pointer
+  load k                             d4..d7: load the 4-word shifter from P0, select word k
+  shl s[,adv] / sar s[,adv]          fd n: shift the register left by s (1..31, pulling the next
+                                     word's fraction in) or arithmetic right by s (1..32) and
+                                     store the selected word; adv pre-advances P2
+  lo / lo.next                       d2 / d3: store the low word of the last product
+  int                                e2: raise DMP_INT1
+  clr                                de: M[P2] := 0 in place  (e7 is the same)
+Mode 4 rule: after any jump/call/mode4 every byte below 0x80 is a branch target, not an ALU
+op, until a width byte (fmode / f5 / min16 / trunc) ends the mode -- so every jump target and
+every instruction after a call must start with one.  The assembler refuses an ALU op, mov16
+operand or `.db` low byte while mode 4 is armed and warns about a target that lacks one.
+`branch` (the 7-bit relative form) does not exist on DMP3.
+
 Patching
 --------
   python3 dmpasm.py prog.s --patch image.bin --at 1868 --len 5 --out out.bin
@@ -66,7 +90,9 @@ LINEAGES = {
     "mantis": dict(emit=0xF1, branch=0xF4, fmode0=0xF0, bankbase=0xB0, bankstyle="b"),
     "6050":   dict(emit=0xF1, branch=0xF4, fmode0=0xF0, bankbase=0xB0, bankstyle="b"),
     "3050":   dict(emit=0xF9, branch=0xFC, fmode0=0xF8, bankbase=0xC0, bankstyle="c"),
+    "icm":    dict(emit=0xF1, branch=0xF4, fmode0=0xF0, bankbase=0xB0, bankstyle="b"),   # DMP3 (ICM-20948)
 }
+ICM_ORG = 0x1000                  # DMP3 entry point; `.org` overrides
 STORE = 0xDC                      # DINADC: commit ALU result to M[dest]
 ALU_OPS = {"add": 0, "rsub": 1, "mul": 2, "nmul": 3}
 NOP, SKIP, DISABLE = 0xA3, 0xFE, 0xFF
@@ -121,14 +147,37 @@ def _alu_byte(op, arg):
     return (A << 5) | (B << 3) | ALU_OPS[op] | adv
 
 
-def assemble(text, lineage="mantis"):
+def assemble(text, lineage="mantis", warn=None):
     L = LINEAGES[lineage]
     out = bytearray()
     bank = None
+    org = ICM_ORG
+    labels, fixups, targets = {}, [], []          # icm: label -> offset; (offset, name, lineno); target offsets
+    mode4 = False                                 # icm: armed by jump/call/mode4, cleared by f0-f7
+    warn = warn or (lambda m: print("warning:", m, file=sys.stderr))
+
+    def icm_only(what):
+        if lineage != "icm":
+            raise AsmError(f"{what} is a DMP3 (icm) form; add `.lineage icm`")
+
+    def low_byte(what):
+        if lineage == "icm" and mode4:
+            raise AsmError(f"{what} while mode 4 is armed: bytes below 0x80 are branch targets here; "
+                           "put an fmode/min/trunc first (the vendor's `d8 f1` at every target)")
+
     for lineno, raw in enumerate(text.splitlines(), 1):
         line = raw.split(";")[0].strip()
         if not line:
             continue
+        m = re.match(r"([A-Za-z_]\w*):\s*(.*)", line)
+        if m and m.group(1).lower() not in ("store", "if"):
+            icm_only("labels")
+            if m.group(1) in labels:
+                raise AsmError(f"line {lineno}: duplicate label {m.group(1)!r}")
+            labels[m.group(1)] = len(out)
+            line = m.group(2).strip()
+            if not line:
+                continue
         parts = line.split(None, 1)
         op = parts[0].lower()
         arg = parts[1].strip() if len(parts) > 1 else ""
@@ -137,9 +186,60 @@ def assemble(text, lineage="mantis"):
                 if arg not in LINEAGES:
                     raise AsmError(f"unknown lineage {arg!r}")
                 L = LINEAGES[lineage := arg]
+            elif op == ".org":
+                icm_only(".org"); org = int(arg, 0)
             elif op == ".db":
                 for tok in arg.split(","):
-                    out.append(int(tok.strip(), 0) & 0xFF)
+                    v = int(tok.strip(), 0) & 0xFF
+                    if v < 0x80: low_byte(f".db {v:#04x}")
+                    out.append(v)
+
+            # --- DMP3 control flow and extras (icm) ---
+            elif op in ("jump", "call"):
+                icm_only(op)
+                if re.fullmatch(r"[A-Za-z_]\w*", arg) and not re.fullmatch(r"0[xX][0-9a-fA-F]+", arg):
+                    fixups.append((len(out) + 1, arg, lineno, op))
+                    out += bytes([L["branch"], 0, 0])
+                else:
+                    t = int(arg, 0)
+                    if not 0 <= t <= 0x3FFF: raise AsmError(f"{op} target {t:#x} is outside the 16 KB")
+                    targets.append(t)
+                    t |= 0x4000 if op == "call" else 0
+                    out += bytes([L["branch"], t >> 8, t & 0xFF])
+                mode4 = True
+            elif op == "ret":
+                icm_only("ret"); out.append(0xE0)
+            elif op == "mode4":
+                icm_only("mode4"); out.append(0xF4); mode4 = True
+            elif op == "int":
+                icm_only("int"); out.append(0xE2)
+            elif op == "clr":
+                icm_only("clr"); out.append(0xDE)
+            elif op in ("lo", "lo.next"):
+                icm_only(op); out.append(0xD3 if op.endswith("next") else 0xD2)
+            elif op in ("p0blk", "p1blk", "p2blk"):
+                icm_only(op); out.append(0xBC + "012".index(op[1]))
+            elif op == "load":
+                icm_only("load")
+                k = int(arg, 0)
+                if not 0 <= k <= 3: raise AsmError("load k: k is 0..3")
+                out.append(0xD4 + k)
+            elif op in ("shl", "sar"):
+                icm_only(op)
+                toks = [t.strip().lower() for t in arg.split(",")]
+                sh = int(toks[0], 0)
+                adv = 0x40 if len(toks) > 1 and toks[1] in ("adv", "inc") else 0
+                if op == "shl":
+                    if not 1 <= sh <= 31: raise AsmError("shl s: s is 1..31")
+                    n = sh
+                else:
+                    if not 1 <= sh <= 32: raise AsmError("sar s: s is 1..32")
+                    n = 0x20 | (32 - sh)
+                out += bytes([0xFD, n | adv])
+            elif op == "if" and lineage == "icm" and arg.lower() in ("f", "nf"):
+                out.append(0xD9 if arg.lower() == "f" else 0xDA)
+            elif op == "branch" and lineage == "icm":
+                raise AsmError("branch (7-bit relative) does not exist on DMP3; use jump LABEL")
 
             # --- pointers ---
             elif op in ("p0page", "p1page", "p2page"):
@@ -151,11 +251,12 @@ def assemble(text, lineage="mantis"):
             elif op == "min16":                  # f6 + ALU byte: signed MIN, 16-bit store
                 if lineage == "3050":
                     raise AsmError("min16 (f6) is mantis-only")
+                mode4 = False
                 out.append(0xF6); out.append(_alu_byte("add", arg))
             elif op == "trunc":                  # f7: M[P2] &= 0xffff0000 (Finding 20)
                 if lineage == "3050":
                     raise AsmError("trunc (f7) is mantis-only")
-                out.append(0xF7)
+                out.append(0xF7); mode4 = False
             elif op == "swap":                   # fc: next ALU op reads A via P1, B via P0
                 if lineage == "3050":
                     raise AsmError("swap (fc) is mantis-only; fc is the 3050 branch")
@@ -165,8 +266,10 @@ def assemble(text, lineage="mantis"):
                     raise AsmError("nostore (fd) is mantis-only")
                 out.append(0xFD)
             elif op == "min":                    # f5 + ALU byte with op field 0
+                mode4 = False
                 out.append(0xF5); out.append(_alu_byte("add", arg))
             elif op in ALU_OPS:
+                low_byte(f"{op} {arg}")
                 out.append(_alu_byte(op, arg))
             elif op == "test":                   # d1: Z := (last ALU result == 0)
                 out.append(0xD1)
@@ -198,6 +301,7 @@ def assemble(text, lineage="mantis"):
             elif op == "store" and not arg:
                 out.append(STORE)
             elif op.startswith("store.") and op[6:] in ALU_OPS:
+                low_byte(op)
                 out.append(STORE)                    # dc first (hardware order)
                 out.append(_alu_byte(op[6:], arg))
 
@@ -211,7 +315,7 @@ def assemble(text, lineage="mantis"):
                 n = int(arg, 0)
                 if not 0 <= n <= 3:
                     raise AsmError("fmode 0..3")
-                out.append(L["fmode0"] | n)
+                out.append(L["fmode0"] | n); mode4 = False
 
             # --- legacy FIFO-emit form ---
             elif op == "selbank":
@@ -222,6 +326,7 @@ def assemble(text, lineage="mantis"):
                     raise AsmError(f"bank 0x{b:02x} out of range 0x90-0x9f")
                 bank = b; out.append(b)
             elif op == "emit":
+                low_byte("emit")
                 for tok in [t.strip() for t in arg.split(",")] if arg else []:
                     if not tok:
                         continue
@@ -249,11 +354,31 @@ def assemble(text, lineage="mantis"):
                 raise AsmError(
                     f"unknown mnemonic {op!r} (confirmed: p0page/p1page/p2page, "
                     "p0bank/p1bank/p2bank, add/rsub/mul/nmul, store[.op], p2inc, always, if N, branch, "
-                    "fmode, min16, trunc, swap, nostore, selbank, emit, nop, skip, disable, .db)")
+                    "fmode, min16, trunc, swap, nostore, selbank, emit, nop, skip, disable, .db; "
+                    "icm: .org, label:, jump, call, ret, mode4, if f/nf, p0blk/p1blk/p2blk, load, shl, sar, "
+                    "lo, lo.next, int, clr)")
         except AsmError as e:
             raise AsmError(f"line {lineno}: {e}") from None
         except ValueError as e:
             raise AsmError(f"line {lineno}: {e}") from None
+    for off, name, lineno, op in fixups:
+        if name not in labels:
+            raise AsmError(f"line {lineno}: undefined label {name!r}")
+        t = org + labels[name]
+        if not 0 <= t <= 0x3FFF:
+            raise AsmError(f"line {lineno}: {name} = {t:#x} is outside the 16 KB")
+        targets.append(t)
+        v = t | (0x4000 if op == "call" else 0)
+        out[off], out[off + 1] = v >> 8, v & 0xFF
+    if lineage == "icm":
+        ends = {0xF0, 0xF1, 0xF2, 0xF3, 0xF5, 0xF6, 0xF7}
+        for t in set(targets):
+            o = t - org
+            if 0 <= o < len(out):
+                head = [b for b in out[o:o + 3] if not 0xD8 <= b <= 0xDB][:1]
+                if not head or head[0] not in ends:
+                    warn(f"target {t:#06x} does not start with a width byte (d8 f1 ...): the mode-4 rule "
+                         "makes every low byte after it a branch target")
     return bytes(out)
 
 

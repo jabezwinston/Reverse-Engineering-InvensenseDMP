@@ -72,6 +72,16 @@ class Decoder:
         return "  ; I/O space: pointer loaded under mode 4 (probe47/48)" if self.mode4 else ""
     def step(self, i):
         b = self.img[i]; L = self.L
+        if L == "icm" and self.mode4 and b < 0x80 and i + 1 < len(self.img):
+            # Mode 4 is branch-target mode: while it is set, every byte below 0x80 begins a
+            # 16-bit big-endian target, whether or not an f4 immediately precedes it.  The
+            # 14290/14301 image pair proves it statically -- nine targets sit after d8/da/bc
+            # rather than f4 (`f4 16 14 d8 17 74`: if-jump, else-jump) and their low bytes
+            # move with the code like every other target's (Finding 26).
+            t = (b << 8) | self.img[i + 1]
+            verb = "CALL" if t & 0x4000 else "JUMP"
+            if self.cond != "d8": verb += "." + self.cond
+            return 2, f"{verb} -> {t & 0x3FFF:#06x}   (target under mode 4, no f4 of its own)"
         if L == "icm" and b == 0xF4 and i + 2 < len(self.img):
             # DMP3: f4 hi lo is a 16-bit absolute jump when hi < 0x80; bit 14 makes it a
             # call (e0 returns).  Every f4 also enters mode 4, which the vendor leaves with
@@ -135,7 +145,7 @@ class Decoder:
                 # F := result == 0. d9 = IF.F, da = IF.not F, db = IF.F in every cell. Sticky:
                 # a not-taken predicate skips everything up to the next d8..db.
                 return 1, {0xD8: "ALWAYS  (re-arms: ends a sticky predicate)", 0xD9: "IF.F   (F = result<0, or ==0 right after d1; sticky until d8)",
-                           0xDA: "IF.NOT-F   (sticky until d8)", 0xDB: "IF.F   (db; identical to d9 in every DMP3 cell)"}[b]
+                           0xDA: "IF.NOT-F   (sticky until d8)", 0xDB: "IF.F   (db; identical to d9 in every DMP3 cell, probe52/54)"}[b]
             return 1, {0xD8: "ALWAYS", 0xD9: "IF.Z", 0xDA: "IF.NZ", 0xDB: "IF.3"}[b]
         if L == "icm" and 0xF0 <= b <= 0xF7 and b != 0xF4:
             self.mode4 = False
@@ -151,7 +161,12 @@ class Decoder:
         if self.L in ("mantis", "icm") and 0xF8 <= b <= 0xFB:
             if b & 2: self.p2off = (getattr(self, "p2off", 0) + 4) % 16
             verb = "DEC" if b & 1 else "INC"
-            return 1, f"{verb}  {self.N.name(self.ptr(2))} by 1{'  (P2 word++ first)' if b & 2 else ''}  ({b:02x}; probe23)"
+            flag = ""
+            if L == "icm":
+                # probe52/54/55: INC and DEC set F := result < 0 like the ALU, so
+                # `f9 da f4 <back>` runs a body n + 1 times for a count of n.
+                flag = "  F := result < 0"
+            return 1, f"{verb}  {self.N.name(self.ptr(2))} by 1{'  (P2 word++ first)' if b & 2 else ''}{flag}  ({b:02x}; probe23)"
         if b == 0xF5 and self.L in ("mantis", "icm"):
             self.minpfx = True
             return 1, "MIN prefix  next ALU op computes signed min(A,B)  [probe29, 16/16]"
@@ -172,6 +187,12 @@ class Decoder:
             # independent operand vectors.  Paired with RSUB (B-A) this gets the opposite
             # subtraction order without reloading a pointer -- 11/19 sites are followed by RSUB.
             self.swap = True
+            if L == "icm" and self.mode4:
+                # Finding 26: the vendor's three `d9 f4 hi lo  d8 fc c0 08 d9 f4` fall-throughs
+                # need the 08 to be an ADD, but on the bench fc neither ends the mode nor reads
+                # as a target half (probe54b).  Rendered as the ADD the compiler meant, tagged.
+                self.mode4 = False
+                return 1, "SWAP prefix  [fc under mode 4: open -- rendered as ending it so the vendor's `fc c0 08` reads as SWAP MOV ADD; probe54b, UNKNOWNS.md 7]"
             return 1, "SWAP prefix  next ALU op reads A through P1 and B through P0  [probe35, 32/32]"
         if b == 0xFD and self.L in ("mantis", "icm"):
             # probe31: 16/16 no-store across the operand grid, and `fd 20 09 71 58`
@@ -215,9 +236,11 @@ class Decoder:
             op = "MOV16" if b & 8 else "MOV  "     # c8..cf: upper half-word, zero-extended
             note = ""
             if b & 8 and L == "icm":
-                # probe44: `cc` under f1 emitted the whole 32-bit word on the ICM; the MPU
-                # reading is from vendor names only, so this is an open difference.
-                op = "MOV? "; note = "  ; c8-cf: full word on DMP3 under f1 (probe44), MOV16 is the MPU label"
+                # probe54 C: on DMP3 c8..cf copy the word with its half-words exchanged
+                # (01234567 -> 45670123); under f2/f3 that puts the source's LOW half into the
+                # destination's upper half (4567ee00) or its HIGH half into the lower (c0ff0123).
+                # The MPU label MOV16 is from vendor names only.
+                op = "MOVX "; note = "  ; c8-cf on DMP3: half-words swapped (probe54 C)"
             return 1, (f"{op} {self.N.name(src):<12} -> {self.N.name(self.ptr(2))}"
                        f"{'  (P2 word++ first)' if b & 1 else ''}  ({b:02x}; probe25){note}")
         if b == 0xDE:

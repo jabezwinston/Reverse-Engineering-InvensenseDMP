@@ -101,28 +101,27 @@ item 4.
 
 ## 7. The ICM-20948 (DMP3), and what it says about the MPU chapters
 
-Two bench sessions (2026-09-12; ISA2.md Findings 24–25, manual chapter 8). The stock image
-decodes to **100 %**. What remains, each with the experiment that would settle it:
+Three bench sessions (2026-09-12; ISA2.md Findings 24–26, manual chapter 8). Both published
+images decode to **100 %**. What remains, each with the experiment that would settle it:
 
 | item | status | experiment |
 |---|---|---|
 | **MPU: `fd`** | measured on the MPU as NOSTORE (probe31). On DMP3 `fd n` is a two-byte shift whose bare form stores 0 and suppresses nothing. The MPU has no `d4`–`d7` loads, so its bare `fd` may store nothing rather than zero — or the MPU reading is right and the parts differ | on the MPU: `fd 08` over a seeded RAM word (nothing / zero / shifted?), then `d4 fd 08` — does the MPU have the shifter at all |
 | **MPU: predicate scope** | single-shot on the MPU (probe10); sticky until the next `d8`–`db` on DMP3 | on the MPU: `d9 c4 c6 ff` with the condition false, and a `d8 ff` safety tail |
-| **MPU: the flag** | Z set by `d1` only (Findings 8/11); on DMP3 every ALU op sets F := result < 0 and `d1` sets F := result == 0. The MPU images predicate after ALU ops 39 times in 1929 with no `d1` at all | on the MPU: `<op> d9 c6` over zero / positive / negative results |
-| the I/O space index map | [INFER]. Index 0 = `WHO_AM_I`, 0x74 = `DATA_RDY_STATUS`, 0x70 moves with the FIFO, 0x94–0xa9 sensor-sized bytes; the vendor writes word 3 through it at 0x1072 | sweep bank/page under mode 4 while changing one host register at a time, then a MOV store under the mode and read the register bank back |
-| ALU under mode 4 | did not store in one cell, read the correct sum in another, 0 in a third | the doubling accumulator routed to the FIFO under the mode, three repeats |
-| `c8`–`cf` width | `cc` under `f1` emitted the full word on the ICM; the MPU reading is from vendor names | `cc` under `f1`/`f2`/`f3` on both parts, RAM-routed, byte-asymmetric source |
-| `db` | identical to `d9` in every DMP3 cell (F with and without `d1`); the MPU calls it IF.3 | a cell where `d9` and `db` differ, if one exists: try after `f5` MIN, after INC/DEC, after a MOV |
-| `f6`, `f7` ending mode 4 | assumed by symmetry with `f0`–`f3`, `f5` | `f4 d8 f6 b3 8f c0`, `f4 d8 f7 b3 8f c0` |
-| `bf` | unattested in every image | `bf b3 8f c0` on address-encoded memory |
+| **MPU: the flag** | Z set by `d1` only (Findings 8/11); on DMP3 every ALU op, INC and DEC set F := result < 0 and `d1` sets F := result == 0. The MPU images predicate after ALU ops 39 times in 1929 with no `d1` at all | on the MPU: `<op> d9 c6` over zero / positive / negative results |
+| **MPU: `c8`–`cf`** | MOV16 from vendor names; on DMP3 the family swaps the half-words (`45670123`) | on the MPU: `c8` under `f1`/`f2`/`f3`, RAM-routed, byte-asymmetric source |
+| `fd n` after an ALU op | the vendor's `20 fd 3f` / `2c fd 32` (eMD 1.1.0 replaced `MUL by 0.5` with `ADD, fd 3f`) says the shifter also takes the last ALU result; measured only after `d4`–`d7` loads | `00 fd 3f` over known words: is the stored value (A+B) >> 1 |
+| the I/O space index map | [INFER]. Not the host register file (probe56: host registers invisible, a store through it changes none); index 0 = `ea`, live bytes at 0x1d0 and 0x250–0x2a4 | the same sweep with the sensors in known states (gyro standby, accel standby, a known FSYNC level) and the FIFO at known fill; then match the live bytes to the raw sensor words in the FIFO |
+| **the DEC/flag hazard** | a tight `f9 da f4 <back>` loop runs away for any count above 0 (probe55); with the count 0 the body ran once or twice | `dc f9 <k x d8> da f4 <back>` for k = 1..32 with a watchdog (`T(5)` and a DMP_RST after each cell) to find the distance the flag needs; or compare at the top like the vendor |
+| `bf` | P0/P1 unaffected; a P2 store after it lands nowhere (probe54 E). Unattested | none needed |
 | FSYNC | wired to D4; reaches the chip (`TEMP_OUT_L` bit 0). `e7` and `db` do not read it | if any instruction reads it, the candidates left are the I/O space indices |
-| INC/DEC under FIFO routing | modify the last emitted word rather than M[P2]; vendor never does this | none needed — document as "route the destination to RAM" |
-| assembler | `dmpasm` does not know the ICM forms | `jump`/`call`/`ret`/`blk`/`shift`/`int`, the sticky-predicate and mode-4 lints |
+| INC/DEC under FIFO routing | modify the last emitted word rather than M[P2]; with nothing emitted yet in the pass they flood the FIFO (probe54 B: `f8`/`fa` right after `f4 d8`, 13–17 kB per "pass") — vendor never does this | none needed — document as "route the destination to RAM" |
+| **`fc` under mode 4** | not a target half (beacon test) and does not end the mode (`fc 00` runs neither an ADD nor a jump; `fc c0` emits nothing), yet the vendor's three `d8 fc c0 08 d9 f4` fall-throughs need the `08` to be an ADD. The decoder tags those sites `[fc: open]` | a copy of the vendor shape with known operands and a RAM-routed destination, three repeats; then `fc` followed by each byte class under the mode |
+| `db` | identical to `d9` in 75 cells (probe52, probe54 D: after ADD, MIN, INC, DEC, MOV, CLR, SHIFT, `d1`, and with F untouched) | treat as `d9`; a difference would need a state neither probe reaches |
 
-Resolved this session and removed from the list: `d2`–`d7` (product low word; shifter load),
-`e2` (DMP_INT1), `e7` (CLR), `fd` on DMP3 (shift), predicate scope and the flag on DMP3.
-
----
+Resolved this session and removed from the list: `f6`/`f7` end mode 4 (probe54 B); ALU under
+mode 4 (there is none — mode 4 is branch-target mode, Finding 26); `c8`–`cf` on DMP3
+(half-word swap); the assembler's ICM forms (`dmpasm`, `.lineage icm`).
 
 ## Bench discipline these results depend on
 

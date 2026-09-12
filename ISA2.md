@@ -1057,6 +1057,150 @@ suppressing four ops) is not what the ICM does and should be re-measured with th
 model in mind — on the MPU no `d4`–`d7` ever loads the register, so a bare `fd n` there may
 simply have stored nothing rather than zero.
 
+## Finding 26 — a second DMP3 image: mode 4 is branch-target mode (STATIC, then HARDWARE CONFIRMED 2026-09-12)
+
+**1. The image.**  SparkFun's repository also carries the eMD **1.0** build of the ICM-20948
+firmware (`ICM20948_eMD_nucleo_1.0/icm20948_img.dmp3a.h_14290`, the same bytes ship in
+`Dotolie/libIDD` and as `dobodu/ICM20948_DMP_Micropython/icm20948_dmp.bin`); the 14301-byte
+image is eMD-SmartMotion 1.1.0-MP.  `corpus/images/98c8ee6cccebe214_14290.bin`, listing
+`listings2/98c8ee6cccebe214_14290.lst` (100 % decoded).  No other DMP3 image is published:
+the ICM-20648 driver on GitHub (`pnt325/EFR32BG22-Thunerboard-ICM20648-DMP-QUATER_6`) ships
+without its image, and TDK's own organisations only carry the ICM-42xxx/45xxx parts.
+
+**2. The pair differs by one code edit, and every jump target moved with it.**  Data region:
+six bytes (the word at 0x130 is exactly **halved**, `09edd1e8` → `04f6e8f4`; two bytes at
+0x48a/0x48c).  Code region: one 11-byte rewrite at 0x109c–0x10b7 and 256 other changes, of
+which
+
+- **238 are single bytes that are exactly 11 smaller in the older image**, all after the
+  rewrite, and **six more are two-byte values 11 smaller** (`15 02` → `14 f7`,
+  `2f 0a` → `2e ff`, `33 07` → `32 fc`).  232 of the 238 sit two bytes after an `f4`.  These
+  are the low bytes of `f4 hi lo` targets, relocated by the 11 bytes the newer build
+  inserted — a compiler-independent proof of the **16-bit absolute** jump encoding and of the
+  fact that there is no relative form left (a relative branch over the edit would not move).
+- **Six of the 238 do not follow an `f4`.**  They follow `d8` (three), `da` (one) and `bc`
+  (two), and each pair reads as a code address whose target begins with the vendor's `d8 fX`
+  discipline:
+
+      0x1416  d9 f4 14 33   d8  74 ad   be be be ..     74ad = CALL 0x34ad (bit 14)   0x34ad: d8 f1
+      0x160e  .. f4 16 14   d8  17 74   d8 f1 ..        if-jump 0x1614, else jump 0x1774  0x1774: d8 f2
+      0x1961  .. f4 19 67   da  19 e7   d8 f1 ..        skip / IF.¬F jump 0x19e7        0x19e7: d8 f3
+      0x1d94  .. f4 bc      1d 9c   da bc 1e 78  d8 f5  jump 0x1d9c / IF.¬F jump 0x1e78
+
+  So **a 16-bit target does not need an `f4` in front of it**.  Finding 24 measured that
+  every `f4` puts the machine in "mode 4" and that `f0`–`f7` end it; the pair says what the
+  mode is: **while it is set, every byte below 0x80 begins a two-byte branch target.**  `f4`
+  is only the way in.  That is why all 186 targets and every call return path start with a
+  width byte — an ALU op cannot be encoded until the mode is left — and why the older
+  decoder read those six pairs as an ADD / a page load / a `CLR` that happened to differ
+  between builds by exactly the edit size.
+- The rewrite itself is the **shifter arriving**: 1.0 multiplies by a constant
+  (`62 6e 76 7e`, `42 4e 56 5e` — MUL by the halved word at 0x130) where 1.1.0 adds and
+  shifts (`20 fd 3f`, `2c fd 32 34 fd 32 3c fd 32`), and three shift amounts were retuned by
+  one bit (`fd 37` → `fd 36`, `fd 05` → `fd 06`).  1.0 already uses `fd n` elsewhere, so the
+  instruction predates the build; the compiler learnt to use it for the power-of-two scales.
+
+**3. The rule has one exception in the vendor code, which names what ends the mode.**  Three
+fall-through paths read `d9 f4 hi lo  d8 fc c0 08 d9 f4 hi lo` (0x1a81, 0x1c36, 0x1c9e): a
+not-taken conditional jump, then `fc c0 08` — SWAP, MOV, ADD — and a second conditional
+jump.  Under the rule the `08` would be a target into the data region, so something in
+`d8 fc c0` ends the mode.  Finding 24 measured `d8` as not ending it; `fc` and `c0` were
+never tried.  Settled on hardware below (`probe54` A/B).
+
+**4. Decoder.**  `tools/isa/decode.py` now reads a two-byte target for any byte below 0x80
+while `mode4` is set, whether or not an `f4` precedes it (nine such sites in each image),
+and the MPU listings are unchanged.  Both ICM listings decode to 100 %.
+
+**5. Subroutines and entry points (static, both images).**  Every one of the 9 713
+instructions of the 14301 image is reachable from the single entry point 0x1000 by
+following jumps, calls and fall-throughs — there is no orphan block, so **no second entry
+point and no interrupt service routine exist in the image**: the DMP3 has one program, run
+from `PRGM_START_ADDRH/L` on every sample, and the vendor drivers (eMD `Icm20948Dmp3Driver.c`,
+SparkFun) write no other start address.  The interrupt goes the other way (`e2` raises
+DMP_INT1 to the host, Finding 25).  16 routines, all in 0x349c–0x386c, 56 call sites:
+
+| routine | called | from (first) | routine | called | from (first) |
+|---|---:|---|---|---:|---|
+| 0x349c–0x34ac | 3 | 0x140c | 0x3593–0x359a | 7 | 0x2601 |
+| 0x34ad–0x353c | 2 | 0x141a (mode-4 form) | 0x359b–0x35a0 | 3 | 0x26af |
+| 0x353d–0x3554 | 3 | 0x3162 | 0x35a1–0x35a7 | 3 | 0x27e6 |
+| 0x3555–0x3574 | 1 | 0x3091 | 0x35a8–0x35b5 | 3 | 0x130e |
+| 0x3575–0x3580 | 4 | 0x25c4 | 0x35b6–0x35bf | 2 | 0x1390 |
+| 0x3581–0x3586 | 10 | 0x25ca | 0x35c0–0x35db | 3 | 0x1311 |
+| 0x3587–0x3592 | 7 | 0x25ce | 0x35dc–0x3827 | 1 | 0x2045 |
+| 0x3828–0x3858 | 3 | 0x3650 | 0x3859–0x386c | 3 | 0x35eb |
+
+Calls nest two deep (0x3539 → 0x349c, 0x35eb → 0x3859).  Twelve backward jumps make the
+loops (0x1a81 → 0x182b … 0x238e → 0x237d).
+
+**6. On hardware** (`probe54`, `probe54b`; FIFO-routed programs whose landing MOVs
+`c2 c4 c6` say where a pass went, high RAM filled with `ff` where a wild jump could land):
+
+| cell | result |
+|---|---|
+| `f4 d8 10 0b` (target two bytes after the `f4`) | jumps — **a `d8` does not end the mode and the pair after it is a target** |
+| `f4 d8 d8 d8 hi lo`, `f4 d8 dc dd hi lo`, `f4 be hi lo` | all jump; `bc`/`be` execute on the way (the landing MOVs read the +1 KB block) |
+| `f4 d8 c0 hi lo` | the MOV executes under the mode (emits w0), then the jump is taken |
+| `f4 d8 c0 f1 hi lo` | `f1` ends it: `hi lo` run as two ALU ops, no jump |
+| `00 d1 d9 f4 t2  d8 t3` with F = 0 | the conditional jump falls through **and the fall-through is still in the mode**: `t3` is taken |
+| `call [c4 e0]` then `8f c2` | the callee has no width byte: after the return the caller's page load is an I/O load (reads 0) |
+| `call [f1 c4 e0]` then `8f c2` / `0b c2` | the callee's `f1` clears the mode **for the caller** (RAM read; `0b` runs as an ALU op) — **the mode is one global flag, not a per-call state** |
+| `call [f1 c4 f4 e0]` then `8f c2` | a callee that re-enters the mode leaves its caller in it |
+| `f4 d8 f6 …`, `f4 d8 f7 …` | **`f6` and `f7` end the mode** (the following MOV emits its half-word: `0123…`, `…4567`) |
+| `f4 d8 x …` for `x` = `fd 00`, `fe`, `c0`, `c4`, `dc dd`, `de`, `e7`, `d0`, `d1`, `d4`, `bc`, `b3` | none ends it (the page load after it is an I/O load) |
+| `f4 d8 x b3 …`, beacon `f1 c6 e0` at `(x<<8|b3) & 0x3fff` for `x` = `f8 f9 fa fb fc fe` | **no beacon is ever called**: bytes at or above 0x80 are instructions under the mode, never target halves; `f8`–`fb` INC/DEC M[P2] as usual and the mode stays |
+
+So mode 4 is exactly what the image pair said, with one refinement: it is a **global flag**,
+set by any `f4` (taken or not) and cleared by any width byte wherever it executes — which is
+why the vendor can put its `d8 fX` at the target and after the return and nowhere else.
+
+**The `fc` exception stays open.**  `fc` under the mode is not a target half (no beacon), and
+`f4 d8 fc 00 b3 8f c0` emits only the header word — the `00` neither runs as an ADD nor halts
+the pass the way a wild jump would — while `f4 d8 fc c0 b3 8f c0` emits the header word and a
+zero (the `c0` after `fc` emits nothing, the page load is still I/O).  The vendor's three
+`d8 fc c0 08 d9 f4` fall-throughs therefore still have no reading under which `08` is the
+ADD the compiler evidently meant; my copy of that shape emitted garbage.  Whatever `fc` does
+under the mode, the decoder renders those three `08` bytes as ADD with a `[fc: open]` tag
+rather than as jumps into the data region.
+
+**7. The other open cells** (`probe54` C–E, `probe55`, `probe56`):
+
+- **`c8`–`cf` swap the half-words**: RAM-routed `c8` of `01234567` under `f1` writes
+  `45670123`; under `f2` the source's *low* half lands in the upper half (`4567ee00` over a
+  `c0ffee00` seed), under `f3` the high half lands in the lower (`c0ff0123`).  `cc`, `ce`
+  the same with words 2, 3.  The decoder renders `MOVX`.  (The MPU reading, MOV16, was never
+  measured; queued.)
+- **The flag, once more** (27 cells: ADD, MIN, INC, DEC, MOV, `d1`, CLR, SHIFT, nothing ×
+  positive / negative / zero × `d9 da db`): ADD and MIN set F := result < 0; `d1` makes it
+  result == 0; MOV, CLR and a shift leave it; `db` = `d9` in every cell.  INC/DEC change
+  the word every pass, so their cells only say "some pass took it"; the loop below is the
+  clean measurement for DEC.
+- **`bf`** (unattested in both images): P0 and P1 reads are unaffected (`bf b3 8f`, `bf bf b3 8f`,
+  `bf b7 9f` all read 0x3f0 on address-encoded memory), but a RAM-routed store through P2 after
+  `bf bb ad` lands **nowhere in the 16 KB** — the same behaviour as a P2 page load under mode 4.
+  So `bf` is the P2 form of something that leaves RAM; unneeded and unused, left at that.
+- **The I/O space is not the host's register file** (`probe56`: all 64 bank/page cells read
+  under the mode, four bytes each, against a host snapshot of register banks 0–3).  Index 0
+  reads `0xea`; indices 0x10 (INT_ENABLE = 02 on the host), 0x14 (bank-1 XA_OFFS), 0x74 and
+  every other host register read 0; a MOV stored through P2 at index 0x14 (the vendor's
+  `f4 .. c1 f3` shape) changes no register in any bank.  The live bytes sit elsewhere: 0x1d0
+  = 03, and single sensor-sized bytes at 0x250 0x25c 0x260 0x268 0x26c 0x270 0x298 0x29c
+  0x2a0 0x2a4 (f6 fe 6e fd b4 0f fc 03 0d 14 in one snapshot).  It is an internal register
+  file of the DMP's own — the raw sensor path and its status — which is what the vendor's
+  register-write idiom at 0x1072 must be addressing.  Its index map stays [INFER].
+- **A counted loop runs, and a tight one runs away** (`probe55`, `programs/loop_icm.s`:
+  `dc c2` seeds the count, `loop: f1 dd c0 dc f9 da f4 <loop> d8 ff`).  With the count 0 the
+  body ran once in one session and twice in another; with 1, 3 or 7 the pass **never
+  terminated** — the FIFO was full within 4 ms and the bridge's I2C needed a reset.  The
+  vendor never writes `f9 da f4 <back>` back-to-back: its loops compare at the top
+  (`fc c0 00 d9 …`) and INC at the bottom before an unconditional `f4` back (0x1af1–0x1bfb),
+  so the flag a `da` reads right after a DEC of the same word is the open question
+  (UNKNOWNS.md §7).  Every loop in the stock image is far longer than the hazard distance.
+- **INC/DEC under FIFO routing with nothing emitted yet flood the FIFO** (`f4 d8 f8 b3 8f
+  c0` in the first `probe54` B run: 13–17 kB per "pass", the FIFO full in milliseconds).
+  Their read-modify-write targets the last FIFO word, and with none it free-runs.  Route
+  INC/DEC to RAM.
+
 ## Decoder corrections (2026-09-08, no new hardware)
 
 Three defects found while writing `docs/manual/`, all in `tools/isa/decode.py`:

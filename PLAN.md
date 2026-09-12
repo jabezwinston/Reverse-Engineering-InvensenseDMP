@@ -127,10 +127,11 @@ auto-detects it), so P6 is run as P4 was: confirm, don't explore.
 | P6.3 | Mantis semantics hold on DMP3: `d8`, `dd`/`dc`, `f1`, `c0`-family store, ALU byte, pointer bytes, `f4` branch | `probe44`–`probe46` | done; `f4` is a 16-bit jump/call, `e0` returns |
 | P6.4 | What `bc`/`bd`/`be` do (ICM-only bytes, 634 uses) and how a 16 KB space is addressed with 8x/9x/ax/bx pointer bytes | `probe47`, `probe48`, `probe50` (address-encoded memory) | done: +1 KB blocks; mode 4 = I/O space |
 | P6.5 | Pass timing on DMP3 (does the 0.58 µs/instr model transfer?) | `probe49`: the probe40 method | done: 0.19/0.80/1.18/1.22 µs + 16 µs |
-| P6.6 | Decoder `icm` lineage; coverage figure for the 14301 image on its own model | `tools/isa/decode.py` | done: 99.67 %; `d2`–`d7`, `e2`, `e7` open |
+| P6.6 | Decoder `icm` lineage; coverage figure for the 14301 image on its own model | `tools/isa/decode.py` | done: 100 % (Finding 25) |
+| P6.7 | A second DMP3 image; what a differential pair says about the jump encoding and mode 4 | eMD 1.0 `14290` image; `probe54`–`probe56`; `dmpasm .lineage icm` | done: mode 4 = branch-target mode (Finding 26) |
 
 Steps are ordered so that each result is a prerequisite for the next. All six were completed on
-2026-09-12; the record is ISA2.md Finding 24 and manual chapter 8, the open items UNKNOWNS.md §7.
+2026-09-12; the record is ISA2.md Findings 24–26 and manual chapter 8, the open items UNKNOWNS.md §7.
 
 ## Honest odds
 

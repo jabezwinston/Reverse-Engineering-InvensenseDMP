@@ -90,6 +90,30 @@ redundant.
 `branch` takes a byte count, not a label: count the bytes your instructions assemble to. The
 assembler prints the byte string, so assembling once and counting is the reliable method.
 
+### DMP3 (ICM-20948) control flow — `.lineage icm`
+
+| mnemonic | bytes | effect |
+|---|---|---|
+| `label:` | — | a code label; `.org ADDR` says where the program will live (default 0x1000) |
+| `jump LABEL` / `jump ADDR` | `f4 hi lo` | 16-bit absolute jump, backwards allowed; enters mode 4 |
+| `call LABEL` | `f4 hi lo` (bit 14) | call; `ret` (`e0`) returns |
+| `mode4` | `f4` | enter mode 4 without jumping |
+| `if f` / `if nf` | `d9` / `da` | F = sign of the last result (`test` makes it the zero flag); **sticky** until `always` |
+| `p0blk` `p1blk` `p2blk` | `bc` `bd` `be` | add 1 KB (mod 4) to the pointer |
+| `load k` | `d4`–`d7` | load the 4-word shifter from P0, select word k |
+| `shl s[,adv]` / `sar s[,adv]` | `fd n` | shift the register and store the selected word |
+| `lo` / `lo.next` | `d2` / `d3` | store the low word of the last product |
+| `int` | `e2` | raise DMP_INT1 |
+| `clr` | `de` | clear M[P2] in place |
+
+After a `jump`, `call` or `mode4` the machine is in **branch-target mode**: every byte below
+0x80 is read as the high byte of a target until a width byte (`fmode`, `min`, `min16`, `trunc`)
+ends the mode, and the mode is a global flag that a callee's `fmode` clears for its caller
+([chapter 8](08-dmp3-icm20948.md#84-mode-4-branch-target-mode-and-the-io-space)). The
+assembler therefore refuses an ALU op, `emit` or a low `.db` byte while the mode is armed,
+and warns about a target that does not begin with a width byte. `programs/loop_icm.s` is a
+complete counted loop.
+
 ## 3.7 The legacy FIFO-emit form
 
 The stock output blocks read naturally as "select a bank, emit these fields", and that spelling
@@ -160,7 +184,8 @@ See [chapter 5](05-host-interface.md) for where the sites are and how to run the
 
 - **No pseudo-instructions.** `min` and `min16` emit their prefix plus one ALU byte; nothing else
   expands to more than the bytes you wrote.
-- **No labels, no relocation, no linking.** You are patching a fixed image at a fixed address.
+- **No relocation, no linking.** You are patching a fixed image at a fixed address. Labels exist
+  only in the `icm` lineage, where `jump`/`call` need 16-bit addresses.
 - **No constant pool.** The machine has no immediates; put your constants in data RAM from the
   host before the run ([chapter 6](06-memory-map.md)).
 - **No range checking on pointers.** Nothing stops you aiming P2 at the constant page and
