@@ -990,6 +990,73 @@ works around it until the next flash).  Pointer and mode state survive DMP_RST b
 cells — a cell that leaves P0 in the I/O space poisons the next cell's first read unless
 the program reloads every pointer, which every probe here does.
 
+## Finding 25 — DMP3's last 34 bytes: a 4-word shifter, the product's low word, the interrupt, and how predicates really work (HARDWARE CONFIRMED 2026-09-12)
+
+Second session on the ICM-20948, `bench/probe51.py`–`probe53.py`.  The ICM image now decodes
+to **100 %** (10 349 / 10 349 code bytes).  Three of the results bear on the MPU chapters and
+are queued there as re-measurements (UNKNOWNS.md §7).
+
+**1. `fd n` is a two-byte SHIFT, and `d4`–`d7` drive it** (`probe51`, 28/28 cells + the
+vendor's sequence).  The vendor's `d4 fd 70 d5 fd 70 d6 fd 70 d7 fd 70` was decoded as four
+NOSTORE-compares under unknown prefixes; it is a **4-word arithmetic shift right by 16 into
+P2's four words**.  The machine has a 4-word shift register:
+
+    d4 / d5 / d6 / d7   load the register from P0's four words, select word 0 / 1 / 2 / 3
+    fd n                shift the register and store the selected word through the route
+                          n[4:0] = s;  n[5] = 0: left by s, each word pulling the top of the
+                          NEXT word's 30-bit fraction in at the bottom (word 3 wraps to word 0)
+                                   = 1: arithmetic right by 32 - s, per word
+                          n[6] = pre-advance P2 (the store lands on the next word)
+
+With P0 = (01234567 89abcdef 12345678 9abcdef0): `d4 fd 08` → 23456726 = (w0<<8) |
+((w1<<2)>>24); `d5 fd 28` → ffffff89 = w1 >> 24 sign-filled; `d7 fd 08` → bcdef004 (word 3
+takes bits from word 0).  The register keeps the shifted words, so a second `fd` compounds
+(`d5 fd 08 fd 48` → abcdef48 then cdef48d1).  A bare `fd n` with nothing loaded since
+DMP_RST stores **0** — and does not suppress the following op (`fd 08 08` still adds).  The
+words are treated as 30-bit Q30 fractions: this is multi-precision Q30 support.
+
+**2. `d2` / `d3` store the low word of the product** (`probe51 D`).  After `0a` (MUL), `d2`
+writes the **low 30 bits of the 64-bit product, sign-extended from bit 29**, over the
+current P2 word; `d3` advances P2 first.  Product 0x01234567 × 0x89abcdef (signed) =
+−0x86a1c936b1b9d7: the op stores fde578db (>> 30), `d3` then 094e4629.  After an ADD the
+low word is 0.  Together with the shifter this is double-precision Q30 arithmetic, which
+is what the vendor's `2a d2 f0 00 d2 a9 de` at 0x367c is doing.
+
+**3. Predicates are sticky, and there is one flag** (`probe52`).
+- A not-taken `d9`/`da` skips **every** following instruction — MOVs, pointer loads, the
+  halt — until the next `d8`/`d9`/`da`/`db` re-arms the condition.  `d9 c4 c6 ff` with the
+  condition false emitted nothing and ran off the end of the program; `d9 c4 d8 c6` ran
+  `c6`.  Mode bytes are transparent (`da f1 c4` takes `c4`).  Hence the vendor's `d8` at
+  every jump target and after every conditional block.
+- **F := (result < 0) after every ALU op**, 48/48 cells over ADD/RSUB/MUL/NMUL with zero,
+  positive and negative operands; INC/DEC set it from their result too.  `d1` replaces it
+  with F := (result == 0).  `d9` = IF.F, `da` = IF.¬F, and `db` behaved as `d9` in every cell.
+  MOV does not touch F.  So `f9 da f4 hi lo` is "decrement; while not negative, jump" — the
+  vendor's counted loop, 25 sites — and `31 d1 d9 f4 ..` is "compare; if equal, jump".
+- The MPU corpus predicates straight after an ALU op far more often than after `d1` (the
+  1929 image: 39 sites, no `d1` at all), so the sign reading almost certainly holds there
+  too; Findings 8 and 11 measured only the `d1` path.  Queued.
+
+**4. `e2` raises DMP_INT1; `e7` is a CLR** (`probe53`).  `e2` makes the bridge's `T`
+return 0.3 ms after the start with `INT_STATUS` bit 1 set; under `d9` it fires only when F
+is set.  The vendor's `da f0 e2 f1` at 0x23ec is "IF.NZ interrupt".  `e7` cleared M[P2] in
+place in every cell, identical to `de`, and does not read the FSYNC pin.
+
+**5. FSYNC** (D4 on the bridge, `Y 0|1`): with `EXT_SYNC_SET = 1` the level appears in
+`TEMP_OUT_L` bit 0, so the wire is good, and no instruction measured here (`e7`, `db`)
+follows it.
+
+**6. INC/DEC** read and write M[P2] under RAM routing (2 → 8 in six passes with a store to
+another page in between), and set F from the result.  Under FIFO routing they modify the
+last emitted word instead — the route is the destination in both directions.
+
+**Corrections to Finding 24**: the 33 bytes listed there as open are all decoded; the
+"conditional return" guess for `e2` was wrong (it is the interrupt), and `fd` on DMP3 is
+not NOSTORE.  The MPU reading of `fd` (probe31: 16/16 no-store, `fd 20 09 71 58`
+suppressing four ops) is not what the ICM does and should be re-measured with the shifter
+model in mind — on the MPU no `d4`–`d7` ever loads the register, so a bare `fd n` there may
+simply have stored nothing rather than zero.
+
 ## Decoder corrections (2026-09-08, no new hardware)
 
 Three defects found while writing `docs/manual/`, all in `tools/isa/decode.py`:

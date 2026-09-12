@@ -93,6 +93,27 @@ class Decoder:
             return 1, "NOBR   (f4 with bit7 set in the displacement: no jump)  [probe27]"
         if L == "icm" and b == 0xE0:
             return 1, "RET   (e0; ends every called routine and the image)  [probe46]"
+        if L == "icm" and b == 0xE2:
+            return 1, "INT   raise DMP_INT1  (e2; vendor: da f0 e2 f1)  [probe53]"
+        if L == "icm" and b == 0xE7:
+            return 1, f"CLR  {self.N.name(self.ptr(2))} := 0  (e7; same as de in every cell)  [probe53]"
+        if L == "icm" and b in (0xD2, 0xD3):
+            # probe51 D: the low 30 bits of the last 64-bit product, sign-extended from bit 29
+            if b == 0xD3: self.p2off = (getattr(self, "p2off", 0) + 4) % 16
+            return 1, (f"STORE.LO  {self.N.name(self.ptr(2))} := low word of the last product"
+                       f"{'  (P2 word++ first)' if b == 0xD3 else ''}  ({b:02x}; probe51)")
+        if L == "icm" and 0xD4 <= b <= 0xD7:
+            self.shw = b - 0xD4
+            return 1, f"SHIFTER.LOAD  4 words from {self.N.name(self.ptr(0))}, select word {b - 0xD4}  ({b:02x}; probe51)"
+        if L == "icm" and b == 0xFD and i + 1 < len(self.img):
+            # probe51: fd n is a two-byte SHIFT of the 4-word register, not NOSTORE.
+            n = self.img[i + 1]; sh = n & 0x1F
+            if n & 0x40: self.p2off = (getattr(self, "p2off", 0) + 4) % 16
+            k = getattr(self, "shw", None)
+            what = f"word {k}" if k is not None else "word ? (no SHIFTER.LOAD in this run: stores 0)"
+            how = f"arithmetic right by {32 - sh}" if n & 0x20 else f"left by {sh} (pulls the next word's fraction in)"
+            dest = self.N.name(self.ptr(2)) if self.ram else "FIFO"
+            return 2, (f"SHIFT  {how}; store {what} -> {dest}{'  (P2 word++ first)' if n & 0x40 else ''}  (fd {n:02x}; probe51)")
         fam = b >> 4
         if fam == 8: self.page[0] = b & 0xf; return 1, f"P0.page={b&0xf:x}   -> A@{self.ptr(0)} {self.N.name(self.ptr(0))}" + self.io()
         if fam == 9: self.page[1] = b & 0xf; return 1, f"P1.page={b&0xf:x}   -> B@{self.ptr(1)} {self.N.name(self.ptr(1))}" + self.io()
@@ -108,7 +129,14 @@ class Decoder:
             sel, bank = (b >> 1) & 3, b & 1
             self.bank[sel] = bank; return 1, f"P{sel}.bank={bank}"
         if 0xD8 <= b <= 0xDB:
-            self.cond = f"{b:02x}"; return 1, {0xD8: "ALWAYS", 0xD9: "IF.Z", 0xDA: "IF.NZ", 0xDB: "IF.3"}[b]
+            self.cond = f"{b:02x}"
+            if L == "icm":
+                # probe52: one flag F. Every ALU op / INC / DEC sets F := result < 0; d1 sets
+                # F := result == 0. d9 = IF.F, da = IF.not F, db = IF.F in every cell. Sticky:
+                # a not-taken predicate skips everything up to the next d8..db.
+                return 1, {0xD8: "ALWAYS  (re-arms: ends a sticky predicate)", 0xD9: "IF.F   (F = result<0, or ==0 right after d1; sticky until d8)",
+                           0xDA: "IF.NOT-F   (sticky until d8)", 0xDB: "IF.F   (db; identical to d9 in every DMP3 cell)"}[b]
+            return 1, {0xD8: "ALWAYS", 0xD9: "IF.Z", 0xDA: "IF.NZ", 0xDB: "IF.3"}[b]
         if L == "icm" and 0xF0 <= b <= 0xF7 and b != 0xF4:
             self.mode4 = False
         if b in self.fmode:
@@ -174,6 +202,8 @@ class Decoder:
         if b == 0xFE:
             return 1, "SKIP   (vendor: DINAFE; never probed -- label only)"
         if b == 0xD1:
+            if L == "icm":
+                return 1, "TEST  F := (last ALU result == 0)  (without d1, F is the result's sign)  [probe52]"
             return 1, "TEST  Z := (last ALU result == 0); d9 = IF.Z, da = IF.NZ  [probe19/20]"
         if b == 0xD0:
             self.p2off = (getattr(self, "p2off", 0) + 8) % 16
@@ -251,7 +281,10 @@ def run(img, start, end, table):
         n, txt = d.step(i)
         if not (0xD8 <= img[i] <= 0xDB):
             if d.cond != "d8": txt = f"[{d.cond}] " + txt
-            d.cond = "d8"                              # single-shot: governs one instruction (probe10)
+            if L == "icm":
+                pass                                    # sticky: governs everything up to the next d8..db (probe52)
+            else:
+                d.cond = "d8"                          # single-shot: governs one instruction (probe10)
         if d.base: print(f"{i + d.base:#06x}  {img[i:i+n].hex(' '):8}  {txt}")
         else:      print(f"{i:5}  {img[i:i+n].hex(' '):6}  {txt}")
         i += n

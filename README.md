@@ -6,9 +6,8 @@ disassembler and assembler for it.
 
 **Status: the ISA is decoded on silicon — 99.92 % of MPU-6050-family code bytes**
 (17284 of 17297 hardware-confirmed; the remaining 13 are 3050-lineage bytes that need an
-MPU-3050 to test and are rendered as marked conjecture), **and 99.67 % of the ICM-20948's
-DMP3 code** (10315 of 10349, measured on an ICM-20948; the 34 open bytes are two small
-families of flag tests).
+MPU-3050 to test and are rendered as marked conjecture), **and 100 % of the ICM-20948's
+DMP3 code** (10349 of 10349, measured on an ICM-20948).
 
 > **Start here: [docs/manual/](docs/manual/) — the programmer's manual.** Machine model,
 > complete instruction reference, assembly language, idioms, host interface, memory map, and the
@@ -44,8 +43,11 @@ written in this repo's assembly language run on real MPU-6050 silicon exactly as
 ISA2.md Finding 24): 16 KB of memory, a 12-bit data pointer with a 1 KB block field (`bc`/`bd`/`be`),
 `f4 hi lo` as a 16-bit absolute **jump**, bit 14 for **call** and `e0` for **return** — so loops
 and subroutines exist — and a mode 4 that every `f4` enters and `f1`/`f3` leave, under which the
-pointers address the chip's registers instead of RAM. Same ALU, same routing, same widths; a
-multiply costs the same as an add and the whole machine runs ~3× faster.
+pointers address the chip's registers instead of RAM. It also has a 4-word Q30 shifter
+(`d4`–`d7` + `fd n`) and a double-precision product (`d2`/`d3`), an interrupt instruction
+(`e2`), sticky predicates that read the sign of the last result (or zero, after `d1`). Same
+ALU, same routing, same widths; a multiply costs the same as an add and the whole machine
+runs ~3× faster.
 
 A **wholly custom program** runs from the entry point, not just patches into the vendor's `a3`
 slots, and it may extend past the end of the original image — so the budget is ~2270 bytes, and
@@ -87,7 +89,7 @@ The DMP emits a register selection the stock firmware never produces.
 | `PLAN.md` | the original plan of record (historical) |
 | `corpus/` | 12 unique firmware images + vendor sources, with provenance; `ROSETTA.md` |
 | `tools/` | extraction, analysis, decoder (`isa/decode.py`), lifter (`isa/pseudo.py`), assembler (`dmpasm.py`) |
-| `bench/` | hardware rig: ESP32 bridge (MPU-6050 or ICM-20948, auto-detected), init, 50 probes, `icm.py`, `RESULTS.md` |
+| `bench/` | hardware rig: ESP32 bridge (MPU-6050 or ICM-20948, auto-detected), init, 53 probes, `icm.py`, `RESULTS.md` |
 | `programs/` | example DMP programs |
 | `listings2/` | annotated listings of all 12 corpus images under the current model |
 | `listings/` | listings under the superseded first-pass model (historical) |

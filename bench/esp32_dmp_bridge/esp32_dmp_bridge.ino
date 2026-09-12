@@ -1,6 +1,6 @@
 // esp32_dmp_bridge - dumb I2C bridge to an MPU-6050 or ICM-20948 for DMP experiments.
 //
-// Wiring (as built):  SDA = D21, SCL = D22, INT (MPU INT / ICM INT1) = D5
+// Wiring (as built):  SDA = D21, SCL = D22, INT (MPU INT / ICM INT1) = D5, FSYNC = D4 (driven)
 //
 // The part is auto-detected at boot (0x68 then 0x69; WHO_AM_I 0xEA at reg 0 = ICM-20948,
 // 0x68/0x70/0x71/0x73 at reg 0x75 = MPU). The banner reports "# part <mpu|icm> addr <hex>".
@@ -23,6 +23,7 @@
 //   A <addr>                 set I2C address (hex)  -> "OK"
 //   X                        scan the bus -> "OK <addr>..."  (7-bit addresses, hex)
 //   K [mpu|icm]              select/report part profile -> "OK <part> <addr>"
+//   Y <0|1>                  drive the FSYNC pin (D4) low/high -> "OK <level>"; Y alone reads it
 //   T <ms>                   single step: reset+start DMP, wait for one INT edge (or
 //                            <ms> timeout), stop DMP  -> "OK <ints> <elapsed_us>"
 //                            (host-side stepping over a slow link runs many samples)
@@ -37,7 +38,7 @@
 
 #include <Wire.h>
 
-static const uint8_t SDA_PIN = 21, SCL_PIN = 22, INT_PIN = 5;
+static const uint8_t SDA_PIN = 21, SCL_PIN = 22, INT_PIN = 5, FSYNC_PIN = 4;
 static uint8_t MPU = 0x68;               // current I2C address (A command / autodetect)
 
 // Everything that differs between the two parts.
@@ -165,6 +166,7 @@ void setup() {
   Wire.setTimeOut(50);                   // never block the command loop
   pinMode(INT_PIN, INPUT);
   attachInterrupt(digitalPinToInterrupt(INT_PIN), onInt, RISING);
+  pinMode(FSYNC_PIN, OUTPUT); digitalWrite(FSYNC_PIN, LOW);
 
   for (uint8_t a : {0x68, 0x69}) {
     const Part *p = identify(a);
@@ -261,6 +263,11 @@ void handle(char *s) {
         if (Wire.endTransmission() == 0) { Serial.print(' '); Serial.print(addr, HEX); }
       }
       Serial.println();
+      return;
+    }
+    case 'Y': {
+      if (sscanf(s + 1, "%u", &a) == 1) digitalWrite(FSYNC_PIN, a ? HIGH : LOW);
+      Serial.print("OK "); Serial.println(digitalRead(FSYNC_PIN));
       return;
     }
     case 'K': {
