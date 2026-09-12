@@ -202,8 +202,9 @@ ACCQD7 = 0 + TEMP29;                       // newest sample in at the top
 `0 + x` is how the machine does a 32-bit move between pages: `MOV` (`cx`) can only read through
 P0, so where the source needs P1 the firmware adds the constant zero instead. Two other bytes do
 the same job by different means -- `fc` (Finding 19) exchanges the operand pointers for one op, and
-`f0` (Finding 21) makes the A operand contribute zero -- which is why a machine with no move
-instruction still moves data three different ways.
+`f0` (Finding 30) is the multiply-accumulate mode; a move through it would multiply, so the
+firmware uses the `0.0 + x` idiom for a plain page-to-page move -- which is why a machine with no
+move instruction still moves data.
 
 ## 4. The output phase, and how the host configures it
 

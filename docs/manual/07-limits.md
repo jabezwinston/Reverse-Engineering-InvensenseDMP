@@ -104,13 +104,7 @@ code, which is what the "dead biquad run" objection here was pointing at. `f7` t
 the lower-half-word store of the MIN/AND/XOR family, not a truncate-and-suppress: probe36's
 cell computed min(0.5, 0.5), whose low half is 0000 (Finding 29).
 
-## 7.5 Open: `f0`'s two readings
-
-`f0` makes the A operand contribute zero. On the constant page used for the measurement, word 1
-*is* 0.0, so **"A forced to zero" and "A index forced to word 1" cannot be told apart**. One cell
-on a P0 page whose second word is non-zero settles it.
-
-## 7.6 Open: the 3050 lineage's upper f-family
+## 7.5 Open: the 3050 lineage's upper f-family
 
 The `DINAF8` family sits at `0xf8` on the 3050 core and `0xf0` on mantis **[VENDOR]**, so 3050
 `fc`–`ff` should be mantis `f4`–`f7`: BRANCH, MIN, MIN16, TRUNC. `fc` is already decoded as the
@@ -126,7 +120,7 @@ Settling this needs an **MPU-3050**, which is a different part, not a different 
 The same applies to the twelve 3050 `c8`–`cf` bytes, rendered as `?MOV16` (mantis: MOVX) on the strength of
 `DINAC8`–`DINACF` being `0xc8`–`0xcf` in both headers.
 
-## 7.7 Open: smaller items
+## 7.6 Open: smaller items
 
 | item | status |
 |---|---|
@@ -138,7 +132,7 @@ The same applies to the twelve 3050 `c8`–`cf` bytes, rendered as `?MOV16` (man
 | MOV vs routing and width | every MOV measurement ran with routing on RAM and no width mode set |
 | `f5` with `op != 0` | unresolved: `op1` and `op4`–`op7` store nothing; `op2`/`op3` differ between operand pairs. The decoder marks these `F5.n` rather than guessing |
 
-## 7.8 The ICM-20948
+## 7.7 The ICM-20948
 
 `fcbb7309391e6bbf_14301` is DMP3-generation firmware and is excluded from every coverage figure
 in chapters 1–7. It is **not** a different core: on the bench it runs the mantis instruction set
@@ -150,12 +144,15 @@ MPU too, the flag is a sign flag (N and Z, frozen while a predicate is armed), `
 half-words, and `fd` is not NOSTORE but the P0/P2 exchange. Chapters 1–4 are corrected; `fd n`
 as a shift is DMP3-only.
 
-## 7.9 What would move the needle most
+## 7.8 What would move the needle most
 
 1. **An MPU-6500 or 9250 breakout.** It unlocks the 2639 image, whose validated symbol table
    names ~166 locations — ground truth instead of blind sweeping, on a core this manual already
    describes.
-2. **The second-destination hypothesis for §7.2.** A detector that watches more than P2.
-3. **An MPU-3050.** Closes §7.6 and the last 13 conjectural bytes.
-4. **Re-measuring `fd`, predicate stickiness and the sign flag on the MPU** with the DMP3
-   results in hand (UNKNOWNS.md §7): a dozen cells, and they may simplify chapter 2.
+2. **An MPU-3050.** Closes §7.5 and the last 13 conjectural bytes.
+3. **The DMP3 open items** (UNKNOWNS.md §7): the non-RAM `fc cX 04` forms and the I/O index map,
+   which need only bench time on the ICM-20948 already on the rig.
+
+The MPU re-measures that this list used to ask for — `fd`, the predicate scope, the flag,
+`c8`–`cf`, `f0`, `fe`, the `f5` family — are **done** (Findings 28–30), and the same-destination
+run anomaly that headed it is closed (§7.2).
