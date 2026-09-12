@@ -154,7 +154,12 @@ class Decoder:
                 # loop's DEC must run under d8 (Finding 27).
                 return 1, {0xD8: "ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)", 0xD9: "IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)",
                            0xDA: "IF.NOT-F   (sticky until d8; F frozen while armed)", 0xDB: "IF.F   (db; identical to d9 in every DMP3 cell, probe52/54)"}[b]
-            return 1, {0xD8: "ALWAYS", 0xD9: "IF.Z", 0xDA: "IF.NZ", 0xDB: "IF.3"}[b]
+            # probe67/68 (MPU-6050, 2026-09-12): every ALU op / INC / DEC sets N := result < 0 and
+            # Z := result == 0; d9 = IF (N or Z), da = IF not N, db = d9; d1 clears N, so after
+            # d1 d9 is IF.Z and da is always taken.  Sticky until the next d8..db, and the flags
+            # are frozen while a predicate is armed -- the same machine as DMP3 (Finding 28).
+            return 1, {0xD8: "ALWAYS  (ends a sticky predicate)", 0xD9: "IF.LE0   (N or Z; IF.Z right after d1; sticky until d8)",
+                       0xDA: "IF.GE0   (not N; always after d1; sticky until d8)", 0xDB: "IF.LE0   (db; same as d9 in every cell)"}[b]
         if L == "icm" and 0xF0 <= b <= 0xF7 and b != 0xF4:
             self.mode4 = False
         if b in self.fmode:
@@ -214,15 +219,18 @@ class Decoder:
             # probe35: the A field indexes P1 and the B field indexes P0.  32/32 cells over two
             # independent operand vectors.  Paired with RSUB (B-A) this gets the opposite
             # subtraction order without reloading a pointer -- 11/19 sites are followed by RSUB.
-            self.swap = True
-            return 1, "SWAP prefix  next ALU op reads A through P1 and B through P0  [probe35, 32/32]"
+            # probe68: it is a sticky TOGGLE, not a one-shot prefix -- MOVs read through P1 too,
+            # d8/f1/dc do not end it, a second fc does.  The store still goes to P2.
+            self.swap = not getattr(self, "swap", False)
+            return 1, ("XCHG01  A and MOV sources through P1, B through P0, until the next fc  [probe35, probe68]"
+                       if self.swap else "XCHG01  back to normal (second fc)  [probe68]")
         if b == 0xFD and self.L in ("mantis", "icm"):
-            # probe31: 16/16 no-store across the operand grid, and `fd 20 09 71 58`
-            # suppressed all four ops -- so it is not single-shot on the bench.  It is
-            # rendered as single-shot anyway because all three corpus sites head a live
-            # biquad run that would otherwise be entirely dead code.  Scope: open.
-            self.nostore = True
-            return 1, "NOSTORE  the following ALU result is not written  [probe31; scope open, see UNKNOWNS.md]"
+            # probe67/68 (MPU): fd exchanges the roles of P0 and P2 -- the A operand and MOV
+            # sources are read through P2 and the store lands in P0's page -- sticky until a
+            # second fd.  probe31 watched M[P2] and saw nothing, hence "NOSTORE".
+            self.xchg02 = not getattr(self, "xchg02", False)
+            return 1, ("XCHG02  A and MOV sources through P2, stores into P0's page, until the next fd  [probe67/68]"
+                       if self.xchg02 else "XCHG02  back to normal (second fd)  [probe68]")
         if self.L == "3050" and 0xFD <= b <= 0xFF:
             # dmpKey.h puts the DINAF8 family at 0xf8 in the 3050 lineage and at 0xf0 in
             # mantis, so 3050 fc..ff are mantis f4..f7 -- fc is already decoded as the branch
@@ -247,7 +255,7 @@ class Decoder:
         if b == 0xD1:
             if L == "icm":
                 return 1, "TEST  F := (last ALU result == 0)  (without d1, F is the result's sign)  [probe52]"
-            return 1, "TEST  Z := (last ALU result == 0); d9 = IF.Z, da = IF.NZ  [probe19/20]"
+            return 1, "TEST  clears N (Z := result == 0 stays): d9 becomes IF.Z, da becomes ALWAYS  [probe19/20, probe68]"
         if b == 0xD0:
             self.p2off = (getattr(self, "p2off", 0) + 8) % 16
             return 1, f"P2 word += 2 -> D@{self.ptr(2)} {self.N.name(self.ptr(2))}  (d0, mod 4; probe20)"
@@ -255,8 +263,8 @@ class Decoder:
             k = (b >> 1) & 3                       # source word of the P0 page; bit0 pre-advances P2
             if b & 1: self.p2off = (getattr(self, "p2off", 0) + 4) % 16
             src = self.ptr(0) + 4 * k
-            op = "MOV16" if b & 8 else "MOV  "     # c8..cf: upper half-word, zero-extended
-            note = ""
+            op = "MOVX " if b & 8 else "MOV  "     # c8..cf: the half-words exchanged (probe54 C, probe67 D)
+            note = "  ; c8-cf: half-words swapped, on both parts (probe54/67)" if b & 8 else ""
             if b & 8 and L == "icm":
                 # probe54 C: on DMP3 c8..cf copy the word with its half-words exchanged
                 # (01234567 -> 45670123); under f2/f3 that puts the source's LOW half into the
@@ -285,13 +293,19 @@ class Decoder:
             k = (b >> 1) & 3
             return 1, (f"?MOV16 {self.N.name(self.ptr(0) + 4 * k)} -> {self.N.name(self.ptr(2))}"
                        f"   ; CONJECTURE: assumed same as mantis c8-cf, no MPU-3050 to test")
+        if L == "mantis" and b in (0xD2, 0xD3, 0xD4, 0xD5, 0xE7):
+            # probe67/68: on the MPU these clear M[P2] in place like de (d2..d5 measured, e7 too);
+            # e0 / e2 emit a zero word under FIFO routing.  DMP3 gives them other meanings.
+            return 1, f"CLR  {self.N.name(self.ptr(2))} := 0  (in place; {b:02x} = de on the MPU, probe68)"
         if b in CONJECTURE and self.L == "mantis":
             return 1, CONJECTURE[b] + "  [UNKNOWNS.md]"
         if b < 0x80:
             A, B, op = (b >> 5) & 3, (b >> 3) & 3, b & 7
-            if getattr(self, "swap", False):          # fc: operand pointers exchanged
-                self.swap = False
+            if getattr(self, "swap", False):          # fc: operand pointers exchanged (sticky on both parts)
+                if L == "icm": self.swap = False
                 a, bb = self.ptr(1) + 4 * A, self.ptr(0) + 4 * B
+            elif getattr(self, "xchg02", False):      # fd on the MPU: A through P2
+                a, bb = self.ptr(2) + 4 * A, self.ptr(1) + 4 * B
             else:
                 a, bb = self.ptr(0) + 4 * A, self.ptr(1) + 4 * B
             ALU = {0: "ADD", 1: "RSUB", 2: "MUL", 3: "NMUL"}[op & 3]
@@ -303,7 +317,7 @@ class Decoder:
             # probe32: `44 44 44` writes 0x244/0x248/0x24c, and `00 2c 54 7c`
             # writes four consecutive words -- that is how QT1..QT4 get updated.
             if op & 4: self.p2off = (getattr(self, 'p2off', 0) + 4) % 16
-            d = self.ptr(2)
+            d = self.ptr(0) if getattr(self, "xchg02", False) else self.ptr(2)
             if getattr(self, "nostore", False):
                 self.nostore = False
                 dest = "(discarded)"
@@ -327,10 +341,7 @@ def run(img, start, end, table):
         n, txt = d.step(i)
         if not (0xD8 <= img[i] <= 0xDB):
             if d.cond != "d8": txt = f"[{d.cond}] " + txt
-            if L == "icm":
-                pass                                    # sticky: governs everything up to the next d8..db (probe52)
-            else:
-                d.cond = "d8"                          # single-shot: governs one instruction (probe10)
+            pass                                        # sticky on both parts: governs everything up to the next d8..db (probe52, probe67)
         if d.base: print(f"{i + d.base:#06x}  {img[i:i+n].hex(' '):8}  {txt}")
         else:      print(f"{i:5}  {img[i:i+n].hex(' '):6}  {txt}")
         i += n

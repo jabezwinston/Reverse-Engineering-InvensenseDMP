@@ -57,7 +57,7 @@ redundant.
 | mnemonic | byte | effect |
 |---|---|---|
 | `mov k[,inc]` | `c0`+ | `M[P2] = M[P0 + 4k]`, k = 0–3 |
-| `mov16 k[,inc]` | `c8`+ | the upper half-word, zero-extended |
+| `mov16 k[,inc]` | `c8`+ | the word with its half-words exchanged (MOVX; the vendor's name) |
 | `store` | `dc` | route ALU results to RAM (sticky) |
 | `fifo` (alias `store.off`) | `dd` | route to the FIFO (sticky; the at-rest state) |
 | `fmode N` | `f0`–`f3` | 0 = A contributes 0 (single-shot); 1 = 32-bit; 2 = upper half; 3 = lower half |
@@ -67,8 +67,8 @@ redundant.
 | `inc` / `dec` | `f8` / `f9` | `M[P2] += 1` / `-= 1`, one LSB |
 | `inc.next` / `dec.next` | `fa` / `fb` | advance the word first |
 | `trunc` | `f7` | `M[P2] &= 0xffff0000`; the next ALU op does not store |
-| `swap` | `fc` | the next ALU op reads A via P1 and B via P0 |
-| `nostore` | `fd` | ALU results are not written |
+| `xchg01` (alias `swap`) | `fc` | toggle: A and MOV sources via P1, B via P0, until the next `fc` |
+| `xchg02` | `fd` | toggle: A and MOV sources via P2, stores into P0's page, until the next `fd` (`nostore` is refused: `fd` never suppressed anything) |
 
 > `p2inc` and `clr.next` assemble to the same byte. `df` **clears the word it advances onto** —
 > there is no "advance without clearing". If you need the old value, advance with an ALU op's
@@ -78,9 +78,9 @@ redundant.
 
 | mnemonic | bytes | effect |
 |---|---|---|
-| `test` | `d1` | `Z := (last ALU result == 0)` |
-| `if z` / `if nz` | `d9` / `da` | run the **next instruction only** if `Z` / `!Z` |
-| `if 3` | `db` | the third, unidentified condition |
+| `test` | `d1` | clears N: `d9` becomes IF.Z, `da` always |
+| `if le0` / `if ge0` (aliases `if z` / `if nz`) | `d9` / `da` | **sticky**: run everything up to the next `always`/`if` while the last result was ≤ 0 / ≥ 0 (after `test`: == 0 / always) |
+| `if 3` | `db` | same as `d9` |
 | `always` | `d8` | unconditional (the default) |
 | `branch N` | `f4 N` | jump to `here + 2 + N`, forward only, `0 <= N <= 0x7f` |
 | `disable` | `ff` | halt |

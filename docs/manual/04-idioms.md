@@ -51,7 +51,7 @@ uses one of three arithmetic dodges instead:
 |---|---|---|
 | source on P0's page | `mov k` | `c0`–`c7` |
 | source on P1's page | add the constant zero: `add 1,k` with P0 on the constant page | one ALU byte |
-| source on P1's page, P0 not on the constant page | `swap` then an op — A now indexes P1 | `fc` + ALU |
+| source on P1's page, P0 not on the constant page | `xchg01` then an op — A now indexes P1 (and stays so until the next `fc`) | `fc` + ALU |
 | ditto | `fmode 0` — the A operand contributes 0 | `f0` + ALU |
 
 The accel delta shift register in the 1923 image is eight of the second form in a row:
@@ -71,7 +71,7 @@ The ALU's subtract is `B - A` and the operand order is fixed by the encoding. To
 without spending two bytes reloading pointers, exchange the pointers for one op:
 
 ```
-        swap                    ; fc
+        xchg01                  ; fc (toggle: a second fc restores P0/P1)
         rsub    A,B             ; now A indexes P1 and B indexes P0
 ```
 
@@ -182,7 +182,7 @@ walk the destination onto the word you want:
         p2page  9               ; a9 -- P2 -> page 9, word index 0
         p1page  9               ; 99 -- P1 -> the same page   (P0 already there)
         fmode   2               ; fa on this core: 16-bit store, upper half-word
-        mov16   1,inc           ; cb -- also steps P2 to word 1
+        mov16   1,inc           ; cb -- half-words exchanged; also steps P2 to word 1
         add     2,2,inc         ; 54 -- step to word 2; M[152] = M[152] + M[152]
         add     2,2             ; 50 -- x *= 2, seven times over
         add     2,2
@@ -229,7 +229,7 @@ reached only by advancing. From a fresh `ax`:
 `df` **clears the word it lands on**, so it is only a positioning instruction when you were going
 to overwrite that word anyway. `d0` advances by two without clearing. Advancing by exactly one
 without clearing and without storing has no single confirmed instruction — the obvious candidate
-is an ALU op under `nostore`, whose scope is an open question ([chapter 7](07-limits.md)).
+is an ALU op under `fd`, which exchanges P0 and P2 — the op reads its A operand from P2's page and stores into P0's ([chapter 2](02-instruction-set.md#26-modes-and-control-0xf00xff)).
 
 ## 4.13 Filler, and the trap in it
 

@@ -34,17 +34,19 @@ big-endian Q30 (2^30 = 1.0), range [-2,+2), addition wraps (modular).
        0 = the A operand contributes 0 for the next op only
   min16 A,B[,inc]                    f6 + ALU: signed min, 16-bit store (upper half-word)
   trunc                              f7: M[P2] &= 0xffff0000, and the next ALU op does not store
-  swap                               fc: the next ALU op reads A through P1 and B through P0
-  nostore                            fd: ALU results are not written
-  test                               d1: Z := (last ALU result == 0)
-  if z / if nz  (= if 1 / if 2)      d9 / da: run the NEXT instruction only if Z / not Z
-  always / if 3                      d8 / db (db: true at rest, meaning open)
+  xchg01 (alias swap)                fc: TOGGLE -- A and MOV sources through P1, B through P0, until the next fc
+  xchg02                             fd: TOGGLE -- A and MOV sources through P2, stores into P0's page, until the next fd
+  test                               d1: clears N (Z := result == 0 stays)
+  if le0 / if ge0 (= if z / if nz)   d9 / da: STICKY -- run everything up to the next always/if
+                                     while the last result was <= 0 / >= 0 (after test: == 0 / always)
+  always / if 3                      d8 / db (db = d9)
+  Every ALU op, inc and dec sets N and Z -- but not while a predicate is armed (probe67/68).
   clr.next                           df: P2 word++, then M[P2] := 0   (p2inc [N] = N of these)
   inc / dec                          f8 / f9: M[P2] += 1 / -= 1 (one LSB)
   inc.next / dec.next                fa / fb: P2 word++, then INC / DEC
   p2inc2                             d0: P2 word += 2, mod 4
   mov k[,inc]                        c0..c7: copy M[P0+4k] -> M[P2]; inc pre-advances P2
-  mov16 k[,inc]                      c8..cf: copy the upper half-word, zero-extended
+  mov16 k[,inc]                      c8..cf: copy the word with its half-words exchanged (MOVX; the name is the vendor's)
 
 Legacy FIFO-emit form (stock preambles) still assembles:
   selbank gyro|quat|accel|delay|0x9N
@@ -269,14 +271,18 @@ def assemble(text, lineage="mantis", warn=None):
                 if lineage == "3050":
                     raise AsmError("trunc (f7) is mantis-only")
                 out.append(0xF7); mode4 = False
-            elif op == "swap":                   # fc: next ALU op reads A via P1, B via P0
+            elif op in ("swap", "xchg01"):       # fc: toggle -- A and MOV sources via P1, B via P0 (probe68)
                 if lineage == "3050":
-                    raise AsmError("swap (fc) is mantis-only; fc is the 3050 branch")
+                    raise AsmError("xchg01 (fc) is mantis-only; fc is the 3050 branch")
                 out.append(0xFC)
-            elif op == "nostore":                # fd: results are not written (Finding 20)
+            elif op == "xchg02":                 # fd: toggle -- A and MOV sources via P2, stores into P0's page (probe67/68)
                 if lineage == "3050":
-                    raise AsmError("nostore (fd) is mantis-only")
+                    raise AsmError("xchg02 (fd) is mantis-only")
+                if lineage == "icm":
+                    raise AsmError("xchg02 (fd) is an MPU form; on DMP3 fd n is the shift (shl/sar)")
                 out.append(0xFD)
+            elif op == "nostore":
+                raise AsmError("nostore is withdrawn: fd never suppressed a store, it exchanges P0 and P2 (xchg02); use trunc (f7) for a one-op no-store")
             elif op == "min":                    # f5 + ALU byte with op field 0
                 mode4 = False
                 out.append(0xF5); out.append(_alu_byte("add", arg))
@@ -285,8 +291,8 @@ def assemble(text, lineage="mantis", warn=None):
                 out.append(_alu_byte(op, arg))
             elif op == "test":                   # d1: Z := (last ALU result == 0)
                 out.append(0xD1)
-            elif op == "if" and arg.lower() in ("z", "nz"):
-                out.append(0xD9 if arg.lower() == "z" else 0xDA)
+            elif op == "if" and arg.lower() in ("z", "nz", "le0", "ge0"):
+                out.append(0xD9 if arg.lower() in ("z", "le0") else 0xDA)
             elif op == "always":                 # d8: next instruction unconditional
                 out.append(0xD8)
             elif op == "if":                     # d9/da/db: predicate the NEXT instruction only
@@ -366,7 +372,7 @@ def assemble(text, lineage="mantis", warn=None):
                 raise AsmError(
                     f"unknown mnemonic {op!r} (confirmed: p0page/p1page/p2page, "
                     "p0bank/p1bank/p2bank, add/rsub/mul/nmul, store[.op], p2inc, always, if N, branch, "
-                    "fmode, min16, trunc, swap, nostore, selbank, emit, nop, skip, disable, .db; "
+                    "fmode, min16, trunc, xchg01/swap, xchg02, selbank, emit, nop, skip, disable, .db; "
                     "icm: .org, label:, jump, call, ret, mode4, if f/nf, p0blk/p1blk/p2blk, load, shl, sar, "
                     "lo, lo.next, int, clr, tz, tnz)")
         except AsmError as e:

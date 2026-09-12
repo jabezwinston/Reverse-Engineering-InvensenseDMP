@@ -85,7 +85,7 @@ Simulating the program from its entry point to 877 gives `P0.page = 9`, `P2.page
     a9        P2 -> page 9 (address 144), word index 0
     99        P1 -> page 9        => P0, P1 and P2 all name the same four words
     fa        16-bit store, upper half-word
-    cb        MOV16 word 1, pre-advancing P2 to word 1
+    cb        MOVX word 1 (half-words exchanged), pre-advancing P2 to word 1
     54        A=2 B=2 op=4  -> pre-advance to word 2; M[152] = M[152] + M[152]      x *= 2
     50 x7     A=2 B=2 op=0  -> no advance; M[152] = M[152] + M[152], seven more times
 ```
@@ -94,17 +94,15 @@ Eight doublings = **×256**, which is precisely what a function named `_8bit` sh
 in eight bytes. It confirms the operand indexing, the pre-advance reading of `op&4`, the
 assign-not-accumulate store, and the aliasing case above — all at once.
 
-## 7.4 Open: the reach of `fd` and `f7`
+## 7.4 Closed: `fd` and `f7`
 
-`fd` suppresses stores: 16/16 across the operand grid, and `fd 20 09 71 58` suppressed **all
-four** ops **[HW, probe31]** — so it is not single-shot on the bench. But all three `fd` sites in
-the corpus sit at the head of a *live* biquad run that would otherwise be entirely dead code, so
-the decoder renders it as single-shot. **Its scope is unresolved**, and so is the related
-question for `f7`: in the corpus the "next ALU op" after an `f7` is 1 to 9 bytes away, and
-nothing establishes whether an intervening pointer load or routing byte cancels the suppression.
-
-Discriminating experiment: `fd` followed by an ALU op, a pointer reload, and a second ALU op —
-does the second store?
+`fd` never suppressed a store. It exchanges the roles of P0 and P2 — the A operand and MOV
+sources read through P2, the store lands in P0's page — and it is a toggle, ended by the next
+`fd` **[HW, probe67/68]**. probe31 watched M[P2] and saw nothing, hence "NOSTORE"; the three
+corpus sites are a biquad that takes its state from P2's page and writes into P0's — live
+code, which is what the "dead biquad run" objection here was pointing at. `f7` still stands as
+measured: the next ALU op does not store (probe36); nothing has re-measured its reach past an
+intervening pointer load.
 
 ## 7.5 Open: `f0`'s two readings
 
@@ -125,7 +123,7 @@ renders it as `?TRUNC`, marked. `fd` and `fe` never occur, and the vendor also d
 `DINAFE = 0xfe` in the 3050 block, which would collide with MIN16.
 
 Settling this needs an **MPU-3050**, which is a different part, not a different configuration.
-The same applies to the twelve 3050 `c8`–`cf` bytes, rendered as `?MOV16` on the strength of
+The same applies to the twelve 3050 `c8`–`cf` bytes, rendered as `?MOV16` (mantis: MOVX) on the strength of
 `DINAC8`–`DINACF` being `0xc8`–`0xcf` in both headers.
 
 ## 7.7 Open: smaller items
@@ -146,10 +144,11 @@ The same applies to the twelve 3050 `c8`–`cf` bytes, rendered as `?MOV16` on t
 in chapters 1–7. It is **not** a different core: on the bench it runs the mantis instruction set
 unchanged and adds a block field to the pointers, a 16-bit jump with call and return, and an
 I/O mode. [Chapter 8](08-dmp3-icm20948.md) has the differences; its stock image decodes to
-100 % of 10 349 code bytes. Three DMP3 measurements contradict readings in chapters 1–7 and
-are queued for an MPU re-measure (UNKNOWNS.md §7): `fd` (a shift there, NOSTORE here),
-predicates (sticky there, single-shot here), and the flag (sign after any ALU op there, Z
-via `d1` only here — while the MPU images predicate after ALU ops 39 times without a `d1`).
+100 % of 10 349 code bytes. Four DMP3 measurements contradicted readings in chapters 1–7, and
+the MPU re-measure (ISA2.md Finding 28) went DMP3's way every time: predicates are sticky on the
+MPU too, the flag is a sign flag (N and Z, frozen while a predicate is armed), `c8`–`cf` swap
+half-words, and `fd` is not NOSTORE but the P0/P2 exchange. Chapters 1–4 are corrected; `fd n`
+as a shift is DMP3-only.
 
 ## 7.9 What would move the needle most
 

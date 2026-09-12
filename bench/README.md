@@ -11,7 +11,8 @@ differs: the ICM's banked registers, its `MEM_BANK_SEL`/`MEM_START_ADDR`/`MEM_R_
 0x7e/0x7c/0x7d, and its 16-byte burst limit. `X` scans the bus, `A <addr>` sets the address and
 `K mpu|icm` picks the profile by hand, `Y 0|1` drives FSYNC on D4. ICM-side helpers (register map, banked `rd`/`wr`, image
 load, DMP start, the `Rig` class the custom-program probes use) are in `icm.py`; the ICM probes
-are `probe42.py`–`probe66.py` and their results are ISA2.md Findings 24–27 and manual chapter 8.
+are `probe42.py`–`probe66.py` and their results are ISA2.md Findings 24–27 and manual chapter 8;
+`probe67.py`–`probe68.py` are the MPU-6050 re-measures those findings called for (Finding 28).
 Two ICM traps: keep `USER_CTRL.FIFO_EN` set while reading the FIFO, and select register bank 0
 before anything else after a reset — the bank survives an ESP32 reset.
 

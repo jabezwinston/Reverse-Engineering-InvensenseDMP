@@ -83,22 +83,21 @@ is a harmless pointer load. Padding with it **destroys P2**, which matters if yo
     v = 1100 h kk i          k = (v>>1) & 3   h = v & 8   i = v & 1
 
     if (i)  p2word = (p2word + 1) & 3;
-    <route> = h ? (M[P0 + 4*k] >> 16)        // 16-bit form, upper half-word, zero-extended
-                :  M[P0 + 4*k];              // 32-bit form
+    <route> = h ? swap16(M[P0 + 4*k])        // c8-cf: the half-words exchanged
+                :  M[P0 + 4*k];              // c0-c7: the word
 ```
 
-| | 32-bit | 16-bit (upper half-word) |
+| | the word | half-words exchanged |
 |---|---|---|
 | in place | `c0` `c2` `c4` `c6` | `c8` `ca` `cc` `ce` |
 | pre-advance P2 | `c1` `c3` `c5` `c7` | `c9` `cb` `cd` `cf` |
 
 Source word `k` = 0,1,2,3 for `c0/c2/c4/c6` respectively.
 
-> The 16-bit reading of `c8`–`cf` is from vendor names; it has not been measured on the MPU. On
-> DMP3 the family copies the word with its **half-words exchanged** (`01234567` → `45670123`),
-> and under `f2`/`f3` that is how a low half-word reaches an upper half and vice versa
-> ([chapter 8](08-dmp3-icm20948.md#88-what-else-differs)). Re-measure before relying on
-> either reading on the MPU.
+> `c8`–`cf` are **not** 16-bit MOVs: on both parts they copy the word with its **half-words
+> exchanged** (`c8` of `00000005` stores `00050000`), and under `f2`/`f3` that is how a low
+> half-word reaches an upper half and vice versa **[HW, probe54 C, probe67 D]**. MOV16 was the
+> vendor's `DINAC8` name.
 
 **MOV reads P0, not P1** **[HW, probe25]**. An earlier reading said P1; it was measured with both
 pointers on the same page and could not tell them apart. Re-measured with P0 on the constant page
@@ -114,23 +113,28 @@ on RAM) or the `f2`/`f3` width modes.
 | encoding | instruction | effect |
 |---|---|---|
 | `d0` | `p2word += 2` | mod 4 **[HW, probe20]** |
-| `d1` | `TEST` | `Z := (last ALU result == 0)` **[HW, probe19/20]** |
-| `d2`–`d7` | *unused* | never appears in any MPU-6050-family image |
-| `d8` | `ALWAYS` | the unconditional default; clears any pending predicate |
-| `d9` | `IF.Z` | run the next instruction only if `Z` **[HW]** |
-| `da` | `IF.NZ` | run the next instruction only if `!Z` **[HW]** |
-| `db` | `IF.3` | a third condition; follows `Z` in every cell measured, true at rest. Not identified **[HW, partial]** |
+| `d1` | `TEST` | clears **N**; **Z** stays. After it `d9` is IF.Z and `da` is always taken **[HW, probe19/20, probe68]** |
+| `d2`–`d5` | `CLR` | `M[P2] := 0` in place, like `de` **[HW, probe68]**; never appears in any MPU-6050-family image (DMP3 gives them other meanings) |
+| `d6`, `d7` | *unused* | never appears; unmeasured |
+| `d8` | `ALWAYS` | the unconditional default; ends a sticky predicate |
+| `d9` | `IF.LE0` | run while **N ∨ Z**: the last result was negative or zero **[HW, probe67]** |
+| `da` | `IF.GE0` | run while **¬N**: the last result was not negative **[HW, probe67]** |
+| `db` | `IF.LE0` | identical to `d9` in every cell measured, on both parts **[HW, probe68]** |
 | `dc` | `ROUTE → RAM` | sticky. Every following ALU result is written to `M[P2 + 4*p2word]` **[HW, probe6/16]** |
 | `dd` | `ROUTE → FIFO` | sticky. **The at-rest state** **[HW, probe16]** |
 | `de` | `CLR` | `M[P2] := 0`, in place, no advance **[HW, probe31]** |
 | `df` | `CLR.next` | `p2word++`, then `M[P2] := 0` **[HW, probe23/31]** |
 
-**Predicates gate exactly one instruction** **[HW, probe10]**. They are not region markers. Vendor
-code re-issues `d8` constantly, which is why listings look unchanged whether you model them as
-single-shot or not — but a program you write yourself will be wrong if you assume a region.
+**Predicates are sticky** **[HW, probe67; withdrawing probe10]**: a false `d9`/`da`/`db` skips
+*every* following instruction — MOVs, pointer loads, the halt — until the next `d8`–`db`. Mode
+bytes in between are transparent. That is why vendor code re-issues `d8` constantly, and why a
+program of your own needs a `d8` after every conditional block.
 
-**`Z` holds.** Without a `d1`, the flag keeps whatever it had. Three probe rounds mistook the
-predicates for constants because nothing in their payloads ever set the flag.
+**The flags.** Every ALU op, INC and DEC sets **N** (result < 0) and **Z** (result == 0); `d1`
+clears N. **While a predicate is armed the flags are frozen**: an op inside a predicated block
+does not change the condition that governs it, so the test that decides the next block must
+run under `d8` **[HW, probe67]**. The earlier "Z holds until the next `d1`" was this rule seen
+from cells that never left `d8`.
 
 `de` : `df` is exactly `f8` : `fa` — "in place" against "advance the word first". `de` is the
 byte that eight rounds of probing called inert: every one of them placed it *before* a store,
@@ -155,8 +159,8 @@ relocated from `f8`) and `f8`–`ff` (`DINBF8`, new in this core).
 | `f9` | `DEC` | `M[P2] -= 1` **[HW, probe23]** |
 | `fa` | `INC.next` | `p2word++`, then `M[P2] += 1` **[HW]** |
 | `fb` | `DEC.next` | `p2word++`, then `M[P2] -= 1` **[HW]** |
-| `fc` | `SWAP` | the next ALU op reads A through **P1** and B through **P0** **[HW, probe35, 32/32]** |
-| `fd` | `NOSTORE` | ALU results are not written. **Scope open** — see [chapter 7](07-limits.md) **[HW, probe31]** |
+| `fc` | `XCHG01` | **toggle**: A and MOV sources read through **P1**, B through **P0**, until the next `fc`; stores still go to P2 **[HW, probe35, probe68]** |
+| `fd` | `XCHG02` | **toggle**: A and MOV sources read through **P2** and the store lands in **P0's** page, until the next `fd` **[HW, probe67/68; withdrawing NOSTORE]** |
 | `fe` | `SKIP` | vendor `DINAFE`, used as a disable filler in driver patch pairs. **Never probed** — this is a label, not a measurement **[VENDOR]** |
 | `ff` | `HALT` | terminates the pass. Takes a predicate, so `d9 ff` is a conditional halt. The last byte of every mantis image **[HW, probe26]** |
 
@@ -205,12 +209,12 @@ bc-bf   ..unused..                                       (ICM-20948 only; scramb
 
 c0 MOV  0     c1 MOV  0 +   c2 MOV  1     c3 MOV  1 +
 c4 MOV  2     c5 MOV  2 +   c6 MOV  3     c7 MOV  3 +
-c8 MOV16 0    c9 MOV16 0 +  ca MOV16 1    cb MOV16 1 +
-cc MOV16 2    cd MOV16 2 +  ce MOV16 3    cf MOV16 3 +      ( + = pre-advance P2 word )
+c8 MOVX 0     c9 MOVX 0 +   ca MOVX 1     cb MOVX 1 +
+cc MOVX 2     cd MOVX 2 +   ce MOVX 3     cf MOVX 3 +       ( + = pre-advance P2 word; MOVX swaps the half-words )
 
-d0 p2word+=2  d1 TEST       d2 ..unused.. d3 ..unused..
+d0 p2word+=2  d1 TEST       d2 CLR        d3 CLR
 d4 ..unused.. d5 ..unused.. d6 ..unused.. d7 ..unused..
-d8 ALWAYS     d9 IF.Z       da IF.NZ      db IF.3
+d8 ALWAYS     d9 IF.LE0     da IF.GE0     db IF.LE0
 dc ->RAM      dd ->FIFO     de CLR        df CLR +
 
 e0-ef   ..unused..          (no occurrence anywhere in the MPU-6050-family corpus)
@@ -218,7 +222,7 @@ e0-ef   ..unused..          (no occurrence anywhere in the MPU-6050-family corpu
 f0 AZERO      f1 WIDTH.32   f2 WIDTH.16H  f3 WIDTH.16L
 f4 BRANCH imm f5 MIN        f6 MIN16      f7 TRUNC
 f8 INC        f9 DEC        fa INC +      fb DEC +
-fc SWAP       fd NOSTORE    fe SKIP       ff HALT
+fc XCHG01     fd XCHG02     fe SKIP       ff HALT
 ```
 
 **48 of the 256 encodings are never executed** in the 11 MPU-6050-family images: `bc`–`bf`,
@@ -241,7 +245,7 @@ Only the 1024-byte `dmpDefault.c` image is 3050-lineage. Two families move; the 
 | `c8`–`cf` | `c8`–`cf` | MOV16 — **[INFER]** |
 
 The mantis-only families (`b*` selector 3, `c0`–`c7` MOV, and the whole `f8`–`ff` `DINBF8`
-family: INC/DEC/SWAP/NOSTORE/SKIP/HALT) have **no 3050 equivalent**. A 3050 program has no
+family: INC/DEC/XCHG01/XCHG02/SKIP/HALT) have **no 3050 equivalent**. A 3050 program has no
 increment, no operand swap and no halt instruction.
 
 **`ff` is not HALT in this lineage.** The one `ff` in image 1024 sits at 825, unconditional

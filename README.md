@@ -4,7 +4,7 @@ Reverse engineering the undocumented instruction set of the InvenSense DMP (Digi
 Processor) embedded in MPU-6050/6500/9150/9250 IMUs and the ICM-20948, and building a
 disassembler and assembler for it.
 
-**Status: the ISA is decoded on silicon — 99.92 % of MPU-6050-family code bytes**
+**Status: the ISA is decoded on silicon — 99.92 % of MPU-6050-family code bytes** (four readings corrected on 2026-09-12 by the DMP3 work, Finding 28)
 (17284 of 17297 hardware-confirmed; the remaining 13 are 3050-lineage bytes that need an
 MPU-3050 to test and are rendered as marked conjecture), **and 100 % of the ICM-20948's
 DMP3 code** (both published images, 10349 + 10338 bytes, measured on an ICM-20948).
@@ -23,15 +23,14 @@ The instruction set in one table (every rule hardware-confirmed; [chapter 2](doc
 | `8x` `9x` `ax`, `bx` | P0/P1/P2 page and bank; address = bank*256 + page*16 |
 | low byte | `M[P0+4A] op M[P1+4B]`, op in {ADD, B−A, MUL, −MUL}, Q30, **wrapping**; `op&4` pre-advances the destination word |
 | `dc` / `dd` | route results to RAM / to the FIFO — a sticky latch, FIFO at rest |
-| `c0`–`cf` | MOV / MOV16 from P0; odd values pre-advance the destination |
+| `c0`–`cf` | MOV from P0, `c8`–`cf` with the half-words exchanged; odd values pre-advance the destination |
 | `de` / `df` | clear M[P2] in place / advance the word first, then clear |
 | `f8` `f9` / `fa` `fb` | INC / DEC M[P2], in place / after advancing |
 | `f5` / `f6` | signed MIN, 32-bit / 16-bit store |
 | `f7` | clear the destination's low half-word |
-| `fc` | exchange the operand pointers for one op (A via P1, B via P0) |
-| `fd` | suppress stores |
+| `fc` / `fd` | toggles: exchange P0 with P1 (operand sources) / with P2 (sources and the store's page) |
 | `f0`–`f3` | store width: `f1` 32-bit, `f2` upper half, `f3` lower half; `f0` makes A contribute 0 |
-| `d1`, `d9` / `da` | TEST `Z := (result == 0)`, then IF.Z / IF.NZ — single-shot |
+| `d9` / `da`, `d1` | IF ≤ 0 / IF ≥ 0 on the last result — **sticky** until `d8`; `d1` clears the sign so `d9` becomes IF.Z |
 | `f4 imm` | 7-bit **forward-only** branch; bit 7 set means the byte executes instead |
 | `ff` | halt (conditional — it takes a predicate) |
 
@@ -93,7 +92,7 @@ The DMP emits a register selection the stock firmware never produces.
 | `PLAN.md` | the original plan of record (historical) |
 | `corpus/` | 13 unique firmware images (two of them DMP3) + vendor sources, with provenance; `ROSETTA.md` |
 | `tools/` | extraction, analysis, decoder (`isa/decode.py`), lifter (`isa/pseudo.py`), assembler (`dmpasm.py`) |
-| `bench/` | hardware rig: ESP32 bridge (MPU-6050 or ICM-20948, auto-detected), init, 66 probes, `icm.py`, `RESULTS.md` |
+| `bench/` | hardware rig: ESP32 bridge (MPU-6050 or ICM-20948, auto-detected), init, 68 probes, `icm.py`, `RESULTS.md` |
 | `programs/` | example DMP programs |
 | `listings2/` | annotated listings of all 13 corpus images under the current model |
 | `listings/` | listings under the superseded first-pass model (historical) |

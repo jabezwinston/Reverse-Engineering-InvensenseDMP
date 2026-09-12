@@ -43,16 +43,9 @@ see. Reproduce the aliasing analysis with `python3 tools/isa/runs.py`.
 
 ## 2. The reach of `fd`, and of `f7`
 
-`fd` suppresses stores — 16/16 across the operand grid, and `fd 20 09 71 58` suppressed **all
-four** ops, so it is not single-shot on the bench (probe31). But all three `fd` sites in the
-corpus head a *live* biquad run that would otherwise be entirely dead code, so `decode.py`
-renders it as single-shot and says so inline. **The scope is unresolved.**
-
-The same question applies to `f7`, whose "next ALU op" is 1 to 9 bytes away in the corpus:
-nothing establishes whether an intervening pointer load or routing byte cancels the suppression.
-
-**Experiment:** `fd`, an ALU op, a pointer reload, a second ALU op — does the second store? Then
-the same with a `dc`/`dd` between, and with `f7` in place of `fd`.
+**`fd` closed** (Finding 28): it is the P0/P2 exchange toggle, not NOSTORE. `f7` stands as
+measured (the next ALU op does not store); its reach across an intervening pointer load is
+still unmeasured.
 
 ## 3. Two readings of `f0` not yet separated
 
@@ -106,10 +99,6 @@ images decode to **100 %**. What remains, each with the experiment that would se
 
 | item | status | experiment |
 |---|---|---|
-| **MPU: `fd`** | measured on the MPU as NOSTORE (probe31). On DMP3 `fd n` is a two-byte shift whose bare form stores 0 and suppresses nothing. The MPU has no `d4`–`d7` loads, so its bare `fd` may store nothing rather than zero — or the MPU reading is right and the parts differ | on the MPU: `fd 08` over a seeded RAM word (nothing / zero / shifted?), then `d4 fd 08` — does the MPU have the shifter at all |
-| **MPU: predicate scope** | single-shot on the MPU (probe10); sticky until the next `d8`–`db` on DMP3 | on the MPU: `d9 c4 c6 ff` with the condition false, and a `d8 ff` safety tail |
-| **MPU: the flag** | Z set by `d1` only (Findings 8/11); on DMP3 every ALU op, INC and DEC set F := result < 0 and `d1` sets F := result == 0. The MPU images predicate after ALU ops 39 times in 1929 with no `d1` at all | on the MPU: `<op> d9 c6` over zero / positive / negative results |
-| **MPU: `c8`–`cf`** | MOV16 from vendor names; on DMP3 the family swaps the half-words (`45670123`) | on the MPU: `c8` under `f1`/`f2`/`f3`, RAM-routed, byte-asymmetric source |
 | the I/O space index map | [INFER]. Not the host register file (probe56: host registers invisible, a store through it changes none); index 0 = `ea`, live bytes at 0x1d0 and 0x250–0x2a4 | the same sweep with the sensors in known states (gyro standby, accel standby, a known FSYNC level) and the FIFO at known fill; then match the live bytes to the raw sensor words in the FIFO |
 | `fc cX Y` for Y ∉ {00, 01, 03, 05} | `fc cX 00/01/03/05` tests P1 word X for zero / nonzero (Finding 27; probe65/66). With Y's B field set, or Y = 02, 04, 0c, no zero in any RAM word (one or two at a time) fires the test; 37 vendor sites are `fc cX 04`, 12 have B ≠ 0 | these forms test a condition that is not a RAM word: candidates are the I/O space (index P1 word X under mode 4?), a sensor/data-ready flag, or the FIFO; sweep them with the sensors in standby vs running and with the FIFO full vs empty |
 | `bf` | P0/P1 unaffected; a P2 store after it lands nowhere (probe54 E). Unattested | none needed |
@@ -121,7 +110,8 @@ Resolved this session and removed from the list: `f6`/`f7` end mode 4 (probe54 B
 mode 4 (there is none — mode 4 is branch-target mode, Finding 26); `c8`–`cf` on DMP3
 (half-word swap); the assembler's ICM forms (`dmpasm`, `.lineage icm`); `fc` (a three-byte
 zero test), the loop hazard (F is frozen under an armed predicate), `fd n` after an ALU op (it
-shifts the result; a MUL's full product) and the skipped-`f4` rule — Finding 27.
+shifts the result; a MUL's full product) and the skipped-`f4` rule — Finding 27. The four MPU
+re-measures (`fd`, predicate scope, the flag, `c8`–`cf`) — all went DMP3's way, Finding 28.
 
 ## Bench discipline these results depend on
 

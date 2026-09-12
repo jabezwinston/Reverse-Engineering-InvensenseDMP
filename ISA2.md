@@ -1282,6 +1282,57 @@ ae f8` does not (a bank load does not end the mode), `d8 f8` with P2 untouched d
 `d8 fX` the vendor writes after every conditional jump is for the fall-through as much as for
 the target.  The assembler's mode-4 tracking already arms on every `jump`/`call`.
 
+## Finding 28 — the MPU re-measures: the MPU-6050 is the same machine as DMP3, and four of its chapters were wrong (HARDWARE CONFIRMED 2026-09-12)
+
+The MPU-6050 went back on the bridge for the four items the DMP3 sessions queued
+(UNKNOWNS.md §7), `bench/probe67.py`–`probe68.py`: custom programs at 0x300 over the stock
+1929 image's data, P0 → 0x70 = [+5, −20, +7, 0], P1 → 0x60 = [−5, +2, −9, +30], P2 → 0x240
+seeded, FIFO-routed cells read after a short `T`, RAM-routed cells read back, **the data pages
+re-seeded before every cell** (the first run's `fd` cells rewrote P0's page and poisoned
+everything after them — a trap for the record).  All four MPU readings fall, each the same
+way DMP3 said they would, and one of them was hiding a whole instruction.
+
+**1. Predicates are sticky on the MPU** (`08 d1 d9 c4 c6 d8 c0` with the condition false
+emitted +7 and +5: both MOVs skipped, the `d8` re-armed; with it true, all four words; a mode
+byte in between is transparent).  Chapter 2's "gate exactly one instruction" (probe10) is
+withdrawn.
+
+**2. The MPU flag is a sign flag, and it is frozen under an armed predicate.**  Without any
+`d1`: `d9` fires on −25, −10 and 0, `da` on +7, +15 and 0 — INC/DEC included (`f9` on 1 → 0
+fires both, on 0 → −1 fires `d9` only).  So the MPU keeps **N** (result < 0) and **Z**
+(result == 0) after every ALU op, INC and DEC, with `d9` = IF (N ∨ Z), `da` = IF ¬N, `db` =
+`d9` (11 cells).  `d1` **clears N** (after it `d9` is IF.Z and `da` is always taken: `00 d1
+da`, `01 d1 da`, `08 d1 da` all fire, `01 d1 d9` does not), which is the Z-only story of
+Findings 8/11 seen from inside its own cells.  `01 d9 08 c6` emits −10, +7, 0 and `08 da 01
+c6` +7, −10, 0: the op under the armed predicate does not update the flags, exactly as on DMP3
+(Finding 27).  The one DMP3 difference is at zero: DMP3's `d9` is N alone.
+
+**3. `c8`–`cf` swap the half-words on the MPU too** (`c8` of 5 stores `00050000`, `cc` of 7
+`00070000`; under `f2` the source's low half lands in the upper half, under `f3` the high half
+in the lower).  MOV16 — from the vendor's `DINAC8` names — was never true on either part.
+
+**4. `fd` is not NOSTORE: it exchanges P0 and P2.**  `dc fd 08` left M[P2] alone (probe31's
+"no store") and wrote `M[P2 word 0] + V1` into **P0 word 0**; `fd 20` reads A from P2 word 1;
+`fd c0` / `fd c2` copy P2's words into P0's page; FIFO-routed `fd 08` emits `M[P2] + 2`.  So
+under `fd` the A operand and the MOV source come through P2 and the store goes to P0's page —
+the roles of P0 and P2 exchanged — and it is **sticky**: `d8`, `f1` and `dd` do not end it, a
+second `fd` does (`fd fd 08` stores 7 at P2).  `fc` is the same kind of thing for P0 and P1
+(`fc c0 c2` reads −5, +2 through P1; `fc 21 d8 21` stays swapped; `fc fc 21` is back to +15;
+the store still goes to P2): probe35's "one-shot prefix" was one op wide because its cells
+were.  The decoder renders them `XCHG01` / `XCHG02`, toggling.  The three vendor `fd` sites
+(3062/3065 at 2662) now read as a biquad that takes its state from P2's page and writes into
+P0's — live code, which is what the "dead biquad run" objection in chapter 7 was pointing at.
+
+**5. The DMP3 extras on the MPU.**  `d2`, `d3`, `d4`, `d5` and `e7` clear M[P2] in place like
+`de` (RAM-routed over a seed); `e0` and `e2` emit a zero word under FIFO routing.  There is no
+shifter (`d4 fd 08` = clear, then the exchange), no product low word, no return, no interrupt.
+
+So chapters 1–7 describe the DMP3 machine with a smaller address space and no control flow,
+and the predicate / flag / exchange rules are one design.  Corrected in the manual (chapters
+1, 2, 3, 4, 7), the decoder (all eleven MPU listings regenerated: 62 predicates in the 1929
+image change name, no byte changes class) and the assembler (`xchg01`, `xchg02`, `if le0`,
+`if ge0`).
+
 ## Decoder corrections (2026-09-08, no new hardware)
 
 Three defects found while writing `docs/manual/`, all in `tools/isa/decode.py`:

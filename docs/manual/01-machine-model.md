@@ -102,13 +102,14 @@ Beyond the pointers, this is the whole machine:
 
 | state | width | set by | cleared / changed by |
 |---|---|---|---|
-| **Z flag** | 1 | `d1` — `Z := (last ALU result == 0)` | only by the next `d1`; it *holds* otherwise |
-| **predicate** | — | `d9` / `da` / `db` gate the **next instruction only** | consumed after one instruction; `d8` is the unconditional default |
+| **flags N, Z** | 2 | every ALU op, INC, DEC: N := result < 0, Z := result == 0; `d1` clears N | frozen while a predicate is armed |
+| **predicate** | — | `d9` IF (N ∨ Z) / `da` IF ¬N / `db` = `d9` — **sticky** | until the next `d8`–`db` |
 | **result routing** | 1 | `dc` → RAM, `dd` → FIFO | **sticky**; FIFO is the at-rest state |
 | **store width** | 2 | `f1` 32-bit, `f2` upper half, `f3` lower half | **sticky** |
 | **A-zero** | 1 | `f0` — the A operand contributes 0 | **single-shot**, next ALU op only |
-| **operand swap** | 1 | `fc` — A reads via P1, B via P0 | single-shot |
-| **store suppress** | 1 | `f7` (one op), `fd` (scope open) | see [chapter 7](07-limits.md) |
+| **exchange P0/P1** | 1 | `fc` — A and MOV sources via P1, B via P0 | **toggle**: until the next `fc` |
+| **exchange P0/P2** | 1 | `fd` — A and MOV sources via P2, stores into P0's page | **toggle**: until the next `fd` |
+| **store suppress** | 1 | `f7` — the next ALU op does not store | one op |
 | **MIN prefix** | 1 | `f5` / `f6` | single-shot, and only for `op&3 == 0` |
 
 Two consequences worth internalising:
@@ -173,7 +174,7 @@ The same instruction set was renumbered once, between the MPU-3050 core and the 
 | the `DINAF8` mode family | `f8`–`ff` | `f0`–`f7` |
 | a **second** f-family (`DINBF8`) | — | `f8`–`ff` |
 | MOV (`DINBC0`…) | — | `c0`–`c7` |
-| MOV16 (`DINAC8`…) | `c8`–`cf` | `c8`–`cf` |
+| MOVX, half-words exchanged (`DINAC8`…) | `c8`–`cf` | `c8`–`cf` |
 
 So the mantis core did not merely shift opcodes: it **widened the bank field by one bit** and
 **gained a whole second high family**. The index transform recovered blind from image diffing,
