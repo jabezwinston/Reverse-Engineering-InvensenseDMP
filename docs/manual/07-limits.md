@@ -146,9 +146,11 @@ as a shift is DMP3-only.
 
 ## 7.8 What would move the needle most
 
-1. **An MPU-6500 or 9250 breakout.** It unlocks the 2639 image, whose validated symbol table
-   names ~166 locations — ground truth instead of blind sweeping, on a core this manual already
-   describes.
+1. **An MPU-6500 or 9250 breakout.** The native part for the 2639/2634 images. The 2639 image
+   already runs on the 6050 (same ISA) with its symbol table confirmed on silicon — it loads
+   byte-perfect at start 0x0400 and its `D_SMD_EXE_STATE` advances where the decode predicts
+   (Finding 32) — but a 6500 would drive its sensor pipeline natively and validate the FIFO
+   output against the symbol-named emit slots.
 2. **An MPU-3050.** Closes §7.5 and the last 13 conjectural bytes.
 3. **The DMP3 open items** (UNKNOWNS.md §7): the non-RAM `fc cX 04` forms and the I/O index map,
    which need only bench time on the ICM-20948 already on the rig.

@@ -1458,6 +1458,39 @@ With this, every byte the DMP3 stock image uses is decoded to a measured meaning
 `fc`-under-mode-4 tag from Finding 26 is gone: `d8 fc c0 08 d9 f4` is *else, if P1 word 0 bit 1
 is set, jump*.
 
+## Finding 32 — the 2639-byte image runs on silicon, and its symbol table is confirmed there (HARDWARE CONFIRMED 2026-09-12)
+
+The project's standing "what would move the needle most" item was an MPU-6500/9250 breakout to
+run the 2639-byte `ml_load_dmp` image, whose 138-entry `dmpKey.h` symbol table names ~166
+locations — the ground truth the larger images never had.  The part that went on the bench
+reports `WHO_AM_I = 0x68` (an MPU-6050, not the 0x70 of a 6500), but the 2639 image is the same
+**mantis** ISA, and its symbol table is image-relative, so it validates on a 6050 all the same
+(`bench/probe78.py`, `probe79.py`).
+
+**The image loads and runs.**  The kernel hammerhead driver loads it identity-mapped
+(`MPU_DMP_LOAD_START = 0x20`, the first 0x20 zero bytes skipped) and sets the program start to
+**0x0400** in `REG_PRGM_STRT_ADDRH = 0x70` / `+1` — where the 1929 MotionApps image the bench has
+always used starts at **0x0300** (`DMP_CFG_1 = 0x03`, which is this same register).  Loaded at
+address 0 with the start set to 0x0400, the image verifies **2639/2639 bytes** and the DMP
+accepts it.  Run for 0.3 s with gyro and accel active, **six data words change**: the four at
+0x000–0x00C fill with sensor-derived values, and **0x160 goes 0 → 1**.
+
+**0x160 is the three-way confirmation.**  The decoder, reading the entry at 0x400
+(`d8 b0 b5 b9 f3 a6 f8 …`), says `a6` points P2 at `D_1_96` = bank 1 page 6 = 352 = **0x160** and
+`f8` increments it.  The symbol table names 0x160 **`D_SMD_EXE_STATE`** (the significant-motion
+state the pass advances).  Hardware shows 0x160 moving 0 → 1 when the image runs.  Static decode,
+the symbol map and silicon agree — the addressing model (`bank*256 + page*16 + 4*field`) and the
+symbol table hold on the 2639 image, not just the 1929 one.  `D_FS_Q0` also reads back
+`0x40000000` (the unit full-scale quaternion) at its named 0x0C0.
+
+**What is not done.**  The 2639 image is feature-gated like DMP3 — unlike the always-on
+MotionApps image it emits nothing until the driver enables an output by writing DINA sequences to
+its `KEY_CFG_*` addresses, so the FIFO stayed empty (no `DMP_INT`).  Reconstructing that enable
+sequence (a nontrivial slice of the kernel driver) would let the FIFO output be validated against
+the symbol-named emit slots; execution and addressing are confirmed without it.  A genuine
+MPU-6500 would still be worth having — it is the native part for this image and for the 2634/2639
+differential pair — but the symbol-table ground truth is now anchored on hardware.
+
 ## Decoder corrections (2026-09-08, no new hardware)
 
 Three defects found while writing `docs/manual/`, all in `tools/isa/decode.py`:
