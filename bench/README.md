@@ -1,10 +1,19 @@
-# P4 — bench protocol (MPU-6050 on ESP32)
+# P4 — bench protocol (MPU-6050 or ICM-20948 on ESP32)
 
-Rig as built: **SDA = D21, SCL = D22, MPU INT = D5**, MPU-6050 at I2C 0x68.
+Rig as built: **SDA = D21, SCL = D22, INT = D5**, the part at I2C 0x68 (or 0x69).
 
 The ESP32 runs `esp32_dmp_bridge.ino` and contains **no experiment logic** — it only exposes
 register and DMP-memory access over serial. All experiment logic lives in `dmpbench.py` on the
 host, so iterating never requires reflashing.
+
+The bridge **auto-detects the part** at boot (banner `# part mpu|icm addr 68`) and hides what
+differs: the ICM's banked registers, its `MEM_BANK_SEL`/`MEM_START_ADDR`/`MEM_R_W` at
+0x7e/0x7c/0x7d, and its 16-byte burst limit. `X` scans the bus, `A <addr>` sets the address and
+`K mpu|icm` picks the profile by hand. ICM-side helpers (register map, banked `rd`/`wr`, image
+load, DMP start, the `Rig` class the custom-program probes use) are in `icm.py`; the ICM probes
+are `probe42.py`–`probe50.py` and their results are ISA2.md Finding 24 and manual chapter 8.
+Two ICM traps: keep `USER_CTRL.FIFO_EN` set while reading the FIFO, and select register bank 0
+before anything else after a reset — the bank survives an ESP32 reset.
 
 ## Why this is safe
 

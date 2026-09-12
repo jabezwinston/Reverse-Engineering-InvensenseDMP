@@ -1,5 +1,8 @@
 # P4 bench results — MPU-6050 on ESP32
 
+*2026-09-12: the same rig with an ICM-20948 — probes 42–50, results in ISA2.md Finding 24 and
+docs/manual/08-dmp3-icm20948.md. The sections below are the MPU-6050 record.*
+
 Rig: MPU-6050, SDA=D21, SCL=D22, INT=D5, ESP32 on `/dev/ttyUSB0` (CP2102).
 All results reproducible with `dmpbench.py`, `quat_probe.py`, `experiment.py`.
 

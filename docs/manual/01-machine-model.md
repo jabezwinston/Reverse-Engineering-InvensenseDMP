@@ -152,10 +152,11 @@ An image is not pure code. It is data, then code, and the boundary is a per-part
 |---|---|---|---|---|
 | Family A (mlsdk / MotionApps) | 1024, 1923, 1929, 1962 | `0`–`0x2ff` | `0x300`– | **0x0300** = 768 |
 | Family B (`ml_load_dmp.c`, eMD) | 2634–3065 | `0`–`0x3ff` | `0x400`– | **0x0400** = 1024 |
-| ICM-20948 (DMP3, out of scope) | 14301 | `0`–`0xfff` | `0x1000`– | — |
+| ICM-20948 (DMP3, [chapter 8](08-dmp3-icm20948.md)) | 14301 | `0`–`0xfff` | `0x1000`– | **0x1000**; the image loads at DMP address 0x90 |
 
-The entry address is not inferred: MotionApps20 writes `0x03 0x00` to registers 0x70/0x71, and
-i2cdevlib writes `0x04 0x00` for the Family B images **[VENDOR]**.
+The entry address is not inferred: MotionApps20 writes `0x03 0x00` to registers 0x70/0x71,
+i2cdevlib writes `0x04 0x00` for the Family B images, and the SparkFun ICM-20948 driver writes
+`0x10 0x00` to bank 2 register 0x50 after loading the image at 0x90 **[VENDOR]**.
 
 The data region holds the Q30 constants the program reads (there are no immediates — see
 [chapter 6](06-memory-map.md)), the filter coefficients and thresholds the host tunes, and the

@@ -93,18 +93,29 @@ item 4.
 |---|---|
 | `db` (`IF.3`) | follows `Z` in every cell measured and is true at rest; the condition itself is unidentified |
 | `fe` (`SKIP`) | **never probed.** Labelled from `DINAFE` and from driver disable-patch pairs; 6 corpus occurrences |
-| `bc`–`bf`, `d2`–`d7`, `e0`–`ef` | 48 encodings never executed by any MPU-6050-family image. `bc`–`bf` scramble this core when executed; the rest are wholly unattested |
+| `bc`–`bf`, `d2`–`d7`, `e0`–`ef` | 48 encodings never executed by any MPU-6050-family image. `bc`–`bf` scramble this core when executed; the rest are wholly unattested on the MPU. On DMP3, `bc`–`be`, `e0` and `f4`'s new form are decoded (item 7) |
 | `f4` with `imm >= 0x20` | the drivers' `f4 44` / `f4 41` raise a DMP interrupt. Whether that is a distinct form or a long branch has not been separated |
 | P2 word index reset on `ax` | inferred, never isolated — every measured payload reloads the page first |
 | MOV vs routing and width | every MOV measurement ran with routing on RAM and no width mode set |
 | `f5` with `op != 0` | unresolved: `op1` and `op4`–`op7` store nothing, `op2`/`op3` differ between operand pairs. Rendered `F5.n` |
 
-## 7. The ICM-20948 image
+## 7. The ICM-20948 (DMP3) — open items after the 2026-09-12 bench session
 
-`fcbb7309391e6bbf_14301` is DMP3-generation firmware, a different core, and is excluded from every
-coverage number here. All 634 `bc`/`bd`/`be` bytes in the corpus live in it and nowhere else.
-Under the mantis model it decodes to 93.1 %, which is an upper bound on coincidental agreement,
-not a decode. Decoding it needs its own model.
+The core, the block pointers, the 16-bit jump/call/return, mode 4 and the timing are measured
+(ISA2.md Finding 24, manual chapter 8). Coverage of its 10 349 code bytes is 99.67 %. What is
+still open, each with the experiment that would settle it:
+
+| item | status | experiment |
+|---|---|---|
+| `d2`–`d7` (27 bytes) | undecoded. Every site stands right before an `fd`-discarded compare, and `d5 fd 40 d6 fd 40 d7 fd 40` at 0x3840 repeats one compare under three of them — TEST variants that select a flag, presumably read by `d9`/`da`/`db` | for each `dN`: `dN fd <op>` with operands chosen to make the result zero / negative / positive, then `d9 c4` and `da c4` — which flag each `dN` sets, and which predicate reads it |
+| `e2` (6), `e7` (1) | undecoded. `e2` always sits in a predicated slot after a width byte (`da f0 e2`, `da f3 e2`), the shape of the vendor's conditional halt `da f1 ff` — a conditional return is the obvious reading | a routine `e2 c4 e0` called with Z set and clear: does `c4` run |
+| the I/O space index map | [INFER]. Index 0 reads `WHO_AM_I`, 0x74 `DATA_RDY_STATUS`, 0x70 moves with the FIFO, 0x94–0xa9 look like sensor bytes; the vendor writes word 3 through it at 0x1072 | sweep bank/page under mode 4 while changing one host register at a time (`INT_ENABLE`, `GYRO_SMPLRT_DIV`) and watch which index follows; then a MOV store under the mode and read the register bank back |
+| ALU under mode 4 | one cell stored nothing (doubling accumulator stayed at 1); another read the correct sum into the FIFO; a third read 0 | the doubling accumulator routed to the FIFO, under the mode, three repeats |
+| `c8`–`cf` width | `cc` under `f1` emitted the full 32-bit word on the ICM. The MPU reading (16-bit, zero-extended) is from vendor names only | `cc` under `f1`/`f2`/`f3` on both parts, RAM-routed, with a byte-asymmetric source |
+| `f6`, `f7` ending mode 4 | assumed by symmetry with `f0`–`f3`, `f5`; unmeasured | `f4 d8 f6 b3 8f c0` and `f4 d8 f7 b3 8f c0` |
+| `bf` | unattested in every image | `bf b3 8f c0` on address-encoded memory |
+| loops | 9 backward jumps in the image, never executed in isolation | a counted loop: `f8` a counter, `fd`-compare, `d9 f4 <back>` |
+| assembler | `dmpasm` does not know the ICM forms | add `jump`/`call`/`ret`/`blk` and the mode-4 discipline as a lint |
 
 ---
 

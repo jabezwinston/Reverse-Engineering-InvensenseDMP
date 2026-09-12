@@ -1,6 +1,11 @@
-// esp32_dmp_bridge - dumb I2C bridge to an MPU-6050 for DMP experiments.
+// esp32_dmp_bridge - dumb I2C bridge to an MPU-6050 or ICM-20948 for DMP experiments.
 //
-// Wiring (as built):  SDA = D21, SCL = D22, MPU INT = D5
+// Wiring (as built):  SDA = D21, SCL = D22, INT (MPU INT / ICM INT1) = D5
+//
+// The part is auto-detected at boot (0x68 then 0x69; WHO_AM_I 0xEA at reg 0 = ICM-20948,
+// 0x68/0x70/0x71/0x73 at reg 0x75 = MPU). The banner reports "# part <mpu|icm> addr <hex>".
+// The two parts differ only in register addresses and the DMP-memory burst limit, which
+// the profile table below hides from the host; the command set is the same.
 //
 // The ESP32 does no experiment logic; it only exposes register and DMP-memory
 // access over serial so the host can iterate without reflashing.
@@ -15,20 +20,38 @@
 //   R <len>                  read FIFO   -> "OK <hex>"
 //   I                        INT state   -> "OK <level> <count>"
 //   Z                        clear INT counter -> "OK"
+//   A <addr>                 set I2C address (hex)  -> "OK"
+//   X                        scan the bus -> "OK <addr>..."  (7-bit addresses, hex)
+//   K [mpu|icm]              select/report part profile -> "OK <part> <addr>"
 //   T <ms>                   single step: reset+start DMP, wait for one INT edge (or
 //                            <ms> timeout), stop DMP  -> "OK <ints> <elapsed_us>"
 //                            (host-side stepping over a slow link runs many samples)
+//
+// ICM-20948 notes: M/N/T/F/R/P assume register bank 0 and re-select it themselves
+// (REG_BANK_SEL 0x7f); a host that used G/S in another bank need not restore it. DMP
+// memory is accessed through MEM_BANK_SEL/MEM_START_ADDR/MEM_R_W (0x7e/0x7c/0x7d) in
+// bursts of at most 16 bytes that never cross a 256-byte page, exactly as the vendor
+// driver does; M/N split longer requests. The T command starts the DMP with
+// USER_CTRL = FIFO_EN|DMP_RST (0x48) rather than the MPU's 0x4c, because bit 2 is
+// SRAM_RST on the ICM, not FIFO_RESET.
 
 #include <Wire.h>
 
 static const uint8_t SDA_PIN = 21, SCL_PIN = 22, INT_PIN = 5;
-static const uint8_t MPU = 0x68;
+static uint8_t MPU = 0x68;               // current I2C address (A command / autodetect)
 
-static const uint8_t RA_SMPLRT_DIV = 0x19, RA_USER_CTRL = 0x6A,
-                     RA_PWR_MGMT_1 = 0x6B, RA_BANK_SEL = 0x6D,
-                     RA_MEM_START = 0x6E, RA_MEM_R_W = 0x6F,
-                     RA_FIFO_COUNTH = 0x72, RA_FIFO_R_W = 0x74,
-                     RA_WHO_AM_I = 0x75;
+// Everything that differs between the two parts.
+struct Part {
+  const char *name;
+  uint8_t who_reg, pwr1, user_ctrl, bank_sel, mem_start, mem_rw, fifo_cnt, fifo_rw;
+  uint8_t chunk;        // largest DMP-memory burst
+  bool    regbank;      // has REG_BANK_SEL at 0x7f (ICM)
+  uint8_t t_reset;      // USER_CTRL value that resets the DMP+FIFO in the T command
+};
+static const Part PART_MPU = { "mpu", 0x75, 0x6B, 0x6A, 0x6D, 0x6E, 0x6F, 0x72, 0x74, 128, false, 0x4C };
+static const Part PART_ICM = { "icm", 0x00, 0x06, 0x03, 0x7E, 0x7C, 0x7D, 0x70, 0x72,  16, true,  0x48 };
+static const Part *part = &PART_MPU;
+static const uint8_t RA_REG_BANK_SEL = 0x7F;   // ICM only
 
 volatile uint32_t intCount = 0;
 void IRAM_ATTR onInt() { intCount++; }
@@ -51,15 +74,41 @@ static bool rdReg(uint8_t reg, uint8_t *d, size_t n) {
   return true;
 }
 
+// ICM: user registers live in four banks selected by REG_BANK_SEL; everything the
+// bridge touches itself is in bank 0.
+static bool bank0() { return !part->regbank || wr1(RA_REG_BANK_SEL, 0x00); }
+
 // DMP memory is paged: bank select, then byte address within the 256-byte page.
+// Each burst is at most part->chunk bytes and never crosses a page (the ICM requires
+// both; the MPU tolerates 128-byte bursts within a page).
 static bool memSeek(uint8_t bank, uint8_t addr) {
-  return wr1(RA_BANK_SEL, bank & 0x1F) && wr1(RA_MEM_START, addr);
+  return bank0() && wr1(part->bank_sel, part->regbank ? bank : (bank & 0x1F)) && wr1(part->mem_start, addr);
 }
-static bool memRead(uint8_t bank, uint8_t addr, uint8_t *d, size_t n) {
-  return memSeek(bank, addr) && rdReg(RA_MEM_R_W, d, n);
+static bool memXfer(uint8_t bank, uint8_t addr, uint8_t *d, size_t n, bool write) {
+  unsigned a = bank * 256u + addr;
+  while (n) {
+    size_t k = n < part->chunk ? n : part->chunk;
+    if ((a & 0xFF) + k > 0x100) k = 0x100 - (a & 0xFF);
+    if (!memSeek(a >> 8, a & 0xFF)) return false;
+    if (write ? !wrReg(part->mem_rw, d, k) : !rdReg(part->mem_rw, d, k)) return false;
+    a += k; d += k; n -= k;
+  }
+  return true;
 }
-static bool memWrite(uint8_t bank, uint8_t addr, const uint8_t *d, size_t n) {
-  return memSeek(bank, addr) && wrReg(RA_MEM_R_W, d, n);
+static bool memRead(uint8_t bank, uint8_t addr, uint8_t *d, size_t n)        { return memXfer(bank, addr, d, n, false); }
+static bool memWrite(uint8_t bank, uint8_t addr, const uint8_t *d, size_t n) { return memXfer(bank, addr, (uint8_t *)d, n, true); }
+
+// Probe one address for either part. Returns the profile or NULL. The MPU test comes
+// first because the ICM test has to write REG_BANK_SEL (0x7f): the ICM's register bank
+// survives an ESP32 reset, and WHO_AM_I is only at reg 0 in bank 0.
+static const Part *identify(uint8_t addr) {
+  uint8_t w = 0, saved = MPU;
+  MPU = addr;
+  const Part *found = NULL;
+  if (rdReg(0x75, &w, 1) && (w == 0x68 || w == 0x70 || w == 0x71 || w == 0x73)) found = &PART_MPU;
+  else if (wr1(RA_REG_BANK_SEL, 0x00) && rdReg(0x00, &w, 1) && w == 0xEA) found = &PART_ICM;
+  MPU = saved;
+  return found;
 }
 
 static int hexNib(char c) {
@@ -117,10 +166,18 @@ void setup() {
   pinMode(INT_PIN, INPUT);
   attachInterrupt(digitalPinToInterrupt(INT_PIN), onInt, RISING);
 
-  wr1(RA_PWR_MGMT_1, 0x80);              // device reset
+  for (uint8_t a : {0x68, 0x69}) {
+    const Part *p = identify(a);
+    if (p) { part = p; MPU = a; break; }
+  }
+  bank0();
+  wr1(part->pwr1, 0x80);                 // device reset
   delay(100);
-  wr1(RA_PWR_MGMT_1, 0x01);              // wake, clock = PLL/gyro-X
+  bank0();
+  wr1(part->pwr1, 0x01);                 // wake, clock = PLL/gyro-X (MPU) / auto (ICM)
   delay(20);
+  Serial.print("# part "); Serial.print(part->name);
+  Serial.print(" addr "); Serial.println(MPU, HEX);
   Serial.println("# i2c init done");
 }
 
@@ -146,7 +203,7 @@ void handle(char *s) {
   switch (s[0]) {
     case 'P': {
       uint8_t w = 0;
-      if (!rdReg(RA_WHO_AM_I, &w, 1)) { Serial.println("ERR i2c"); return; }
+      if (!bank0() || !rdReg(part->who_reg, &w, 1)) { Serial.println("ERR i2c"); return; }
       Serial.print("OK "); Serial.println(w, HEX);
       return;
     }
@@ -177,13 +234,13 @@ void handle(char *s) {
     }
     case 'F': {
       uint8_t fc[2];
-      if (!rdReg(RA_FIFO_COUNTH, fc, 2)) { Serial.println("ERR i2c"); return; }
+      if (!bank0() || !rdReg(part->fifo_cnt, fc, 2)) { Serial.println("ERR i2c"); return; }
       Serial.print("OK "); Serial.println((fc[0] << 8) | fc[1]);
       return;
     }
     case 'R':
       if (sscanf(s + 1, "%u", &a) != 1 || a > sizeof(buf)) { Serial.println("ERR arg"); return; }
-      if (!rdReg(RA_FIFO_R_W, buf, a)) { Serial.println("ERR i2c"); return; }
+      if (!bank0() || !rdReg(part->fifo_rw, buf, a)) { Serial.println("ERR i2c"); return; }
       Serial.print("OK "); emitHex(buf, a); Serial.println();
       return;
     case 'I':
@@ -193,15 +250,35 @@ void handle(char *s) {
     case 'Z':
       intCount = 0; Serial.println("OK");
       return;
+    case 'A':
+      if (sscanf(s + 1, "%x", &a) != 1 || a > 0x7F) { Serial.println("ERR arg"); return; }
+      MPU = a; Serial.println("OK");
+      return;
+    case 'X': {
+      Serial.print("OK");
+      for (uint8_t addr = 0x08; addr < 0x78; addr++) {
+        Wire.beginTransmission(addr);
+        if (Wire.endTransmission() == 0) { Serial.print(' '); Serial.print(addr, HEX); }
+      }
+      Serial.println();
+      return;
+    }
+    case 'K': {
+      if (strstr(s + 1, "mpu")) part = &PART_MPU;
+      else if (strstr(s + 1, "icm")) part = &PART_ICM;
+      else if (s[1] && s[1] != ' ') { Serial.println("ERR arg"); return; }
+      Serial.print("OK "); Serial.print(part->name); Serial.print(' '); Serial.println(MPU, HEX);
+      return;
+    }
     case 'T': {
       unsigned ms = 600;
       sscanf(s + 1, "%u", &ms);
-      if (!wr1(RA_USER_CTRL, 0x00)) { Serial.println("ERR i2c"); return; }
+      if (!bank0() || !wr1(part->user_ctrl, 0x00)) { Serial.println("ERR i2c"); return; }
       intCount = 0;
-      if (!wr1(RA_USER_CTRL, 0x4C) || !wr1(RA_USER_CTRL, 0xC0)) { Serial.println("ERR i2c"); return; }
+      if (!wr1(part->user_ctrl, part->t_reset) || !wr1(part->user_ctrl, 0xC0)) { Serial.println("ERR i2c"); return; }
       uint32_t t0 = micros();
       while (intCount == 0 && (micros() - t0) < ms * 1000UL) { }
-      wr1(RA_USER_CTRL, 0x00);           // stop within microseconds of the edge
+      wr1(part->user_ctrl, 0x00);        // stop within microseconds of the edge
       uint32_t dt = micros() - t0;
       uint32_t n = intCount;
       Serial.print("OK "); Serial.print(n); Serial.print(' '); Serial.println(dt);

@@ -111,12 +111,26 @@ power-cycle recovers, no brick risk. P0–P3 exist so this phase confirms rather
 Assembler + disassembler for the confirmed subset; minimal custom program as proof (read accel
 from DMP RAM → compute → emit to FIFO).
 
-### P6 — ICM-20948
+### P6 — ICM-20948 *(hardware phase started 2026-09-12)*
 ~~Treat ISA compatibility as a hypothesis to test; repeat P1–P3 separately.~~
-**Superseded — see FINDINGS.md.** Code-histogram analysis over its true code region (offset
-4096+) puts DMP3 at cos 0.73–0.82 against the pooled MPU code, inside the MPU-vs-MPU range.
-DMP3 is very likely the same ISA family, so this folds into the main effort and its ~10 KB of
-code becomes the single largest contributor to ISA inference.
+Code-histogram analysis put DMP3 inside the MPU-vs-MPU range (FINDINGS.md), and the bytes at
+the vendor entry point — image offset `0x1000 − 0x90 = 3952`, since the SparkFun driver loads
+the image at DMP address **0x0090** and starts it at **0x1000** — read as mantis code
+(`d8 dc b8 b0 b4 f3 …`). The static "code starts at image offset 4096" boundary was off by the
+load offset. The part is on the bench (ICM-20948 at 0x68 on the same ESP32 bridge, which now
+auto-detects it), so P6 is run as P4 was: confirm, don't explore.
+
+| Step | Question | Instrument | Status |
+|---|---|---|---|
+| P6.1 | Bridge reaches the part; DMP memory reads/writes exactly | `bench/probe42.py` (bring-up, extent, determinism) | done: 16 KB, exact |
+| P6.2 | Stock DMP3 image runs from 0x1000 and produces FIFO/INT | `bench/probe43.py` (vendor init sequence, accel output only) | done |
+| P6.3 | Mantis semantics hold on DMP3: `d8`, `dd`/`dc`, `f1`, `c0`-family store, ALU byte, pointer bytes, `f4` branch | `probe44`–`probe46` | done; `f4` is a 16-bit jump/call, `e0` returns |
+| P6.4 | What `bc`/`bd`/`be` do (ICM-only bytes, 634 uses) and how a 16 KB space is addressed with 8x/9x/ax/bx pointer bytes | `probe47`, `probe48`, `probe50` (address-encoded memory) | done: +1 KB blocks; mode 4 = I/O space |
+| P6.5 | Pass timing on DMP3 (does the 0.58 µs/instr model transfer?) | `probe49`: the probe40 method | done: 0.19/0.80/1.18/1.22 µs + 16 µs |
+| P6.6 | Decoder `icm` lineage; coverage figure for the 14301 image on its own model | `tools/isa/decode.py` | done: 99.67 %; `d2`–`d7`, `e2`, `e7` open |
+
+Steps are ordered so that each result is a prerequisite for the next. All six were completed on
+2026-09-12; the record is ISA2.md Finding 24 and manual chapter 8, the open items UNKNOWNS.md §7.
 
 ## Honest odds
 

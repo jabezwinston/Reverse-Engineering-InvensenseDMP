@@ -92,7 +92,9 @@ def check_ping(ser):
     line = buf.decode(errors="replace").strip()
     if line.startswith("OK"):
         who = line[2:].strip()
-        step("ping", OK if who.lower().endswith("68") else MEH, f"P -> {line!r}  (WHO_AM_I 68 = MPU-6050)")
+        w = who.lower()
+        part = {"68": "MPU-6050", "70": "MPU-6500", "71": "MPU-9250", "73": "MPU-9255", "ea": "ICM-20948"}.get(w[-2:])
+        step("ping", OK if part else MEH, f"P -> {line!r}  (WHO_AM_I {w[-2:]} = {part or 'unknown part'})")
         return True
     if line.startswith("ERR"):
         step("ping", BAD, f"bridge answered {line!r}: ESP32 is flashed, MPU-6050 not answering on I2C")

@@ -70,7 +70,7 @@ width, sticky).
 | `b0`–`b3` | `P0.bank = v & 3` | **[HW]** |
 | `b4`–`b7` | `P1.bank = v & 3` | **[HW]** |
 | `b8`–`bb` | `P2.bank = v & 3` | **[HW]** |
-| `bc`–`bf` | *unknown* | selector 3 of the bank family. Never appears in any MPU-6050-family image; all 634 occurrences in the corpus are in the ICM-20948 image. Scrambles the rig when executed at the probe site. |
+| `bc`–`bf` | *not a mantis instruction* | selector 3 of the bank family. Never appears in any MPU-6050-family image and scrambles the MPU rig when executed at the probe site. On DMP3 `bc`/`bd`/`be` add a 1 KB block to P0/P1/P2 — [chapter 8](08-dmp3-icm20948.md) **[HW, ICM-20948]**. `bf` is unattested everywhere. |
 
 `a3` deserves a note: it is `P2.page = 3`, which points the destination at bank 1 page 3 — the
 `TMP1B..TMP4B` scratch page. That is why the vendor uses `a3` as its NOP and why every disabled

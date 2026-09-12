@@ -49,6 +49,15 @@ def symbols():
 def dmpmap():
     return parse_defines(SRC / "sources/ics-mr0__mlsdk__mllite__dmpmap.h", lambda n: n.startswith("DMP_"))
 
+def dmp3map():
+    """DMP3 (ICM-20948) data labels: the SparkFun ICM_20948_DMP.h `#define X (page * 16 + off)`
+    family.  Addresses are DMP memory addresses (the image loads at 0x90, so they are not
+    image offsets).  Names that are not memory addresses (sizes, bit masks) are dropped by
+    keeping only values below 0x1000."""
+    d = parse_defines(SRC / "sources_external/sparkfun_ICM_20948_DMP.h")
+    skip = ("DMP_START_ADDRESS", "DMP_MEM_BANK_SIZE", "DMP_LOAD_START", "MAX_SERIAL_R_W", "DMP_CODE_SIZE")
+    return {n: v for n, v in d.items() if 0 <= v < 0x1000 and n not in skip}
+
 def code_labels(sym):
     return {n: v for n, v in sym.items() if CODE_LABEL(n)}
 

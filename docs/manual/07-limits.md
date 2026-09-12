@@ -140,13 +140,14 @@ The same applies to the twelve 3050 `c8`–`cf` bytes, rendered as `?MOV16` on t
 | MOV vs routing and width | every MOV measurement ran with routing on RAM and no width mode set |
 | `f5` with `op != 0` | unresolved: `op1` and `op4`–`op7` store nothing; `op2`/`op3` differ between operand pairs. The decoder marks these `F5.n` rather than guessing |
 
-## 7.8 Out of scope: the ICM-20948
+## 7.8 The ICM-20948
 
-`fcbb7309391e6bbf_14301` is DMP3-generation firmware — a different core, and the only place in the
-corpus where `bc`/`bd`/`be` appear at all (634 of 634 occurrences). Under the mantis model it
-decodes to 93.1 %, which should be read as an upper bound on coincidental agreement, not as a
-decode. It contributes ~10 KB of code, more than all MPU images combined, and deserves its own
-model. It is excluded from every coverage figure in this manual.
+`fcbb7309391e6bbf_14301` is DMP3-generation firmware and is excluded from every coverage figure
+in chapters 1–7. It is **not** a different core: on the bench it runs the mantis instruction set
+unchanged and adds a block field to the pointers, a 16-bit jump with call and return, and an
+I/O mode. [Chapter 8](08-dmp3-icm20948.md) has the differences and its own coverage figure
+(99.67 % of 10 349 code bytes); the 34 bytes still open there (`d2`–`d7`, `e2`, `e7`) are in
+UNKNOWNS.md.
 
 ## 7.9 What would move the needle most
 
@@ -155,3 +156,5 @@ model. It is excluded from every coverage figure in this manual.
    describes.
 2. **The second-destination hypothesis for §7.2.** A detector that watches more than P2.
 3. **An MPU-3050.** Closes §7.6 and the last 13 conjectural bytes.
+4. **The DMP3 flags.** `d2`–`d7` and `e2` are 33 of the ICM-20948's 34 undecoded bytes, and the
+   experiment is a dozen cells (UNKNOWNS.md item 7).

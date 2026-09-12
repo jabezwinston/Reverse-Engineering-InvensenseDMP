@@ -117,6 +117,14 @@ The i2cdevlib images live in the `.cpp` files, not the headers, and use `PROGMEM
 and `=`. The ICM-20948 image is a **bare initializer fragment** with no declaration at all —
 it is `#include`d inside an array elsewhere. `tools/extract.py` handles both.
 
+*2026-09-12:* the ICM-20948 driver that goes with that image — `sparkfun_ICM_20948.cpp`,
+`sparkfun_ICM_20948_C.c`, `sparkfun_ICM_20948_DMP.h`, `sparkfun_ICM_20948_REGISTERS.h` — was
+added from the `main` branch of SparkFun's `SparkFun_ICM-20948_ArduinoLibrary` (single raw
+files, no clone). They supply the load address (0x90), the entry point (0x1000), the register
+map and the DMP3 data labels that `tools/isa/symbols.py:dmp3map()` reads. This also corrects
+the "code begins at image offset 4096" line below: the boundary is at DMP address 0x1000, which
+is image offset 0xf70 (ISA2.md Finding 24).
+
 ## MPU-6050 ↔ MPU-6500 are nearly the same program
 
 **1929 B (MotionApps20, MPU-6050) vs 1923 B (dmpDefaultMantis, MPU-6500): similarity 0.9777,

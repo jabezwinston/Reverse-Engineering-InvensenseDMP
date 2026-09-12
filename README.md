@@ -1,12 +1,14 @@
 # InvenSense DMP — instruction set recovery and toolchain
 
 Reverse engineering the undocumented instruction set of the InvenSense DMP (Digital Motion
-Processor) embedded in MPU-6050/6500/9150/9250 IMUs, and building a disassembler and assembler
-for it.
+Processor) embedded in MPU-6050/6500/9150/9250 IMUs and the ICM-20948, and building a
+disassembler and assembler for it.
 
 **Status: the ISA is decoded on silicon — 99.92 % of MPU-6050-family code bytes**
 (17284 of 17297 hardware-confirmed; the remaining 13 are 3050-lineage bytes that need an
-MPU-3050 to test and are rendered as marked conjecture).
+MPU-3050 to test and are rendered as marked conjecture), **and 99.67 % of the ICM-20948's
+DMP3 code** (10315 of 10349, measured on an ICM-20948; the 34 open bytes are two small
+families of flag tests).
 
 > **Start here: [docs/manual/](docs/manual/) — the programmer's manual.** Machine model,
 > complete instruction reference, assembly language, idioms, host interface, memory map, and the
@@ -37,6 +39,13 @@ The instruction set in one table (every rule hardware-confirmed; [chapter 2](doc
 The DMP is a small but complete **feed-forward computer**: no loops are expressible, so every
 image is straight-line code re-run from the top on each sample interrupt. Custom DMP programs
 written in this repo's assembly language run on real MPU-6050 silicon exactly as predicted.
+
+**The ICM-20948's DMP3 is the same machine, grown up** ([manual chapter 8](docs/manual/08-dmp3-icm20948.md),
+ISA2.md Finding 24): 16 KB of memory, a 12-bit data pointer with a 1 KB block field (`bc`/`bd`/`be`),
+`f4 hi lo` as a 16-bit absolute **jump**, bit 14 for **call** and `e0` for **return** — so loops
+and subroutines exist — and a mode 4 that every `f4` enters and `f1`/`f3` leave, under which the
+pointers address the chip's registers instead of RAM. Same ALU, same routing, same widths; a
+multiply costs the same as an add and the whole machine runs ~3× faster.
 
 A **wholly custom program** runs from the entry point, not just patches into the vendor's `a3`
 slots, and it may extend past the end of the original image — so the budget is ~2270 bytes, and
@@ -78,16 +87,17 @@ The DMP emits a register selection the stock firmware never produces.
 | `PLAN.md` | the original plan of record (historical) |
 | `corpus/` | 12 unique firmware images + vendor sources, with provenance; `ROSETTA.md` |
 | `tools/` | extraction, analysis, decoder (`isa/decode.py`), lifter (`isa/pseudo.py`), assembler (`dmpasm.py`) |
-| `bench/` | hardware rig: ESP32 bridge, init, 37 probes, `RESULTS.md` |
+| `bench/` | hardware rig: ESP32 bridge (MPU-6050 or ICM-20948, auto-detected), init, 50 probes, `icm.py`, `RESULTS.md` |
 | `programs/` | example DMP programs |
 | `listings2/` | annotated listings of all 12 corpus images under the current model |
 | `listings/` | listings under the superseded first-pass model (historical) |
 
 ## Hardware rig
 
-MPU-6050 on an ESP32 (SDA=D21, SCL=D22, INT=D5), `/dev/ttyUSB0`. The ESP32 runs a dumb I2C
-bridge; all experiment logic is host-side so iteration never needs reflashing. DMP program memory
-is volatile — a power cycle restores stock, and every patch is reverted after use.
+MPU-6050 or ICM-20948 on an ESP32 (SDA=D21, SCL=D22, INT=D5), reached locally or through an
+RFC2217 tunnel. The ESP32 runs a dumb I2C bridge that auto-detects the part; all experiment
+logic is host-side so iteration never needs reflashing. DMP program memory is volatile — a power
+cycle restores stock, and every patch is reverted after use.
 
 See `bench/README.md` for the protocol, `bench/RESULTS.md` for all experiment rounds including
 every correction and false start, and

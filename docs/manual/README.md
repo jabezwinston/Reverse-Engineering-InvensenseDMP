@@ -1,8 +1,9 @@
 # The InvenSense DMP Programmer's Manual
 
 A working reference for **writing programs** for the Digital Motion Processor embedded in the
-MPU-6050 / 6500 / 9150 / 9250 family. The instruction set was never published; everything here
-was recovered from vendor firmware images and confirmed on an MPU-6050 bench rig.
+MPU-6050 / 6500 / 9150 / 9250 family, and — [chapter 8](08-dmp3-icm20948.md) — the ICM-20948's
+DMP3. The instruction set was never published; everything here was recovered from vendor
+firmware images and confirmed on MPU-6050 and ICM-20948 bench rigs.
 
 | chapter | contents |
 |---|---|
@@ -13,6 +14,7 @@ was recovered from vendor firmware images and confirmed on an MPU-6050 bench rig
 | [05 — Host interface](05-host-interface.md) | I²C load and start sequence, FIFO packets, patch sites, the bench rig |
 | [06 — Memory map](06-memory-map.md) | address arithmetic, the constant page, sensor inputs, scratch, symbols |
 | [07 — Limits and open questions](07-limits.md) | what the machine cannot do, and what is still unknown |
+| [08 — The ICM-20948 (DMP3)](08-dmp3-icm20948.md) | what differs on the DMP3 core: 16 KB, block pointers, 16-bit jump/call/return, mode 4 and the I/O space |
 
 Companion documents outside the manual:
 
@@ -34,7 +36,8 @@ The DMP is a **Q30 fixed-point, feed-forward, pointer-addressed accumulator mach
 - Results go wherever a sticky latch points — RAM or the output FIFO. There is no store
   instruction and no push instruction; there is a *routing* instruction.
 - Control flow is a **forward-only** 7-bit branch, optionally under a zero test, plus halt.
-  No loops, no calls, no stack, no return.
+  No loops, no calls, no stack, no return. (DMP3 replaces the branch with a 16-bit jump, adds
+  call and return, and so has loops — chapter 8.)
 - The program is re-run from the top on every sample interrupt. It must finish inside one
   sample period, which is why forward-only control flow is enough.
 

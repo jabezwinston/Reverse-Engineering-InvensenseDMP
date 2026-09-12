@@ -883,6 +883,113 @@ dwell (the tunnel's ~100 ms round trip is comparable to the dwell, so every cell
 trip but the elapsed time did not -- every rate came out a constant 13.5% high, in a way that
 preserved all the ratios and so looked like a real result).
 
+## Finding 24 — the ICM-20948 (DMP3) runs the same core, with 16-bit jumps, calls, blocks and an I/O mode (HARDWARE CONFIRMED 2026-09-12)
+
+The ICM-20948 replaced the MPU-6050 on the ESP32 bridge (the bridge now auto-detects the part
+and hides its banked registers and 16-byte DMP-memory bursts; `bench/icm.py` holds the
+ICM side).  Ten probes, `bench/probe42.py`..`probe50.py`.  Everything below is measured on
+the bench unless marked [VENDOR] or [INFER].
+
+**1. The rig, and the corrected image geometry** (`probe42`, `probe43`).  DMP memory is
+exactly 16 KB (pages 0x00..0x3f hold a page-unique pattern, 0x40..0x7f read fixed junk and
+alias nothing); readback is exact over three full reads.  The SparkFun driver loads the
+image at **DMP address 0x90** and starts it at **0x1000** [VENDOR], so the static "code
+begins at image offset 4096" boundary (FINDINGS.md) was off by the load offset: code begins
+at offset 0xf70, and the bytes there — `d8 dc b8 b0 b4 f3 aa f8 f9 d1 d9 88 9a` — read as
+mantis code.  The stock image runs on the bench (accel-only output: header `0x8000`, a
+1 g accel triple, footer `0x0011`, INT1 at 77/s with a 55 Hz ODR).  Two traps: the FIFO is
+**4096 B**, and **`USER_CTRL.FIFO_EN` must stay set while the FIFO is read** — with it
+cleared, `FIFO_R_W` returns one stuck byte and the count does not move.
+
+**2. The mantis core transfers unchanged** (`probe44`).  With P0 = P1 = `b3 8f` = 0x3f0 and
+words (0x10000000, 0x20000000, ...) planted there: MOV `c0`/`c4` exact; `20`/`21`/`22`/`23`
+= ADD/RSUB/MUL/NMUL of (w1, w0) gave 30000000 / f0000000 / 08000000 / f8000000, all four
+exact including the Q30 product; `dc` with P2 = `bb ae` stored the sum at 0x3e0 and `c1`
+pre-advanced to 0x3e4; `f2`/`f3` gave 2-byte stores of the upper/lower half.  The pass is
+sample-gated at the gyro ODR: 1024 passes in 901 ms = 1136/s at GYRO_SMPLRT_DIV = 0.
+One difference: `cc` under `f1` emitted the **whole** 32-bit word, where the MPU reading
+(vendor names only) calls `c8`..`cf` a 16-bit MOV.
+
+**3. `bc`/`bd`/`be` add a 1 KB block to P0/P1/P2, modulo 4** (`probe47`, with every word of
+the 16 KB holding its own address).  `bc b3 8f` reads 0x7f0, `bc bc` 0xbf0, `bc bc bc`
+0xff0, four `bc` wrap to 0x3f0; the bank/page loads before or after do not reset it; `bd`
+and `be` do the same for P1 (via a zero-A add) and P2 (a RAM-routed marker landed at 0x7e0,
+0xbe0).  The block resets at every pass start.  So a DMP3 data pointer is 12 bits,
+
+    addr = block*1024 + bank*256 + page*16 + 4*word
+
+covering exactly the 4 KB data region below the code.  This is the whole population of
+`bc`/`bd`/`be` in the corpus (634 bytes, only in this image), and the vendor's runs are
+never longer than 3 — a fourth would wrap.
+
+**4. `f4` takes a 16-bit absolute address; bit 14 is CALL; `e0` is RET** (`probe45`,
+`probe46`).  Static first: 186 of the image's 262 `f4` are followed by an in-range
+big-endian address and **176 of those land on a `d8`** (9 are backward — loops exist);
+56 are `0x7xxx`, which with bit 14 stripped hit 15 routines at 0x349c..0x3859 that each end
+in `e0`, and the image's last byte is `e0`, not `ff`.  On the bench, with `b3 8f dd f1 c0 f4
+<hi> <lo> c2 c4 c6 ff`:
+
+| operand | lands on | FIFO per pass | words |
+|---|---|---:|---|
+| `10 09` | `c4` | 12 B | w0 w2 w3 |
+| `10 0a` | `c6` | 8 B | w0 w3 |
+| `10 0b` | `ff` | 4 B | w0 |
+| `51 00` (routine `c4 e0` at 0x1100) | call, return | 12 B | w0 w2 w1 |
+| `51 00` (routine calls a second one) | nested | 16 B | w0 w2 w3 w1 |
+| `11 00` (plain jump into the routine) | dies at `e0` | one pass, then silence | |
+
+The MPU's 7-bit relative form is gone: `f4 01 c2` jumped to 0x01c2 (the data region) and
+the DMP went silent after one pass.  The bit-7 escape survives: `f4 c2 c4 c6` executes the
+three MOVs (16 B/pass).
+
+**5. Every `f4` enters "mode 4", which `f0`..`f7` end** (`probe50`, and the scratch cells it
+consolidates).  `f4 d8 b3 8f c0` reads 0; with `f0`, `f1`, `f2`, `f3` or `f5` between the
+`f4` and the loads it reads M[0x3f0]; `d8`, `dc`, `dd`, `f8` do not end it; it persists
+across passes until DMP_RST.  Under the mode a **page** load (`8x`/`9x`/`ax`) resolves the
+pointer into a space that reads back a register map (`probe48`: bank/page swept, one byte
+per word — index 0 = `0xea` = WHO_AM_I, 0x74 = `0x03` = DATA_RDY_STATUS with accel+gyro
+ready, 0x70 dynamic where FIFO_COUNT sits, sensor-looking bytes at 0x94..0xa9) and
+swallows stores (a RAM-routed marker landed nowhere in the 16 KB); a **bank** load is
+unaffected; MOV with pointers loaded before the mode is a plain MOV (not indirect: a
+pointer-valued word is read as data); the ALU under the mode did not store (a doubling
+accumulator stayed at 1).  The vendor's discipline follows from this: **every one of the 186
+jump targets is `d8 fX`**, every call site is followed by `f1`/`f3`, and each of the 20
+one-byte `f4` groups is `f4 <pointer loads / MOVs> f1|f3` — that is how the firmware reads
+and writes the chip's registers through P0/P2 (`f4 b9 af d0 c7 .. f3` at 0x1072 is a
+register write of word 3).  The index mapping of that space is [INFER]; the rest is [HW].
+So `f0`..`f7` are one 3-bit mode register and `f4` is its fourth value, which is also what
+makes the two bytes after `f4` an address.
+
+**6. The timing model transfers, three times faster** (`probe49`, FIFO bytes per `T`
+window, program = `b3 8f b7 9e bb ae dc f1 <N x filler> dd c0 ff`).  Unlike the MPU the
+rate does not fall to integer submultiples: once the pass outruns the 880 us period the rate
+is simply 1/pass-time, and a linear fit over the dropped cells gives
+
+| filler | us/instr | MPU-6050 |
+|---|---:|---:|
+| `d8` ALWAYS | 0.19 | 0.58 |
+| `c0` MOV | 0.80 | 2.0 |
+| `42` MUL | 1.18 | 7.9 |
+| `40` ADD | 1.22 | 3.9 |
+| fixed | 16 us | 56 us |
+
+(max residual 7 us over 11 points for `d8`, `c0`, `42`).  A MUL costs the same as an ADD on
+DMP3; the 880 us period holds ~700 ALU ops or ~4800 predicate bytes.
+
+**7. Decoder** (`tools/isa/decode.py`, lineage `icm`, DMP addresses, SparkFun data labels):
+the 10 349 code bytes decode to **99.67 %**.  The 34 that do not are `d2`..`d7` (27, almost
+always immediately before an `fd`-discarded compare — `d5 fd 40 d6 fd 40 d7 fd 40` repeats
+one compare under three of them, so they look like TEST variants selecting a flag) and
+`e2`/`e7` (7, each in a predicated slot right after a width byte: `da f0 e2`, `da f3 e2` —
+the shape of the vendor's conditional halt `da f1 ff` at 0x1033, which also shows that a
+predicate skips over mode bytes).  Both are open, see UNKNOWNS.md.
+
+**Bench notes.**  The ICM's register bank survives an ESP32 reset, so the bridge's boot-time
+identify must select bank 0 before reading WHO_AM_I (fixed in the .ino; `bench/icm.py`
+works around it until the next flash).  Pointer and mode state survive DMP_RST between
+cells — a cell that leaves P0 in the I/O space poisons the next cell's first read unless
+the program reloads every pointer, which every probe here does.
+
 ## Decoder corrections (2026-09-08, no new hardware)
 
 Three defects found while writing `docs/manual/`, all in `tools/isa/decode.py`:
