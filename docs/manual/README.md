@@ -14,7 +14,7 @@ firmware images and confirmed on MPU-6050 and ICM-20948 bench rigs.
 | [05 — Host interface](05-host-interface.md) | I²C load and start sequence, FIFO packets, patch sites, the bench rig |
 | [06 — Memory map](06-memory-map.md) | address arithmetic, the constant page, sensor inputs, scratch, symbols |
 | [07 — Limits and open questions](07-limits.md) | what the machine cannot do, and what is still unknown |
-| [08 — The ICM-20948 (DMP3)](08-dmp3-icm20948.md) | what differs on the DMP3 core: 16 KB, block pointers, 16-bit jump/call/return, branch-target mode and the I/O space, sticky predicates and the sign flag, the 4-word shifter, the interrupt |
+| [08 — The ICM-20948 (DMP3)](08-dmp3-icm20948.md) | what differs on the DMP3 core: 16 KB, block pointers, 16-bit jump/call/return, branch-target mode and the I/O space, the three-byte zero test, sticky predicates and the frozen flag, the 4-word shifter, the interrupt |
 
 Companion documents outside the manual:
 

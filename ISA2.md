@@ -1201,6 +1201,61 @@ rather than as jumps into the data region.
   Their read-modify-write targets the last FIFO word, and with none it free-runs.  Route
   INC/DEC to RAM.
 
+## Finding 27 — `fc` is a three-byte compare, and the flag is frozen under an armed predicate (HARDWARE CONFIRMED 2026-09-12)
+
+The two items Finding 26 left open, `bench/probe57.py`–`probe61.py`.
+
+**1. `fc X Y` is one three-byte instruction on DMP3, and it is a zero test** (`probe57`,
+`probe59`, `probe61`, `probe63`; program area filled with `ff` so an overrun halts).
+`fc c0 21 c4 c6`, `fc c0 c2 c4 c6` and `fc d8 d8 c4 c6` all emit exactly the two landing
+MOVs; `fc c0 21 21 c6` and `fc fc c0 21 c6` emit the one RSUB after the three bytes;
+`fc c0 ff` runs past the halt.  Nothing is stored or emitted (RAM-routed `dc fc c0 21`
+leaves M[P2] untouched), and it leaves **no ALU result**: `d1` right after it reads zero
+for every operand pair.  What it sets is F, and over 12 (A0, B0) pairs chosen so that every
+signed and unsigned reading disagrees, the answer is not a comparison at all:
+
+    fc c0 Y     F := (M[P1 + 4*B] == 0)        B = Y's B field;  Y's op bit 0 inverts (!= 0)
+                P0 and Y's A field are ignored  (`00` `20` `40` agree; `01` `09` `11` `19` agree)
+
+`(+5,+3)`, `(+3,+5)`, `(−5,+5)`, `(+5,−5)`, `(+5,+5)`, `(0,+7)`: `fc c0 00` clears F and
+`fc c0 01` sets it; `(0,0)`, `(+7,0)`, `(−7,0)`: the reverse.  A loop whose exit is
+`fc c0 00 d9 f4 exit` leaves at once when the tested word is 0 and never when it is 1, 3 or
+7; `fc c0 01 d9`, `fc c0 00 da` and `fc c0 01 da` behave as the rule predicts in all 16 cells
+(`probe63` C).  So the stock image's
+`fc c0 00 d9 f4 …` (13 sites), `fc c0 04 d9` (18), `fc c0 08 d9` (6), `fc c1 04 d9` (12) are
+**"if this word is zero, jump"** — the feature gates: `fc c1 04` at 0x14cf tests
+`DATA_OUT_CTL1`, the others test the enable words and counters that the host writes.  The
+`d8 fc c0 08 d9 f4` fall-throughs Finding 26 could not read are *else, if word 1 is zero,
+jump*.  Under mode 4 the two operand bytes are consumed like any instruction's.  The X byte:
+`c0` in 57 sites, `c1` 35, `c2` 11, `c3` 6, four others; `fc c1` and `fc c2` differ from
+`fc c0` in a minority of cells (with `c1`: 5 of 12 pairs under `00`, none of the `01`
+pairs; with `c2`: only at B = 3), which looks like a pre-advance or a second word entering
+the test — the operand rule for X ≠ c0 is open (UNKNOWNS.md §7).  On the MPU `fc` was
+measured as a one-byte SWAP prefix (probe35, 32/32); the two parts simply differ here, as
+they do for `d2`–`d7` and `e0`–`e7`, and the 2639 image's single `fc 61 d9 f8` may be either.
+
+**2. F is frozen while a predicate is armed** (`probe60` A, and the loops of `probe58`).
+`01 d9 08 c6`: the ADD under the armed `d9` emits +7 — a result that would clear F — and the
+MOV after it still runs; `08 da 01 c6` the mirror image; `01 d9 f9 c6` the same for DEC.
+`01 d9 d1 c6` skips the MOV: **`d1` (and `fc`) update F under a predicate, ALU ops, INC and
+DEC do not.**  This is the second half of the sticky-predicate design: a predicated block
+cannot disturb the condition that governs it, and the compare that decides the next block
+has to run under `d8` — which is exactly where the vendor puts every `fc`.
+
+**Loose end closed on the way** (`probe61` A): a page load resets the P2 word index on DMP3
+as it does on the MPU (`25 ae f8` increments word 0 after the pre-advancing RSUB stored to
+word 1; `25 f8` increments word 1).  The decoder's model was right.
+
+**3. The loop hazard was this rule** (`probe58`, `probe60` B).  `loop: f1 dd c0 dc f9 da f4
+loop` ran away for every count above 0 because the second and later DECs run under the
+`da` that the taken jump left armed, so F never went negative (the count kept falling,
+M[0x3e0] read −500 000 when the watchdog stopped it).  Filler between the DEC and its `da`
+never helps (0–32 bytes tried); **one `d8` anywhere between the loop top and the DEC fixes
+every count** (`k = 1..32` fillers of `d8`: 2.05 and 4.1 iterations per pass for counts 1
+and 3).  `programs/loop_icm.s` now has the `d8`.  The vendor's other loop shape — compare at
+the top with `fc c0 00 d9`, INC at the bottom, unconditional `f4` back (0x1af1–0x1bfb) —
+obeys the rule automatically because its `d8` follows the conditional exit.
+
 ## Decoder corrections (2026-09-08, no new hardware)
 
 Three defects found while writing `docs/manual/`, all in `tools/isa/decode.py`:

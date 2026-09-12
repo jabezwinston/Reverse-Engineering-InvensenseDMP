@@ -112,16 +112,16 @@ images decode to **100 %**. What remains, each with the experiment that would se
 | **MPU: `c8`–`cf`** | MOV16 from vendor names; on DMP3 the family swaps the half-words (`45670123`) | on the MPU: `c8` under `f1`/`f2`/`f3`, RAM-routed, byte-asymmetric source |
 | `fd n` after an ALU op | the vendor's `20 fd 3f` / `2c fd 32` (eMD 1.1.0 replaced `MUL by 0.5` with `ADD, fd 3f`) says the shifter also takes the last ALU result; measured only after `d4`–`d7` loads | `00 fd 3f` over known words: is the stored value (A+B) >> 1 |
 | the I/O space index map | [INFER]. Not the host register file (probe56: host registers invisible, a store through it changes none); index 0 = `ea`, live bytes at 0x1d0 and 0x250–0x2a4 | the same sweep with the sensors in known states (gyro standby, accel standby, a known FSYNC level) and the FIFO at known fill; then match the live bytes to the raw sensor words in the FIFO |
-| **the DEC/flag hazard** | a tight `f9 da f4 <back>` loop runs away for any count above 0 (probe55); with the count 0 the body ran once or twice | `dc f9 <k x d8> da f4 <back>` for k = 1..32 with a watchdog (`T(5)` and a DMP_RST after each cell) to find the distance the flag needs; or compare at the top like the vendor |
+| `fc X Y` with X ≠ c0 | `fc c0 Y` is the zero test of P1 word B (Finding 27, 24 operand pairs). `fc c1` differs in 5 of 12 pairs under Y=00, `fc c2` at B = 3 only; the vendor uses c1 35 times, c2 11, c3 6, and `51`/`3d`/`80`/`08` once each | vary one P1 word and one M[P2] word at a time under `fc c1 00`/`fc c2 18`; the odd bit is the MOV family's pre-advance, so M[P2] is the first suspect |
 | `bf` | P0/P1 unaffected; a P2 store after it lands nowhere (probe54 E). Unattested | none needed |
 | FSYNC | wired to D4; reaches the chip (`TEMP_OUT_L` bit 0). `e7` and `db` do not read it | if any instruction reads it, the candidates left are the I/O space indices |
 | INC/DEC under FIFO routing | modify the last emitted word rather than M[P2]; with nothing emitted yet in the pass they flood the FIFO (probe54 B: `f8`/`fa` right after `f4 d8`, 13–17 kB per "pass") — vendor never does this | none needed — document as "route the destination to RAM" |
-| **`fc` under mode 4** | not a target half (beacon test) and does not end the mode (`fc 00` runs neither an ADD nor a jump; `fc c0` emits nothing), yet the vendor's three `d8 fc c0 08 d9 f4` fall-throughs need the `08` to be an ADD. The decoder tags those sites `[fc: open]` | a copy of the vendor shape with known operands and a RAM-routed destination, three repeats; then `fc` followed by each byte class under the mode |
 | `db` | identical to `d9` in 75 cells (probe52, probe54 D: after ADD, MIN, INC, DEC, MOV, CLR, SHIFT, `d1`, and with F untouched) | treat as `d9`; a difference would need a state neither probe reaches |
 
 Resolved this session and removed from the list: `f6`/`f7` end mode 4 (probe54 B); ALU under
 mode 4 (there is none — mode 4 is branch-target mode, Finding 26); `c8`–`cf` on DMP3
-(half-word swap); the assembler's ICM forms (`dmpasm`, `.lineage icm`).
+(half-word swap); the assembler's ICM forms (`dmpasm`, `.lineage icm`); `fc` (a three-byte
+zero test) and the loop hazard (F is frozen under an armed predicate) — Finding 27.
 
 ## Bench discipline these results depend on
 

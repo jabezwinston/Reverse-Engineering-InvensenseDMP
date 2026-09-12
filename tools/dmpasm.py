@@ -72,6 +72,11 @@ DMP3 / ICM-20948 forms (`.lineage icm`; manual chapter 8, ISA2.md Findings 24-26
   lo / lo.next                       d2 / d3: store the low word of the last product
   int                                e2: raise DMP_INT1
   clr                                de: M[P2] := 0 in place  (e7 is the same)
+  tz B / tnz B                       fc c0 yy: F := (P1 word B == 0) / (!= 0), nothing stored --
+                                     the vendor's feature gate: `tz 0` / `if f` / `jump skip`.
+The flag F is updated by ALU ops, inc and dec ONLY while no predicate is armed (after
+`always`); `test`, `tz` and `tnz` update it regardless.  So a loop's counter must be decremented
+under `always`: `always` / `dec` / `if nf` / `jump loop` (programs/loop_icm.s).
 Mode 4 rule: after any jump/call/mode4 every byte below 0x80 is a branch target, not an ALU
 op, until a width byte (fmode / f5 / min16 / trunc) ends the mode -- so every jump target and
 every instruction after a call must start with one.  The assembler refuses an ALU op, mov16
@@ -211,6 +216,11 @@ def assemble(text, lineage="mantis", warn=None):
                 icm_only("ret"); out.append(0xE0)
             elif op == "mode4":
                 icm_only("mode4"); out.append(0xF4); mode4 = True
+            elif op in ("tz", "tnz"):            # fc c0 <B<<3 | inv>: F := (P1 word B == 0) / (!= 0), no store
+                icm_only(op)
+                Bw = int(arg, 0)
+                if not 0 <= Bw <= 3: raise AsmError(f"{op} B: B is 0..3 (a P1 word)")
+                out += bytes([0xFC, 0xC0, (Bw << 3) | (1 if op == "tnz" else 0)])
             elif op == "int":
                 icm_only("int"); out.append(0xE2)
             elif op == "clr":
@@ -356,7 +366,7 @@ def assemble(text, lineage="mantis", warn=None):
                     "p0bank/p1bank/p2bank, add/rsub/mul/nmul, store[.op], p2inc, always, if N, branch, "
                     "fmode, min16, trunc, swap, nostore, selbank, emit, nop, skip, disable, .db; "
                     "icm: .org, label:, jump, call, ret, mode4, if f/nf, p0blk/p1blk/p2blk, load, shl, sar, "
-                    "lo, lo.next, int, clr)")
+                    "lo, lo.next, int, clr, tz, tnz)")
         except AsmError as e:
             raise AsmError(f"line {lineno}: {e}") from None
         except ValueError as e:

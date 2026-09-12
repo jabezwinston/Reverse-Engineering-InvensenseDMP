@@ -144,8 +144,11 @@ class Decoder:
                 # probe52: one flag F. Every ALU op / INC / DEC sets F := result < 0; d1 sets
                 # F := result == 0. d9 = IF.F, da = IF.not F, db = IF.F in every cell. Sticky:
                 # a not-taken predicate skips everything up to the next d8..db.
-                return 1, {0xD8: "ALWAYS  (re-arms: ends a sticky predicate)", 0xD9: "IF.F   (F = result<0, or ==0 right after d1; sticky until d8)",
-                           0xDA: "IF.NOT-F   (sticky until d8)", 0xDB: "IF.F   (db; identical to d9 in every DMP3 cell, probe52/54)"}[b]
+                # probe60: while d9/da/db is armed, ALU ops, INC and DEC do NOT update F (d1 and
+                # fc still do) -- so a predicated block cannot disturb its own condition, and a
+                # loop's DEC must run under d8 (Finding 27).
+                return 1, {0xD8: "ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)", 0xD9: "IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)",
+                           0xDA: "IF.NOT-F   (sticky until d8; F frozen while armed)", 0xDB: "IF.F   (db; identical to d9 in every DMP3 cell, probe52/54)"}[b]
             return 1, {0xD8: "ALWAYS", 0xD9: "IF.Z", 0xDA: "IF.NZ", 0xDB: "IF.3"}[b]
         if L == "icm" and 0xF0 <= b <= 0xF7 and b != 0xF4:
             self.mode4 = False
@@ -182,17 +185,24 @@ class Decoder:
             self.nostore = True
             return 1, (f"TRUNC {self.N.name(self.ptr(2))} &= 0xFFFF0000   clear the low half-word"
                        f"  (the next ALU op does not store)  [probe36]")
+        if b == 0xFC and L == "icm" and i + 2 < len(self.img):
+            # Finding 27 (probe57/59/61/63): on DMP3 fc is a THREE-byte instruction, `fc X Y`,
+            # that stores nothing and leaves no ALU result (d1 after it always reads zero).
+            # With X = c0 it is a zero test of a P1 word:  F := (M[P1 + 4*B] == 0), inverted
+            # when Y's op bit 0 is set; Y's A field and P0 are ignored (24 operand pairs).  The
+            # vendor writes X = c0..c3 and Y in {00 04 08 0c 01 09 03 07}; the odd X forms and
+            # X = c2 test something else in a few cells (open).  Both operand bytes are consumed
+            # under mode 4 too, so `d8 fc c0 08 d9 f4` is "if word 1 is zero, jump".
+            x, y = self.img[i + 1], self.img[i + 2]
+            Bf, inv = (y >> 3) & 3, y & 1
+            w = self.N.name(self.ptr(1) + 4 * Bf)
+            note = "" if x == 0xC0 else "  ; X != c0: operand rule open (probe61/63)"
+            return 3, f"TEST{'NZ' if inv else 'Z'}  F := ({w} {'!=' if inv else '=='} 0)   (fc {x:02x} {y:02x}; no store; probe63){note}"
         if b == 0xFC and self.L in ("mantis", "icm"):
             # probe35: the A field indexes P1 and the B field indexes P0.  32/32 cells over two
             # independent operand vectors.  Paired with RSUB (B-A) this gets the opposite
             # subtraction order without reloading a pointer -- 11/19 sites are followed by RSUB.
             self.swap = True
-            if L == "icm" and self.mode4:
-                # Finding 26: the vendor's three `d9 f4 hi lo  d8 fc c0 08 d9 f4` fall-throughs
-                # need the 08 to be an ADD, but on the bench fc neither ends the mode nor reads
-                # as a target half (probe54b).  Rendered as the ADD the compiler meant, tagged.
-                self.mode4 = False
-                return 1, "SWAP prefix  [fc under mode 4: open -- rendered as ending it so the vendor's `fc c0 08` reads as SWAP MOV ADD; probe54b, UNKNOWNS.md 7]"
             return 1, "SWAP prefix  next ALU op reads A through P1 and B through P0  [probe35, 32/32]"
         if b == 0xFD and self.L in ("mantis", "icm"):
             # probe31: 16/16 no-store across the operand grid, and `fd 20 09 71 58`

@@ -13,7 +13,8 @@
 loop:   fmode   1               ; every jump target starts with a width byte
         fifo
         mov     0               ; emit w0
-        store
+        always                  ; d8: the DEC must run with no predicate armed, or F stays frozen
+        store                   ;     (probe58/60: without this the loop never ends)
         dec                     ; f9: M[0x3e0] -= 1, F := result < 0
         if      nf              ; da
         jump    loop            ; while the count is not negative

@@ -129,9 +129,10 @@ auto-detects it), so P6 is run as P4 was: confirm, don't explore.
 | P6.5 | Pass timing on DMP3 (does the 0.58 µs/instr model transfer?) | `probe49`: the probe40 method | done: 0.19/0.80/1.18/1.22 µs + 16 µs |
 | P6.6 | Decoder `icm` lineage; coverage figure for the 14301 image on its own model | `tools/isa/decode.py` | done: 100 % (Finding 25) |
 | P6.7 | A second DMP3 image; what a differential pair says about the jump encoding and mode 4 | eMD 1.0 `14290` image; `probe54`–`probe56`; `dmpasm .lineage icm` | done: mode 4 = branch-target mode (Finding 26) |
+| P6.8 | `fc` under mode 4; the loop hazard | `probe57`–`probe62` | done: `fc X Y` is a three-byte compare; F is frozen under an armed predicate (Finding 27) |
 
 Steps are ordered so that each result is a prerequisite for the next. All six were completed on
-2026-09-12; the record is ISA2.md Findings 24–26 and manual chapter 8, the open items UNKNOWNS.md §7.
+2026-09-12; the record is ISA2.md Findings 24–27 and manual chapter 8, the open items UNKNOWNS.md §7.
 
 ## Honest odds
 

@@ -105,6 +105,7 @@ assembler prints the byte string, so assembling once and counting is the reliabl
 | `lo` / `lo.next` | `d2` / `d3` | store the low word of the last product |
 | `int` | `e2` | raise DMP_INT1 |
 | `clr` | `de` | clear M[P2] in place |
+| `tz B` / `tnz B` | `fc c0 yy` | F := (P1 word B == 0) / (!= 0), nothing stored; `tz 0` / `if f` / `jump skip` is the vendor's feature gate |
 
 After a `jump`, `call` or `mode4` the machine is in **branch-target mode**: every byte below
 0x80 is read as the high byte of a target until a width byte (`fmode`, `min`, `min16`, `trunc`)
@@ -112,7 +113,8 @@ ends the mode, and the mode is a global flag that a callee's `fmode` clears for 
 ([chapter 8](08-dmp3-icm20948.md#84-mode-4-branch-target-mode-and-the-io-space)). The
 assembler therefore refuses an ALU op, `emit` or a low `.db` byte while the mode is armed,
 and warns about a target that does not begin with a width byte. `programs/loop_icm.s` is a
-complete counted loop.
+complete counted loop. Note that ALU ops, `inc` and `dec` update F only under `always`; a
+loop's `dec` must not run under the `if` that its own jump left armed.
 
 ## 3.7 The legacy FIFO-emit form
 
