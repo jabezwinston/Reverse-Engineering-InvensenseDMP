@@ -1352,13 +1352,11 @@ a MOV; `f1` ends it.  The vendor uses it: `f5` with op3 seven times and op0/op4 
 `f7` with op2 seven — the 3062 image's authentication block at 1044 is `XOR D_AUTH_OUT,
 D_AUTH_B`.
 
-**2. `f0` is the fourth width, and it is not "A contributes 0".**  Ten operand pairs: the
-result changes only when the two addends have opposite signs, and then by exactly one LSB
-downward — `7 + −5` gives 1, `8 + −5` gives 2, `−8 + 3` gives −6, `3 − 6` (RSUB, whose addends
-are B and −A) gives −4; same-sign pairs and zeros are untouched.  Sticky (`f0 40 40` → −1 −1).
-The earlier reading came from a page whose word 1 was 0.0.  So `f0`–`f7` is **one 3-bit sticky
-mode register**: 0–3 the store widths (0 with the sign quirk), 4 the branch (and on DMP3 the
-branch-target mode), 5–7 the MIN/CMP/AND/XOR family at the three widths.
+**2. `f0` is not "A contributes 0".**  Ten operand pairs showed a change only for opposite-sign
+addends — which looked like "one LSB lower" but is the multiply-accumulate of **Finding 30**
+(the tiny products truncate to −1).  So `f0`–`f7` is **one 3-bit sticky mode register**: `f0`
+the multiply-accumulate, 1–3 the store widths, 4 the branch (and on DMP3 the branch-target
+mode), 5–7 the MIN/CMP/AND/XOR family at the three widths.
 
 **3. `fe` raises DMP_INT and continues.**  `fe c0 c2 c4`: `T` returns in 238 µs with the
 interrupt counted and all three MOVs emitted; `08 d9 fe c0` under the false predicate raises
@@ -1377,6 +1375,55 @@ clear M[P2] in place: an undefined byte in this range is the clear.
 Decoder: `LOGIC`/`LOGIC.HI`/`LOGIC.LO` with MIN/CMP/AND/XOR, `WIDTH.0` with its note, `INT`
 for `fe` and for `f4 41`–`7f`, CLR for `d6`/`d7`/`e0`–`ef`; assembler: `and`, `xor`, `cmp`,
 `int`, `fmode 5..7`; `trunc` and `skip` refused.
+
+## Finding 30 — `f0` is a multiply-accumulate mode, and it resolves the same-destination run anomaly (HARDWARE CONFIRMED 2026-09-12)
+
+The `f0` reading in Finding 29 ("a store width where opposite-sign sums come out one LSB
+lower") was wrong, caught by the operand grid of `bench/probe72.py` and pinned down clean in
+`probe73.py`/`probe74.py` (every cell starts with `f1`, which kills the cross-cell mode leak
+that fooled the earlier cells).  **`f0` puts the ALU in multiply-accumulate mode.**
+
+**The measurement.**  A = 0.5, B = [1.0, 0.5, 0.25, 0.125] on P1's four words, all exact in
+Q30, FIFO-routed:
+
+    f1 <ptrs> dd  f0 00 08 10 18   ->   0.5   0.75   0.875   0.9375
+
+which is 0.5, then 0.5+0.25, then +0.125, then +0.0625 — the running **dot product** of A with
+B.  Each op under `f0` computes `acc <op> A*B` and stores/emits the accumulator:
+
+- `f0 00` alone = `A*B` (0.5×0.5 = 0.25), identical to `MUL` (op2); the op field's low bit is
+  the sign, `f0 01`/`f0 03` = `-A*B`, `f0 00`/`f0 02` = `+A*B`.
+- consecutive ops accumulate: `f0 00 00 00 00` emits 0.25, 0.50, 0.75, 1.00 (a plain `00`
+  under `f1` emits 1.0, 1.0, 1.0 — ordinary add, no accumulation).
+- the accumulator is a general result register: a non-`f0` op **replaces** it and an `f0` op
+  **adds** to it (`f0 00 f1 00 f0 00` = 0.25, then the add makes it 1.0, then 1.0+0.25 = 1.25).
+- it is **reset at the start of every pass** (`f0 00 00` gives 0.25, 0.50 each pass, never
+  carrying), and is not cleared by `d8`, a MOV, a store, or `f1` (which changes the value but
+  does not zero it).
+- `f0` is sticky like the other f-modes; any other `fX` ends it.
+
+The earlier "one LSB lower" was this same product seen with tiny integer operands: `f0` of
+7 and −5 is 7×−5 = −35 × 2⁻³⁰, which truncates toward −∞ to −1, not the sum minus one.
+
+**What it resolves.**  The same-destination run anomaly has been open since Finding 17: runs of
+consecutive ALU stores that all land on one word, ~6 % of all code, whose intermediate writes
+looked dead.  Simulating the pointer and mode state through the MPU images, **272 of the 365
+RAM-routed same-destination runs (773 of 993 instructions) execute entirely under `f0`** — they
+are dot products, computed in the multiplier's accumulator, with only the final value left in
+RAM.  The intermediate stores are not dead: each op adds its product to the running sum.  A
+quaternion component (four terms) is an `f0` run of four; a 3×3 rotation row is three.  The
+remaining 93 runs are the aliasing accumulations of Finding 22 (`x = x + a` repeated) or genuine
+last-wins.  So the "dead write" objection that stalled this project at round 17 was a missing
+instruction mode, not dead code.
+
+**The multiplier is shared with DMP3's shifter.**  The MPU reaches this multiply-accumulator
+only through `f0`; DMP3 reaches the same unit through `d4`–`d7` and `fd` (the shifter, Finding
+25/64) and `d2`/`d3` (the product's low word).  `f0` on DMP3 is unmeasured and left as a width.
+
+Decoder: `f0` → `MAC`, and an ALU op under it renders `MAC+ acc += A * B -> dest` /
+`MAC- acc -= ...`; all eleven MPU listings regenerated (138 `MAC` ops in the 1929 image).
+Assembler: `mac` sets the mode.  Finding 29's `f0` line and the manual (`f0` in chapters 1, 2,
+3, README) are corrected; the same-destination anomaly (UNKNOWNS.md §1) is closed.
 
 ## Decoder corrections (2026-09-08, no new hardware)
 

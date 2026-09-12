@@ -3,7 +3,7 @@
   769  dc      ROUTE -> RAM   M[P2..] PTAT  (dc; sticky until dd)
   770  ba      P2.bank=2
   771  a2      P2.page=2   -> D@544 @544
-  772  f1      WIDTH.1   ; 32-bit store  [probe37/70]
+  772  f1      WIDTH.1   ; 32-bit store  [probe37]
   773  de      CLR  @544 := 0  (in place, no advance)  (de; probe31)
   774  b2      P0.bank=2
   775  b8      P2.bank=0
@@ -17,7 +17,7 @@
   783  7f      XOR  A=@540         B=ZACC         -> TMP2A.lo
   784  91      P1.page=1   -> B@16 ADC2
   785  6a      AND  A=@540         B=BIASUNC      -> TMP2A.lo
-  786  f3      WIDTH.3   ; 16-bit store, lower half-word  [probe37/70]
+  786  f3      WIDTH.3   ; 16-bit store, lower half-word  [probe37]
   787  f9      DEC  TMP2A by 1  (f9; probe23)
   788  db      IF.LE0   (db; same as d9 in every cell)
   789  a8      [db] P2.page=8   -> D@128 TMP1A
@@ -26,21 +26,21 @@
   792  ba      [db] P2.bank=2
   793  a0      [db] P2.page=0   -> D@512 BLPFNMZL+2
   794  80      [db] P0.page=0   -> A@0 PTAT
-  795  f2      [db] WIDTH.2   ; 16-bit store, upper half-word  [probe37/70]
+  795  f2      [db] WIDTH.2   ; 16-bit store, upper half-word  [probe37]
   796  ce      [db] MOVX  ZACC         -> BLPFNMZL+2  (ce; probe25)  ; c8-cf: half-words swapped, on both parts (probe54/67)
   797  81      [db] P0.page=1   -> A@16 ADC2
-  798  f3      [db] WIDTH.3   ; 16-bit store, lower half-word  [probe37/70]
+  798  f3      [db] WIDTH.3   ; 16-bit store, lower half-word  [probe37]
   799  c2      [db] MOV   BIASUNC      -> BLPFNMZL+2  (c2; probe25)
-  800  f1      [db] WIDTH.1   ; 32-bit store  [probe37/70]
+  800  f1      [db] WIDTH.1   ; 32-bit store  [probe37]
   801  c1      [db] MOV   ADC2         -> @516  (P2 word++ first)  (c1; probe25)
-  802  f2      [db] WIDTH.2   ; 16-bit store, upper half-word  [probe37/70]
+  802  f2      [db] WIDTH.2   ; 16-bit store, upper half-word  [probe37]
   803  c3      [db] MOV   BIASUNC      -> @520  (P2 word++ first)  (c3; probe25)
-  804  f3      [db] WIDTH.3   ; 16-bit store, lower half-word  [probe37/70]
+  804  f3      [db] WIDTH.3   ; 16-bit store, lower half-word  [probe37]
   805  cc      [db] MOVX  INVGSF       -> @520  (cc; probe25)  ; c8-cf: half-words swapped, on both parts (probe54/67)
   806  a2      [db] P2.page=2   -> D@544 @544
   807  b2      [db] P0.bank=2
   808  80      [db] P0.page=0   -> A@512 BLPFNMZL+2
-  809  f1      [db] WIDTH.1   ; 32-bit store  [probe37/70]
+  809  f1      [db] WIDTH.1   ; 32-bit store  [probe37]
   810  c6      [db] MOV   @524         -> @544  (c6; probe25)
   811  d8      ALWAYS  (ends a sticky predicate)
   812  80      P0.page=0   -> A@512 BLPFNMZL+2
@@ -49,29 +49,29 @@
   815  df      CLR  @628 := 0  (P2 word++ first)  (df; probe23)
   816  df      CLR  @632 := 0  (P2 word++ first)  (df; probe23)
   817  df      CLR  @636 := 0  (P2 word++ first)  (df; probe23)
-  818  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37/70]
+  818  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37]
   819  a7      P2.page=7   -> D@624 @624
   820  c3      MOV   @516         -> @628  (P2 word++ first)  (c3; probe25)
   821  cb      MOVX  @516         -> @632  (P2 word++ first)  (cb; probe25)  ; c8-cf: half-words swapped, on both parts (probe54/67)
   822  c5      MOV   @520         -> @636  (P2 word++ first)  (c5; probe25)
   823  b6      P1.bank=2
-  824  f0      WIDTH.0   ; 32-bit store; a sum of opposite-sign addends is 1 LSB lower (probe70)  [probe37/70]
+  824  f0      MAC   ; multiply-accumulate: acc +=/-= A*B (op&1), store/emit acc; reset per pass  [probe74]
   825  87      P0.page=7   -> A@624 @624
   826  a2      P2.page=2   -> D@544 @544
   827  94      P1.page=4   -> B@576 @576
-  828  24      ADD A=@628         B=@576         -> @548
-  829  48      ADD A=@632         B=@580         -> @548
-  830  70      ADD A=@636         B=@584         -> @548
-  831  3c      ADD A=@628         B=@588         -> @552
+  828  24      MAC+ acc += @628 * @576 -> @548  (probe74)
+  829  48      MAC+ acc += @632 * @580 -> @548  (probe74)
+  830  70      MAC+ acc += @636 * @584 -> @548  (probe74)
+  831  3c      MAC+ acc += @628 * @588 -> @552  (probe74)
   832  95      P1.page=5   -> B@592 @592
-  833  40      ADD A=@632         B=@592         -> @552
-  834  68      ADD A=@636         B=@596         -> @552
-  835  34      ADD A=@628         B=@600         -> @556
-  836  58      ADD A=@632         B=@604         -> @556
+  833  40      MAC+ acc += @632 * @592 -> @552  (probe74)
+  834  68      MAC+ acc += @636 * @596 -> @552  (probe74)
+  835  34      MAC+ acc += @628 * @600 -> @556  (probe74)
+  836  58      MAC+ acc += @632 * @604 -> @556  (probe74)
   837  9b      P1.page=b   -> B@688 @688
-  838  78      ADD A=@636         B=@700         -> @556
+  838  78      MAC+ acc += @636 * @700 -> @556  (probe74)
   839  a2      P2.page=2   -> D@544 @544
-  840  f1      WIDTH.1   ; 32-bit store  [probe37/70]
+  840  f1      WIDTH.1   ; 32-bit store  [probe37]
   841  83      P0.page=3   -> A@560 @560
   842  92      P1.page=2   -> B@544 @544
   843  2d      RSUB A=@564         B=@548         -> @548
@@ -85,15 +85,15 @@
   851  d0      P2 word += 2 -> D@24 INVGSF  (d0, mod 4; probe20)
   852  91      P1.page=1   -> B@16 ADC2
   853  80      P0.page=0   -> A@256 PREVPTAT
-  854  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37/70]
+  854  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37]
   855  70      ADD A=ACCYB+2      B=INVGSF       -> INVGSF.hi
-  856  f3      WIDTH.3   ; 16-bit store, lower half-word  [probe37/70]
+  856  f3      WIDTH.3   ; 16-bit store, lower half-word  [probe37]
   857  70      ADD A=ACCYB+2      B=INVGSF       -> INVGSF.lo
-  858  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37/70]
+  858  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37]
   859  7c      ADD A=ACCYB+2      B=1            -> 1.hi
   860  80      P0.page=0   -> A@256 PREVPTAT
   861  a8      P2.page=8   -> D@128 TMP1A
-  862  f1      WIDTH.1   ; 32-bit store  [probe37/70]
+  862  f1      WIDTH.1   ; 32-bit store  [probe37]
   863  01      RSUB A=PREVPTAT     B=ADC2         -> TMP1A
   864  b0      P0.bank=0
   865  98      P1.page=8   -> B@128 TMP1A
@@ -106,12 +106,12 @@
   872  88      P0.page=8   -> A@128 TMP1A
   873  ba      P2.bank=2
   874  a1      P2.page=1   -> D@528 @528
-  875  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37/70]
+  875  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37]
   876  0e      MUL A=TMP1A        B=TMP2A        -> @532.hi
   877  b8      P2.bank=0
   878  97      P1.page=7   -> B@112 0_5
   879  80      P0.page=0   -> A@0 PTAT
-  880  f1      WIDTH.1   ; 32-bit store  [probe37/70]
+  880  f1      WIDTH.1   ; 32-bit store  [probe37]
   881  a9      P2.page=9   -> D@144 XACCW
   882  df      CLR  XACCB := 0  (P2 word++ first)  (df; probe23)
   883  df      CLR  YACCB := 0  (P2 word++ first)  (df; probe23)
@@ -120,7 +120,7 @@
   886  df      CLR  XGC := 0  (P2 word++ first)  (df; probe23)
   887  df      CLR  YGC := 0  (P2 word++ first)  (df; probe23)
   888  df      CLR  ZGC := 0  (P2 word++ first)  (df; probe23)
-  889  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37/70]
+  889  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37]
   890  aa      P2.page=a   -> D@160 DZ
   891  4c      ADD A=XACC         B=0_0          -> XGC.hi
   892  cd      MOVX  XACC         -> YGC  (P2 word++ first)  (cd; probe25)  ; c8-cf: half-words swapped, on both parts (probe54/67)
@@ -133,7 +133,7 @@
   899  97      P1.page=7   -> B@112 0_5
   900  97      P1.page=7   -> B@112 0_5
   901  97      P1.page=7   -> B@112 0_5
-  902  f1      WIDTH.1   ; 32-bit store  [probe37/70]
+  902  f1      WIDTH.1   ; 32-bit store  [probe37]
   903  a9      P2.page=9   -> D@144 XACCW
   904  89      P0.page=9   -> A@144 XACCW
   905  26      MUL A=XACCB        B=0_5          -> XACCB
@@ -145,9 +145,9 @@
   911  80      P0.page=0   -> A@0 PTAT
   912  ac      P2.page=c   -> D@704 @704
   913  de      CLR  @704 := 0  (in place, no advance)  (de; probe31)
-  914  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37/70]
+  914  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37]
   915  ca      MOVX  YGYR         -> @704  (ca; probe25)  ; c8-cf: half-words swapped, on both parts (probe54/67)
-  916  f1      WIDTH.1   ; 32-bit store  [probe37/70]
+  916  f1      WIDTH.1   ; 32-bit store  [probe37]
   917  b2      P0.bank=2
   918  8c      P0.page=c   -> A@704 @704
   919  02      MUL A=@704         B=0_5          -> @704
@@ -173,7 +173,7 @@
   939  36      MUL A=XGC          B=GSF          -> TMP2A
   940  56      MUL A=YGC          B=GSF          -> TMP3A
   941  76      MUL A=ZGC          B=GSF          -> TMP4A
-  942  f1      WIDTH.1   ; 32-bit store  [probe37/70]
+  942  f1      WIDTH.1   ; 32-bit store  [probe37]
   943  b9      P2.bank=1
   944  af      P2.page=f   -> D@496 BLPFNMTC
   945  b4      P1.bank=0
@@ -189,14 +189,14 @@
   955  98      P1.page=8   -> B@128 TMP1A
   956  b9      P2.bank=1
   957  af      P2.page=f   -> D@496 BLPFNMTC
-  958  f0      WIDTH.0   ; 32-bit store; a sum of opposite-sign addends is 1 LSB lower (probe70)  [probe37/70]
-  959  24      ADD A=BLPFNMX      B=TMP1A        -> BLPFNMX
-  960  08      ADD A=BLPFNMTC     B=TMP2A        -> BLPFNMX
-  961  44      ADD A=BLPFNMY      B=TMP1A        -> BLPFNMY
-  962  10      ADD A=BLPFNMTC     B=TMP3A        -> BLPFNMY
-  963  64      ADD A=BLPFNMZ      B=TMP1A        -> BLPFNMZ
-  964  18      ADD A=BLPFNMTC     B=TMP4A        -> BLPFNMZ
-  965  f1      WIDTH.1   ; 32-bit store  [probe37/70]
+  958  f0      MAC   ; multiply-accumulate: acc +=/-= A*B (op&1), store/emit acc; reset per pass  [probe74]
+  959  24      MAC+ acc += BLPFNMX * TMP1A -> BLPFNMX  (probe74)
+  960  08      MAC+ acc += BLPFNMTC * TMP2A -> BLPFNMX  (probe74)
+  961  44      MAC+ acc += BLPFNMY * TMP1A -> BLPFNMY  (probe74)
+  962  10      MAC+ acc += BLPFNMTC * TMP3A -> BLPFNMY  (probe74)
+  963  64      MAC+ acc += BLPFNMZ * TMP1A -> BLPFNMZ  (probe74)
+  964  18      MAC+ acc += BLPFNMTC * TMP4A -> BLPFNMZ  (probe74)
+  965  f1      WIDTH.1   ; 32-bit store  [probe37]
   966  a3      P2.page=3   -> D@304 TMP1B
   967  29      RSUB A=BLPFNMX      B=TMP2A        -> TMP1B
   968  55      RSUB A=BLPFNMY      B=TMP3A        -> TMP2B
@@ -206,11 +206,11 @@
   972  b5      P1.bank=1
   973  93      P1.page=3   -> B@304 TMP1B
   974  af      P2.page=f   -> D@496 BLPFNMTC
-  975  f0      WIDTH.0   ; 32-bit store; a sum of opposite-sign addends is 1 LSB lower (probe70)  [probe37/70]
-  976  00      ADD A=TMP1B        B=TMP1B        -> BLPFNMTC
-  977  28      ADD A=TMP2B        B=TMP2B        -> BLPFNMTC
-  978  50      ADD A=TMP3B        B=TMP3B        -> BLPFNMTC
-  979  f1      WIDTH.1   ; 32-bit store  [probe37/70]
+  975  f0      MAC   ; multiply-accumulate: acc +=/-= A*B (op&1), store/emit acc; reset per pass  [probe74]
+  976  00      MAC+ acc += TMP1B * TMP1B -> BLPFNMTC  (probe74)
+  977  28      MAC+ acc += TMP2B * TMP2B -> BLPFNMTC  (probe74)
+  978  50      MAC+ acc += TMP3B * TMP3B -> BLPFNMTC  (probe74)
+  979  f1      WIDTH.1   ; 32-bit store  [probe37]
   980  a3      P2.page=3   -> D@304 TMP1B
   981  86      P0.page=6   -> A@352 MNMFLAG
   982  9f      P1.page=f   -> B@496 BLPFNMTC
@@ -250,7 +250,7 @@
  1016  df      [d9] CLR  BLPFMZ := 0  (P2 word++ first)  (df; probe23)
  1017  d8      ALWAYS  (ends a sticky predicate)
  1018  d8      ALWAYS  (ends a sticky predicate)
- 1019  f1      WIDTH.1   ; 32-bit store  [probe37/70]
+ 1019  f1      WIDTH.1   ; 32-bit store  [probe37]
  1020  b8      P2.bank=0
  1021  a8      P2.page=8   -> D@128 TMP1A
  1022  b2      P0.bank=2
@@ -297,11 +297,11 @@
  1063  a3      P2.page=3   -> D@304 TMP1B
  1064  b1      P0.bank=1
  1065  80      P0.page=0   -> A@256 PREVPTAT
- 1066  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37/70]
+ 1066  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37]
  1067  c4      MOV   ACCXB        -> TMP1B  (c4; probe25)
  1068  cd      MOVX  ACCXB        -> TMP2B  (P2 word++ first)  (cd; probe25)  ; c8-cf: half-words swapped, on both parts (probe54/67)
  1069  c9      MOVX  PREVPTAT     -> TMP3B  (P2 word++ first)  (c9; probe25)  ; c8-cf: half-words swapped, on both parts (probe54/67)
- 1070  f1      WIDTH.1   ; 32-bit store  [probe37/70]
+ 1070  f1      WIDTH.1   ; 32-bit store  [probe37]
  1071  b8      P2.bank=0
  1072  a9      P2.page=9   -> D@144 XACCW
  1073  b4      P1.bank=0
@@ -329,7 +329,7 @@
  1095  b8      P2.bank=0
  1096  b4      P1.bank=0
  1097  b0      P0.bank=0
- 1098  f1      WIDTH.1   ; 32-bit store  [probe37/70]
+ 1098  f1      WIDTH.1   ; 32-bit store  [probe37]
  1099  97      P1.page=7   -> B@112 0_5
  1100  83      P0.page=3   -> A@48 BLPFMTC
  1101  a8      P2.page=8   -> D@128 TMP1A
@@ -340,16 +340,16 @@
  1106  98      P1.page=8   -> B@128 TMP1A
  1107  a3      P2.page=3   -> D@48 BLPFMTC
  1108  83      P0.page=3   -> A@48 BLPFMTC
- 1109  f0      WIDTH.0   ; 32-bit store; a sum of opposite-sign addends is 1 LSB lower (probe70)  [probe37/70]
+ 1109  f0      MAC   ; multiply-accumulate: acc +=/-= A*B (op&1), store/emit acc; reset per pass  [probe74]
  1110  da      IF.GE0   (not N; always after d1; sticky until d8)
- 1111  24      [da] ADD A=BLPFMX       B=TMP1A        -> BLPFMX
- 1112  08      [da] ADD A=BLPFMTC      B=TMP2A        -> BLPFMX
- 1113  44      [da] ADD A=BLPFMY       B=TMP1A        -> BLPFMY
- 1114  10      [da] ADD A=BLPFMTC      B=TMP3A        -> BLPFMY
- 1115  64      [da] ADD A=BLPFMZ       B=TMP1A        -> BLPFMZ
- 1116  18      [da] ADD A=BLPFMTC      B=TMP4A        -> BLPFMZ
+ 1111  24      [da] MAC+ acc += BLPFMX * TMP1A -> BLPFMX  (probe74)
+ 1112  08      [da] MAC+ acc += BLPFMTC * TMP2A -> BLPFMX  (probe74)
+ 1113  44      [da] MAC+ acc += BLPFMY * TMP1A -> BLPFMY  (probe74)
+ 1114  10      [da] MAC+ acc += BLPFMTC * TMP3A -> BLPFMY  (probe74)
+ 1115  64      [da] MAC+ acc += BLPFMZ * TMP1A -> BLPFMZ  (probe74)
+ 1116  18      [da] MAC+ acc += BLPFMTC * TMP4A -> BLPFMZ  (probe74)
  1117  d8      ALWAYS  (ends a sticky predicate)
- 1118  f1      WIDTH.1   ; 32-bit store  [probe37/70]
+ 1118  f1      WIDTH.1   ; 32-bit store  [probe37]
  1119  a5      P2.page=5   -> D@80 ANGVBX
  1120  29      RSUB A=BLPFMX       B=TMP2A        -> ANGVBX
  1121  55      RSUB A=BLPFMY       B=TMP3A        -> ANGVBY
@@ -366,35 +366,35 @@
  1132  40      ADD A=ANGVBZ       B=ANGVBX       -> ANGVBZ
  1133  48      ADD A=ANGVBZ       B=ANGVBY       -> ANGVBZ
  1134  f9      DEC  ANGVBZ by 1  (f9; probe23)
- 1135  f3      WIDTH.3   ; 16-bit store, lower half-word  [probe37/70]
+ 1135  f3      WIDTH.3   ; 16-bit store, lower half-word  [probe37]
  1136  a3      P2.page=3   -> D@48 BLPFMTC
  1137  d9      IF.LE0   (N or Z; IF.Z right after d1; sticky until d8)
  1138  f8      [d9] INC  BLPFMTC by 1  (f8; probe23)
- 1139  f0      [d9] WIDTH.0   ; 32-bit store; a sum of opposite-sign addends is 1 LSB lower (probe70)  [probe37/70]
+ 1139  f0      [d9] MAC   ; multiply-accumulate: acc +=/-= A*B (op&1), store/emit acc; reset per pass  [probe74]
  1140  98      [d9] P1.page=8   -> B@128 TMP1A
  1141  83      [d9] P0.page=3   -> A@48 BLPFMTC
- 1142  24      [d9] ADD A=BLPFMX       B=TMP1A        -> BLPFMX
- 1143  08      [d9] ADD A=BLPFMTC      B=TMP2A        -> BLPFMX
- 1144  44      [d9] ADD A=BLPFMY       B=TMP1A        -> BLPFMY
- 1145  10      [d9] ADD A=BLPFMTC      B=TMP3A        -> BLPFMY
- 1146  64      [d9] ADD A=BLPFMZ       B=TMP1A        -> BLPFMZ
- 1147  18      [d9] ADD A=BLPFMTC      B=TMP4A        -> BLPFMZ
+ 1142  24      [d9] MAC+ acc += BLPFMX * TMP1A -> BLPFMX  (probe74)
+ 1143  08      [d9] MAC+ acc += BLPFMTC * TMP2A -> BLPFMX  (probe74)
+ 1144  44      [d9] MAC+ acc += BLPFMY * TMP1A -> BLPFMY  (probe74)
+ 1145  10      [d9] MAC+ acc += BLPFMTC * TMP3A -> BLPFMY  (probe74)
+ 1146  64      [d9] MAC+ acc += BLPFMZ * TMP1A -> BLPFMZ  (probe74)
+ 1147  18      [d9] MAC+ acc += BLPFMTC * TMP4A -> BLPFMZ  (probe74)
  1148  97      [d9] P1.page=7   -> B@112 0_5
  1149  82      [d9] P0.page=2   -> A@32 BLPFSTC
  1150  a8      [d9] P2.page=8   -> D@128 TMP1A
- 1151  f1      [d9] WIDTH.1   ; 32-bit store  [probe37/70]
+ 1151  f1      [d9] WIDTH.1   ; 32-bit store  [probe37]
  1152  11      [d9] RSUB A=BLPFSTC      B=1_0          -> TMP1A
- 1153  f0      [d9] WIDTH.0   ; 32-bit store; a sum of opposite-sign addends is 1 LSB lower (probe70)  [probe37/70]
+ 1153  f0      [d9] MAC   ; multiply-accumulate: acc +=/-= A*B (op&1), store/emit acc; reset per pass  [probe74]
  1154  98      [d9] P1.page=8   -> B@128 TMP1A
  1155  a2      [d9] P2.page=2   -> D@32 BLPFSTC
- 1156  24      [d9] ADD A=BLPFSX       B=TMP1A        -> BLPFSX
- 1157  08      [d9] ADD A=BLPFSTC      B=TMP2A        -> BLPFSX
- 1158  44      [d9] ADD A=BLPFSY       B=TMP1A        -> BLPFSY
- 1159  10      [d9] ADD A=BLPFSTC      B=TMP3A        -> BLPFSY
- 1160  64      [d9] ADD A=BLPFSZ       B=TMP1A        -> BLPFSZ
- 1161  18      [d9] ADD A=BLPFSTC      B=TMP4A        -> BLPFSZ
+ 1156  24      [d9] MAC+ acc += BLPFSX * TMP1A -> BLPFSX  (probe74)
+ 1157  08      [d9] MAC+ acc += BLPFSTC * TMP2A -> BLPFSX  (probe74)
+ 1158  44      [d9] MAC+ acc += BLPFSY * TMP1A -> BLPFSY  (probe74)
+ 1159  10      [d9] MAC+ acc += BLPFSTC * TMP3A -> BLPFSY  (probe74)
+ 1160  64      [d9] MAC+ acc += BLPFSZ * TMP1A -> BLPFSZ  (probe74)
+ 1161  18      [d9] MAC+ acc += BLPFSTC * TMP4A -> BLPFSZ  (probe74)
  1162  da      IF.GE0   (not N; always after d1; sticky until d8)
- 1163  f3      [da] WIDTH.3   ; 16-bit store, lower half-word  [probe37/70]
+ 1163  f3      [da] WIDTH.3   ; 16-bit store, lower half-word  [probe37]
  1164  de      [da] CLR  BLPFSZ := 0  (in place, no advance)  (de; probe31)
  1165  d8      ALWAYS  (ends a sticky predicate)
  1166  83      P0.page=3   -> A@48 BLPFMTC
@@ -404,13 +404,13 @@
  1170  d9      IF.LE0   (N or Z; IF.Z right after d1; sticky until d8)
  1171  a3      [d9] P2.page=3   -> D@48 BLPFMTC
  1172  02      [d9] MUL A=BLPFMTC      B=BLPFC        -> BLPFMTC.lo
- 1173  f1      [d9] WIDTH.1   ; 32-bit store  [probe37/70]
+ 1173  f1      [d9] WIDTH.1   ; 32-bit store  [probe37]
  1174  a2      [d9] P2.page=2   -> D@32 BLPFSTC
  1175  c3      [d9] MOV   BLPFMX       -> BLPFSX  (P2 word++ first)  (c3; probe25)
  1176  c5      [d9] MOV   BLPFMY       -> BLPFSY  (P2 word++ first)  (c5; probe25)
  1177  c7      [d9] MOV   BLPFMZ       -> BLPFSZ  (P2 word++ first)  (c7; probe25)
  1178  d8      ALWAYS  (ends a sticky predicate)
- 1179  f1      WIDTH.1   ; 32-bit store  [probe37/70]
+ 1179  f1      WIDTH.1   ; 32-bit store  [probe37]
  1180  84      P0.page=4   -> A@64 BLPFC
  1181  92      P1.page=2   -> B@32 BLPFSTC
  1182  a2      P2.page=2   -> D@32 BLPFSTC
@@ -479,15 +479,15 @@
  1245  a8      P2.page=8   -> D@128 TMP1A
  1246  8a      P0.page=a   -> A@160 DZ
  1247  9a      P1.page=a   -> B@160 DZ
- 1248  f0      WIDTH.0   ; 32-bit store; a sum of opposite-sign addends is 1 LSB lower (probe70)  [probe37/70]
- 1249  28      ADD A=XGC          B=XGC          -> TMP1A
- 1250  50      ADD A=YGC          B=YGC          -> TMP1A
- 1251  78      ADD A=ZGC          B=ZGC          -> TMP1A
+ 1248  f0      MAC   ; multiply-accumulate: acc +=/-= A*B (op&1), store/emit acc; reset per pass  [probe74]
+ 1249  28      MAC+ acc += XGC * XGC -> TMP1A  (probe74)
+ 1250  50      MAC+ acc += YGC * YGC -> TMP1A  (probe74)
+ 1251  78      MAC+ acc += ZGC * ZGC -> TMP1A  (probe74)
  1252  9e      P1.page=e   -> B@224 CTRLS1
- 1253  f3      WIDTH.3   ; 16-bit store, lower half-word  [probe37/70]
+ 1253  f3      WIDTH.3   ; 16-bit store, lower half-word  [probe37]
  1254  88      P0.page=8   -> A@128 TMP1A
  1255  18      ADD A=TMP1A        B=CTRLS4       -> TMP1A.lo
- 1256  f1      WIDTH.1   ; 32-bit store  [probe37/70]
+ 1256  f1      WIDTH.1   ; 32-bit store  [probe37]
  1257  9f      P1.page=f   -> B@240 CTRLSFNL
  1258  1d      RSUB A=TMP1A        B=TMP12        -> TMP2A
  1259  98      P1.page=8   -> B@128 TMP1A
@@ -499,14 +499,14 @@
  1265  9f      P1.page=f   -> B@240 CTRLSFNL
  1266  12      MUL A=TMP1A        B=TMP11        -> TMP1A
  1267  9e      P1.page=e   -> B@224 CTRLS1
- 1268  f3      WIDTH.3   ; 16-bit store, lower half-word  [probe37/70]
+ 1268  f3      WIDTH.3   ; 16-bit store, lower half-word  [probe37]
  1269  15      RSUB A=TMP1A        B=CTRLS3       -> TMP2A.lo
  1270  a8      P2.page=8   -> D@128 TMP1A
  1271  da      IF.GE0   (not N; always after d1; sticky until d8)
  1272  12      [da] MUL A=TMP1A        B=CTRLS3       -> TMP1A.lo
  1273  10      [da] ADD A=TMP1A        B=CTRLS3       -> TMP1A.lo
  1274  d8      ALWAYS  (ends a sticky predicate)
- 1275  f1      WIDTH.1   ; 32-bit store  [probe37/70]
+ 1275  f1      WIDTH.1   ; 32-bit store  [probe37]
  1276  af      P2.page=f   -> D@240 CTRLSFNL
  1277  c8      MOVX  TMP1A        -> CTRLSFNL  (c8; probe25)  ; c8-cf: half-words swapped, on both parts (probe54/67)
  1278  97      P1.page=7   -> B@112 0_5
@@ -517,19 +517,19 @@
  1283  94      P1.page=4   -> B@320 STXG
  1284  a4      P2.page=4   -> D@320 STXG
  1285  21      RSUB A=0_0          B=STXG         -> STXG
- 1286  f3      WIDTH.3   ; 16-bit store, lower half-word  [probe37/70]
+ 1286  f3      WIDTH.3   ; 16-bit store, lower half-word  [probe37]
  1287  d9      IF.LE0   (N or Z; IF.Z right after d1; sticky until d8)
  1288  22      [d9] MUL A=0_0          B=STXG         -> STXG.lo
  1289  d8      ALWAYS  (ends a sticky predicate)
- 1290  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37/70]
+ 1290  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37]
  1291  2d      RSUB A=0_0          B=STYG         -> STYG.hi
- 1292  f3      WIDTH.3   ; 16-bit store, lower half-word  [probe37/70]
+ 1292  f3      WIDTH.3   ; 16-bit store, lower half-word  [probe37]
  1293  d9      IF.LE0   (N or Z; IF.Z right after d1; sticky until d8)
  1294  2a      [d9] MUL A=0_0          B=STYG         -> STYG.lo
  1295  d8      ALWAYS  (ends a sticky predicate)
- 1296  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37/70]
+ 1296  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37]
  1297  35      RSUB A=0_0          B=STZG         -> STZG.hi
- 1298  f3      WIDTH.3   ; 16-bit store, lower half-word  [probe37/70]
+ 1298  f3      WIDTH.3   ; 16-bit store, lower half-word  [probe37]
  1299  d9      IF.LE0   (N or Z; IF.Z right after d1; sticky until d8)
  1300  32      [d9] MUL A=0_0          B=STZG         -> STZG.lo
  1301  d8      ALWAYS  (ends a sticky predicate)
@@ -575,7 +575,7 @@
  1341  af      P2.page=f   -> D@240 CTRLSFNL
  1342  8f      P0.page=f   -> A@240 CTRLSFNL
  1343  94      P1.page=4   -> B@320 STXG
- 1344  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37/70]
+ 1344  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37]
  1345  da      IF.GE0   (not N; always after d1; sticky until d8)
  1346  3e      [da] MUL A=CTRLSFJT     B=CTRLSFJT2    -> CTRLSFJT.hi
  1347  d8      ALWAYS  (ends a sticky predicate)
@@ -616,7 +616,7 @@
  1382  97      P1.page=7   -> B@112 0_5
  1383  b0      P0.bank=0
  1384  8a      P0.page=a   -> A@160 DZ
- 1385  f1      WIDTH.1   ; 32-bit store  [probe37/70]
+ 1385  f1      WIDTH.1   ; 32-bit store  [probe37]
  1386  2d      RSUB A=XGC          B=0_0          -> TMP2B
  1387  d9      IF.LE0   (N or Z; IF.Z right after d1; sticky until d8)
  1388  28      [d9] ADD A=XGC          B=0_0          -> TMP2B
@@ -676,7 +676,7 @@
  1442  d0      [da] P2 word += 2 -> D@168 YGC  (d0, mod 4; probe20)
  1443  df      [da] CLR  ZGC := 0  (P2 word++ first)  (df; probe23)
  1444  d8      ALWAYS  (ends a sticky predicate)
- 1445  f1      WIDTH.1   ; 32-bit store  [probe37/70]
+ 1445  f1      WIDTH.1   ; 32-bit store  [probe37]
  1446  97      P1.page=7   -> B@112 0_5
  1447  86      P0.page=6   -> A@96 ATC
  1448  a8      P2.page=8   -> D@128 TMP1A
@@ -690,103 +690,103 @@
  1456  28      ADD A=ACT2         B=0_0          -> YACCW
  1457  88      P0.page=8   -> A@128 TMP1A
  1458  9b      P1.page=b   -> B@176 YACCW
- 1459  f0      WIDTH.0   ; 32-bit store; a sum of opposite-sign addends is 1 LSB lower (probe70)  [probe37/70]
- 1460  0c      ADD A=TMP1A        B=AFB1         -> AFB1
- 1461  20      ADD A=TMP2A        B=YACCW        -> AFB1
- 1462  14      ADD A=TMP1A        B=AFB2         -> AFB2
- 1463  40      ADD A=TMP3A        B=YACCW        -> AFB2
+ 1459  f0      MAC   ; multiply-accumulate: acc +=/-= A*B (op&1), store/emit acc; reset per pass  [probe74]
+ 1460  0c      MAC+ acc += TMP1A * AFB1 -> AFB1  (probe74)
+ 1461  20      MAC+ acc += TMP2A * YACCW -> AFB1  (probe74)
+ 1462  14      MAC+ acc += TMP1A * AFB2 -> AFB2  (probe74)
+ 1463  40      MAC+ acc += TMP3A * YACCW -> AFB2  (probe74)
  1464  b8      P2.bank=0
  1465  b0      P0.bank=0
  1466  b4      P1.bank=0
  1467  a8      P2.page=8   -> D@128 TMP1A
  1468  8c      P0.page=c   -> A@192 QT1
  1469  9c      P1.page=c   -> B@192 QT1
- 1470  f0      WIDTH.0   ; 32-bit store; a sum of opposite-sign addends is 1 LSB lower (probe70)  [probe37/70]
- 1471  04      ADD A=QT1          B=QT1          -> TMP2A
- 1472  28      ADD A=QT2          B=QT2          -> TMP2A
- 1473  51      RSUB A=QT3          B=QT3          -> TMP2A
- 1474  79      RSUB A=QT4          B=QT4          -> TMP2A
- 1475  1d      RSUB A=QT1          B=QT4          -> TMP3A
- 1476  30      ADD A=QT2          B=QT3          -> TMP3A
- 1477  14      ADD A=QT1          B=QT3          -> TMP4A
- 1478  38      ADD A=QT2          B=QT4          -> TMP4A
+ 1470  f0      MAC   ; multiply-accumulate: acc +=/-= A*B (op&1), store/emit acc; reset per pass  [probe74]
+ 1471  04      MAC+ acc += QT1 * QT1 -> TMP2A  (probe74)
+ 1472  28      MAC+ acc += QT2 * QT2 -> TMP2A  (probe74)
+ 1473  51      MAC- acc -= QT3 * QT3 -> TMP2A  (probe74)
+ 1474  79      MAC- acc -= QT4 * QT4 -> TMP2A  (probe74)
+ 1475  1d      MAC- acc -= QT1 * QT4 -> TMP3A  (probe74)
+ 1476  30      MAC+ acc += QT2 * QT3 -> TMP3A  (probe74)
+ 1477  14      MAC+ acc += QT1 * QT3 -> TMP4A  (probe74)
+ 1478  38      MAC+ acc += QT2 * QT4 -> TMP4A  (probe74)
  1479  b2      P0.bank=2
  1480  82      P0.page=2   -> A@544 @544
  1481  ab      P2.page=b   -> D@176 YACCW
  1482  d0      P2 word += 2 -> D@184 AFB2  (d0, mod 4; probe20)
  1483  98      P1.page=8   -> B@128 TMP1A
- 1484  2c      ADD A=@548         B=TMP2A        -> MAGFB
- 1485  50      ADD A=@552         B=TMP3A        -> MAGFB
- 1486  50      ADD A=@552         B=TMP3A        -> MAGFB
- 1487  78      ADD A=@556         B=TMP4A        -> MAGFB
- 1488  78      ADD A=@556         B=TMP4A        -> MAGFB
+ 1484  2c      MAC+ acc += @548 * TMP2A -> MAGFB  (probe74)
+ 1485  50      MAC+ acc += @552 * TMP3A -> MAGFB  (probe74)
+ 1486  50      MAC+ acc += @552 * TMP3A -> MAGFB  (probe74)
+ 1487  78      MAC+ acc += @556 * TMP4A -> MAGFB  (probe74)
+ 1488  78      MAC+ acc += @556 * TMP4A -> MAGFB  (probe74)
  1489  9b      P1.page=b   -> B@176 YACCW
- 1490  f1      WIDTH.1   ; 32-bit store  [probe37/70]
+ 1490  f1      WIDTH.1   ; 32-bit store  [probe37]
  1491  1a      MUL A=@544         B=MAGFB        -> MAGFB
  1492  b0      P0.bank=0
- 1493  f0      WIDTH.0   ; 32-bit store; a sum of opposite-sign addends is 1 LSB lower (probe70)  [probe37/70]
+ 1493  f0      MAC   ; multiply-accumulate: acc +=/-= A*B (op&1), store/emit acc; reset per pass  [probe74]
  1494  8a      P0.page=a   -> A@160 DZ
  1495  9c      P1.page=c   -> B@192 QT1
  1496  a8      P2.page=8   -> D@128 TMP1A
- 1497  29      RSUB A=XGC          B=QT2          -> TMP1A
- 1498  51      RSUB A=YGC          B=QT3          -> TMP1A
- 1499  79      RSUB A=ZGC          B=QT4          -> TMP1A
+ 1497  29      MAC- acc -= XGC * QT2 -> TMP1A  (probe74)
+ 1498  51      MAC- acc -= YGC * QT3 -> TMP1A  (probe74)
+ 1499  79      MAC- acc -= ZGC * QT4 -> TMP1A  (probe74)
  1500  8b      P0.page=b   -> A@176 YACCW
- 1501  29      RSUB A=AFB1         B=QT2          -> TMP1A
- 1502  51      RSUB A=AFB2         B=QT3          -> TMP1A
- 1503  79      RSUB A=MAGFB        B=QT4          -> TMP1A
+ 1501  29      MAC- acc -= AFB1 * QT2 -> TMP1A  (probe74)
+ 1502  51      MAC- acc -= AFB2 * QT3 -> TMP1A  (probe74)
+ 1503  79      MAC- acc -= MAGFB * QT4 -> TMP1A  (probe74)
  1504  8a      P0.page=a   -> A@160 DZ
- 1505  24      ADD A=XGC          B=QT1          -> TMP2A
- 1506  70      ADD A=ZGC          B=QT3          -> TMP2A
- 1507  59      RSUB A=YGC          B=QT4          -> TMP2A
+ 1505  24      MAC+ acc += XGC * QT1 -> TMP2A  (probe74)
+ 1506  70      MAC+ acc += ZGC * QT3 -> TMP2A  (probe74)
+ 1507  59      MAC- acc -= YGC * QT4 -> TMP2A  (probe74)
  1508  8b      P0.page=b   -> A@176 YACCW
- 1509  20      ADD A=AFB1         B=QT1          -> TMP2A
- 1510  58      ADD A=AFB2         B=QT4          -> TMP2A
- 1511  71      RSUB A=MAGFB        B=QT3          -> TMP2A
+ 1509  20      MAC+ acc += AFB1 * QT1 -> TMP2A  (probe74)
+ 1510  58      MAC+ acc += AFB2 * QT4 -> TMP2A  (probe74)
+ 1511  71      MAC- acc -= MAGFB * QT3 -> TMP2A  (probe74)
  1512  8a      P0.page=a   -> A@160 DZ
- 1513  44      ADD A=YGC          B=QT1          -> TMP3A
- 1514  69      RSUB A=ZGC          B=QT2          -> TMP3A
- 1515  38      ADD A=XGC          B=QT4          -> TMP3A
+ 1513  44      MAC+ acc += YGC * QT1 -> TMP3A  (probe74)
+ 1514  69      MAC- acc -= ZGC * QT2 -> TMP3A  (probe74)
+ 1515  38      MAC+ acc += XGC * QT4 -> TMP3A  (probe74)
  1516  8b      P0.page=b   -> A@176 YACCW
- 1517  39      RSUB A=AFB1         B=QT4          -> TMP3A
- 1518  40      ADD A=AFB2         B=QT1          -> TMP3A
- 1519  68      ADD A=MAGFB        B=QT2          -> TMP3A
+ 1517  39      MAC- acc -= AFB1 * QT4 -> TMP3A  (probe74)
+ 1518  40      MAC+ acc += AFB2 * QT1 -> TMP3A  (probe74)
+ 1519  68      MAC+ acc += MAGFB * QT2 -> TMP3A  (probe74)
  1520  8a      P0.page=a   -> A@160 DZ
- 1521  64      ADD A=ZGC          B=QT1          -> TMP4A
- 1522  48      ADD A=YGC          B=QT2          -> TMP4A
- 1523  31      RSUB A=XGC          B=QT3          -> TMP4A
+ 1521  64      MAC+ acc += ZGC * QT1 -> TMP4A  (probe74)
+ 1522  48      MAC+ acc += YGC * QT2 -> TMP4A  (probe74)
+ 1523  31      MAC- acc -= XGC * QT3 -> TMP4A  (probe74)
  1524  8b      P0.page=b   -> A@176 YACCW
- 1525  30      ADD A=AFB1         B=QT3          -> TMP4A
- 1526  49      RSUB A=AFB2         B=QT2          -> TMP4A
- 1527  60      ADD A=MAGFB        B=QT1          -> TMP4A
+ 1525  30      MAC+ acc += AFB1 * QT3 -> TMP4A  (probe74)
+ 1526  49      MAC- acc -= AFB2 * QT2 -> TMP4A  (probe74)
+ 1527  60      MAC+ acc += MAGFB * QT1 -> TMP4A  (probe74)
  1528  a5      P2.page=5   -> D@80 ANGVBX
  1529  88      P0.page=8   -> A@128 TMP1A
- 1530  20      ADD A=TMP2A        B=QT1          -> ANGVBX
- 1531  09      RSUB A=TMP1A        B=QT2          -> ANGVBX
- 1532  71      RSUB A=TMP4A        B=QT3          -> ANGVBX
- 1533  58      ADD A=TMP3A        B=QT4          -> ANGVBX
- 1534  44      ADD A=TMP3A        B=QT1          -> ANGVBY
- 1535  68      ADD A=TMP4A        B=QT2          -> ANGVBY
- 1536  11      RSUB A=TMP1A        B=QT3          -> ANGVBY
- 1537  39      RSUB A=TMP2A        B=QT4          -> ANGVBY
- 1538  64      ADD A=TMP4A        B=QT1          -> ANGVBZ
- 1539  49      RSUB A=TMP3A        B=QT2          -> ANGVBZ
- 1540  30      ADD A=TMP2A        B=QT3          -> ANGVBZ
- 1541  19      RSUB A=TMP1A        B=QT4          -> ANGVBZ
- 1542  f1      WIDTH.1   ; 32-bit store  [probe37/70]
+ 1530  20      MAC+ acc += TMP2A * QT1 -> ANGVBX  (probe74)
+ 1531  09      MAC- acc -= TMP1A * QT2 -> ANGVBX  (probe74)
+ 1532  71      MAC- acc -= TMP4A * QT3 -> ANGVBX  (probe74)
+ 1533  58      MAC+ acc += TMP3A * QT4 -> ANGVBX  (probe74)
+ 1534  44      MAC+ acc += TMP3A * QT1 -> ANGVBY  (probe74)
+ 1535  68      MAC+ acc += TMP4A * QT2 -> ANGVBY  (probe74)
+ 1536  11      MAC- acc -= TMP1A * QT3 -> ANGVBY  (probe74)
+ 1537  39      MAC- acc -= TMP2A * QT4 -> ANGVBY  (probe74)
+ 1538  64      MAC+ acc += TMP4A * QT1 -> ANGVBZ  (probe74)
+ 1539  49      MAC- acc -= TMP3A * QT2 -> ANGVBZ  (probe74)
+ 1540  30      MAC+ acc += TMP2A * QT3 -> ANGVBZ  (probe74)
+ 1541  19      MAC- acc -= TMP1A * QT4 -> ANGVBZ  (probe74)
+ 1542  f1      WIDTH.1   ; 32-bit store  [probe37]
  1543  ac      P2.page=c   -> D@192 QT1
  1544  00      ADD A=TMP1A        B=QT1          -> QT1
  1545  2c      ADD A=TMP2A        B=QT2          -> QT2
  1546  54      ADD A=TMP3A        B=QT3          -> QT3
  1547  7c      ADD A=TMP4A        B=QT4          -> QT4
- 1548  f0      WIDTH.0   ; 32-bit store; a sum of opposite-sign addends is 1 LSB lower (probe70)  [probe37/70]
+ 1548  f0      MAC   ; multiply-accumulate: acc +=/-= A*B (op&1), store/emit acc; reset per pass  [probe74]
  1549  8c      P0.page=c   -> A@192 QT1
  1550  a8      P2.page=8   -> D@128 TMP1A
- 1551  04      ADD A=QT1          B=QT1          -> TMP2A
- 1552  28      ADD A=QT2          B=QT2          -> TMP2A
- 1553  50      ADD A=QT3          B=QT3          -> TMP2A
- 1554  78      ADD A=QT4          B=QT4          -> TMP2A
- 1555  f1      WIDTH.1   ; 32-bit store  [probe37/70]
+ 1551  04      MAC+ acc += QT1 * QT1 -> TMP2A  (probe74)
+ 1552  28      MAC+ acc += QT2 * QT2 -> TMP2A  (probe74)
+ 1553  50      MAC+ acc += QT3 * QT3 -> TMP2A  (probe74)
+ 1554  78      MAC+ acc += QT4 * QT4 -> TMP2A  (probe74)
+ 1555  f1      WIDTH.1   ; 32-bit store  [probe37]
  1556  88      P0.page=8   -> A@128 TMP1A
  1557  97      P1.page=7   -> B@112 0_5
  1558  26      MUL A=TMP2A        B=0_5          -> TMP3A
@@ -799,47 +799,47 @@
  1565  26      MUL A=QT2          B=TMP1A        -> QT2
  1566  46      MUL A=QT3          B=TMP1A        -> QT3
  1567  66      MUL A=QT4          B=TMP1A        -> QT4
- 1568  f0      WIDTH.0   ; 32-bit store; a sum of opposite-sign addends is 1 LSB lower (probe70)  [probe37/70]
+ 1568  f0      MAC   ; multiply-accumulate: acc +=/-= A*B (op&1), store/emit acc; reset per pass  [probe74]
  1569  89      P0.page=9   -> A@144 XACCW
  1570  9c      P1.page=c   -> B@192 QT1
  1571  a8      P2.page=8   -> D@128 TMP1A
- 1572  29      RSUB A=XACCB        B=QT2          -> TMP1A
- 1573  51      RSUB A=YACCB        B=QT3          -> TMP1A
- 1574  79      RSUB A=ZACCB        B=QT4          -> TMP1A
- 1575  24      ADD A=XACCB        B=QT1          -> TMP2A
- 1576  70      ADD A=ZACCB        B=QT3          -> TMP2A
- 1577  59      RSUB A=YACCB        B=QT4          -> TMP2A
- 1578  44      ADD A=YACCB        B=QT1          -> TMP3A
- 1579  69      RSUB A=ZACCB        B=QT2          -> TMP3A
- 1580  38      ADD A=XACCB        B=QT4          -> TMP3A
- 1581  64      ADD A=ZACCB        B=QT1          -> TMP4A
- 1582  48      ADD A=YACCB        B=QT2          -> TMP4A
- 1583  31      RSUB A=XACCB        B=QT3          -> TMP4A
+ 1572  29      MAC- acc -= XACCB * QT2 -> TMP1A  (probe74)
+ 1573  51      MAC- acc -= YACCB * QT3 -> TMP1A  (probe74)
+ 1574  79      MAC- acc -= ZACCB * QT4 -> TMP1A  (probe74)
+ 1575  24      MAC+ acc += XACCB * QT1 -> TMP2A  (probe74)
+ 1576  70      MAC+ acc += ZACCB * QT3 -> TMP2A  (probe74)
+ 1577  59      MAC- acc -= YACCB * QT4 -> TMP2A  (probe74)
+ 1578  44      MAC+ acc += YACCB * QT1 -> TMP3A  (probe74)
+ 1579  69      MAC- acc -= ZACCB * QT2 -> TMP3A  (probe74)
+ 1580  38      MAC+ acc += XACCB * QT4 -> TMP3A  (probe74)
+ 1581  64      MAC+ acc += ZACCB * QT1 -> TMP4A  (probe74)
+ 1582  48      MAC+ acc += YACCB * QT2 -> TMP4A  (probe74)
+ 1583  31      MAC- acc -= XACCB * QT3 -> TMP4A  (probe74)
  1584  a9      P2.page=9   -> D@144 XACCW
  1585  88      P0.page=8   -> A@128 TMP1A
- 1586  09      RSUB A=TMP1A        B=QT2          -> XACCW
- 1587  20      ADD A=TMP2A        B=QT1          -> XACCW
- 1588  59      RSUB A=TMP3A        B=QT4          -> XACCW
- 1589  70      ADD A=TMP4A        B=QT3          -> XACCW
+ 1586  09      MAC- acc -= TMP1A * QT2 -> XACCW  (probe74)
+ 1587  20      MAC+ acc += TMP2A * QT1 -> XACCW  (probe74)
+ 1588  59      MAC- acc -= TMP3A * QT4 -> XACCW  (probe74)
+ 1589  70      MAC+ acc += TMP4A * QT3 -> XACCW  (probe74)
  1590  ab      P2.page=b   -> D@176 YACCW
- 1591  11      RSUB A=TMP1A        B=QT3          -> YACCW
- 1592  38      ADD A=TMP2A        B=QT4          -> YACCW
- 1593  40      ADD A=TMP3A        B=QT1          -> YACCW
- 1594  69      RSUB A=TMP4A        B=QT2          -> YACCW
+ 1591  11      MAC- acc -= TMP1A * QT3 -> YACCW  (probe74)
+ 1592  38      MAC+ acc += TMP2A * QT4 -> YACCW  (probe74)
+ 1593  40      MAC+ acc += TMP3A * QT1 -> YACCW  (probe74)
+ 1594  69      MAC- acc -= TMP4A * QT2 -> YACCW  (probe74)
  1595  a8      P2.page=8   -> D@128 TMP1A
- 1596  19      RSUB A=TMP1A        B=QT4          -> TMP1A
- 1597  31      RSUB A=TMP2A        B=QT3          -> TMP1A
- 1598  48      ADD A=TMP3A        B=QT2          -> TMP1A
- 1599  60      ADD A=TMP4A        B=QT1          -> TMP1A
+ 1596  19      MAC- acc -= TMP1A * QT4 -> TMP1A  (probe74)
+ 1597  31      MAC- acc -= TMP2A * QT3 -> TMP1A  (probe74)
+ 1598  48      MAC+ acc += TMP3A * QT2 -> TMP1A  (probe74)
+ 1599  60      MAC+ acc += TMP4A * QT1 -> TMP1A  (probe74)
  1600  8c      P0.page=c   -> A@192 QT1
  1601  a8      P2.page=8   -> D@128 TMP1A
- 1602  3c      ADD A=QT2          B=QT4          -> TMP2A
- 1603  41      RSUB A=QT3          B=QT1          -> TMP2A
- 1604  5c      ADD A=QT3          B=QT4          -> TMP3A
- 1605  20      ADD A=QT2          B=QT1          -> TMP3A
- 1606  7c      ADD A=QT4          B=QT4          -> TMP4A
- 1607  00      ADD A=QT1          B=QT1          -> TMP4A
- 1608  f1      WIDTH.1   ; 32-bit store  [probe37/70]
+ 1602  3c      MAC+ acc += QT2 * QT4 -> TMP2A  (probe74)
+ 1603  41      MAC- acc -= QT3 * QT1 -> TMP2A  (probe74)
+ 1604  5c      MAC+ acc += QT3 * QT4 -> TMP3A  (probe74)
+ 1605  20      MAC+ acc += QT2 * QT1 -> TMP3A  (probe74)
+ 1606  7c      MAC+ acc += QT4 * QT4 -> TMP4A  (probe74)
+ 1607  00      MAC+ acc += QT1 * QT1 -> TMP4A  (probe74)
+ 1608  f1      WIDTH.1   ; 32-bit store  [probe37]
  1609  87      P0.page=7   -> A@112 0_5
  1610  98      P1.page=8   -> B@128 TMP1A
  1611  19      RSUB A=0_5          B=TMP4A        -> TMP4A
@@ -883,7 +883,7 @@
  1649  2c      ADD A=TMP2B        B=CTRL2        -> CTRL2
  1650  54      ADD A=TMP3B        B=CTRL3        -> CTRL3
  1651  7c      ADD A=TMP4B        B=CTRL4        -> CTRL4
- 1652  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37/70]
+ 1652  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37]
  1653  b1      P0.bank=1
  1654  8c      P0.page=c   -> A@448 TEMP29
  1655  b4      P1.bank=0
@@ -933,7 +933,7 @@
  1699  04      [d9] ADD A=TEMP29       B=TMP22        -> TMP27.hi
  1700  d8      ALWAYS  (ends a sticky predicate)
  1701  81      P0.page=1   -> A@272 1HB
- 1702  f3      WIDTH.3   ; 16-bit store, lower half-word  [probe37/70]
+ 1702  f3      WIDTH.3   ; 16-bit store, lower half-word  [probe37]
  1703  9d      P1.page=d   -> B@464 TMP22
  1704  ad      P2.page=d   -> D@464 TMP22
  1705  00      ADD A=1HB          B=TMP22        -> TMP22.lo
@@ -945,7 +945,7 @@
  1711  d9      IF.LE0   (N or Z; IF.Z right after d1; sticky until d8)
  1712  01      [d9] RSUB A=1HB          B=TMP22        -> TMP22.lo
  1713  d8      ALWAYS  (ends a sticky predicate)
- 1714  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37/70]
+ 1714  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37]
  1715  ae      P2.page=e   -> D@480 TMP25
  1716  da      IF.GE0   (not N; always after d1; sticky until d8)
  1717  26      [da] MUL A=0            B=TMP22        -> TMP27.hi
@@ -960,11 +960,11 @@
  1726  ad      [d9] P2.page=d   -> D@464 TMP22
  1727  ad      [d9] P2.page=d   -> D@464 TMP22
  1728  ad      [d9] P2.page=d   -> D@464 TMP22
- 1729  f3      [d9] WIDTH.3   ; 16-bit store, lower half-word  [probe37/70]
+ 1729  f3      [d9] WIDTH.3   ; 16-bit store, lower half-word  [probe37]
  1730  2a      [d9] MUL A=TMP2B        B=0            -> TMP22.lo
  1731  d8      ALWAYS  (ends a sticky predicate)
  1732  d8      ALWAYS  (ends a sticky predicate)
- 1733  f1      WIDTH.1   ; 32-bit store  [probe37/70]
+ 1733  f1      WIDTH.1   ; 32-bit store  [probe37]
  1734  b0      P0.bank=0
  1735  ac      P2.page=c   -> D@448 TEMP29
  1736  89      P0.page=9   -> A@144 XACCW
@@ -972,11 +972,11 @@
  1738  3e      MUL A=XACCB        B=ASR6         -> XACCB_PRE
  1739  5e      MUL A=YACCB        B=ASR6         -> YACCB_PRE
  1740  76      MUL A=ZACCB        B=ASR22        -> ZACCB_PRE
- 1741  f3      WIDTH.3   ; 16-bit store, lower half-word  [probe37/70]
+ 1741  f3      WIDTH.3   ; 16-bit store, lower half-word  [probe37]
  1742  ac      P2.page=c   -> D@448 TEMP29
  1743  2e      MUL A=XACCB        B=0            -> XACCB_PRE.lo
  1744  2e      MUL A=XACCB        B=0            -> YACCB_PRE.lo
- 1745  f1      WIDTH.1   ; 32-bit store  [probe37/70]
+ 1745  f1      WIDTH.1   ; 32-bit store  [probe37]
  1746  b1      P0.bank=1
  1747  8c      P0.page=c   -> A@448 TEMP29
  1748  5a      MUL A=YACCB_PRE    B=ASR6         -> YACCB_PRE
@@ -1004,7 +1004,7 @@
  1770  3c      ADD A=0            B=ACCQD7       -> ACCQD6
  1771  9c      P1.page=c   -> B@448 TEMP29
  1772  24      ADD A=0            B=TEMP29       -> ACCQD7
- 1773  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37/70]
+ 1773  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37]
  1774  b0      P0.bank=0
  1775  89      P0.page=9   -> A@144 XACCW
  1776  ac      P2.page=c   -> D@448 TEMP29
@@ -1026,7 +1026,7 @@
  1792  d9      IF.LE0   (N or Z; IF.Z right after d1; sticky until d8)
  1793  d8      ALWAYS  (ends a sticky predicate)
  1794  d8      ALWAYS  (ends a sticky predicate)
- 1795  f1      WIDTH.1   ; 32-bit store  [probe37/70]
+ 1795  f1      WIDTH.1   ; 32-bit store  [probe37]
  1796  9e      P1.page=e   -> B@480 TMP25
  1797  88      P0.page=8   -> A@128 TMP1A
  1798  a3      P2.page=3   -> D@304 TMP1B
@@ -1069,7 +1069,7 @@
  1835  28      ADD A=0            B=BLPFMX       -> TMP1B
  1836  34      ADD A=0            B=BLPFMY       -> TMP2B
  1837  3c      ADD A=0            B=BLPFMZ       -> TMP3B
- 1838  f3      WIDTH.3   ; 16-bit store, lower half-word  [probe37/70]
+ 1838  f3      WIDTH.3   ; 16-bit store, lower half-word  [probe37]
  1839  ab      P2.page=b   -> D@432 SEM1
  1840  8b      P0.page=b   -> A@432 SEM1
  1841  f8      INC  SEM1 by 1  (f8; probe23)
@@ -1088,28 +1088,28 @@
  1854  b9      [d9] P2.bank=1
  1855  a3      [d9] P2.page=3   -> D@304 TMP1B
  1856  dd      [d9] ROUTE -> FIFO  (dd; sticky until dc)  [probe16]
- 1857  f1      [d9] WIDTH.1   ; 32-bit store  [probe37/70]
+ 1857  f1      [d9] WIDTH.1   ; 32-bit store  [probe37]
  1858  20      [d9] ADD A=0_0          B=QT1          -> FIFO32
  1859  28      [d9] ADD A=0_0          B=QT2          -> FIFO32
  1860  30      [d9] ADD A=0_0          B=QT3          -> FIFO32
  1861  38      [d9] ADD A=0_0          B=QT4          -> FIFO32
  1862  9a      [d9] P1.page=a   -> B@160 DZ
- 1863  f1      [d9] WIDTH.1   ; 32-bit store  [probe37/70]
+ 1863  f1      [d9] WIDTH.1   ; 32-bit store  [probe37]
  1864  28      [d9] ADD A=0_0          B=XGC          -> FIFO32
  1865  30      [d9] ADD A=0_0          B=YGC          -> FIFO32
  1866  38      [d9] ADD A=0_0          B=ZGC          -> FIFO32
  1867  9d      [d9] P1.page=d   -> B@208 CTRL1
- 1868  f1      [d9] WIDTH.1   ; 32-bit store  [probe37/70]
+ 1868  f1      [d9] WIDTH.1   ; 32-bit store  [probe37]
  1869  a3      [d9] P2.page=3   -> D@304 TMP1B
  1870  a3      [d9] P2.page=3   -> D@304 TMP1B
  1871  a3      [d9] P2.page=3   -> D@304 TMP1B
  1872  a3      [d9] P2.page=3   -> D@304 TMP1B
- 1873  f2      [d9] WIDTH.2   ; 16-bit store, upper half-word  [probe37/70]
+ 1873  f2      [d9] WIDTH.2   ; 16-bit store, upper half-word  [probe37]
  1874  a3      [d9] P2.page=3   -> D@304 TMP1B
  1875  b4      [d9] P1.bank=0
  1876  90      [d9] P1.page=0   -> B@0 PTAT
  1877  80      [d9] P0.page=0   -> A@0 PTAT
- 1878  f2      [d9] WIDTH.2   ; 16-bit store, upper half-word  [probe37/70]
+ 1878  f2      [d9] WIDTH.2   ; 16-bit store, upper half-word  [probe37]
  1879  a3      [d9] P2.page=3   -> D@304 TMP1B
  1880  a3      [d9] P2.page=3   -> D@304 TMP1B
  1881  a3      [d9] P2.page=3   -> D@304 TMP1B
@@ -1131,12 +1131,12 @@
  1897  87      [d9] P0.page=7   -> A@112 0_5
  1898  b5      [d9] P1.bank=1
  1899  99      [d9] P1.page=9   -> B@400 XN2
- 1900  f1      [d9] WIDTH.1   ; 32-bit store  [probe37/70]
+ 1900  f1      [d9] WIDTH.1   ; 32-bit store  [probe37]
  1901  28      [d9] ADD A=0_0          B=XN1          -> FIFO32
  1902  30      [d9] ADD A=0_0          B=YN2          -> FIFO32
  1903  38      [d9] ADD A=0_0          B=YN1          -> FIFO32
  1904  98      [d9] P1.page=8   -> B@384 ACCQD0
- 1905  f1      [d9] WIDTH.1   ; 32-bit store  [probe37/70]
+ 1905  f1      [d9] WIDTH.1   ; 32-bit store  [probe37]
  1906  a3      [d9] P2.page=3   -> D@304 TMP1B
  1907  a3      [d9] P2.page=3   -> D@304 TMP1B
  1908  a3      [d9] P2.page=3   -> D@304 TMP1B
@@ -1146,14 +1146,14 @@
  1912  a3      [d9] P2.page=3   -> D@304 TMP1B
  1913  a3      [d9] P2.page=3   -> D@304 TMP1B
  1914  a3      [d9] P2.page=3   -> D@304 TMP1B
- 1915  f3      [d9] WIDTH.3   ; 16-bit store, lower half-word  [probe37/70]
+ 1915  f3      [d9] WIDTH.3   ; 16-bit store, lower half-word  [probe37]
  1916  9b      [d9] P1.page=b   -> B@432 SEM1
  1917  a3      [d9] P2.page=3   -> D@304 TMP1B
  1918  30      [d9] ADD A=0_0          B=SH_TH_Y      -> FIFO16
  1919  dc      [d9] ROUTE -> RAM   M[P2..] TMP1B  (dc; sticky until dd)
  1920  b9      [d9] P2.bank=1
  1921  a7      [d9] P2.page=7   -> D@368 ACCQD4
- 1922  f1      [d9] WIDTH.1   ; 32-bit store  [probe37/70]
+ 1922  f1      [d9] WIDTH.1   ; 32-bit store  [probe37]
  1923  26      [d9] MUL A=0_0          B=SEM1         -> ACCQD5
  1924  26      [d9] MUL A=0_0          B=SEM1         -> ACCQD6
  1925  26      [d9] MUL A=0_0          B=SEM1         -> ACCQD7

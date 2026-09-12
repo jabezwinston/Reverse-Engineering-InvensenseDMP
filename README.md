@@ -4,7 +4,7 @@ Reverse engineering the undocumented instruction set of the InvenSense DMP (Digi
 Processor) embedded in MPU-6050/6500/9150/9250 IMUs and the ICM-20948, and building a
 disassembler and assembler for it.
 
-**Status: the ISA is decoded on silicon — 99.92 % of MPU-6050-family code bytes** (four readings corrected on 2026-09-12 by the DMP3 work, Finding 28)
+**Status: the ISA is decoded on silicon — 99.92 % of MPU-6050-family code bytes** (six MPU readings corrected on 2026-09-12 by the DMP3 work, Findings 28–30; the last resolved the ~6 % "dead write" anomaly — those runs are hardware dot products)
 (17284 of 17297 hardware-confirmed; the remaining 13 are 3050-lineage bytes that need an
 MPU-3050 to test and are rendered as marked conjecture), **and 100 % of the ICM-20948's
 DMP3 code** (both published images, 10349 + 10338 bytes, measured on an ICM-20948).
@@ -28,14 +28,16 @@ The instruction set in one table (every rule hardware-confirmed; [chapter 2](doc
 | `f8` `f9` / `fa` `fb` | INC / DEC M[P2], in place / after advancing |
 | `f5` / `f6` / `f7` | the MIN / CMP / AND / XOR family (`op&3`), stored 32-bit / upper half / lower half |
 | `fc` / `fd` | toggles: exchange P0 with P1 (operand sources) / with P2 (sources and the store's page) |
-| `f0`–`f3` | store width: `f1` 32-bit, `f2` upper half, `f3` lower half; `f0` 32-bit with opposite-sign sums one LSB lower |
+| `f0`–`f3` | `f0` multiply-accumulate (dot products); `f1` 32-bit store, `f2` upper half, `f3` lower half |
 | `d9` / `da`, `d1` | IF ≤ 0 / IF ≥ 0 on the last result — **sticky** until `d8`; `d1` clears the sign so `d9` becomes IF.Z |
 | `f4 imm` | 7-bit **forward-only** branch; bit 7 set means the byte executes instead |
 | `fe` | raise DMP_INT (conditional); so does `f4` with an immediate of `41`–`7f` |
 | `ff` | halt (conditional — it takes a predicate) |
 
 The DMP is a small but complete **feed-forward computer**: no loops are expressible, so every
-image is straight-line code re-run from the top on each sample interrupt. Custom DMP programs
+image is straight-line code re-run from the top on each sample interrupt. It has a hardware
+multiply-accumulator (the `f0` mode), so a run of stores to one word is a dot product — which is
+how it builds quaternion components and rotation-matrix rows. Custom DMP programs
 written in this repo's assembly language run on real MPU-6050 silicon exactly as predicted.
 
 **The ICM-20948's DMP3 is the same machine, grown up** ([manual chapter 8](docs/manual/08-dmp3-icm20948.md),
@@ -92,7 +94,7 @@ The DMP emits a register selection the stock firmware never produces.
 | `PLAN.md` | the original plan of record (historical) |
 | `corpus/` | 13 unique firmware images (two of them DMP3) + vendor sources, with provenance; `ROSETTA.md` |
 | `tools/` | extraction, analysis, decoder (`isa/decode.py`), lifter (`isa/pseudo.py`), assembler (`dmpasm.py`) |
-| `bench/` | hardware rig: ESP32 bridge (MPU-6050 or ICM-20948, auto-detected), init, 70 probes, `icm.py`, `RESULTS.md` |
+| `bench/` | hardware rig: ESP32 bridge (MPU-6050 or ICM-20948, auto-detected), init, 74 probes, `icm.py`, `RESULTS.md` |
 | `programs/` | example DMP programs |
 | `listings2/` | annotated listings of all 13 corpus images under the current model |
 | `listings/` | listings under the superseded first-pass model (historical) |

@@ -102,10 +102,11 @@ Beyond the pointers, this is the whole machine:
 
 | state | width | set by | cleared / changed by |
 |---|---|---|---|
+| **MAC accumulator** | 1 word | in `f0` mode every ALU op does `acc <op> A*B`; reset each pass | replaced by any non-`f0` ALU op |
 | **flags N, Z** | 2 | every ALU op, INC, DEC: N := result < 0, Z := result == 0; `d1` clears N | frozen while a predicate is armed |
 | **predicate** | — | `d9` IF (N ∨ Z) / `da` IF ¬N / `db` = `d9` — **sticky** | until the next `d8`–`db` |
 | **result routing** | 1 | `dc` → RAM, `dd` → FIFO | **sticky**; FIFO is the at-rest state |
-| **mode** | 3 | `f0`–`f7`: `f1` 32-bit, `f2` upper half, `f3` lower half, `f0` 32-bit with opposite-sign sums 1 LSB lower; `f5`/`f6`/`f7` the MIN/CMP/AND/XOR family at the same three widths | **sticky**; any other `fX` replaces it |
+| **mode** | 3 | `f0`–`f7`: `f0` multiply-accumulate, `f1` 32-bit store, `f2` upper half, `f3` lower half; `f5`/`f6`/`f7` the MIN/CMP/AND/XOR family at those three widths | **sticky**; any other `fX` replaces it |
 | **exchange P0/P1** | 1 | `fc` — A and MOV sources via P1, B via P0 | **toggle**: until the next `fc` |
 | **exchange P0/P2** | 1 | `fd` — A and MOV sources via P2, stores into P0's page | **toggle**: until the next `fd` |
 | **interrupt** | — | `fe`, or `f4` with an immediate of `41`–`7f`: raise `DMP_INT`, continue | — |

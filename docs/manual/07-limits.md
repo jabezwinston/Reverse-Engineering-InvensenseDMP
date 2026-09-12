@@ -23,7 +23,7 @@ change what it computes, from what, at what width, into RAM or into the packet �
 branch over blocks conditionally. You cannot write a loop, and you cannot write a program that
 does not fit one sample period.
 
-## 7.2 Open: the same-destination run anomaly
+## 7.2 Closed: the same-destination runs are dot products
 
 The largest unresolved item. Runs of consecutive ALU stores that, under the confirmed rule, all
 land on the same word:
@@ -53,19 +53,19 @@ is how the machine does what it has no instruction for. The vendor's own ×256 s
 real but **about a fifth smaller than previously stated**, and it is concentrated in the runs
 where the destination is genuinely a different word from both operands.
 
-What the bench has ruled out for those:
+**The rest is the multiply-accumulate mode `f0`.** Simulating the pointer *and mode* state,
+**272 of the 365 RAM-routed same-destination runs (773 of 993 instructions) execute entirely
+under `f0`** **[HW, probe74]**. In that mode every ALU op does `acc += A*B` and writes the
+running accumulator, so a run of four stores to one word is a four-term **dot product** — a
+quaternion component or a rotation-matrix row — with only the final value left in RAM. The
+intermediate stores are not dead: each adds its product to the sum in the multiplier. That is
+the arithmetic the run lengths implied all along (four terms for a quaternion, and the biquad's
+output). With the aliasing accumulations above, essentially all of the runs are accounted for.
 
-- **op0 does not accumulate** when the destination is distinct: `40 08` stores +0.50, the second
-  op's value, not +2.0 **[HW]**.
-- **Real firmware runs replayed against known operands stored the last term**, not the sum —
-  including the `ANGVBX` group `20 09 71 58` and the biquad shape **[HW]**.
-- **No one-instruction store delay**: a pipelined result register would make `40 08` store +1.50.
-- **`RSUB` does not advance the destination** either, so a mixed run is still a run on one word.
-- **The mode bytes are not it.** `f0` precedes 47 run starts and zero lone stores, which looked
-  like a lead; `f0`/`f1` do not change a two-op run's result at all **[HW, probe37]**.
-
-The most promising remaining idea is a second result destination that a RAM detector aimed at P2
-cannot see.
+The earlier bench negatives were measuring the wrong mode: `40 08` stored the last term because
+those cells ran under `f1` (add), not `f0`; `f0`/`f1` "did not change a two-op run" in probe37
+because its operands made the product and the sum coincide at that precision. probe74 settles it
+with exact Q30 operands (see ISA2.md Finding 30).
 
 ## 7.3 A worked corroboration: ×256 in eight bytes
 

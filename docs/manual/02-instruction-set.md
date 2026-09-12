@@ -48,9 +48,9 @@ reproducible across two trials, including the wrap cases **[HW, probe7/probe9]**
 The result is written **only** through the current routing latch, and the store **assigns**
 **[HW, probe33]**.
 
-Modifiers that apply to the next ALU byte: `f0` (A contributes 0), `f5`/`f6` (signed MIN instead
-of `op&3`), `f7`/`fd` (do not store), `fc` (exchange the operand pointers), `f1`/`f2`/`f3` (store
-width, sticky).
+Sticky modes that reinterpret the ALU byte: `f0` (multiply-accumulate), `f5`/`f6`/`f7` (the
+MIN/CMP/AND/XOR family instead of `op&3`, at three store widths), `fc`/`fd` (exchange the operand
+pointers with P1 / with P2), `f1`/`f2`/`f3` (32-bit / upper-half / lower-half store width).
 
 ### Reading an ALU byte by hand
 
@@ -147,7 +147,7 @@ relocated from `f8`) and `f8`–`ff` (`DINBF8`, new in this core).
 
 | encoding | instruction | effect |
 |---|---|---|
-| `f0` | `WIDTH.0` | 32-bit store like `f1`, except that a sum whose two addends have opposite signs comes out **one LSB lower** (7 + −5 = 1; 3 − 6 = −4). Sticky **[HW, probe70; withdrawing AZERO]** |
+| `f0` | `MAC` | **multiply-accumulate mode**: every ALU op computes `acc <op> A*B` and stores/emits the accumulator (sign from the op's low bit), which resets each pass. `f0 00 08 10 18` = a running dot product. Sticky **[HW, probe74; withdrawing AZERO and WIDTH.0]** |
 | `f1` | `WIDTH.32` | 32-bit store. Sticky. The default **[HW, probe37]** |
 | `f2` | `WIDTH.16H` | 16-bit store, **upper** half-word; the low half survives. Sticky **[HW]** |
 | `f3` | `WIDTH.16L` | 16-bit store, **lower** half-word. Sticky **[HW]** |
@@ -186,13 +186,17 @@ relocated from `f8`) and `f8`–`ff` (`DINBF8`, new in this core).
   nothing measurable; `f4 20` and `f4 3f` are plain branches **[HW, probe69/70]**. So the
   displacement field is 6 bits: `f4 00`–`f4 3f` branch, `f4 41`–`f4 7f` interrupt, `f4 8x`+ execute.
 
-### `f0`, measured
+### `f0` is multiply-accumulate
 
-`f0` is the fourth store width, not "A contributes 0": on ten operand pairs it changed a
-result only when the two addends had opposite signs, and then by exactly one LSB downward
-(`7 + −5 = 1`, `8 + −5 = 2`, `3 − 6 = −4`; same-sign and zero operands unchanged) **[HW,
-probe70]**. It is sticky like `f1`–`f3`. The earlier reading came from a page whose word 1 was
-0.0. Its purpose is not established; it precedes 47 multi-store runs in the corpus.
+`f0` is not a width and not "A contributes 0": it puts the ALU in **multiply-accumulate mode**
+**[HW, probe74]**. Every ALU op then computes `acc <op> A*B` (the op's low bit is the sign) and
+stores or emits the running accumulator, which is cleared at the start of each pass. With A on
+P0 and a vector on P1's words, `f0 00 08 10 18` emits the running dot product
+(0.5, 0.75, 0.875, 0.9375 for A = 0.5, B = [1, ½, ¼, ⅛]). A non-`f0` op replaces the
+accumulator; an `f0` op adds to it; `d8`, a MOV, a store and `f1` do not clear it. This is why
+the vendor writes runs of stores to a single word (a quaternion term, a matrix row): they are
+dot products, not dead writes ([chapter 7](07-limits.md)). The MPU reaches this multiplier only
+through `f0`; DMP3 reaches the same unit through the shifter (`d4`–`d7`, `fd`).
 
 ## 2.7 The complete encoding map
 
@@ -222,7 +226,7 @@ dc ->RAM      dd ->FIFO     de CLR        df CLR +
 
 e0-ef   ..unused..          (no occurrence anywhere in the MPU-6050-family corpus)
 
-f0 AZERO      f1 WIDTH.32   f2 WIDTH.16H  f3 WIDTH.16L
+f0 MAC        f1 WIDTH.32   f2 WIDTH.16H  f3 WIDTH.16L
 f4 BRANCH imm f5 LOGIC      f6 LOGIC.HI   f7 LOGIC.LO
 f8 INC        f9 DEC        fa INC +      fb DEC +
 fc XCHG01     fd XCHG02     fe INT        ff HALT
@@ -242,10 +246,10 @@ Only the 1024-byte `dmpDefault.c` image is 3050-lineage. Two families move; the 
 | `c0` `c1` | `b0` `b1` | `P0.bank = 0 / 1` |
 | `c2` `c3` | `b4` `b5` | `P1.bank = 0 / 1` |
 | `c4` `c5` | `b8` `b9` | `P2.bank = 0 / 1` |
-| `f8` `f9` `fa` `fb` | `f0` `f1` `f2` `f3` | AZERO / WIDTH.32 / WIDTH.16H / WIDTH.16L |
+| `f8` `f9` `fa` `fb` | `f0` `f1` `f2` `f3` | MAC / WIDTH.32 / WIDTH.16H / WIDTH.16L |
 | `fc` | `f4` | BRANCH |
-| `fd` `fe` `ff` | `f5` `f6` `f7` | MIN / MIN16 / TRUNC — **[INFER]**, see below |
-| `c8`–`cf` | `c8`–`cf` | MOV16 — **[INFER]** |
+| `fd` `fe` `ff` | `f5` `f6` `f7` | the LOGIC family (MIN/CMP/AND/XOR) at three widths — **[INFER]**, see below |
+| `c8`–`cf` | `c8`–`cf` | MOVX (half-words exchanged) — **[INFER]** |
 
 The mantis-only families (`b*` selector 3, `c0`–`c7` MOV, and the whole `f8`–`ff` `DINBF8`
 family: INC/DEC/XCHG01/XCHG02/SKIP/HALT) have **no 3050 equivalent**. A 3050 program has no

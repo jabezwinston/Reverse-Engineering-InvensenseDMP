@@ -25,7 +25,7 @@ Companion documents outside the manual:
 
 ## In one page
 
-The DMP is a **Q30 fixed-point, feed-forward, pointer-addressed accumulator machine**.
+The DMP is a **Q30 fixed-point, feed-forward, pointer-addressed machine with a multiply-accumulator**.
 
 - All state is data RAM plus three pointers, a 2-bit destination-word index, a zero flag, and a
   handful of sticky mode latches. There are no general registers and no immediate operands.

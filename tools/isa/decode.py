@@ -60,6 +60,7 @@ class Decoder:
         self.page = [0, 0, 0]; self.bank = [0, 0, 0]; self.blk = [0, 0, 0]
         self.cond = "d8"; self.width = None; self.ram = False   # dc/dd routing, off at start
         self.logic = None                                        # f5/f6/f7: MIN/CMP/AND/XOR mode (probe70)
+        self.mac = False                                         # f0: multiply-accumulate mode (probe74)
         self.mode4 = False                                       # icm: after f4, until f0-f7
         self.base = 0x90 if lineage == "icm" else 0              # image offset -> DMP address
         if lineage in ("mantis", "icm"):
@@ -170,17 +171,21 @@ class Decoder:
             self.mode4 = False
         if b in self.fmode:
             self.width = b & 3
-            # probe37, 3 repeats per cell, raw hex.  These are not FIFO-only: they change what a
-            # RAM store writes.  With P2 holding 0x7E7E7E7E and the op computing 1.5:
-            #   f1 -> 0x60000000 (32-bit, same as the default)   f2 -> 0x60007E7E (upper half)
-            #   f3 -> 0x7E7E0000 (lower half)                    f0 -> the A operand contributes 0
-            # probe70: f0 is not "A contributes 0" -- under it a sum whose two addends have
-            # opposite signs comes out one LSB lower (7 + -5 = 1, 3 - 6 = -4), and it is sticky
-            # like the other modes.  The f-family f0..f7 is one 3-bit mode register.
             self.logic = None
-            note = {0: "32-bit store; a sum of opposite-sign addends is 1 LSB lower (probe70)", 1: "32-bit store",
+            # probe74: f0 is the MULTIPLY-ACCUMULATE mode, not a store width and not "A = 0".
+            # Under it every ALU op computes acc +=/-= A*B (sign = op&1) and stores/emits the
+            # running accumulator, which is reset at the start of each pass.  `f0 00 08 10 18`
+            # over A=0.5, B=[1,.5,.25,.125] emits 0.5 0.75 0.875 0.9375 -- a dot product.  It is
+            # sticky (any other fX ends it) and survives d8, MOV, a store and f1's mid-run reset
+            # of the value.  DMP3 (icm) exposes the same multiplier through the shifter (d4-d7,
+            # fd) instead; f0 there is unmeasured and left as a width.
+            if b == 0xF0 and L != "icm":
+                self.mac = True
+                return 1, "MAC   ; multiply-accumulate: acc +=/-= A*B (op&1), store/emit acc; reset per pass  [probe74]"
+            self.mac = False
+            note = {0: "32-bit store (icm; f0 on the MPU is MAC)", 1: "32-bit store",
                     2: "16-bit store, upper half-word", 3: "16-bit store, lower half-word"}[b & 3]
-            return 1, f"WIDTH.{b&3}   ; {note}  [probe37/70]"
+            return 1, f"WIDTH.{b&3}   ; {note}  [probe37]"
         if self.L in ("mantis", "icm") and 0xF8 <= b <= 0xFB:
             if b & 2: self.p2off = (getattr(self, "p2off", 0) + 4) % 16
             verb = "DEC" if b & 1 else "INC"
@@ -197,7 +202,7 @@ class Decoder:
             # 32-bit (f5), the upper half-word (f6) or the lower half-word (f7).  f7 was read as
             # TRUNC + no-store from a cell where min(0.5, 0.5)'s low half happened to be 0000.
             # f1 (or any f0..f3) ends the mode; d8, pointer loads and MOVs do not.
-            self.logic = b & 7; self.width = {5: 1, 6: 2, 7: 3}[b & 7]
+            self.logic = b & 7; self.width = {5: 1, 6: 2, 7: 3}[b & 7]; self.mac = False
             return 1, {5: "LOGIC   ; ALU op field: 0 MIN, 1 compare (flags, no store), 2 AND, 3 XOR; 32-bit store, sticky  [probe29/70]",
                        6: "LOGIC.HI   ; MIN / compare / AND / XOR, upper half-word store, sticky  [probe36/70]",
                        7: "LOGIC.LO   ; MIN / compare / AND / XOR, lower half-word store, sticky  [probe69/70]"}[b & 7]
@@ -316,8 +321,11 @@ class Decoder:
                 a, bb = self.ptr(0) + 4 * A, self.ptr(1) + 4 * B
             ALU = {0: "ADD", 1: "RSUB", 2: "MUL", 3: "NMUL"}[op & 3]
             logic = getattr(self, "logic", None)
+            mac = getattr(self, "mac", False)
             if logic:
                 ALU = {0: "MIN ", 1: "CMP ", 2: "AND ", 3: "XOR "}[op & 3]   # probe70: 4 pairs each
+            elif mac:
+                ALU = "MAC-" if op & 1 else "MAC+"                            # probe74: acc +/- A*B
             # op&4 PRE-ADVANCES the P2 word (mod 4); it is not a fixed +4 offset.
             # probe32: `44 44 44` writes 0x244/0x248/0x24c, and `00 2c 54 7c`
             # writes four consecutive words -- that is how QT1..QT4 get updated.
@@ -333,6 +341,8 @@ class Decoder:
             else:
                 dest = f"FIFO{ {1: 32, 2: 16, 3: 16}.get(self.width, '') }"
             if L == "icm": self.shw = "mul" if op & 2 else "alu"      # the shifter's register follows every ALU op (probe64)
+            if mac:
+                return 1, f"{ALU} acc {'-=' if op & 1 else '+='} {self.N.name(a)} * {self.N.name(bb)} -> {dest}  (probe74)"
             return 1, f"{ALU} A={self.N.name(a):<12} B={self.N.name(bb):<12} -> {dest}"
         return 1, f"{b:02x}"
 

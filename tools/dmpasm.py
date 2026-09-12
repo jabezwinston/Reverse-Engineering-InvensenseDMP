@@ -32,10 +32,12 @@ big-endian Q30 (2^30 = 1.0), range [-2,+2), addition wraps (modular).
        (probe6: dc precedes the op). This is the RAM-store idiom.
   branch N                           f4 (mantis) / fc (3050); target = here+2+N,
                                      forward only, 0 <= N <= 0x7f (Finding 2)
-  fmode N                            f0..f7 is ONE sticky 3-bit mode register (probe70):
-       1 = 32-bit store, 2 = upper half-word, 3 = lower half-word, 0 = 32-bit where a sum of
-       opposite-sign addends comes out 1 LSB lower; 5 / 6 / 7 = the MIN/AND/XOR family with
-       the same three widths.  min/min16/and/xor/cmp emit f5/f6 plus the op for you.
+  mac                                f0: multiply-accumulate mode -- every following ALU op does
+       acc += / -= A*B (op&1) and stores the running accumulator (a dot product), reset per pass.
+  fmode N                            f0..f7 is ONE sticky 3-bit mode register (probe70/74):
+       0 = mac (above), 1 = 32-bit store, 2 = upper half-word, 3 = lower half-word;
+       5 / 6 / 7 = the MIN/AND/XOR family at those three widths.  min/min16/and/xor/cmp/mac
+       emit the mode byte plus the op for you.
   min16 A,B[,inc]                    f6 + ALU: signed min, upper half-word store
   xchg01 (alias swap)                fc: TOGGLE -- A and MOV sources through P1, B through P0, until the next fc
   xchg02                             fd: TOGGLE -- A and MOV sources through P2, stores into P0's page, until the next fd
@@ -335,6 +337,8 @@ def assemble(text, lineage="mantis", warn=None):
                 if not 0 <= n <= 0x7F:
                     raise AsmError(f"branch imm {n:#x} must be 0..0x7f (forward only)")
                 out.append(L["branch"]); out.append(n)
+            elif op == "mac":                    # f0: multiply-accumulate mode (probe74)
+                out.append(L["fmode0"]); mode4 = False
             elif op == "fmode":
                 n = int(arg, 0)
                 if not (0 <= n <= 3 or 5 <= n <= 7):
@@ -378,7 +382,7 @@ def assemble(text, lineage="mantis", warn=None):
                 raise AsmError(
                     f"unknown mnemonic {op!r} (confirmed: p0page/p1page/p2page, "
                     "p0bank/p1bank/p2bank, add/rsub/mul/nmul, store[.op], p2inc, always, if N, branch, "
-                    "fmode, min16, and, xor, cmp, int, xchg01/swap, xchg02, selbank, emit, nop, disable, .db; "
+                    "fmode, mac, min16, and, xor, cmp, int, xchg01/swap, xchg02, selbank, emit, nop, disable, .db; "
                     "icm: .org, label:, jump, call, ret, mode4, if f/nf, p0blk/p1blk/p2blk, load, shl, sar, "
                     "lo, lo.next, int, clr, tz, tnz)")
         except AsmError as e:

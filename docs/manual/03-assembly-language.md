@@ -62,7 +62,7 @@ redundant.
 | `mov16 k[,inc]` | `c8`+ | the word with its half-words exchanged (MOVX; the vendor's name) |
 | `store` | `dc` | route ALU results to RAM (sticky) |
 | `fifo` (alias `store.off`) | `dd` | route to the FIFO (sticky; the at-rest state) |
-| `fmode N` | `f0`–`f7` | one sticky mode: 1 = 32-bit; 2 = upper half; 3 = lower half; 0 = 32-bit with opposite-sign sums 1 LSB lower; 5/6/7 = MIN/CMP/AND/XOR at those widths |
+| `fmode N` / `mac` | `f0`–`f7` | one sticky mode: 0 (`mac`) = multiply-accumulate; 1 = 32-bit store; 2 = upper half; 3 = lower half; 5/6/7 = MIN/CMP/AND/XOR at those widths |
 | `p2inc [N]` | `df` × N | advance the destination word N times (each also clears the word) |
 | `p2inc2` | `d0` | advance by two words |
 | `clr.next` | `df` | advance, then `M[P2] = 0` |

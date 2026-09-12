@@ -9,37 +9,15 @@ Ordered by how much a resolution would change the manual.
 
 ---
 
-## 1. The same-destination run anomaly
+## 1. Closed: the same-destination runs are dot products
 
-Runs of consecutive ALU stores that, under the confirmed rule, all land on one word:
-**369 runs / 1002 instructions, about 6 % of all code bytes.** Under the confirmed rule every
-write in such a run except the last is dead, which is not credible for hand-written firmware in a
-1.9 kB budget. The run lengths look like a histogram of sum arity — 4 where a quaternion
-component needs four terms, 5 at the biquad output word `Y` — and some runs repeat the identical
-byte back to back.
-
-**Narrowed (2026-09-08).** Simulating the pointer state through all 11 images shows that
-**258 of the 1002 instructions (25.7 %) have a destination that aliases one of their own
-operands**, and **78 runs alias throughout**. Those are not dead writes: `x = x + a` repeated is a
-legitimate accumulation, and it is how the vendor's `inv_freescale_sensor_fusion_8bit` builds a
-×256 scale out of eight in-place doublings (worked through in
-[manual §7.3](docs/manual/07-limits.md)). The anomaly is real but about a fifth smaller than
-first stated, and it is concentrated in the 218 runs where the destination is a different word
-from both operands.
-
-What the bench has ruled out, for the non-aliasing case:
-
-* **op0 does not accumulate.** `40 08` measures +0.50, the second op's value, not the +2.0 sum.
-* **Real firmware runs do not accumulate either.** probe34 replayed four actual shapes — the
-  `ANGVBX` group `20 09 71 58`, the biquad shape, the identical-byte repeat `50 50`, and a
-  two-term run. Every one stored the last term.
-* **No one-instruction store delay.** A pipelined result register would make `40 08` store +1.50.
-* **`RSUB` does not advance the destination** (probe7: ops 0-3 all write the un-advanced word).
-* **The mode bytes are not it.** `f0` precedes 47 run starts and zero lone stores in the corpus,
-  which looked like a lead, but probe37 shows `f0`/`f1` do not change a two-op run's result.
-
-Most promising remaining idea: a second result destination that a RAM detector aimed at P2 cannot
-see. Reproduce the aliasing analysis with `python3 tools/isa/runs.py`.
+Runs of consecutive ALU stores landing on one word — 365 runs, ~6 % of all code — were the
+project's largest open anomaly (Finding 17). **272 of them (773 instructions) execute under the
+multiply-accumulate mode `f0`** (Finding 30, probe74): each op does `acc += A*B` and writes the
+running sum, so the run is a dot product and only the final store's value is the result. The
+other 93 are the aliasing accumulations of Finding 22 or genuine last-wins. The "dead writes"
+were a missing instruction mode, and `f0`'s real meaning (not "A contributes 0", not a store
+width) was the last piece.
 
 ## 2. The reach of `fd`, and of `f7`
 
@@ -49,9 +27,8 @@ still unmeasured.
 
 ## 3. `f0` — closed
 
-Neither reading (Finding 29): `f0` is the fourth store width, whose only measured effect is a
-sum of opposite-sign addends coming out one LSB lower. What it is *for* is open; it precedes 47
-multi-store runs in the corpus.
+`f0` is the multiply-accumulate mode (Finding 30), not "A contributes 0" and not a store width.
+It heads the dot-product runs of §1.
 
 ## 4. The 3050 lineage's upper f-family
 
