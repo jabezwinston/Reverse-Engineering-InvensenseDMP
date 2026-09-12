@@ -81,10 +81,11 @@ DMP3 / ICM-20948 forms (`.lineage icm`; manual chapter 8, ISA2.md Findings 24-26
   lo / lo.next                       d2 / d3: store the low word of the last product
   int                                e2: raise DMP_INT1
   clr                                de: M[P2] := 0 in place  (e7 is the same)
-  tz k / tnz k                       fc cK 00/01: F := (P1 word k == 0) / (!= 0), nothing stored --
-                                     the vendor's feature gate: `tz 0` / `if f` / `jump skip`.
+  bit k,n                            fc cK Y: F := (P1 word k, bit n) set, n in 0..5 (Y = 4<<n); no store.
+  bitz k / bitnz k                   fc cK 00/01: F := (P1 word k low 6 bits) all clear / any set.
+                                     The feature-flag dispatcher: `bit 0,1` / `if f` / `jump on`.
 The flag F is updated by ALU ops, inc and dec ONLY while no predicate is armed (after
-`always`); `test`, `tz` and `tnz` update it regardless.  So a loop's counter must be decremented
+`always`); `test`, `bit` and `bitz` update it regardless.  So a loop's counter must be decremented
 under `always`: `always` / `dec` / `if nf` / `jump loop` (programs/loop_icm.s).
 Mode 4 rule: after any jump/call/mode4 every byte below 0x80 is a branch target, not an ALU
 op, until a width byte (fmode / f5 / min16 / trunc) ends the mode -- so every jump target and
@@ -225,11 +226,21 @@ def assemble(text, lineage="mantis", warn=None):
                 icm_only("ret"); out.append(0xE0)
             elif op == "mode4":
                 icm_only("mode4"); out.append(0xF4); mode4 = True
-            elif op in ("tz", "tnz"):            # fc cX <inv>: F := (P1 word X == 0) / (!= 0), no store (probe65)
+            elif op in ("bit", "bitz", "bitnz", "tz", "tnz"):   # fc cX Y: bit test of P1 word X (probe76/77)
                 icm_only(op)
-                Bw = int(arg, 0)
-                if not 0 <= Bw <= 3: raise AsmError(f"{op} k: k is 0..3 (a P1 word)")
-                out += bytes([0xFC, 0xC0 | Bw, 1 if op == "tnz" else 0])
+                toks = [t.strip() for t in arg.split(",")]
+                k = int(toks[0], 0)
+                if not 0 <= k <= 3: raise AsmError(f"{op} k[,n]: k is 0..3 (a P1 word)")
+                if op == "bit":
+                    if len(toks) != 2: raise AsmError("bit k,n: n is the word bit 0..5")
+                    n = int(toks[1], 0)
+                    if not 0 <= n <= 5: raise AsmError("bit k,n: n is 0..5 (fc reaches word bits 0-5)")
+                    y = 0x04 << n
+                elif op in ("bitz", "tz"):
+                    y = 0x00                       # low 6 bits all clear
+                else:
+                    y = 0x01                       # any low bit set
+                out += bytes([0xFC, 0xC0 | k, y])
             elif op == "int":                    # e2 on DMP3; fe on the MPU (probe69: raises DMP_INT, honours a predicate)
                 out.append(0xE2 if lineage == "icm" else 0xFE)
             elif op == "clr":
@@ -384,7 +395,7 @@ def assemble(text, lineage="mantis", warn=None):
                     "p0bank/p1bank/p2bank, add/rsub/mul/nmul, store[.op], p2inc, always, if N, branch, "
                     "fmode, mac, min16, and, xor, cmp, int, xchg01/swap, xchg02, selbank, emit, nop, disable, .db; "
                     "icm: .org, label:, jump, call, ret, mode4, if f/nf, p0blk/p1blk/p2blk, load, shl, sar, "
-                    "lo, lo.next, int, clr, tz, tnz)")
+                    "lo, lo.next, int, clr, bit, bitz, bitnz)")
         except AsmError as e:
             raise AsmError(f"line {lineno}: {e}") from None
         except ValueError as e:

@@ -1425,6 +1425,39 @@ Decoder: `f0` → `MAC`, and an ALU op under it renders `MAC+ acc += A * B -> de
 Assembler: `mac` sets the mode.  Finding 29's `f0` line and the manual (`f0` in chapters 1, 2,
 3, README) are corrected; the same-destination anomaly (UNKNOWNS.md §1) is closed.
 
+## Finding 31 — `fc X Y` on DMP3 is a bit test of a config word, not an external condition (HARDWARE CONFIRMED 2026-09-12)
+
+The last DMP3 open item.  Finding 27 left `fc cX Y` with Y ∉ {00,01,03,05} as "tests a
+condition that is not a RAM word" — 37 vendor `fc cX 04` feature gates that no single or paired
+RAM zero triggered (probe66).  The miss was that probe66 tested whole-word *zeros*, and these
+are **single-bit tests**.  `bench/probe76.py`/`probe77.py` map it (ICM, P1 word 0 set to one bit
+at a time, `fc c0 Y d9` emitting a marker when F is set):
+
+| Y | fires when |
+|---|---|
+| `04` `08` `10` `20` `40` `80` | P1 word X **bit 0 / 1 / 2 / 3 / 4 / 5** is set |
+| `00` | the word's low 6 bits are all clear (`(w & 0x3f) == 0` — the "zero test" of Finding 27, refined) |
+| `01` | the complement (any of the low 6 bits set) |
+| `0c`, `14`, `24`, … (not one-hot) | nothing fires on a single bit; the Y byte's op-field bits 0–1 combine with the one-hot selector in a way only partly mapped (`fc` `05`/`06`/`07` gave bit 1 / zero / zero-or-bit-1) |
+
+So `fc cX Y` reads P1 word (X & 3) and tests one of its low bits — the `04`/`08`/`10`/`20`/`40`/
+`80` column is a clean single-bit test of word bits 0–5, selected one-hot by Y's bits 2–7.  The
+feature gates **are** RAM: `fc c1 04` at 0x14cf tests bit 0 of `DATA_OUT_CTL2+2`, and the vendor's
+`fc c0 04 … fc c0 08 … fc c0 0c … fc c0 10` run at 0x1aff tests successive bits of one config
+word — a dispatcher walking a bitmask.  probe66 saw nothing because its test words had the wrong
+bits.  The decoder renders the clean forms `BIT F := w bit n set`, `BITZ`, `BITNZ`, and the rest
+`BIT?` with the selector byte.
+
+**What stays open:** the full decode of an arbitrary Y byte (the op-field bits 0–1 crossed with
+the one-hot selector, e.g. the vendor's `0c`) and whether `fc` can reach word bits above 5 (Y's
+selector is only 6 bits wide, so a 16-bit config word's high enables like `OUT_ACCEL = 0x8000`
+are not directly testable — the vendor must store those flags in the low bits, or test a
+different word).  Neither needs more than bench time.
+
+With this, every byte the DMP3 stock image uses is decoded to a measured meaning, and the
+`fc`-under-mode-4 tag from Finding 26 is gone: `d8 fc c0 08 d9 f4` is *else, if P1 word 0 bit 1
+is set, jump*.
+
 ## Decoder corrections (2026-09-08, no new hardware)
 
 Three defects found while writing `docs/manual/`, all in `tools/isa/decode.py`:

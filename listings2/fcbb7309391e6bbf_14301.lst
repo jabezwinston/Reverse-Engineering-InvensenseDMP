@@ -352,7 +352,7 @@
 0x1170  be        P2.blk++ -> 1   (+1 KB, mod 4; probe47)
 0x1171  f1        WIDTH.1   ; 32-bit store  [probe37]
 0x1172  90        P1.page=0   -> B@1024 BIT_MSG_INT_3
-0x1173  fc c3 00  TESTZ  F := (WOM_CNTR_T == 0)   (fc c3 00; no store; probe63/65)
+0x1173  fc c3 00  BITZ  F := (WOM_CNTR_T & 0x3f) == 0   (fc c3 00; no store; probe76)
 0x1176  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x1177  f4 11 df  [d9] JUMP.d9 -> 0x11df
 0x117a  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
@@ -373,13 +373,13 @@
 0x1189  a9        P2.page=9   -> D@1168 @1168
 0x118a  80        P0.page=0   -> A@1024 BIT_MSG_INT_3
 0x118b  90        P1.page=0   -> B@1024 BIT_MSG_INT_3
-0x118c  fc 51 00  TESTZ  F := (@1028 == 0)   (fc 51 00; no store; probe63/65)
+0x118c  fc 51 00  BITZ  F := (@1028 & 0x3f) == 0   (fc 51 00; no store; probe76)
 0x118f  10        ADD A=BIT_MSG_INT_3 B=WOM_STATUS+2 -> @1168
-0x1190  fc 51 00  TESTZ  F := (@1028 == 0)   (fc 51 00; no store; probe63/65)
+0x1190  fc 51 00  BITZ  F := (@1028 & 0x3f) == 0   (fc 51 00; no store; probe76)
 0x1193  10        ADD A=BIT_MSG_INT_3 B=WOM_STATUS+2 -> @1168
-0x1194  fc 51 00  TESTZ  F := (@1028 == 0)   (fc 51 00; no store; probe63/65)
+0x1194  fc 51 00  BITZ  F := (@1028 & 0x3f) == 0   (fc 51 00; no store; probe76)
 0x1197  10        ADD A=BIT_MSG_INT_3 B=WOM_STATUS+2 -> @1168
-0x1198  fc c1 04  TEST?  fc c1 04: P1 word 1 and a condition no RAM zero triggers  (Y = 04; probe66, open)
+0x1198  fc c1 04  BIT   F := @1028 bit 0 set   (fc c1 04; no store; probe76)
 0x119b  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x119c  f2        [d9] WIDTH.2   ; 16-bit store, upper half-word  [probe37]
 0x119d  a0        [d9] P2.page=0   -> D@1024 BIT_MSG_INT_3
@@ -401,7 +401,7 @@
 0x11b1  f1        WIDTH.1   ; 32-bit store  [probe37]
 0x11b2  bd        P1.blk++ -> 2   (+1 KB, mod 4; probe47)
 0x11b3  95        P1.page=5   -> B@2128 @2128
-0x11b4  fc c1 04  TEST?  fc c1 04: P1 word 1 and a condition no RAM zero triggers  (Y = 04; probe66, open)
+0x11b4  fc c1 04  BIT   F := @2132 bit 0 set   (fc c1 04; no store; probe76)
 0x11b7  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x11b8  bd        [d9] P1.blk++ -> 3   (+1 KB, mod 4; probe47)
 0x11b9  bd        [d9] P1.blk++ -> 0   (+1 KB, mod 4; probe47)
@@ -467,7 +467,7 @@
 0x11f8  87        P0.page=7   -> A@1136 @1136
 0x11f9  98        P1.page=8   -> B@128 ODR_CNTR_GEOMAG
 0x11fa  a7        P2.page=7   -> D@1136 @1136
-0x11fb  fc 3d 00  TESTZ  F := (ODR_CNTR_PQUAT6 == 0)   (fc 3d 00; no store; probe63/65)
+0x11fb  fc 3d 00  BITZ  F := (ODR_CNTR_PQUAT6 & 0x3f) == 0   (fc 3d 00; no store; probe76)
 0x11fe  50        ADD A=@1144        B=ODR_CNTR_QUAT9 -> @1136
 0x11ff  f8        INC  @1136 by 1  F := result < 0  (f8; probe23)
 0x1200  f9        DEC  @1136 by 1  F := result < 0  (f9; probe23)
@@ -1138,7 +1138,7 @@
 0x14cc  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
 0x14cd  f1        WIDTH.1   ; 32-bit store  [probe37]
 0x14ce  94        P1.page=4   -> B@64 DATA_OUT_CTL1
-0x14cf  fc c1 04  TEST?  fc c1 04: P1 word 1 and a condition no RAM zero triggers  (Y = 04; probe66, open)
+0x14cf  fc c1 04  BIT   F := DATA_OUT_CTL2+2 bit 0 set   (fc c1 04; no store; probe76)
 0x14d2  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x14d3  a4        [d9] P2.page=4   -> D@1088 @1088
 0x14d4  fb        [d9] DEC  @1092 by 1  (P2 word++ first)  F := result < 0  (fb; probe23)
@@ -1494,7 +1494,7 @@
 0x1644  b6        P1.bank=2
 0x1645  ba        P2.bank=2
 0x1646  91        P1.page=1   -> B@528 Q0_QUAT6
-0x1647  fc c0 28  TEST?  fc c0 28: P1 word 0 and a condition no RAM zero triggers  (Y = 28; probe66, open)
+0x1647  fc c0 28  BIT?  Q0_QUAT6, selector 28   (fc c0 28; bit/field test, Y decode partly mapped; probe76/77)
 0x164a  da        IF.NOT-F   (sticky until d8; F frozen while armed)
 0x164b  a1        [da] P2.page=1   -> D@1552 ACCEL_ACCURACY
 0x164c  f8        [da] INC  ACCEL_ACCURACY by 1  F := result < 0  (f8; probe23)
@@ -1975,7 +1975,7 @@
 0x1847  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
 0x1848  f1        WIDTH.1   ; 32-bit store  [probe37]
 0x1849  91        P1.page=1   -> B@784 @784
-0x184a  fc c0 04  TEST?  fc c0 04: P1 word 0 and a condition no RAM zero triggers  (Y = 04; probe66, open)
+0x184a  fc c0 04  BIT   F := @784 bit 0 set   (fc c0 04; no store; probe76)
 0x184d  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x184e  f4 18 a3  [d9] JUMP.d9 -> 0x18a3
 0x1851  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
@@ -1989,7 +1989,7 @@
 0x1859  f4 19 d1  JUMP -> 0x19d1
 0x185c  f3        WIDTH.3   ; 16-bit store, lower half-word  [probe37]
 0x185d  91        P1.page=1   -> B@784 @784
-0x185e  fc c0 07  TEST?  fc c0 07: P1 word 0 and a condition no RAM zero triggers  (Y = 07; probe66, open)
+0x185e  fc c0 07  BIT?  @784, selector 07   (fc c0 07; bit/field test, Y decode partly mapped; probe76/77)
 0x1861  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x1862  f4 18 a3  [d9] JUMP.d9 -> 0x18a3
 0x1865  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
@@ -2492,11 +2492,11 @@
 0x1a79  fd 0f     SHIFT  left by 15 (pulls the next word's fraction in); store the 64-bit product -> @2000  (fd 0f; probe51/64)
 0x1a7b  b7        P1.bank=3
 0x1a7c  92        P1.page=2   -> B@800 @800
-0x1a7d  fc c0 04  TEST?  fc c0 04: P1 word 0 and a condition no RAM zero triggers  (Y = 04; probe66, open)
+0x1a7d  fc c0 04  BIT   F := @800 bit 0 set   (fc c0 04; no store; probe76)
 0x1a80  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x1a81  f4 18 2b  [d9] JUMP.d9 -> 0x182b
 0x1a84  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
-0x1a85  fc c0 08  TEST?  fc c0 08: P1 word 0 and a condition no RAM zero triggers  (Y = 08; probe66, open)
+0x1a85  fc c0 08  BIT   F := @800 bit 1 set   (fc c0 08; no store; probe76)
 0x1a88  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x1a89  f4 19 92  [d9] JUMP.d9 -> 0x1992
 0x1a8c  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
@@ -2592,7 +2592,7 @@
 0x1af2  89        P0.page=9   -> A@1680 @1680
 0x1af3  af        P2.page=f   -> D@1776 @1776
 0x1af4  9f        P1.page=f   -> B@752 @752
-0x1af5  fc c0 00  TESTZ  F := (@752 == 0)   (fc c0 00; no store; probe63/65)
+0x1af5  fc c0 00  BITZ  F := (@752 & 0x3f) == 0   (fc c0 00; no store; probe76)
 0x1af8  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x1af9  c1        [d9] MOV   @1680        -> @1780  (P2 word++ first)  (c1; probe25)
 0x1afa  8a        [d9] P0.page=a   -> A@1696 @1696
@@ -2600,7 +2600,7 @@
 0x1afc  82        [d9] P0.page=2   -> A@1568 @1568
 0x1afd  c1        [d9] MOV   @1568        -> @1788  (P2 word++ first)  (c1; probe25)
 0x1afe  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
-0x1aff  fc c0 04  TEST?  fc c0 04: P1 word 0 and a condition no RAM zero triggers  (Y = 04; probe66, open)
+0x1aff  fc c0 04  BIT   F := @752 bit 0 set   (fc c0 04; no store; probe76)
 0x1b02  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x1b03  c3        [d9] MOV   @1572        -> @1776  (P2 word++ first)  (c3; probe25)
 0x1b04  8a        [d9] P0.page=a   -> A@1696 @1696
@@ -2608,7 +2608,7 @@
 0x1b06  82        [d9] P0.page=2   -> A@1568 @1568
 0x1b07  c3        [d9] MOV   @1572        -> @1784  (P2 word++ first)  (c3; probe25)
 0x1b08  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
-0x1b09  fc c0 08  TEST?  fc c0 08: P1 word 0 and a condition no RAM zero triggers  (Y = 08; probe66, open)
+0x1b09  fc c0 08  BIT   F := @752 bit 1 set   (fc c0 08; no store; probe76)
 0x1b0c  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x1b0d  c5        [d9] MOV   @1576        -> @1788  (P2 word++ first)  (c5; probe25)
 0x1b0e  8a        [d9] P0.page=a   -> A@1696 @1696
@@ -2616,7 +2616,7 @@
 0x1b10  82        [d9] P0.page=2   -> A@1568 @1568
 0x1b11  c5        [d9] MOV   @1576        -> @1780  (P2 word++ first)  (c5; probe25)
 0x1b12  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
-0x1b13  fc c0 0c  TEST?  fc c0 0c: P1 word 0 and a condition no RAM zero triggers  (Y = 0c; probe66, open)
+0x1b13  fc c0 0c  BIT?  @752, selector 0c   (fc c0 0c; bit/field test, Y decode partly mapped; probe76/77)
 0x1b16  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x1b17  c7        [d9] MOV   @1580        -> @1784  (P2 word++ first)  (c7; probe25)
 0x1b18  8a        [d9] P0.page=a   -> A@1696 @1696
@@ -2624,7 +2624,7 @@
 0x1b1a  82        [d9] P0.page=2   -> A@1568 @1568
 0x1b1b  c7        [d9] MOV   @1580        -> @1776  (P2 word++ first)  (c7; probe25)
 0x1b1c  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
-0x1b1d  fc c0 10  TEST?  fc c0 10: P1 word 0 and a condition no RAM zero triggers  (Y = 10; probe66, open)
+0x1b1d  fc c0 10  BIT   F := @752 bit 2 set   (fc c0 10; no store; probe76)
 0x1b20  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x1b21  f4 1b fb  [d9] JUMP.d9 -> 0x1bfb
 0x1b24  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
@@ -2677,14 +2677,14 @@
 0x1b58  5a        MUL A=@1720        B=@764         -> @1788
 0x1b59  fd 0f     SHIFT  left by 15 (pulls the next word's fraction in); store the 64-bit product -> @1788  (fd 0f; probe51/64)
 0x1b5b  9f        P1.page=f   -> B@752 @752
-0x1b5c  fc c0 00  TESTZ  F := (@752 == 0)   (fc c0 00; no store; probe63/65)
+0x1b5c  fc c0 00  BITZ  F := (@752 & 0x3f) == 0   (fc c0 00; no store; probe76)
 0x1b5f  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x1b60  f1        [d9] WIDTH.1   ; 32-bit store  [probe37]
 0x1b61  8f        [d9] P0.page=f   -> A@1776 @1776
 0x1b62  a2        [d9] P2.page=2   -> D@1568 @1568
 0x1b63  c6        [d9] MOV   @1788        -> @1568  (c6; probe25)
 0x1b64  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
-0x1b65  fc c0 04  TEST?  fc c0 04: P1 word 0 and a condition no RAM zero triggers  (Y = 04; probe66, open)
+0x1b65  fc c0 04  BIT   F := @752 bit 0 set   (fc c0 04; no store; probe76)
 0x1b68  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x1b69  8f        [d9] P0.page=f   -> A@1776 @1776
 0x1b6a  a2        [d9] P2.page=2   -> D@1568 @1568
@@ -2708,7 +2708,7 @@
 0x1b7e  40        [d9] ADD A=@1784        B=@672         -> @1696
 0x1b7f  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
 0x1b80  9f        P1.page=f   -> B@752 @752
-0x1b81  fc c0 08  TEST?  fc c0 08: P1 word 0 and a condition no RAM zero triggers  (Y = 08; probe66, open)
+0x1b81  fc c0 08  BIT   F := @752 bit 1 set   (fc c0 08; no store; probe76)
 0x1b84  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x1b85  8f        [d9] P0.page=f   -> A@1776 @1776
 0x1b86  a2        [d9] P2.page=2   -> D@1568 @1568
@@ -2751,7 +2751,7 @@
 0x1baf  4c        [d9] ADD A=@1784        B=@676         -> @1700
 0x1bb0  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
 0x1bb1  9f        P1.page=f   -> B@752 @752
-0x1bb2  fc c0 0c  TEST?  fc c0 0c: P1 word 0 and a condition no RAM zero triggers  (Y = 0c; probe66, open)
+0x1bb2  fc c0 0c  BIT?  @752, selector 0c   (fc c0 0c; bit/field test, Y decode partly mapped; probe76/77)
 0x1bb5  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x1bb6  8f        [d9] P0.page=f   -> A@1776 @1776
 0x1bb7  a2        [d9] P2.page=2   -> D@1568 @1568
@@ -2864,11 +2864,11 @@
 0x1c2f  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
 0x1c30  f3        WIDTH.3   ; 16-bit store, lower half-word  [probe37]
 0x1c31  9e        P1.page=e   -> B@736 @736
-0x1c32  fc c0 04  TEST?  fc c0 04: P1 word 0 and a condition no RAM zero triggers  (Y = 04; probe66, open)
+0x1c32  fc c0 04  BIT   F := @736 bit 0 set   (fc c0 04; no store; probe76)
 0x1c35  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x1c36  f4 17 1b  [d9] JUMP.d9 -> 0x171b
 0x1c39  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
-0x1c3a  fc c0 08  TEST?  fc c0 08: P1 word 0 and a condition no RAM zero triggers  (Y = 08; probe66, open)
+0x1c3a  fc c0 08  BIT   F := @736 bit 1 set   (fc c0 08; no store; probe76)
 0x1c3d  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x1c3e  f4 19 16  [d9] JUMP.d9 -> 0x1916
 0x1c41  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
@@ -2951,11 +2951,11 @@
 0x1c97  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
 0x1c98  f3        WIDTH.3   ; 16-bit store, lower half-word  [probe37]
 0x1c99  9e        P1.page=e   -> B@480 ACC_SCALE
-0x1c9a  fc c1 04  TEST?  fc c1 04: P1 word 1 and a condition no RAM zero triggers  (Y = 04; probe66, open)
+0x1c9a  fc c1 04  BIT   F := @484 bit 0 set   (fc c1 04; no store; probe76)
 0x1c9d  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x1c9e  f4 1b 48  [d9] JUMP.d9 -> 0x1b48
 0x1ca1  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
-0x1ca2  fc c1 08  TEST?  fc c1 08: P1 word 1 and a condition no RAM zero triggers  (Y = 08; probe66, open)
+0x1ca2  fc c1 08  BIT   F := @484 bit 1 set   (fc c1 08; no store; probe76)
 0x1ca5  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x1ca6  f4 1a 63  [d9] JUMP.d9 -> 0x1a63
 0x1ca9  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
@@ -2987,7 +2987,7 @@
 0x1cc3  de        [da] CLR  @2176 := 0  (in place, no advance)  (de; probe31)
 0x1cc4  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
 0x1cc5  95        P1.page=5   -> B@1104 @1104
-0x1cc6  fc c1 03  TESTNZ  F := (@1108 != 0)   (fc c1 03; no store; probe63/65)
+0x1cc6  fc c1 03  BIT?  @1108, selector 03   (fc c1 03; bit/field test, Y decode partly mapped; probe76/77)
 0x1cc9  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x1cca  a8        [d9] P2.page=8   -> D@2176 @2176
 0x1ccb  de        [d9] CLR  @2176 := 0  (in place, no advance)  (de; probe31)
@@ -2996,10 +2996,10 @@
 0x1cce  bc        P0.blk++ -> 2   (+1 KB, mod 4; probe47)
 0x1ccf  f1        WIDTH.1   ; 32-bit store  [probe37]
 0x1cd0  98        P1.page=8   -> B@1152 @1152
-0x1cd1  fc c0 1c  TEST?  fc c0 1c: P1 word 0 and a condition no RAM zero triggers  (Y = 1c; probe66, open)
+0x1cd1  fc c0 1c  BIT?  @1152, selector 1c   (fc c0 1c; bit/field test, Y decode partly mapped; probe76/77)
 0x1cd4  db        IF.F   (db; identical to d9 in every DMP3 cell, probe52/54)
 0x1cd5  95        [db] P1.page=5   -> B@1104 @1104
-0x1cd6  fc c0 03  [db] TESTNZ  F := (@1104 != 0)   (fc c0 03; no store; probe63/65)
+0x1cd6  fc c0 03  [db] BIT?  @1104, selector 03   (fc c0 03; bit/field test, Y decode partly mapped; probe76/77)
 0x1cd9  a5        [db] P2.page=5   -> D@2128 @2128
 0x1cda  de        [db] CLR  @2128 := 0  (in place, no advance)  (de; probe31)
 0x1cdb  a4        [db] P2.page=4   -> D@2112 @2112
@@ -3015,11 +3015,11 @@
 0x1ce5  f8        [d9] INC  @2128 by 1  F := result < 0  (f8; probe23)
 0x1ce6  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
 0x1ce7  a4        P2.page=4   -> D@2112 @2112
-0x1ce8  fc 80 04  TEST?  fc 80 04: P1 word 0 and a condition no RAM zero triggers  (Y = 04; probe66, open)
+0x1ce8  fc 80 04  BIT   F := @1104 bit 0 set   (fc 80 04; no store; probe76)
 0x1ceb  88        P0.page=8   -> A@2176 @2176
 0x1cec  95        P1.page=5   -> B@1104 @1104
 0x1ced  a4        P2.page=4   -> D@2112 @2112
-0x1cee  fc 08 04  TEST?  fc 08 04: P1 word 0 and a condition no RAM zero triggers  (Y = 04; probe66, open)
+0x1cee  fc 08 04  BIT   F := @1104 bit 0 set   (fc 08 04; no store; probe76)
 0x1cf1  20        ADD A=@2180        B=@1104        -> @2112
 0x1cf2  f7        LOGIC.LO   ; MIN / compare / AND / XOR, lower half-word store, sticky  [probe69/70]
 0x1cf3  bc        P0.blk++ -> 3   (+1 KB, mod 4; probe47)
@@ -3127,21 +3127,21 @@
 0x1d5b  bd        P1.blk++ -> 0   (+1 KB, mod 4; probe47)
 0x1d5c  bd        P1.blk++ -> 1   (+1 KB, mod 4; probe47)
 0x1d5d  95        P1.page=5   -> B@1104 @1104
-0x1d5e  fc c0 07  TEST?  fc c0 07: P1 word 0 and a condition no RAM zero triggers  (Y = 07; probe66, open)
+0x1d5e  fc c0 07  BIT?  @1104, selector 07   (fc c0 07; bit/field test, Y decode partly mapped; probe76/77)
 0x1d61  da        IF.NOT-F   (sticky until d8; F frozen while armed)
 0x1d62  f4 1e 7c  [da] JUMP.da -> 0x1e7c
 0x1d65  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
 0x1d66  f1        WIDTH.1   ; 32-bit store  [probe37]
-0x1d67  fc c0 00  TESTZ  F := (@1104 == 0)   (fc c0 00; no store; probe63/65)
+0x1d67  fc c0 00  BITZ  F := (@1104 & 0x3f) == 0   (fc c0 00; no store; probe76)
 0x1d6a  db        IF.F   (db; identical to d9 in every DMP3 cell, probe52/54)
 0x1d6b  9c        [db] P1.page=c   -> B@1216 @1216
-0x1d6c  fc c1 00  [db] TESTZ  F := (@1220 == 0)   (fc c1 00; no store; probe63/65)
+0x1d6c  fc c1 00  [db] BITZ  F := (@1220 & 0x3f) == 0   (fc c1 00; no store; probe76)
 0x1d6f  f4 1e a1  [db] JUMP.db -> 0x1ea1
 0x1d72  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
 0x1d73  f1        WIDTH.1   ; 32-bit store  [probe37]
 0x1d74  ac        P2.page=c   -> D@2240 @2240
 0x1d75  95        P1.page=5   -> B@1104 @1104
-0x1d76  fc c0 08  TEST?  fc c0 08: P1 word 0 and a condition no RAM zero triggers  (Y = 08; probe66, open)
+0x1d76  fc c0 08  BIT   F := @1104 bit 1 set   (fc c0 08; no store; probe76)
 0x1d79  da        IF.NOT-F   (sticky until d8; F frozen while armed)
 0x1d7a  f4 1d be  [da] JUMP.da -> 0x1dbe
 0x1d7d  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
@@ -3318,7 +3318,7 @@
 0x1e37  96        P1.page=6   -> B@1120 @1120
 0x1e38  01        RSUB A=ACCEL_CAL_SCALE_COVQ_IN_RANGE B=@1120        -> @2192
 0x1e39  95        P1.page=5   -> B@1104 @1104
-0x1e3a  fc c1 00  TESTZ  F := (@1108 == 0)   (fc c1 00; no store; probe63/65)
+0x1e3a  fc c1 00  BITZ  F := (@1108 & 0x3f) == 0   (fc c1 00; no store; probe76)
 0x1e3d  da        IF.NOT-F   (sticky until d8; F frozen while armed)
 0x1e3e  f4 1e 50  [da] JUMP.da -> 0x1e50
 0x1e41  db        IF.F   (db; identical to d9 in every DMP3 cell, probe52/54)
@@ -3393,7 +3393,7 @@
 0x1e8b  df        CLR  @2124 := 0  (P2 word++ first)  (df; probe23)
 0x1e8c  a2        P2.page=2   -> D@2080 @2080
 0x1e8d  95        P1.page=5   -> B@1104 @1104
-0x1e8e  fc c0 01  TESTNZ  F := (@1104 != 0)   (fc c0 01; no store; probe63/65)
+0x1e8e  fc c0 01  BITNZ F := (@1104 & 0x3f) != 0   (fc c0 01; no store; probe75)
 0x1e91  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x1e92  80        [d9] P0.page=0   -> A@3072 @3072
 0x1e93  c3        [d9] MOV   @3076        -> @2084  (P2 word++ first)  (c3; probe25)
@@ -3413,7 +3413,7 @@
 0x1ea1  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
 0x1ea2  f1        WIDTH.1   ; 32-bit store  [probe37]
 0x1ea3  9a        P1.page=a   -> B@1184 BAC_PS_ON
-0x1ea4  fc c1 04  TEST?  fc c1 04: P1 word 1 and a condition no RAM zero triggers  (Y = 04; probe66, open)
+0x1ea4  fc c1 04  BIT   F := @1188 bit 0 set   (fc c1 04; no store; probe76)
 0x1ea7  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x1ea8  ac        [d9] P2.page=c   -> D@2240 @2240
 0x1ea9  82        [d9] P0.page=2   -> A@3104 ACCEL_CAL_SCALE_COVQ_IN_RANGE
@@ -3617,7 +3617,7 @@
 0x1f79  54        MIN  A=@3064        B=@1016        -> @3064
 0x1f7a  f1        WIDTH.1   ; 32-bit store  [probe37]
 0x1f7b  97        P1.page=7   -> B@880 @880
-0x1f7c  fc c0 04  TEST?  fc c0 04: P1 word 0 and a condition no RAM zero triggers  (Y = 04; probe66, open)
+0x1f7c  fc c0 04  BIT   F := @880 bit 0 set   (fc c0 04; no store; probe76)
 0x1f7f  db        IF.F   (db; identical to d9 in every DMP3 cell, probe52/54)
 0x1f80  8f        [db] P0.page=f   -> A@3056 @3056
 0x1f81  af        [db] P2.page=f   -> D@3056 @3056
@@ -3627,18 +3627,18 @@
 0x1f85  f8        [db] INC  BAC_ACT_T_OFF by 1  F := result < 0  (f8; probe23)
 0x1f86  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
 0x1f87  98        P1.page=8   -> B@896 @896
-0x1f88  fc c0 08  TEST?  fc c0 08: P1 word 0 and a condition no RAM zero triggers  (Y = 08; probe66, open)
+0x1f88  fc c0 08  BIT   F := @896 bit 1 set   (fc c0 08; no store; probe76)
 0x1f8b  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x1f8c  f4 1f b4  [d9] JUMP.d9 -> 0x1fb4
 0x1f8f  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
 0x1f90  f1        WIDTH.1   ; 32-bit store  [probe37]
-0x1f91  fc c0 0c  TEST?  fc c0 0c: P1 word 0 and a condition no RAM zero triggers  (Y = 0c; probe66, open)
+0x1f91  fc c0 0c  BIT?  @896, selector 0c   (fc c0 0c; bit/field test, Y decode partly mapped; probe76/77)
 0x1f94  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x1f95  f4 1f dd  [d9] JUMP.d9 -> 0x1fdd
 0x1f98  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
 0x1f99  f1        WIDTH.1   ; 32-bit store  [probe37]
 0x1f9a  93        P1.page=3   -> B@816 PEDSTD_TIMH+2
-0x1f9b  fc c0 09  TEST?  fc c0 09: P1 word 0 and a condition no RAM zero triggers  (Y = 09; probe66, open)
+0x1f9b  fc c0 09  BIT?  PEDSTD_TIMH+2, selector 09   (fc c0 09; bit/field test, Y decode partly mapped; probe76/77)
 0x1f9e  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x1f9f  a4        [d9] P2.page=4   -> D@2880 @2880
 0x1fa0  de        [d9] CLR  @2880 := 0  (in place, no advance)  (de; probe31)
@@ -3647,7 +3647,7 @@
 0x1fa3  f8        [d9] INC  BAC_ACT_T_ON by 1  F := result < 0  (f8; probe23)
 0x1fa4  f8        [d9] INC  BAC_ACT_T_ON by 1  F := result < 0  (f8; probe23)
 0x1fa5  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
-0x1fa6  fc c0 04  TEST?  fc c0 04: P1 word 0 and a condition no RAM zero triggers  (Y = 04; probe66, open)
+0x1fa6  fc c0 04  BIT   F := PEDSTD_TIMH+2 bit 0 set   (fc c0 04; no store; probe76)
 0x1fa9  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x1faa  85        [d9] P0.page=5   -> A@2896 BAC_TILT_INIT
 0x1fab  a1        [d9] P2.page=1   -> D@2832 BAC_STILL_S_F
@@ -3687,7 +3687,7 @@
 0x1fcf  df        [d9] CLR  BAC_STATE_PREV := 0  (P2 word++ first)  (df; probe23)
 0x1fd0  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
 0x1fd1  93        P1.page=3   -> B@816 PEDSTD_TIMH+2
-0x1fd2  fc c0 0a  TEST?  fc c0 0a: P1 word 0 and a condition no RAM zero triggers  (Y = 0a; probe66, open)
+0x1fd2  fc c0 0a  BIT?  PEDSTD_TIMH+2, selector 0a   (fc c0 0a; bit/field test, Y decode partly mapped; probe76/77)
 0x1fd5  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x1fd6  a8        [d9] P2.page=8   -> D@2944 BAC_ACT_T_ON
 0x1fd7  de        [d9] CLR  BAC_ACT_T_ON := 0  (in place, no advance)  (de; probe31)
@@ -3712,7 +3712,7 @@
 0x1fec  c2        [db] MOV   BAC_ACT_T_OFF -> BAC_STILL_S_F  (c2; probe25)
 0x1fed  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
 0x1fee  93        P1.page=3   -> B@816 PEDSTD_TIMH+2
-0x1fef  fc c0 0a  TEST?  fc c0 0a: P1 word 0 and a condition no RAM zero triggers  (Y = 0a; probe66, open)
+0x1fef  fc c0 0a  BIT?  PEDSTD_TIMH+2, selector 0a   (fc c0 0a; bit/field test, Y decode partly mapped; probe76/77)
 0x1ff2  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x1ff3  a8        [d9] P2.page=8   -> D@2944 BAC_ACT_T_ON
 0x1ff4  de        [d9] CLR  BAC_ACT_T_ON := 0  (in place, no advance)  (de; probe31)
@@ -3720,7 +3720,7 @@
 0x1ff6  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
 0x1ff7  f1        WIDTH.1   ; 32-bit store  [probe37]
 0x1ff8  91        P1.page=1   -> B@784 @784
-0x1ff9  fc c0 04  TEST?  fc c0 04: P1 word 0 and a condition no RAM zero triggers  (Y = 04; probe66, open)
+0x1ff9  fc c0 04  BIT   F := @784 bit 0 set   (fc c0 04; no store; probe76)
 0x1ffc  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x1ffd  a7        [d9] P2.page=7   -> D@2928 BAC_ACT_OFF
 0x1ffe  fa        [d9] INC  @2932 by 1  (P2 word++ first)  F := result < 0  (fa; probe23)
@@ -4017,7 +4017,7 @@
 0x212c  b4        P1.bank=0
 0x212d  f3        WIDTH.3   ; 16-bit store, lower half-word  [probe37]
 0x212e  98        P1.page=8   -> B@1152 @1152
-0x212f  fc c0 04  TEST?  fc c0 04: P1 word 0 and a condition no RAM zero triggers  (Y = 04; probe66, open)
+0x212f  fc c0 04  BIT   F := @1152 bit 0 set   (fc c0 04; no store; probe76)
 0x2132  da        IF.NOT-F   (sticky until d8; F frozen while armed)
 0x2133  f4 21 86  [da] JUMP.da -> 0x2186
 0x2136  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
@@ -4814,11 +4814,11 @@
 0x2463  ae        P2.page=e   -> D@1248 @1248
 0x2464  d0        P2 word += 2 -> D@1256 GYRO_SLOPE_Y  (d0, mod 4; probe20)
 0x2465  91        P1.page=1   -> B@16 icm_20948_Quat9_Bytes+2
-0x2466  fc c0 00  TESTZ  F := (icm_20948_Quat9_Bytes+2 == 0)   (fc c0 00; no store; probe63/65)
+0x2466  fc c0 00  BITZ  F := (icm_20948_Quat9_Bytes+2 & 0x3f) == 0   (fc c0 00; no store; probe76)
 0x2469  db        IF.F   (db; identical to d9 in every DMP3 cell, probe52/54)
 0x246a  b6        [db] P1.bank=2
 0x246b  95        [db] P1.page=5   -> B@592 CPASS_ACCURACY
-0x246c  fc c1 04  [db] TEST?  fc c1 04: P1 word 1 and a condition no RAM zero triggers  (Y = 04; probe66, open)
+0x246c  fc c1 04  [db] BIT   F := MAR_MODE+2 bit 0 set   (fc c1 04; no store; probe76)
 0x246f  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x2470  f8        [d9] INC  GYRO_SLOPE_Y by 1  F := result < 0  (f8; probe23)
 0x2471  f8        [d9] INC  GYRO_SLOPE_Y by 1  F := result < 0  (f8; probe23)
@@ -4827,11 +4827,11 @@
 0x2474  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
 0x2475  b4        P1.bank=0
 0x2476  91        P1.page=1   -> B@16 icm_20948_Quat9_Bytes+2
-0x2477  fc c0 04  TEST?  fc c0 04: P1 word 0 and a condition no RAM zero triggers  (Y = 04; probe66, open)
+0x2477  fc c0 04  BIT   F := icm_20948_Quat9_Bytes+2 bit 0 set   (fc c0 04; no store; probe76)
 0x247a  db        IF.F   (db; identical to d9 in every DMP3 cell, probe52/54)
 0x247b  b6        [db] P1.bank=2
 0x247c  95        [db] P1.page=5   -> B@592 CPASS_ACCURACY
-0x247d  fc c1 00  [db] TESTZ  F := (MAR_MODE+2 == 0)   (fc c1 00; no store; probe63/65)
+0x247d  fc c1 00  [db] BITZ  F := (MAR_MODE+2 & 0x3f) == 0   (fc c1 00; no store; probe76)
 0x2480  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x2481  f8        [d9] INC  GYRO_SLOPE_Y by 1  F := result < 0  (f8; probe23)
 0x2482  f8        [d9] INC  GYRO_SLOPE_Y by 1  F := result < 0  (f8; probe23)
@@ -4848,11 +4848,11 @@
 0x248f  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
 0x2490  f1        WIDTH.1   ; 32-bit store  [probe37]
 0x2491  91        P1.page=1   -> B@528 Q0_QUAT6
-0x2492  fc c0 00  TESTZ  F := (Q0_QUAT6 == 0)   (fc c0 00; no store; probe63/65)
+0x2492  fc c0 00  BITZ  F := (Q0_QUAT6 & 0x3f) == 0   (fc c0 00; no store; probe76)
 0x2495  db        IF.F   (db; identical to d9 in every DMP3 cell, probe52/54)
 0x2496  b6        [db] P1.bank=2
 0x2497  95        [db] P1.page=5   -> B@592 CPASS_ACCURACY
-0x2498  fc c1 04  [db] TEST?  fc c1 04: P1 word 1 and a condition no RAM zero triggers  (Y = 04; probe66, open)
+0x2498  fc c1 04  [db] BIT   F := MAR_MODE+2 bit 0 set   (fc c1 04; no store; probe76)
 0x249b  f5        [db] LOGIC   ; ALU op field: 0 MIN, 1 compare (flags, no store), 2 AND, 3 XOR; 32-bit store, sticky  [probe29/70]
 0x249c  87        [db] P0.page=7   -> A@1648 @1648
 0x249d  95        [db] P1.page=5   -> B@592 CPASS_ACCURACY
@@ -4879,11 +4879,11 @@
 0x24b2  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
 0x24b3  b4        P1.bank=0
 0x24b4  91        P1.page=1   -> B@16 icm_20948_Quat9_Bytes+2
-0x24b5  fc c0 04  TEST?  fc c0 04: P1 word 0 and a condition no RAM zero triggers  (Y = 04; probe66, open)
+0x24b5  fc c0 04  BIT   F := icm_20948_Quat9_Bytes+2 bit 0 set   (fc c0 04; no store; probe76)
 0x24b8  db        IF.F   (db; identical to d9 in every DMP3 cell, probe52/54)
 0x24b9  b6        [db] P1.bank=2
 0x24ba  95        [db] P1.page=5   -> B@592 CPASS_ACCURACY
-0x24bb  fc c1 00  [db] TESTZ  F := (MAR_MODE+2 == 0)   (fc c1 00; no store; probe63/65)
+0x24bb  fc c1 00  [db] BITZ  F := (MAR_MODE+2 & 0x3f) == 0   (fc c1 00; no store; probe76)
 0x24be  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x24bf  af        [d9] P2.page=f   -> D@2800 @2800
 0x24c0  de        [d9] CLR  @2800 := 0  (in place, no advance)  (de; probe31)
@@ -4975,19 +4975,19 @@
 0x251e  ae        P2.page=e   -> D@1248 @1248
 0x251f  d0        P2 word += 2 -> D@1256 GYRO_SLOPE_Y  (d0, mod 4; probe20)
 0x2520  9a        P1.page=a   -> B@2208 @2208
-0x2521  fc c0 00  TESTZ  F := (@2208 == 0)   (fc c0 00; no store; probe63/65)
+0x2521  fc c0 00  BITZ  F := (@2208 & 0x3f) == 0   (fc c0 00; no store; probe76)
 0x2524  db        IF.F   (db; identical to d9 in every DMP3 cell, probe52/54)
 0x2525  9b        [db] P1.page=b   -> B@2224 @2224
-0x2526  fc c0 04  [db] TEST?  fc c0 04: P1 word 0 and a condition no RAM zero triggers  (Y = 04; probe66, open)
+0x2526  fc c0 04  [db] BIT   F := @2224 bit 0 set   (fc c0 04; no store; probe76)
 0x2529  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x252a  99        [d9] P1.page=9   -> B@2192 @2192
 0x252b  40        [d9] ADD A=@232         B=@2192        -> GYRO_SLOPE_Y
 0x252c  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
 0x252d  9a        P1.page=a   -> B@2208 @2208
-0x252e  fc c0 04  TEST?  fc c0 04: P1 word 0 and a condition no RAM zero triggers  (Y = 04; probe66, open)
+0x252e  fc c0 04  BIT   F := @2208 bit 0 set   (fc c0 04; no store; probe76)
 0x2531  db        IF.F   (db; identical to d9 in every DMP3 cell, probe52/54)
 0x2532  9b        [db] P1.page=b   -> B@2224 @2224
-0x2533  fc c0 00  [db] TESTZ  F := (@2224 == 0)   (fc c0 00; no store; probe63/65)
+0x2533  fc c0 00  [db] BITZ  F := (@2224 & 0x3f) == 0   (fc c0 00; no store; probe76)
 0x2536  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x2537  99        [d9] P1.page=9   -> B@2192 @2192
 0x2538  48        [d9] ADD A=@232         B=@2196        -> GYRO_SLOPE_Y
@@ -5002,10 +5002,10 @@
 0x2543  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
 0x2544  f1        WIDTH.1   ; 32-bit store  [probe37]
 0x2545  9a        P1.page=a   -> B@2208 @2208
-0x2546  fc c0 00  TESTZ  F := (@2208 == 0)   (fc c0 00; no store; probe63/65)
+0x2546  fc c0 00  BITZ  F := (@2208 & 0x3f) == 0   (fc c0 00; no store; probe76)
 0x2549  db        IF.F   (db; identical to d9 in every DMP3 cell, probe52/54)
 0x254a  9b        [db] P1.page=b   -> B@2224 @2224
-0x254b  fc c0 04  [db] TEST?  fc c0 04: P1 word 0 and a condition no RAM zero triggers  (Y = 04; probe66, open)
+0x254b  fc c0 04  [db] BIT   F := @2224 bit 0 set   (fc c0 04; no store; probe76)
 0x254e  f5        [db] LOGIC   ; ALU op field: 0 MIN, 1 compare (flags, no store), 2 AND, 3 XOR; 32-bit store, sticky  [probe29/70]
 0x254f  89        [db] P0.page=9   -> A@3216 @3216
 0x2550  a9        [db] P2.page=9   -> D@144 @144
@@ -5050,10 +5050,10 @@
 0x257a  b8        [d9] P2.bank=0
 0x257b  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
 0x257c  9a        P1.page=a   -> B@2208 @2208
-0x257d  fc c0 04  TEST?  fc c0 04: P1 word 0 and a condition no RAM zero triggers  (Y = 04; probe66, open)
+0x257d  fc c0 04  BIT   F := @2208 bit 0 set   (fc c0 04; no store; probe76)
 0x2580  db        IF.F   (db; identical to d9 in every DMP3 cell, probe52/54)
 0x2581  9b        [db] P1.page=b   -> B@2224 @2224
-0x2582  fc c0 00  [db] TESTZ  F := (@2224 == 0)   (fc c0 00; no store; probe63/65)
+0x2582  fc c0 00  [db] BITZ  F := (@2224 & 0x3f) == 0   (fc c0 00; no store; probe76)
 0x2585  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x2586  a9        [d9] P2.page=9   -> D@144 @144
 0x2587  de        [d9] CLR  @144 := 0  (in place, no advance)  (de; probe31)
@@ -5486,7 +5486,7 @@
 0x276d  bd        P1.blk++ -> 0   (+1 KB, mod 4; probe47)
 0x276e  bd        P1.blk++ -> 1   (+1 KB, mod 4; probe47)
 0x276f  9b        P1.page=b   -> B@1456 ACCEL_ALPHA_VAR
-0x2770  fc c1 03  TESTNZ  F := (@1460 != 0)   (fc c1 03; no store; probe63/65)
+0x2770  fc c1 03  BIT?  @1460, selector 03   (fc c1 03; bit/field test, Y decode partly mapped; probe76/77)
 0x2773  bd        P1.blk++ -> 2   (+1 KB, mod 4; probe47)
 0x2774  bd        P1.blk++ -> 3   (+1 KB, mod 4; probe47)
 0x2775  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
@@ -5578,7 +5578,7 @@
 0x27d0  bd        P1.blk++ -> 1   (+1 KB, mod 4; probe47)
 0x27d1  b6        P1.bank=2
 0x27d2  90        P1.page=0   -> B@1536 @1536
-0x27d3  fc c2 00  TESTZ  F := (@1544 == 0)   (fc c2 00; no store; probe63/65)
+0x27d3  fc c2 00  BITZ  F := (@1544 & 0x3f) == 0   (fc c2 00; no store; probe76)
 0x27d6  bd        P1.blk++ -> 2   (+1 KB, mod 4; probe47)
 0x27d7  bd        P1.blk++ -> 3   (+1 KB, mod 4; probe47)
 0x27d8  bd        P1.blk++ -> 0   (+1 KB, mod 4; probe47)
@@ -5744,10 +5744,10 @@
 0x2894  7a        AND  A=@1276        B=@28          -> @2288
 0x2895  f1        WIDTH.1   ; 32-bit store  [probe37]
 0x2896  9f        P1.page=f   -> B@240 @240
-0x2897  fc c0 03  TESTNZ  F := (@240 != 0)   (fc c0 03; no store; probe63/65)
+0x2897  fc c0 03  BIT?  @240, selector 03   (fc c0 03; bit/field test, Y decode partly mapped; probe76/77)
 0x289a  db        IF.F   (db; identical to d9 in every DMP3 cell, probe52/54)
 0x289b  90        [db] P1.page=0   -> B@0 @0
-0x289c  fc c0 00  [db] TESTZ  F := (@0 == 0)   (fc c0 00; no store; probe63/65)
+0x289c  fc c0 00  [db] BITZ  F := (@0 & 0x3f) == 0   (fc c0 00; no store; probe76)
 0x289f  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x28a0  a1        [d9] P2.page=1   -> D@2064 @2064
 0x28a1  de        [d9] CLR  @2064 := 0  (in place, no advance)  (de; probe31)
@@ -5760,7 +5760,7 @@
 0x28aa  72        AND  A=@1276        B=@24          -> @2064
 0x28ab  f1        WIDTH.1   ; 32-bit store  [probe37]
 0x28ac  9f        P1.page=f   -> B@240 @240
-0x28ad  fc c0 03  TESTNZ  F := (@240 != 0)   (fc c0 03; no store; probe63/65)
+0x28ad  fc c0 03  BIT?  @240, selector 03   (fc c0 03; bit/field test, Y decode partly mapped; probe76/77)
 0x28b0  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x28b1  a1        [d9] P2.page=1   -> D@2064 @2064
 0x28b2  de        [d9] CLR  @2064 := 0  (in place, no advance)  (de; probe31)
@@ -5788,7 +5788,7 @@
 0x28c8  a1        [db] P2.page=1   -> D@2064 @2064
 0x28c9  de        [db] CLR  @2064 := 0  (in place, no advance)  (de; probe31)
 0x28ca  91        [db] P1.page=1   -> B@16 icm_20948_Quat9_Bytes+2
-0x28cb  fc c1 04  [db] TEST?  fc c1 04: P1 word 1 and a condition no RAM zero triggers  (Y = 04; probe66, open)
+0x28cb  fc c1 04  [db] BIT   F := @20 bit 0 set   (fc c1 04; no store; probe76)
 0x28ce  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x28cf  a1        [d9] P2.page=1   -> D@2064 @2064
 0x28d0  f8        [d9] INC  @2064 by 1  F := result < 0  (f8; probe23)
@@ -5884,7 +5884,7 @@
 0x292c  bd        P1.blk++ -> 0   (+1 KB, mod 4; probe47)
 0x292d  bd        P1.blk++ -> 1   (+1 KB, mod 4; probe47)
 0x292e  9b        P1.page=b   -> B@1456 ACCEL_ALPHA_VAR
-0x292f  fc c1 03  TESTNZ  F := (@1460 != 0)   (fc c1 03; no store; probe63/65)
+0x292f  fc c1 03  BIT?  @1460, selector 03   (fc c1 03; bit/field test, Y decode partly mapped; probe76/77)
 0x2932  b4        P1.bank=0
 0x2933  bd        P1.blk++ -> 2   (+1 KB, mod 4; probe47)
 0x2934  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
@@ -5894,7 +5894,7 @@
 0x293a  aa        P2.page=a   -> D@160 ODR_GEOMAG
 0x293b  de        CLR  ODR_GEOMAG := 0  (in place, no advance)  (de; probe31)
 0x293c  99        P1.page=9   -> B@2192 @2192
-0x293d  fc c1 00  TESTZ  F := (@2196 == 0)   (fc c1 00; no store; probe63/65)
+0x293d  fc c1 00  BITZ  F := (@2196 & 0x3f) == 0   (fc c1 00; no store; probe76)
 0x2940  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x2941  aa        [d9] P2.page=a   -> D@160 ODR_GEOMAG
 0x2942  fa        [d9] INC  ODR_PQUAT6 by 1  (P2 word++ first)  F := result < 0  (fa; probe23)
@@ -5914,7 +5914,7 @@
 0x2950  3a        AND  A=@3220        B=@2092        -> @32
 0x2951  f1        WIDTH.1   ; 32-bit store  [probe37]
 0x2952  92        P1.page=2   -> B@2080 @2080
-0x2953  fc c0 03  TESTNZ  F := (@2080 != 0)   (fc c0 03; no store; probe63/65)
+0x2953  fc c0 03  BIT?  @2080, selector 03   (fc c0 03; bit/field test, Y decode partly mapped; probe76/77)
 0x2956  da        IF.NOT-F   (sticky until d8; F frozen while armed)
 0x2957  df        [da] CLR  @36 := 0  (P2 word++ first)  (df; probe23)
 0x2958  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
@@ -5929,7 +5929,7 @@
 0x2961  f8        [db] INC  ODR_GEOMAG by 1  F := result < 0  (f8; probe23)
 0x2962  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
 0x2963  99        P1.page=9   -> B@2192 @2192
-0x2964  fc c1 03  TESTNZ  F := (@2196 != 0)   (fc c1 03; no store; probe63/65)
+0x2964  fc c1 03  BIT?  @2196, selector 03   (fc c1 03; bit/field test, Y decode partly mapped; probe76/77)
 0x2967  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x2968  aa        [d9] P2.page=a   -> D@160 ODR_GEOMAG
 0x2969  df        [d9] CLR  ODR_PQUAT6 := 0  (P2 word++ first)  (df; probe23)
@@ -5948,12 +5948,12 @@
 0x2976  f8        [db] INC  ODR_GEOMAG by 1  F := result < 0  (f8; probe23)
 0x2977  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
 0x2978  9a        P1.page=a   -> B@2208 @2208
-0x2979  fc c0 04  TEST?  fc c0 04: P1 word 0 and a condition no RAM zero triggers  (Y = 04; probe66, open)
+0x2979  fc c0 04  BIT   F := @2208 bit 0 set   (fc c0 04; no store; probe76)
 0x297c  db        IF.F   (db; identical to d9 in every DMP3 cell, probe52/54)
 0x297d  a8        [db] P2.page=8   -> D@128 ODR_CNTR_GEOMAG
 0x297e  de        [db] CLR  ODR_CNTR_GEOMAG := 0  (in place, no advance)  (de; probe31)
 0x297f  98        [db] P1.page=8   -> B@2176 @2176
-0x2980  fc c1 00  [db] TESTZ  F := (@2180 == 0)   (fc c1 00; no store; probe63/65)
+0x2980  fc c1 00  [db] BITZ  F := (@2180 & 0x3f) == 0   (fc c1 00; no store; probe76)
 0x2983  f8        [db] INC  ODR_CNTR_GEOMAG by 1  F := result < 0  (f8; probe23)
 0x2984  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
 0x2985  f1        WIDTH.1   ; 32-bit store  [probe37]
@@ -6130,7 +6130,7 @@
 0x2a3e  d0        [db] P2 word += 2 -> D@1292 QFB_THR_9X  (d0, mod 4; probe20)
 0x2a3f  de        [db] CLR  QFB_THR_9X := 0  (in place, no advance)  (de; probe31)
 0x2a40  9f        [db] P1.page=f   -> B@3568 @3568
-0x2a41  fc c2 01  [db] TESTNZ  F := (@3576 != 0)   (fc c2 01; no store; probe63/65)
+0x2a41  fc c2 01  [db] BITNZ F := (@3576 & 0x3f) != 0   (fc c2 01; no store; probe75)
 0x2a44  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x2a45  f2        [d9] WIDTH.2   ; 16-bit store, upper half-word  [probe37]
 0x2a46  af        [d9] P2.page=f   -> D@1520 @1520
@@ -6167,7 +6167,7 @@
 0x2a66  a1        [db] P2.page=1   -> D@1296 @1296
 0x2a67  df        [db] CLR  @1300 := 0  (P2 word++ first)  (df; probe23)
 0x2a68  9f        [db] P1.page=f   -> B@3568 @3568
-0x2a69  fc c2 01  [db] TESTNZ  F := (@3576 != 0)   (fc c2 01; no store; probe63/65)
+0x2a69  fc c2 01  [db] BITNZ F := (@3576 & 0x3f) != 0   (fc c2 01; no store; probe75)
 0x2a6c  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x2a6d  f2        [d9] WIDTH.2   ; 16-bit store, upper half-word  [probe37]
 0x2a6e  af        [d9] P2.page=f   -> D@1520 @1520
@@ -6193,7 +6193,7 @@
 0x2a83  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
 0x2a84  f1        WIDTH.1   ; 32-bit store  [probe37]
 0x2a85  9f        P1.page=f   -> B@3568 @3568
-0x2a86  fc c2 01  TESTNZ  F := (@3576 != 0)   (fc c2 01; no store; probe63/65)
+0x2a86  fc c2 01  BITNZ F := (@3576 & 0x3f) != 0   (fc c2 01; no store; probe75)
 0x2a89  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x2a8a  f4 2a ba  [d9] JUMP.d9 -> 0x2aba
 0x2a8d  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
@@ -6227,7 +6227,7 @@
 0x2aa9  d1        [db] TEST  F := (last ALU result == 0)  (without d1, F is the result's sign)  [probe52]
 0x2aaa  f1        [db] WIDTH.1   ; 32-bit store  [probe37]
 0x2aab  9f        [db] P1.page=f   -> B@3568 @3568
-0x2aac  fc c1 04  [db] TEST?  fc c1 04: P1 word 1 and a condition no RAM zero triggers  (Y = 04; probe66, open)
+0x2aac  fc c1 04  [db] BIT   F := @3572 bit 0 set   (fc c1 04; no store; probe76)
 0x2aaf  f2        [db] WIDTH.2   ; 16-bit store, upper half-word  [probe37]
 0x2ab0  8f        [db] P0.page=f   -> A@496 @496
 0x2ab1  9f        [db] P1.page=f   -> B@3568 @3568
@@ -6296,7 +6296,7 @@
 0x2afa  c7        MOV   BM_BATCH_THLD -> QFB_THR_9X  (P2 word++ first)  (c7; probe25)
 0x2afb  b6        P1.bank=2
 0x2afc  9d        P1.page=d   -> B@3792 @3792
-0x2afd  fc c2 04  TEST?  fc c2 04: P1 word 2 and a condition no RAM zero triggers  (Y = 04; probe66, open)
+0x2afd  fc c2 04  BIT   F := @3800 bit 0 set   (fc c2 04; no store; probe76)
 0x2b00  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x2b01  ba        [d9] P2.bank=2
 0x2b02  ad        [d9] P2.page=d   -> D@1744 @1744
@@ -6496,16 +6496,16 @@
 0x2bde  b5        P1.bank=1
 0x2bdf  bd        P1.blk++ -> 1   (+1 KB, mod 4; probe47)
 0x2be0  9b        P1.page=b   -> B@1456 ACCEL_ALPHA_VAR
-0x2be1  fc c1 00  TESTZ  F := (@1460 == 0)   (fc c1 00; no store; probe63/65)
+0x2be1  fc c1 00  BITZ  F := (@1460 & 0x3f) == 0   (fc c1 00; no store; probe76)
 0x2be4  b6        P1.bank=2
 0x2be5  bd        P1.blk++ -> 2   (+1 KB, mod 4; probe47)
 0x2be6  bd        P1.blk++ -> 3   (+1 KB, mod 4; probe47)
 0x2be7  bd        P1.blk++ -> 0   (+1 KB, mod 4; probe47)
 0x2be8  db        IF.F   (db; identical to d9 in every DMP3 cell, probe52/54)
 0x2be9  97        [db] P1.page=7   -> B@624 @624
-0x2bea  fc c3 04  [db] TEST?  fc c3 04: P1 word 3 and a condition no RAM zero triggers  (Y = 04; probe66, open)
-0x2bed  fc c0 00  [db] TESTZ  F := (@624 == 0)   (fc c0 00; no store; probe63/65)
-0x2bf0  fc c2 04  [db] TEST?  fc c2 04: P1 word 2 and a condition no RAM zero triggers  (Y = 04; probe66, open)
+0x2bea  fc c3 04  [db] BIT   F := @636 bit 0 set   (fc c3 04; no store; probe76)
+0x2bed  fc c0 00  [db] BITZ  F := (@624 & 0x3f) == 0   (fc c0 00; no store; probe76)
+0x2bf0  fc c2 04  [db] BIT   F := @632 bit 0 set   (fc c2 04; no store; probe76)
 0x2bf3  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x2bf4  a7        [d9] P2.page=7   -> D@2672 @2672
 0x2bf5  df        [d9] CLR  @2676 := 0  (P2 word++ first)  (df; probe23)
@@ -6538,7 +6538,7 @@
 0x2c14  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
 0x2c15  f1        WIDTH.1   ; 32-bit store  [probe37]
 0x2c16  97        P1.page=7   -> B@624 @624
-0x2c17  fc c1 04  TEST?  fc c1 04: P1 word 1 and a condition no RAM zero triggers  (Y = 04; probe66, open)
+0x2c17  fc c1 04  BIT   F := @628 bit 0 set   (fc c1 04; no store; probe76)
 0x2c1a  b1        P0.bank=1
 0x2c1b  bc        P0.blk++ -> 2   (+1 KB, mod 4; probe47)
 0x2c1c  bc        P0.blk++ -> 3   (+1 KB, mod 4; probe47)
@@ -6554,7 +6554,7 @@
 0x2c26  da        IF.NOT-F   (sticky until d8; F frozen while armed)
 0x2c27  de        [da] CLR  MAGN_THR_9X := 0  (in place, no advance)  (de; probe31)
 0x2c28  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
-0x2c29  fc c2 04  TEST?  fc c2 04: P1 word 2 and a condition no RAM zero triggers  (Y = 04; probe66, open)
+0x2c29  fc c2 04  BIT   F := @632 bit 0 set   (fc c2 04; no store; probe76)
 0x2c2c  d0        P2 word += 2 -> D@1288 MAGN_LPF_THR_9X  (d0, mod 4; probe20)
 0x2c2d  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x2c2e  c7        [d9] MOV   BM_BATCH_THLD -> QFB_THR_9X  (P2 word++ first)  (c7; probe25)
@@ -6570,7 +6570,7 @@
 0x2c38  bd        P1.blk++ -> 2   (+1 KB, mod 4; probe47)
 0x2c39  bd        P1.blk++ -> 3   (+1 KB, mod 4; probe47)
 0x2c3a  9f        P1.page=f   -> B@3568 @3568
-0x2c3b  fc c1 00  TESTZ  F := (@3572 == 0)   (fc c1 00; no store; probe63/65)
+0x2c3b  fc c1 00  BITZ  F := (@3572 & 0x3f) == 0   (fc c1 00; no store; probe76)
 0x2c3e  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x2c3f  f4 2c bb  [d9] JUMP.d9 -> 0x2cbb
 0x2c42  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
@@ -6648,12 +6648,12 @@
 0x2c8c  bd        P1.blk++ -> 0   (+1 KB, mod 4; probe47)
 0x2c8d  bd        P1.blk++ -> 1   (+1 KB, mod 4; probe47)
 0x2c8e  9b        P1.page=b   -> B@1456 ACCEL_ALPHA_VAR
-0x2c8f  fc c1 00  TESTZ  F := (@1460 == 0)   (fc c1 00; no store; probe63/65)
+0x2c8f  fc c1 00  BITZ  F := (@1460 & 0x3f) == 0   (fc c1 00; no store; probe76)
 0x2c92  bd        P1.blk++ -> 2   (+1 KB, mod 4; probe47)
 0x2c93  bd        P1.blk++ -> 3   (+1 KB, mod 4; probe47)
 0x2c94  db        IF.F   (db; identical to d9 in every DMP3 cell, probe52/54)
 0x2c95  9f        [db] P1.page=f   -> B@3568 @3568
-0x2c96  fc c0 04  [db] TEST?  fc c0 04: P1 word 0 and a condition no RAM zero triggers  (Y = 04; probe66, open)
+0x2c96  fc c0 04  [db] BIT   F := @3568 bit 0 set   (fc c0 04; no store; probe76)
 0x2c99  8f        [db] P0.page=f   -> A@496 @496
 0x2c9a  9e        [db] P1.page=e   -> B@3552 @3552
 0x2c9b  2d        [db] RSUB A=@500         B=@3556        -> @1532
@@ -6676,7 +6676,7 @@
 0x2cac  06        [d9] AND  A=PEDSTD_TIMH+2 B=@3568        -> @1524
 0x2cad  f1        [d9] WIDTH.1   ; 32-bit store  [probe37]
 0x2cae  db        IF.F   (db; identical to d9 in every DMP3 cell, probe52/54)
-0x2caf  fc c1 04  [db] TEST?  fc c1 04: P1 word 1 and a condition no RAM zero triggers  (Y = 04; probe66, open)
+0x2caf  fc c1 04  [db] BIT   F := @3572 bit 0 set   (fc c1 04; no store; probe76)
 0x2cb2  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x2cb3  b8        [d9] P2.bank=0
 0x2cb4  be        [d9] P2.blk++ -> 2   (+1 KB, mod 4; probe47)
@@ -6700,7 +6700,7 @@
 0x2cc6  02        AND  A=@944         B=@3888        -> @2032
 0x2cc7  f1        WIDTH.1   ; 32-bit store  [probe37]
 0x2cc8  9f        P1.page=f   -> B@4080 @4080
-0x2cc9  fc c0 03  TESTNZ  F := (@4080 != 0)   (fc c0 03; no store; probe63/65)
+0x2cc9  fc c0 03  BIT?  @4080, selector 03   (fc c0 03; bit/field test, Y decode partly mapped; probe76/77)
 0x2ccc  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x2ccd  8f        [d9] P0.page=f   -> A@1008 @1008
 0x2cce  a9        [d9] P2.page=9   -> D@1936 @1936
@@ -6719,7 +6719,7 @@
 0x2cdb  9f        P1.page=f   -> B@4080 @4080
 0x2cdc  06        AND  A=PEDSTD_TIMH+2 B=@4080        -> @2036
 0x2cdd  f1        WIDTH.1   ; 32-bit store  [probe37]
-0x2cde  fc c1 04  TEST?  fc c1 04: P1 word 1 and a condition no RAM zero triggers  (Y = 04; probe66, open)
+0x2cde  fc c1 04  BIT   F := @4084 bit 0 set   (fc c1 04; no store; probe76)
 0x2ce1  db        IF.F   (db; identical to d9 in every DMP3 cell, probe52/54)
 0x2ce2  95        [db] P1.page=5   -> B@3920 @3920
 0x2ce3  71        [db] RSUB A=@828         B=FP_VAR_ALPHA -> @2036
@@ -6757,7 +6757,7 @@
 0x2d03  06        AND  A=@1008        B=@3888        -> @2036
 0x2d04  f1        WIDTH.1   ; 32-bit store  [probe37]
 0x2d05  9f        P1.page=f   -> B@4080 @4080
-0x2d06  fc c1 03  TESTNZ  F := (@4084 != 0)   (fc c1 03; no store; probe63/65)
+0x2d06  fc c1 03  BIT?  @4084, selector 03   (fc c1 03; bit/field test, Y decode partly mapped; probe76/77)
 0x2d09  db        IF.F   (db; identical to d9 in every DMP3 cell, probe52/54)
 0x2d0a  83        [db] P0.page=3   -> A@816 PEDSTD_TIMH+2
 0x2d0b  a9        [db] P2.page=9   -> D@1936 @1936
@@ -6816,7 +6816,7 @@
 0x2d44  31        RSUB A=@340         B=@3528        -> @1520
 0x2d45  db        IF.F   (db; identical to d9 in every DMP3 cell, probe52/54)
 0x2d46  9f        [db] P1.page=f   -> B@3568 @3568
-0x2d47  fc c1 00  [db] TESTZ  F := (@3572 == 0)   (fc c1 00; no store; probe63/65)
+0x2d47  fc c1 00  [db] BITZ  F := (@3572 & 0x3f) == 0   (fc c1 00; no store; probe76)
 0x2d4a  da        IF.NOT-F   (sticky until d8; F frozen while armed)
 0x2d4b  f4 2d 62  [da] JUMP.da -> 0x2d62
 0x2d4e  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
@@ -6864,7 +6864,7 @@
 0x2d78  1d        RSUB A=@496         B=@3404        -> @1524
 0x2d79  db        IF.F   (db; identical to d9 in every DMP3 cell, probe52/54)
 0x2d7a  90        [db] P1.page=0   -> B@3328 B2S_MTX_00
-0x2d7b  fc c0 00  [db] TESTZ  F := (B2S_MTX_00 == 0)   (fc c0 00; no store; probe63/65)
+0x2d7b  fc c0 00  [db] BITZ  F := (B2S_MTX_00 & 0x3f) == 0   (fc c0 00; no store; probe76)
 0x2d7e  a0        [db] P2.page=0   -> D@1280 MAGN_THR_9X
 0x2d7f  d0        [db] P2 word += 2 -> D@1288 MAGN_LPF_THR_9X  (d0, mod 4; probe20)
 0x2d80  de        [db] CLR  MAGN_LPF_THR_9X := 0  (in place, no advance)  (de; probe31)
@@ -6892,7 +6892,7 @@
 0x2d98  c7        MOV   CPASS_MTX_21 -> @1804  (P2 word++ first)  (c7; probe25)
 0x2d99  b5        P1.bank=1
 0x2d9a  90        P1.page=0   -> B@3328 B2S_MTX_00
-0x2d9b  fc c2 00  TESTZ  F := (B2S_MTX_02 == 0)   (fc c2 00; no store; probe63/65)
+0x2d9b  fc c2 00  BITZ  F := (B2S_MTX_02 & 0x3f) == 0   (fc c2 00; no store; probe76)
 0x2d9e  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x2d9f  b2        [d9] P0.bank=2
 0x2da0  8e        [d9] P0.page=e   -> A@736 @736
@@ -6978,7 +6978,7 @@
 0x2df4  06        AND  A=@1008        B=@3984        -> @2036
 0x2df5  f1        WIDTH.1   ; 32-bit store  [probe37]
 0x2df6  9f        P1.page=f   -> B@4080 @4080
-0x2df7  fc c1 03  TESTNZ  F := (@4084 != 0)   (fc c1 03; no store; probe63/65)
+0x2df7  fc c1 03  BIT?  @4084, selector 03   (fc c1 03; bit/field test, Y decode partly mapped; probe76/77)
 0x2dfa  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x2dfb  8a        [d9] P0.page=a   -> A@928 PEDSTD_DECI
 0x2dfc  aa        [d9] P2.page=a   -> D@1952 CPASS_REF_MAG_3D
@@ -6997,9 +6997,9 @@
 0x2e0b  de        CLR  @1832 := 0  (in place, no advance)  (de; probe31)
 0x2e0c  b6        P1.bank=2
 0x2e0d  9e        P1.page=e   -> B@3808 @3808
-0x2e0e  fc c0 09  TEST?  fc c0 09: P1 word 0 and a condition no RAM zero triggers  (Y = 09; probe66, open)
+0x2e0e  fc c0 09  BIT?  @3808, selector 09   (fc c0 09; bit/field test, Y decode partly mapped; probe76/77)
 0x2e11  db        IF.F   (db; identical to d9 in every DMP3 cell, probe52/54)
-0x2e12  fc c1 0a  [db] TEST?  fc c1 0a: P1 word 1 and a condition no RAM zero triggers  (Y = 0a; probe66, open)
+0x2e12  fc c1 0a  [db] BIT?  @3812, selector 0a   (fc c1 0a; bit/field test, Y decode partly mapped; probe76/77)
 0x2e15  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x2e16  b8        [d9] P2.bank=0
 0x2e17  ae        [d9] P2.page=e   -> D@1248 @1248
@@ -7177,7 +7177,7 @@
 0x2ed3  9f        P1.page=f   -> B@4080 @4080
 0x2ed4  06        AND  A=@912         B=@4080        -> @2036
 0x2ed5  f1        WIDTH.1   ; 32-bit store  [probe37]
-0x2ed6  fc c1 03  TESTNZ  F := (@4084 != 0)   (fc c1 03; no store; probe63/65)
+0x2ed6  fc c1 03  BIT?  @4084, selector 03   (fc c1 03; bit/field test, Y decode partly mapped; probe76/77)
 0x2ed9  db        IF.F   (db; identical to d9 in every DMP3 cell, probe52/54)
 0x2eda  8d        [db] P0.page=d   -> A@976 PEDSTD_SB2+2
 0x2edb  9d        [db] P1.page=d   -> B@4048 @4048
@@ -7248,7 +7248,7 @@
 0x2f1f  34        ADD A=@2484        B=@3560        -> @2284
 0x2f20  b7        P1.bank=3
 0x2f21  9f        P1.page=f   -> B@4080 @4080
-0x2f22  fc c0 00  TESTZ  F := (@4080 == 0)   (fc c0 00; no store; probe63/65)
+0x2f22  fc c0 00  BITZ  F := (@4080 & 0x3f) == 0   (fc c0 00; no store; probe76)
 0x2f25  bc        P0.blk++ -> 3   (+1 KB, mod 4; probe47)
 0x2f26  bc        P0.blk++ -> 0   (+1 KB, mod 4; probe47)
 0x2f27  bc        P0.blk++ -> 1   (+1 KB, mod 4; probe47)
@@ -7287,7 +7287,7 @@
 0x2f4a  db        IF.F   (db; identical to d9 in every DMP3 cell, probe52/54)
 0x2f4b  f1        [db] WIDTH.1   ; 32-bit store  [probe37]
 0x2f4c  9e        [db] P1.page=e   -> B@224 @224
-0x2f4d  fc c3 01  [db] TESTNZ  F := (@236 != 0)   (fc c3 01; no store; probe63/65)
+0x2f4d  fc c3 01  [db] BITNZ F := (@236 & 0x3f) != 0   (fc c3 01; no store; probe75)
 0x2f50  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x2f51  f2        [d9] WIDTH.2   ; 16-bit store, upper half-word  [probe37]
 0x2f52  be        [d9] P2.blk++ -> 3   (+1 KB, mod 4; probe47)
@@ -7309,7 +7309,7 @@
 0x2f64  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
 0x2f65  f1        WIDTH.1   ; 32-bit store  [probe37]
 0x2f66  9e        P1.page=e   -> B@224 @224
-0x2f67  fc c3 01  TESTNZ  F := (@236 != 0)   (fc c3 01; no store; probe63/65)
+0x2f67  fc c3 01  BITNZ F := (@236 & 0x3f) != 0   (fc c3 01; no store; probe75)
 0x2f6a  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x2f6b  f5        [d9] LOGIC   ; ALU op field: 0 MIN, 1 compare (flags, no store), 2 AND, 3 XOR; 32-bit store, sticky  [probe29/70]
 0x2f6c  8e        [d9] P0.page=e   -> A@1248 @1248
@@ -7317,7 +7317,7 @@
 0x2f6e  32        [d9] AND  A=GYRO_SLOPE_X B=@232         -> @3040
 0x2f6f  f1        [d9] WIDTH.1   ; 32-bit store  [probe37]
 0x2f70  db        IF.F   (db; identical to d9 in every DMP3 cell, probe52/54)
-0x2f71  fc c0 01  [db] TESTNZ  F := (@224 != 0)   (fc c0 01; no store; probe63/65)
+0x2f71  fc c0 01  [db] BITNZ F := (@224 & 0x3f) != 0   (fc c0 01; no store; probe75)
 0x2f74  88        [db] P0.page=8   -> A@1152 @1152
 0x2f75  be        [db] P2.blk++ -> 3   (+1 KB, mod 4; probe47)
 0x2f76  bb        [db] P2.bank=3
@@ -7464,7 +7464,7 @@
 0x3007  66        AND  A=@1020        B=@4016        -> @2036
 0x3008  f1        WIDTH.1   ; 32-bit store  [probe37]
 0x3009  9f        P1.page=f   -> B@4080 @4080
-0x300a  fc c0 03  TESTNZ  F := (@4080 != 0)   (fc c0 03; no store; probe63/65)
+0x300a  fc c0 03  BIT?  @4080, selector 03   (fc c0 03; bit/field test, Y decode partly mapped; probe76/77)
 0x300d  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x300e  f5        [d9] LOGIC   ; ALU op field: 0 MIN, 1 compare (flags, no store), 2 AND, 3 XOR; 32-bit store, sticky  [probe29/70]
 0x300f  a8        [d9] P2.page=8   -> D@1920 @1920
@@ -7581,7 +7581,7 @@
 0x3081  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
 0x3082  f1        WIDTH.1   ; 32-bit store  [probe37]
 0x3083  9d        P1.page=d   -> B@3536 @3536
-0x3084  fc c3 04  TEST?  fc c3 04: P1 word 3 and a condition no RAM zero triggers  (Y = 04; probe66, open)
+0x3084  fc c3 04  BIT   F := @3548 bit 0 set   (fc c3 04; no store; probe76)
 0x3087  af        P2.page=f   -> D@1520 @1520
 0x3088  b2        P0.bank=2
 0x3089  89        P0.page=9   -> A@656 @656
@@ -7711,9 +7711,9 @@
 0x310d  f3        WIDTH.3   ; 16-bit store, lower half-word  [probe37]
 0x310e  b5        P1.bank=1
 0x310f  9c        P1.page=c   -> B@1472 ACCEL_A_VAR
-0x3110  fc c3 04  TEST?  fc c3 04: P1 word 3 and a condition no RAM zero triggers  (Y = 04; probe66, open)
+0x3110  fc c3 04  BIT   F := @1484 bit 0 set   (fc c3 04; no store; probe76)
 0x3113  db        IF.F   (db; identical to d9 in every DMP3 cell, probe52/54)
-0x3114  fc c2 00  [db] TESTZ  F := (@1480 == 0)   (fc c2 00; no store; probe63/65)
+0x3114  fc c2 00  [db] BITZ  F := (@1480 & 0x3f) == 0   (fc c2 00; no store; probe76)
 0x3117  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x3118  f2        [d9] WIDTH.2   ; 16-bit store, upper half-word  [probe37]
 0x3119  ac        [d9] P2.page=c   -> D@3520 @3520
@@ -7749,7 +7749,7 @@
 0x3137  df        [db] CLR  B2S_MTX_12 := 0  (P2 word++ first)  (df; probe23)
 0x3138  b5        [db] P1.bank=1
 0x3139  9b        [db] P1.page=b   -> B@1456 ACCEL_ALPHA_VAR
-0x313a  fc c1 00  [db] TESTZ  F := (@1460 == 0)   (fc c1 00; no store; probe63/65)
+0x313a  fc c1 00  [db] BITZ  F := (@1460 & 0x3f) == 0   (fc c1 00; no store; probe76)
 0x313d  b8        [db] P2.bank=0
 0x313e  be        [db] P2.blk++ -> 0   (+1 KB, mod 4; probe47)
 0x313f  a7        [db] P2.page=7   -> D@112 @112
@@ -7961,7 +7961,7 @@
 0x320f  f1        WIDTH.1   ; 32-bit store  [probe37]
 0x3210  b5        P1.bank=1
 0x3211  9b        P1.page=b   -> B@1456 ACCEL_ALPHA_VAR
-0x3212  fc c1 03  TESTNZ  F := (@1460 != 0)   (fc c1 03; no store; probe63/65)
+0x3212  fc c1 03  BIT?  @1460, selector 03   (fc c1 03; bit/field test, Y decode partly mapped; probe76/77)
 0x3215  b4        P1.bank=0
 0x3216  bd        P1.blk++ -> 2   (+1 KB, mod 4; probe47)
 0x3217  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
@@ -7977,7 +7977,7 @@
 0x3225  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
 0x3226  f1        WIDTH.1   ; 32-bit store  [probe37]
 0x3227  9a        P1.page=a   -> B@2208 @2208
-0x3228  fc c0 04  TEST?  fc c0 04: P1 word 0 and a condition no RAM zero triggers  (Y = 04; probe66, open)
+0x3228  fc c0 04  BIT   F := @2208 bit 0 set   (fc c0 04; no store; probe76)
 0x322b  a7        P2.page=7   -> D@112 @112
 0x322c  d0        P2 word += 2 -> D@120 @120  (d0, mod 4; probe20)
 0x322d  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
@@ -8102,7 +8102,7 @@
 0x32aa  fa        INC  @3964 by 1  (P2 word++ first)  F := result < 0  (fa; probe23)
 0x32ab  b5        P1.bank=1
 0x32ac  9c        P1.page=c   -> B@1472 ACCEL_A_VAR
-0x32ad  fc c2 07  TEST?  fc c2 07: P1 word 2 and a condition no RAM zero triggers  (Y = 07; probe66, open)
+0x32ad  fc c2 07  BIT?  @1480, selector 07   (fc c2 07; bit/field test, Y decode partly mapped; probe76/77)
 0x32b0  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x32b1  f8        [d9] INC  @3964 by 1  F := result < 0  (f8; probe23)
 0x32b2  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
@@ -8126,7 +8126,7 @@
 0x32c6  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
 0x32c7  f1        WIDTH.1   ; 32-bit store  [probe37]
 0x32c8  91        P1.page=1   -> B@1808 CPASS_EST_FIRST_BIAS
-0x32c9  fc c1 0a  TEST?  fc c1 0a: P1 word 1 and a condition no RAM zero triggers  (Y = 0a; probe66, open)
+0x32c9  fc c1 0a  BIT?  CPASS_BIAS_OFFSET, selector 0a   (fc c1 0a; bit/field test, Y decode partly mapped; probe76/77)
 0x32cc  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x32cd  f4 33 07  [d9] JUMP.d9 -> 0x3307
 0x32d0  d8        ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)
@@ -8184,7 +8184,7 @@
 0x3308  f1        WIDTH.1   ; 32-bit store  [probe37]
 0x3309  b5        P1.bank=1
 0x330a  9b        P1.page=b   -> B@1456 ACCEL_ALPHA_VAR
-0x330b  fc c1 03  TESTNZ  F := (@1460 != 0)   (fc c1 03; no store; probe63/65)
+0x330b  fc c1 03  BIT?  @1460, selector 03   (fc c1 03; bit/field test, Y decode partly mapped; probe76/77)
 0x330e  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x330f  bc        [d9] P0.blk++ -> 3   (+1 KB, mod 4; probe47)
 0x3310  bd        [d9] P1.blk++ -> 2   (+1 KB, mod 4; probe47)
@@ -8340,7 +8340,7 @@
 0x33ac  c6        MOV   @988         -> @624  (c6; probe25)
 0x33ad  b5        P1.bank=1
 0x33ae  9c        P1.page=c   -> B@3520 @3520
-0x33af  fc c2 04  TEST?  fc c2 04: P1 word 2 and a condition no RAM zero triggers  (Y = 04; probe66, open)
+0x33af  fc c2 04  BIT   F := @3528 bit 0 set   (fc c2 04; no store; probe76)
 0x33b2  d9        IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)
 0x33b3  b1        [d9] P0.bank=1
 0x33b4  81        [d9] P0.page=1   -> A@272 PED_Y_RATIO

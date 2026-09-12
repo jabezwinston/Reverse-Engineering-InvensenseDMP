@@ -107,7 +107,8 @@ assembler prints the byte string, so assembling once and counting is the reliabl
 | `lo` / `lo.next` | `d2` / `d3` | store the low word of the last product |
 | `int` | `e2` | raise DMP_INT1 |
 | `clr` | `de` | clear M[P2] in place |
-| `tz k` / `tnz k` | `fc ck 00/01` | F := (P1 word k == 0) / (!= 0), nothing stored; `tz 0` / `if f` / `jump skip` is the vendor's feature gate |
+| `bit k,n` | `fc ck Y` | F := (P1 word k, bit n) set, n in 0..5 (Y = 4<<n), nothing stored — the feature-flag dispatcher: `bit 0,1` / `if f` / `jump on` |
+| `bitz k` / `bitnz k` | `fc ck 00/01` | F := (P1 word k low 6 bits) all clear / any set |
 
 After a `jump`, `call` or `mode4` the machine is in **branch-target mode**: every byte below
 0x80 is read as the high byte of a target until a width byte (`fmode`, `min`, `min16`, `trunc`)

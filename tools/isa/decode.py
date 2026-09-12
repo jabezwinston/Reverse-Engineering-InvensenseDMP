@@ -217,15 +217,21 @@ class Decoder:
             # probe65 (one zero moved through 24 words): X's low two bits select the P1 WORD
             # (c0 -> word 0 .. c3 -> word 3); Y's B field does not select a word -- with B != 0
             # no single zero fires the test at all (probe66 looks for a two-word form).
+            # Finding 31 (probe76/77): fc cX Y is a BIT TEST of P1 word (X&3).  Y = 0x04/08/10/
+            # 20/40/80 tests word bit 0/1/2/3/4/5 (fires when set); Y = 0 tests the low 6 bits all
+            # clear, Y = 1 the complement; Y's op-field low bits modify the test and arbitrary Y
+            # (e.g. the vendor's 0x0c) combines selector and op bits in a way only partly mapped.
+            # So the feature gates are RAM bit tests, not an external condition.
             x, y = self.img[i + 1], self.img[i + 2]
-            Bf, inv = (y >> 3) & 3, y & 1
             w = self.N.name(self.ptr(1) + 4 * (x & 3))
-            if y in (0x00, 0x01, 0x03, 0x05):
-                return 3, f"TEST{'NZ' if inv else 'Z'}  F := ({w} {'!=' if inv else '=='} 0)   (fc {x:02x} {y:02x}; no store; probe63/65)"
-            # probe66: with Y's B field set, or Y = 02 / 04 / 0c, no zero in any RAM word (one or
-            # two at a time, P0/P1/P2 pages and the pages after them) makes the test fire -- these
-            # forms test a condition that is not a RAM word.  37 vendor sites are `fc cX 04`.
-            return 3, f"TEST?  fc {x:02x} {y:02x}: P1 word {x & 3} and a condition no RAM zero triggers  (Y = {y:02x}; probe66, open)"
+            onehot = {0x04: 0, 0x08: 1, 0x10: 2, 0x20: 3, 0x40: 4, 0x80: 5}
+            if y in onehot:
+                return 3, f"BIT   F := {w} bit {onehot[y]} set   (fc {x:02x} {y:02x}; no store; probe76)"
+            if y == 0x00:
+                return 3, f"BITZ  F := ({w} & 0x3f) == 0   (fc {x:02x} 00; no store; probe76)"
+            if y == 0x01:
+                return 3, f"BITNZ F := ({w} & 0x3f) != 0   (fc {x:02x} 01; no store; probe75)"
+            return 3, f"BIT?  {w}, selector {y:02x}   (fc {x:02x} {y:02x}; bit/field test, Y decode partly mapped; probe76/77)"
         if b == 0xFC and self.L in ("mantis", "icm"):
             # probe35: the A field indexes P1 and the B field indexes P0.  32/32 cells over two
             # independent operand vectors.  Paired with RSUB (B-A) this gets the opposite

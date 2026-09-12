@@ -49,7 +49,7 @@ is if-jump, else-jump) and page loads address the chip's registers instead of RA
 published DMP3 image (eMD 1.0, 14290 B) differs from the first by one 11-byte edit and moved
 every target's low byte by exactly 11 — the static proof (ISA2.md Finding 26). It also has a 4-word Q30 shifter
 (`d4`–`d7` + `fd n`) and a double-precision product (`d2`/`d3`), an interrupt instruction
-(`e2`), a three-byte zero test (`fc X Y`, the feature gate), and sticky predicates that read the sign of the last
+(`e2`), a three-byte bit test (`fc X Y`, the feature-flag dispatcher), and sticky predicates that read the sign of the last
 result (or zero, after `d1`) — a flag that ALU ops leave frozen while a predicate is armed, which
 is why every vendor test sits under `d8`. Same ALU, same routing, same widths; a multiply costs the same as an add and the whole machine
 runs ~3× faster.
@@ -94,7 +94,7 @@ The DMP emits a register selection the stock firmware never produces.
 | `PLAN.md` | the original plan of record (historical) |
 | `corpus/` | 13 unique firmware images (two of them DMP3) + vendor sources, with provenance; `ROSETTA.md` |
 | `tools/` | extraction, analysis, decoder (`isa/decode.py`), lifter (`isa/pseudo.py`), assembler (`dmpasm.py`) |
-| `bench/` | hardware rig: ESP32 bridge (MPU-6050 or ICM-20948, auto-detected), init, 74 probes, `icm.py`, `RESULTS.md` |
+| `bench/` | hardware rig: ESP32 bridge (MPU-6050 or ICM-20948, auto-detected), init, 77 probes, `icm.py`, `RESULTS.md` |
 | `programs/` | example DMP programs |
 | `listings2/` | annotated listings of all 13 corpus images under the current model |
 | `listings/` | listings under the superseded first-pass model (historical) |
