@@ -1,24 +1,24 @@
 ; lineage=mantis start=1024
  1024  9d      P1.page=d   -> B@208 CTRL1
  1025  d0      P2 word += 2 -> D@8 XACC  (d0, mod 4; probe20)
- 1026  f7      TRUNC XACC &= 0xFFFF0000   clear the low half-word  (the next ALU op does not store)  [probe36]
- 1027  4a      MUL A=XACC         B=CTRL2        -> (discarded)
- 1028  f3      WIDTH.3   ; 16-bit store, lower half-word  [probe37]
+ 1026  f7      LOGIC.LO   ; MIN / compare / AND / XOR, lower half-word store, sticky  [probe69/70]
+ 1027  4a      AND  A=XACC         B=CTRL2        -> FIFO16
+ 1028  f3      WIDTH.3   ; 16-bit store, lower half-word  [probe37/70]
  1029  40      ADD A=XACC         B=CTRL1        -> FIFO16
  1030  b8      P2.bank=0
  1031  b0      P0.bank=0
- 1032  f7      TRUNC XACC &= 0xFFFF0000   clear the low half-word  (the next ALU op does not store)  [probe36]
+ 1032  f7      LOGIC.LO   ; MIN / compare / AND / XOR, lower half-word store, sticky  [probe69/70]
  1033  a8      P2.page=8   -> D@128 TMP1A
  1034  8d      P0.page=d   -> A@208 CTRL1
  1035  91      P1.page=1   -> B@16 ADC2
- 1036  6a      MUL A=CTRL4        B=BIASUNC      -> (discarded)
+ 1036  6a      AND  A=CTRL4        B=BIASUNC      -> FIFO16
  1037  8d      P0.page=d   -> A@208 CTRL1
  1038  90      P1.page=0   -> B@0 PTAT
- 1039  5f      NMUL A=CTRL3        B=ZACC         -> FIFO16
+ 1039  5f      XOR  A=CTRL3        B=ZACC         -> FIFO16
  1040  98      P1.page=8   -> B@128 TMP1A
- 1041  4a      MUL A=CTRL3        B=TMP2A        -> FIFO16
+ 1041  4a      AND  A=CTRL3        B=TMP2A        -> FIFO16
  1042  b9      P2.bank=1
- 1043  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37]
+ 1043  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37/70]
  1044  a6      P2.page=6   -> D@352 MNMFLAG
  1045  d0      P2 word += 2 -> D@360 MNMTMTHR  (d0, mod 4; probe20)
  1046  f8      INC  MNMTMTHR by 1  (f8; probe23)
@@ -27,20 +27,20 @@
  1049  d9      IF.LE0   (N or Z; IF.Z right after d1; sticky until d8)
  1050  f4 07   [d9] B.d9 -> 1059
  1052  d8      ALWAYS  (ends a sticky predicate)
- 1053  f3      WIDTH.3   ; 16-bit store, lower half-word  [probe37]
+ 1053  f3      WIDTH.3   ; 16-bit store, lower half-word  [probe37/70]
  1054  b8      P2.bank=0
  1055  a8      P2.page=8   -> D@128 TMP1A
  1056  f9      DEC  TMP1A by 1  (f9; probe23)
  1057  db      IF.LE0   (db; same as d9 in every cell)
  1058  fb      [db] DEC  TMP2A by 1  (P2 word++ first)  (fb; probe23)
- 1059  f7      [db] TRUNC TMP2A &= 0xFFFF0000   clear the low half-word  (the next ALU op does not store)  [probe36]
+ 1059  f7      [db] LOGIC.LO   ; MIN / compare / AND / XOR, lower half-word store, sticky  [probe69/70]
  1060  b9      [db] P2.bank=1
  1061  b1      [db] P0.bank=1
  1062  a7      [db] P2.page=7   -> D@368 ACCQD4
  1063  87      [db] P0.page=7   -> A@368 ACCQD4
  1064  9d      [db] P1.page=d   -> B@208 CTRL1
  1065  d0      [db] P2 word += 2 -> D@376 ACCQD6  (d0, mod 4; probe20)
- 1066  4a      [db] MUL A=ACCQD6       B=CTRL2        -> (discarded)
+ 1066  4a      [db] AND  A=ACCQD6       B=CTRL2        -> FIFO16
  1067  d8      ALWAYS  (ends a sticky predicate)
  1068  b3      P0.bank=3
  1069  b7      P1.bank=3
@@ -48,17 +48,17 @@
  1071  8e      P0.page=e   -> A@992 @992
  1072  9e      P1.page=e   -> B@992 @992
  1073  ae      P2.page=e   -> D@992 @992
- 1074  f1      WIDTH.1   ; 32-bit store  [probe37]
+ 1074  f1      WIDTH.1   ; 32-bit store  [probe37/70]
  1075  32      MUL A=@996         B=@1000        -> FIFO32
- 1076  f5      MIN prefix  next ALU op computes signed min(A,B)  [probe29, 16/16]
- 1077  1b      F5.3 A=@992         B=@1004        -> FIFO32
- 1078  f1      WIDTH.1   ; 32-bit store  [probe37]
+ 1076  f5      LOGIC   ; ALU op field: 0 MIN, 1 compare (flags, no store), 2 AND, 3 XOR; 32-bit store, sticky  [probe29/70]
+ 1077  1b      XOR  A=@992         B=@1004        -> FIFO32
+ 1078  f1      WIDTH.1   ; 32-bit store  [probe37/70]
  1079  b4      P1.bank=0
  1080  b8      P2.bank=0
  1081  b0      P0.bank=0
  1082  80      P0.page=0   -> A@0 PTAT
  1083  97      P1.page=7   -> B@112 0_5
- 1084  f1      WIDTH.1   ; 32-bit store  [probe37]
+ 1084  f1      WIDTH.1   ; 32-bit store  [probe37/70]
  1085  a9      P2.page=9   -> D@144 XACCW
  1086  df      CLR  XACCB := 0  (P2 word++ first)  (df; probe23)
  1087  df      CLR  YACCB := 0  (P2 word++ first)  (df; probe23)
@@ -67,7 +67,7 @@
  1090  df      CLR  XGC := 0  (P2 word++ first)  (df; probe23)
  1091  df      CLR  YGC := 0  (P2 word++ first)  (df; probe23)
  1092  df      CLR  ZGC := 0  (P2 word++ first)  (df; probe23)
- 1093  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37]
+ 1093  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37/70]
  1094  aa      P2.page=a   -> D@160 DZ
  1095  c5      MOV   XACC         -> XGC  (P2 word++ first)  (c5; probe25)
  1096  cd      MOVX  XACC         -> YGC  (P2 word++ first)  (cd; probe25)  ; c8-cf: half-words swapped, on both parts (probe54/67)
@@ -77,7 +77,7 @@
  1100  c9      MOVX  PTAT         -> YACCB  (P2 word++ first)  (c9; probe25)  ; c8-cf: half-words swapped, on both parts (probe54/67)
  1101  2c      ADD A=YGYR         B=0_0          -> FIFO16
  1102  97      P1.page=7   -> B@112 0_5
- 1103  f1      WIDTH.1   ; 32-bit store  [probe37]
+ 1103  f1      WIDTH.1   ; 32-bit store  [probe37/70]
  1104  a9      P2.page=9   -> D@144 XACCW
  1105  89      P0.page=9   -> A@144 XACCW
  1106  26      MUL A=XACCB        B=0_5          -> FIFO32
@@ -98,7 +98,7 @@
  1121  56      MUL A=YGC          B=GSF          -> FIFO32
  1122  76      MUL A=ZGC          B=GSF          -> FIFO32
  1123  d8      ALWAYS  (ends a sticky predicate)
- 1124  f1      WIDTH.1   ; 32-bit store  [probe37]
+ 1124  f1      WIDTH.1   ; 32-bit store  [probe37/70]
  1125  b0      P0.bank=0
  1126  89      P0.page=9   -> A@144 XACCW
  1127  b9      P2.bank=1
@@ -115,38 +115,38 @@
  1138  b5      P1.bank=1
  1139  93      P1.page=3   -> B@304 TMP1B
  1140  a1      P2.page=1   -> D@272 1HB
- 1141  f0      WIDTH.0   ; A operand contributes 0 (single-shot)  [probe37]
+ 1141  f0      WIDTH.0   ; 32-bit store; a sum of opposite-sign addends is 1 LSB lower (probe70)  [probe37/70]
  1142  24      ADD A=0            B=TMP1B        -> FIFO
  1143  08      ADD A=1HB          B=TMP2B        -> FIFO
  1144  44      ADD A=ASR22        B=TMP1B        -> FIFO
  1145  10      ADD A=1HB          B=TMP3B        -> FIFO
  1146  64      ADD A=ASR6         B=TMP1B        -> FIFO
  1147  18      ADD A=1HB          B=TMP4B        -> FIFO
- 1148  f1      WIDTH.1   ; 32-bit store  [probe37]
+ 1148  f1      WIDTH.1   ; 32-bit store  [probe37/70]
  1149  93      P1.page=3   -> B@304 TMP1B
  1150  81      P0.page=1   -> A@272 1HB
  1151  a3      P2.page=3   -> D@304 TMP1B
  1152  2d      RSUB A=0            B=TMP2B        -> FIFO32
  1153  55      RSUB A=ASR22        B=TMP3B        -> FIFO32
  1154  3d      RSUB A=0            B=TMP4B        -> FIFO32
- 1155  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37]
+ 1155  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37/70]
  1156  a6      P2.page=6   -> D@352 MNMFLAG
  1157  fa      INC  MNMTM by 1  (P2 word++ first)  (fa; probe23)
  1158  f9      DEC  MNMTM by 1  (f9; probe23)
  1159  d1      TEST  clears N (Z := result == 0 stays): d9 becomes IF.Z, da becomes ALWAYS  [probe19/20, probe68]
  1160  d9      IF.LE0   (N or Z; IF.Z right after d1; sticky until d8)
  1161  f8      [d9] INC  MNMTM by 1  (f8; probe23)
- 1162  f1      [d9] WIDTH.1   ; 32-bit store  [probe37]
+ 1162  f1      [d9] WIDTH.1   ; 32-bit store  [probe37/70]
  1163  83      [d9] P0.page=3   -> A@304 TMP1B
  1164  a2      [d9] P2.page=2   -> D@288 TMP13
  1165  c3      [d9] MOV   TMP2B        -> FINTX  (P2 word++ first)  (c3; probe25)
  1166  c5      [d9] MOV   TMP3B        -> FINTY  (P2 word++ first)  (c5; probe25)
  1167  c7      [d9] MOV   TMP4B        -> FINTZ  (P2 word++ first)  (c7; probe25)
  1168  d8      ALWAYS  (ends a sticky predicate)
- 1169  f3      WIDTH.3   ; 16-bit store, lower half-word  [probe37]
+ 1169  f3      WIDTH.3   ; 16-bit store, lower half-word  [probe37/70]
  1170  a2      P2.page=2   -> D@288 TMP13
  1171  de      CLR  TMP13 := 0  (in place, no advance)  (de; probe31)
- 1172  f1      WIDTH.1   ; 32-bit store  [probe37]
+ 1172  f1      WIDTH.1   ; 32-bit store  [probe37/70]
  1173  82      P0.page=2   -> A@288 TMP13
  1174  93      P1.page=3   -> B@304 TMP1B
  1175  a3      P2.page=3   -> D@304 TMP1B
@@ -155,31 +155,31 @@
  1178  7d      RSUB A=FINTZ        B=TMP4B        -> FIFO32
  1179  83      P0.page=3   -> A@304 TMP1B
  1180  95      P1.page=5   -> B@336 PVXG
- 1181  f5      MIN prefix  next ALU op computes signed min(A,B)  [probe29, 16/16]
+ 1181  f5      LOGIC   ; ALU op field: 0 MIN, 1 compare (flags, no store), 2 AND, 3 XOR; 32-bit store, sticky  [probe29/70]
  1182  a3      P2.page=3   -> D@304 TMP1B
  1183  30      MIN  A=TMP2B        B=PVZG         -> FIFO32
  1184  d9      IF.LE0   (N or Z; IF.Z right after d1; sticky until d8)
- 1185  f3      [d9] WIDTH.3   ; 16-bit store, lower half-word  [probe37]
+ 1185  f3      [d9] WIDTH.3   ; 16-bit store, lower half-word  [probe37/70]
  1186  a2      [d9] P2.page=2   -> D@288 TMP13
  1187  f8      [d9] INC  TMP13 by 1  (f8; probe23)
  1188  d8      ALWAYS  (ends a sticky predicate)
- 1189  f5      MIN prefix  next ALU op computes signed min(A,B)  [probe29, 16/16]
+ 1189  f5      LOGIC   ; ALU op field: 0 MIN, 1 compare (flags, no store), 2 AND, 3 XOR; 32-bit store, sticky  [probe29/70]
  1190  a3      P2.page=3   -> D@304 TMP1B
- 1191  50      MIN  A=TMP3B        B=PVZG         -> FIFO16
+ 1191  50      MIN  A=TMP3B        B=PVZG         -> FIFO32
  1192  d9      IF.LE0   (N or Z; IF.Z right after d1; sticky until d8)
- 1193  f3      [d9] WIDTH.3   ; 16-bit store, lower half-word  [probe37]
+ 1193  f3      [d9] WIDTH.3   ; 16-bit store, lower half-word  [probe37/70]
  1194  a2      [d9] P2.page=2   -> D@288 TMP13
  1195  f8      [d9] INC  TMP13 by 1  (f8; probe23)
  1196  d8      ALWAYS  (ends a sticky predicate)
- 1197  f5      MIN prefix  next ALU op computes signed min(A,B)  [probe29, 16/16]
+ 1197  f5      LOGIC   ; ALU op field: 0 MIN, 1 compare (flags, no store), 2 AND, 3 XOR; 32-bit store, sticky  [probe29/70]
  1198  a3      P2.page=3   -> D@304 TMP1B
- 1199  70      MIN  A=TMP4B        B=PVZG         -> FIFO16
+ 1199  70      MIN  A=TMP4B        B=PVZG         -> FIFO32
  1200  d9      IF.LE0   (N or Z; IF.Z right after d1; sticky until d8)
- 1201  f3      [d9] WIDTH.3   ; 16-bit store, lower half-word  [probe37]
+ 1201  f3      [d9] WIDTH.3   ; 16-bit store, lower half-word  [probe37/70]
  1202  a2      [d9] P2.page=2   -> D@288 TMP13
  1203  f8      [d9] INC  TMP13 by 1  (f8; probe23)
  1204  d8      ALWAYS  (ends a sticky predicate)
- 1205  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37]
+ 1205  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37/70]
  1206  b9      P2.bank=1
  1207  a2      P2.page=2   -> D@288 TMP13
  1208  f8      INC  TMP13 by 1  (f8; probe23)
@@ -191,7 +191,7 @@
  1214  df      [d9] CLR  MNMTM := 0  (P2 word++ first)  (df; probe23)
  1215  f4 1c   [d9] B.d9 -> 1245
  1217  d8      ALWAYS  (ends a sticky predicate)
- 1218  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37]
+ 1218  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37/70]
  1219  a6      P2.page=6   -> D@352 MNMFLAG
  1220  f8      INC  MNMFLAG by 1  (f8; probe23)
  1221  f9      DEC  MNMFLAG by 1  (f9; probe23)
@@ -199,14 +199,14 @@
  1223  d9      IF.LE0   (N or Z; IF.Z right after d1; sticky until d8)
  1224  f4 14   [d9] B.d9 -> 1246
  1226  d8      ALWAYS  (ends a sticky predicate)
- 1227  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37]
+ 1227  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37/70]
  1228  f9      DEC  MNMFLAG by 1  (f9; probe23)
  1229  d1      TEST  clears N (Z := result == 0 stays): d9 becomes IF.Z, da becomes ALWAYS  [probe19/20, probe68]
  1230  d9      IF.LE0   (N or Z; IF.Z right after d1; sticky until d8)
  1231  f8      [d9] INC  MNMFLAG by 1  (f8; probe23)
  1232  f4 1e   [d9] B.d9 -> 1264
  1234  d8      ALWAYS  (ends a sticky predicate)
- 1235  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37]
+ 1235  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37/70]
  1236  f9      DEC  MNMFLAG by 1  (f9; probe23)
  1237  d1      TEST  clears N (Z := result == 0 stays): d9 becomes IF.Z, da becomes ALWAYS  [probe19/20, probe68]
  1238  d9      IF.LE0   (N or Z; IF.Z right after d1; sticky until d8)
@@ -216,16 +216,16 @@
  1243  d8      ALWAYS  (ends a sticky predicate)
  1244  f4 10   B -> 1262
  1246  d8      ALWAYS  (ends a sticky predicate)
- 1247  f3      WIDTH.3   ; 16-bit store, lower half-word  [probe37]
+ 1247  f3      WIDTH.3   ; 16-bit store, lower half-word  [probe37/70]
  1248  a2      P2.page=2   -> D@288 TMP13
  1249  f8      INC  TMP13 by 1  (f8; probe23)
  1250  f9      DEC  TMP13 by 1  (f9; probe23)
  1251  d1      TEST  clears N (Z := result == 0 stays): d9 becomes IF.Z, da becomes ALWAYS  [probe19/20, probe68]
  1252  da      IF.GE0   (not N; always after d1; sticky until d8)
- 1253  f2      [da] WIDTH.2   ; 16-bit store, upper half-word  [probe37]
+ 1253  f2      [da] WIDTH.2   ; 16-bit store, upper half-word  [probe37/70]
  1254  a6      [da] P2.page=6   -> D@352 MNMFLAG
  1255  f8      [da] INC  MNMFLAG by 1  (f8; probe23)
- 1256  f1      [da] WIDTH.1   ; 32-bit store  [probe37]
+ 1256  f1      [da] WIDTH.1   ; 32-bit store  [probe37/70]
  1257  a5      [da] P2.page=5   -> D@336 PVXG
  1258  de      [da] CLR  PVXG := 0  (in place, no advance)  (de; probe31)
  1259  d8      ALWAYS  (ends a sticky predicate)
@@ -234,7 +234,7 @@
  1262  14      ADD A=TMP1B        B=PVZG         -> FIFO32
  1263  14      ADD A=TMP1B        B=PVZG         -> FIFO32
  1264  d8      ALWAYS  (ends a sticky predicate)
- 1265  f1      WIDTH.1   ; 32-bit store  [probe37]
+ 1265  f1      WIDTH.1   ; 32-bit store  [probe37/70]
  1266  a5      P2.page=5   -> D@336 PVXG
  1267  f8      INC  PVXG by 1  (f8; probe23)
  1268  a3      P2.page=3   -> D@304 TMP1B
@@ -242,10 +242,10 @@
  1270  95      P1.page=5   -> B@336 PVXG
  1271  09      RSUB A=PVXG         B=PVYG         -> FIFO32
  1272  d9      IF.LE0   (N or Z; IF.Z right after d1; sticky until d8)
- 1273  f1      [d9] WIDTH.1   ; 32-bit store  [probe37]
+ 1273  f1      [d9] WIDTH.1   ; 32-bit store  [probe37/70]
  1274  a5      [d9] P2.page=5   -> D@336 PVXG
  1275  de      [d9] CLR  PVXG := 0  (in place, no advance)  (de; probe31)
- 1276  f2      [d9] WIDTH.2   ; 16-bit store, upper half-word  [probe37]
+ 1276  f2      [d9] WIDTH.2   ; 16-bit store, upper half-word  [probe37/70]
  1277  a6      [d9] P2.page=6   -> D@352 MNMFLAG
  1278  f8      [d9] INC  MNMFLAG by 1  (f8; probe23)
  1279  df      [d9] CLR  MNMTM := 0  (P2 word++ first)  (df; probe23)
@@ -254,7 +254,7 @@
  1282  a3      P2.page=3   -> D@304 TMP1B
  1283  09      RSUB A=PVXG         B=PVYG         -> FIFO16
  1284  d8      ALWAYS  (ends a sticky predicate)
- 1285  f3      WIDTH.3   ; 16-bit store, lower half-word  [probe37]
+ 1285  f3      WIDTH.3   ; 16-bit store, lower half-word  [probe37/70]
  1286  a2      P2.page=2   -> D@288 TMP13
  1287  f8      INC  TMP13 by 1  (f8; probe23)
  1288  f9      DEC  TMP13 by 1  (f9; probe23)
@@ -265,12 +265,12 @@
  1293  17      [d9] NMUL A=PVXG         B=PVZG         -> FIFO16
  1294  da      IF.GE0   (not N; always after d1; sticky until d8)
  1295  42      [da] MUL A=PVZG         B=PVXG         -> FIFO16
- 1296  f2      [da] WIDTH.2   ; 16-bit store, upper half-word  [probe37]
+ 1296  f2      [da] WIDTH.2   ; 16-bit store, upper half-word  [probe37/70]
  1297  a2      [da] P2.page=2   -> D@288 TMP13
  1298  de      [da] CLR  TMP13 := 0  (in place, no advance)  (de; probe31)
  1299  f4 0b   [da] B.da -> 1312
  1301  d8      ALWAYS  (ends a sticky predicate)
- 1302  f1      WIDTH.1   ; 32-bit store  [probe37]
+ 1302  f1      WIDTH.1   ; 32-bit store  [probe37/70]
  1303  a5      P2.page=5   -> D@336 PVXG
  1304  f8      INC  PVXG by 1  (f8; probe23)
  1305  a3      P2.page=3   -> D@304 TMP1B
@@ -280,12 +280,12 @@
  1309  da      IF.GE0   (not N; always after d1; sticky until d8)
  1310  f4 05   [da] B.da -> 1317
  1312  d8      ALWAYS  (ends a sticky predicate)
- 1313  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37]
+ 1313  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37/70]
  1314  a6      P2.page=6   -> D@352 MNMFLAG
  1315  de      CLR  MNMFLAG := 0  (in place, no advance)  (de; probe31)
  1316  df      CLR  MNMTM := 0  (P2 word++ first)  (df; probe23)
  1317  d8      ALWAYS  (ends a sticky predicate)
- 1318  f1      WIDTH.1   ; 32-bit store  [probe37]
+ 1318  f1      WIDTH.1   ; 32-bit store  [probe37/70]
  1319  b8      P2.bank=0
  1320  aa      P2.page=a   -> D@160 DZ
  1321  b3      P0.bank=3
@@ -317,7 +317,7 @@
  1347  54      ADD A=@648         B=YGC          -> FIFO32
  1348  7c      ADD A=@652         B=ZGC          -> FIFO32
  1349  d8      ALWAYS  (ends a sticky predicate)
- 1350  f1      WIDTH.1   ; 32-bit store  [probe37]
+ 1350  f1      WIDTH.1   ; 32-bit store  [probe37/70]
  1351  b8      P2.bank=0
  1352  b4      P1.bank=0
  1353  b0      P0.bank=0
@@ -334,7 +334,7 @@
  1364  28      ADD A=ACT2         B=0_0          -> FIFO32
  1365  88      P0.page=8   -> A@128 TMP1A
  1366  9b      P1.page=b   -> B@176 YACCW
- 1367  f0      WIDTH.0   ; A operand contributes 0 (single-shot)  [probe37]
+ 1367  f0      WIDTH.0   ; 32-bit store; a sum of opposite-sign addends is 1 LSB lower (probe70)  [probe37/70]
  1368  0c      ADD A=TMP1A        B=AFB1         -> FIFO
  1369  20      ADD A=TMP2A        B=YACCW        -> FIFO
  1370  14      ADD A=TMP1A        B=AFB2         -> FIFO
@@ -342,7 +342,7 @@
  1372  b0      P0.bank=0
  1373  b4      P1.bank=0
  1374  b8      P2.bank=0
- 1375  f0      WIDTH.0   ; A operand contributes 0 (single-shot)  [probe37]
+ 1375  f0      WIDTH.0   ; 32-bit store; a sum of opposite-sign addends is 1 LSB lower (probe70)  [probe37/70]
  1376  a8      P2.page=8   -> D@128 TMP1A
  1377  8a      P0.page=a   -> A@160 DZ
  1378  9a      P1.page=a   -> B@160 DZ
@@ -364,7 +364,7 @@
  1394  64      ADD A=ZGC          B=@944         -> FIFO
  1395  48      ADD A=YGC          B=@948         -> FIFO
  1396  31      RSUB A=XGC          B=@952         -> FIFO
- 1397  f1      WIDTH.1   ; 32-bit store  [probe37]
+ 1397  f1      WIDTH.1   ; 32-bit store  [probe37/70]
  1398  bb      P2.bank=3
  1399  ab      P2.page=b   -> D@944 @944
  1400  88      P0.page=8   -> A@128 TMP1A
@@ -372,7 +372,7 @@
  1402  2c      ADD A=TMP2A        B=@948         -> FIFO32
  1403  54      ADD A=TMP3A        B=@952         -> FIFO32
  1404  7c      ADD A=TMP4A        B=@956         -> FIFO32
- 1405  f0      WIDTH.0   ; A operand contributes 0 (single-shot)  [probe37]
+ 1405  f0      WIDTH.0   ; 32-bit store; a sum of opposite-sign addends is 1 LSB lower (probe70)  [probe37/70]
  1406  b3      P0.bank=3
  1407  8b      P0.page=b   -> A@944 @944
  1408  b8      P2.bank=0
@@ -381,7 +381,7 @@
  1411  28      ADD A=@948         B=@948         -> FIFO
  1412  50      ADD A=@952         B=@952         -> FIFO
  1413  78      ADD A=@956         B=@956         -> FIFO
- 1414  f1      WIDTH.1   ; 32-bit store  [probe37]
+ 1414  f1      WIDTH.1   ; 32-bit store  [probe37/70]
  1415  b0      P0.bank=0
  1416  88      P0.page=8   -> A@128 TMP1A
  1417  b4      P1.bank=0
@@ -400,7 +400,7 @@
  1430  66      MUL A=@956         B=TMP1A        -> FIFO32
  1431  b0      P0.bank=0
  1432  b8      P2.bank=0
- 1433  f0      WIDTH.0   ; A operand contributes 0 (single-shot)  [probe37]
+ 1433  f0      WIDTH.0   ; 32-bit store; a sum of opposite-sign addends is 1 LSB lower (probe70)  [probe37/70]
  1434  8a      P0.page=a   -> A@160 DZ
  1435  9c      P1.page=c   -> B@192 QT1
  1436  a8      P2.page=8   -> D@128 TMP1A
@@ -432,20 +432,20 @@
  1462  30      ADD A=AFB1         B=QT3          -> FIFO
  1463  49      RSUB A=AFB2         B=QT2          -> FIFO
  1464  88      P0.page=8   -> A@128 TMP1A
- 1465  f1      WIDTH.1   ; 32-bit store  [probe37]
+ 1465  f1      WIDTH.1   ; 32-bit store  [probe37/70]
  1466  ac      P2.page=c   -> D@192 QT1
  1467  00      ADD A=TMP1A        B=QT1          -> FIFO32
  1468  2c      ADD A=TMP2A        B=QT2          -> FIFO32
  1469  54      ADD A=TMP3A        B=QT3          -> FIFO32
  1470  7c      ADD A=TMP4A        B=QT4          -> FIFO32
- 1471  f0      WIDTH.0   ; A operand contributes 0 (single-shot)  [probe37]
+ 1471  f0      WIDTH.0   ; 32-bit store; a sum of opposite-sign addends is 1 LSB lower (probe70)  [probe37/70]
  1472  8c      P0.page=c   -> A@192 QT1
  1473  a8      P2.page=8   -> D@128 TMP1A
  1474  04      ADD A=QT1          B=QT1          -> FIFO
  1475  28      ADD A=QT2          B=QT2          -> FIFO
  1476  50      ADD A=QT3          B=QT3          -> FIFO
  1477  78      ADD A=QT4          B=QT4          -> FIFO
- 1478  f1      WIDTH.1   ; 32-bit store  [probe37]
+ 1478  f1      WIDTH.1   ; 32-bit store  [probe37/70]
  1479  88      P0.page=8   -> A@128 TMP1A
  1480  97      P1.page=7   -> B@112 0_5
  1481  26      MUL A=TMP2A        B=0_5          -> FIFO32
@@ -458,7 +458,7 @@
  1488  26      MUL A=QT2          B=TMP1A        -> FIFO32
  1489  46      MUL A=QT3          B=TMP1A        -> FIFO32
  1490  66      MUL A=QT4          B=TMP1A        -> FIFO32
- 1491  f0      WIDTH.0   ; A operand contributes 0 (single-shot)  [probe37]
+ 1491  f0      WIDTH.0   ; 32-bit store; a sum of opposite-sign addends is 1 LSB lower (probe70)  [probe37/70]
  1492  89      P0.page=9   -> A@144 XACCW
  1493  9c      P1.page=c   -> B@192 QT1
  1494  a8      P2.page=8   -> D@128 TMP1A
@@ -498,7 +498,7 @@
  1528  20      ADD A=QT2          B=QT1          -> FIFO
  1529  7c      ADD A=QT4          B=QT4          -> FIFO
  1530  00      ADD A=QT1          B=QT1          -> FIFO
- 1531  f1      WIDTH.1   ; 32-bit store  [probe37]
+ 1531  f1      WIDTH.1   ; 32-bit store  [probe37/70]
  1532  87      P0.page=7   -> A@112 0_5
  1533  98      P1.page=8   -> B@128 TMP1A
  1534  19      RSUB A=0_5          B=TMP4A        -> FIFO32
@@ -514,7 +514,7 @@
  1544  55      RSUB A=TMP3A        B=YACCB        -> FIFO32
  1545  7d      RSUB A=TMP4A        B=ZACCB        -> FIFO32
  1546  d8      ALWAYS  (ends a sticky predicate)
- 1547  f1      WIDTH.1   ; 32-bit store  [probe37]
+ 1547  f1      WIDTH.1   ; 32-bit store  [probe37/70]
  1548  b3      P0.bank=3
  1549  8b      P0.page=b   -> A@944 @944
  1550  b4      P1.bank=0
@@ -550,7 +550,7 @@
  1580  4d      [d9] RSUB A=QT3          B=0_0          -> FIFO32
  1581  6d      [d9] RSUB A=QT4          B=0_0          -> FIFO32
  1582  d8      ALWAYS  (ends a sticky predicate)
- 1583  f3      WIDTH.3   ; 16-bit store, lower half-word  [probe37]
+ 1583  f3      WIDTH.3   ; 16-bit store, lower half-word  [probe37/70]
  1584  b9      P2.bank=1
  1585  ac      P2.page=c   -> D@448 TEMP29
  1586  de      CLR  TEMP29 := 0  (in place, no advance)  (de; probe31)
@@ -558,36 +558,36 @@
  1588  b1      P0.bank=1
  1589  b6      P1.bank=2
  1590  b9      P2.bank=1
- 1591  f1      WIDTH.1   ; 32-bit store  [probe37]
+ 1591  f1      WIDTH.1   ; 32-bit store  [probe37/70]
  1592  a8      P2.page=8   -> D@384 ACCQD0
  1593  f8      INC  ACCQD0 by 1  (f8; probe23)
- 1594  f3      WIDTH.3   ; 16-bit store, lower half-word  [probe37]
+ 1594  f3      WIDTH.3   ; 16-bit store, lower half-word  [probe37/70]
  1595  b9      P2.bank=1
  1596  aa      P2.page=a   -> D@416 Y
  1597  fa      INC  B0 by 1  (P2 word++ first)  (fa; probe23)
  1598  f9      DEC  B0 by 1  (f9; probe23)
  1599  d1      TEST  clears N (Z := result == 0 stays): d9 becomes IF.Z, da becomes ALWAYS  [probe19/20, probe68]
  1600  da      IF.GE0   (not N; always after d1; sticky until d8)
- 1601  f2      [da] WIDTH.2   ; 16-bit store, upper half-word  [probe37]
+ 1601  f2      [da] WIDTH.2   ; 16-bit store, upper half-word  [probe37/70]
  1602  8a      [da] P0.page=a   -> A@416 Y
  1603  ca      [da] MOVX  B0           -> B0  (ca; probe25)  ; c8-cf: half-words swapped, on both parts (probe54/67)
  1604  f4 0e   [da] B.da -> 1620
- 1606  f3      [da] WIDTH.3   ; 16-bit store, lower half-word  [probe37]
+ 1606  f3      [da] WIDTH.3   ; 16-bit store, lower half-word  [probe37/70]
  1607  b1      [da] P0.bank=1
  1608  87      [da] P0.page=7   -> A@368 ACCQD4
  1609  dd      [da] ROUTE -> FIFO  (dd; sticky until dc)  [probe16]
  1610  c2      [da] MOV   ACCQD5       -> B0  (c2; probe25)
  1611  c2      [da] MOV   ACCQD5       -> B0  (c2; probe25)
- 1612  f1      [da] WIDTH.1   ; 32-bit store  [probe37]
+ 1612  f1      [da] WIDTH.1   ; 32-bit store  [probe37/70]
  1613  8c      [da] P0.page=c   -> A@448 TEMP29
  1614  c4      [da] MOV   YACCB_PRE    -> B0  (c4; probe25)
  1615  dc      [da] ROUTE -> RAM   M[P2..] B0  (dc; sticky until dd)
- 1616  f3      [da] WIDTH.3   ; 16-bit store, lower half-word  [probe37]
+ 1616  f3      [da] WIDTH.3   ; 16-bit store, lower half-word  [probe37/70]
  1617  b9      [da] P2.bank=1
  1618  ac      [da] P2.page=c   -> D@448 TEMP29
  1619  f8      [da] INC  TEMP29 by 1  (f8; probe23)
  1620  d8      ALWAYS  (ends a sticky predicate)
- 1621  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37]
+ 1621  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37/70]
  1622  b2      P0.bank=2
  1623  b6      P1.bank=2
  1624  ba      P2.bank=2
@@ -602,26 +602,26 @@
  1633  df      [d9] CLR  @724 := 0  (P2 word++ first)  (df; probe23)
  1634  f4 13   [d9] B.d9 -> 1655
  1636  dd      [d9] ROUTE -> FIFO  (dd; sticky until dc)  [probe16]
- 1637  f2      [d9] WIDTH.2   ; 16-bit store, upper half-word  [probe37]
+ 1637  f2      [d9] WIDTH.2   ; 16-bit store, upper half-word  [probe37/70]
  1638  b1      [d9] P0.bank=1
  1639  87      [d9] P0.page=7   -> A@368 ACCQD4
  1640  b5      [d9] P1.bank=1
  1641  9a      [d9] P1.page=a   -> B@416 Y
  1642  08      [d9] ADD A=ACCQD4       B=B0           -> FIFO16
  1643  08      [d9] ADD A=ACCQD4       B=B0           -> FIFO16
- 1644  f1      [d9] WIDTH.1   ; 32-bit store  [probe37]
+ 1644  f1      [d9] WIDTH.1   ; 32-bit store  [probe37/70]
  1645  b1      [d9] P0.bank=1
  1646  83      [d9] P0.page=3   -> A@304 TMP1B
  1647  c2      [d9] MOV   TMP2B        -> @724  (c2; probe25)
  1648  c4      [d9] MOV   TMP3B        -> @724  (c4; probe25)
  1649  c6      [d9] MOV   TMP4B        -> @724  (c6; probe25)
  1650  dc      [d9] ROUTE -> RAM   M[P2..] @724  (dc; sticky until dd)
- 1651  f3      [d9] WIDTH.3   ; 16-bit store, lower half-word  [probe37]
+ 1651  f3      [d9] WIDTH.3   ; 16-bit store, lower half-word  [probe37/70]
  1652  b9      [d9] P2.bank=1
  1653  ac      [d9] P2.page=c   -> D@448 TEMP29
  1654  f8      [d9] INC  TEMP29 by 1  (f8; probe23)
  1655  d8      ALWAYS  (ends a sticky predicate)
- 1656  f3      WIDTH.3   ; 16-bit store, lower half-word  [probe37]
+ 1656  f3      WIDTH.3   ; 16-bit store, lower half-word  [probe37/70]
  1657  b2      P0.bank=2
  1658  b6      P1.bank=2
  1659  ba      P2.bank=2
@@ -636,26 +636,26 @@
  1668  de      [d9] CLR  @720 := 0  (in place, no advance)  (de; probe31)
  1669  f4 13   [d9] B.d9 -> 1690
  1671  dd      [d9] ROUTE -> FIFO  (dd; sticky until dc)  [probe16]
- 1672  f2      [d9] WIDTH.2   ; 16-bit store, upper half-word  [probe37]
+ 1672  f2      [d9] WIDTH.2   ; 16-bit store, upper half-word  [probe37/70]
  1673  b1      [d9] P0.bank=1
  1674  87      [d9] P0.page=7   -> A@368 ACCQD4
  1675  b5      [d9] P1.bank=1
  1676  9a      [d9] P1.page=a   -> B@416 Y
  1677  28      [d9] ADD A=ACCQD5       B=B0           -> FIFO16
  1678  28      [d9] ADD A=ACCQD5       B=B0           -> FIFO16
- 1679  f1      [d9] WIDTH.1   ; 32-bit store  [probe37]
+ 1679  f1      [d9] WIDTH.1   ; 32-bit store  [probe37/70]
  1680  b0      [d9] P0.bank=0
  1681  88      [d9] P0.page=8   -> A@128 TMP1A
  1682  c2      [d9] MOV   TMP2A        -> @720  (c2; probe25)
  1683  c4      [d9] MOV   TMP3A        -> @720  (c4; probe25)
  1684  c6      [d9] MOV   TMP4A        -> @720  (c6; probe25)
  1685  dc      [d9] ROUTE -> RAM   M[P2..] @720  (dc; sticky until dd)
- 1686  f3      [d9] WIDTH.3   ; 16-bit store, lower half-word  [probe37]
+ 1686  f3      [d9] WIDTH.3   ; 16-bit store, lower half-word  [probe37/70]
  1687  b9      [d9] P2.bank=1
  1688  ac      [d9] P2.page=c   -> D@448 TEMP29
  1689  f8      [d9] INC  TEMP29 by 1  (f8; probe23)
  1690  d8      ALWAYS  (ends a sticky predicate)
- 1691  f3      WIDTH.3   ; 16-bit store, lower half-word  [probe37]
+ 1691  f3      WIDTH.3   ; 16-bit store, lower half-word  [probe37/70]
  1692  b2      P0.bank=2
  1693  b6      P1.bank=2
  1694  ba      P2.bank=2
@@ -670,25 +670,25 @@
  1703  df      [d9] CLR  @724 := 0  (P2 word++ first)  (df; probe23)
  1704  f4 12   [d9] B.d9 -> 1724
  1706  dd      [d9] ROUTE -> FIFO  (dd; sticky until dc)  [probe16]
- 1707  f3      [d9] WIDTH.3   ; 16-bit store, lower half-word  [probe37]
+ 1707  f3      [d9] WIDTH.3   ; 16-bit store, lower half-word  [probe37/70]
  1708  b1      [d9] P0.bank=1
  1709  87      [d9] P0.page=7   -> A@368 ACCQD4
  1710  b5      [d9] P1.bank=1
  1711  9a      [d9] P1.page=a   -> B@416 Y
  1712  08      [d9] ADD A=ACCQD4       B=B0           -> FIFO16
- 1713  f2      [d9] WIDTH.2   ; 16-bit store, upper half-word  [probe37]
- 1714  f2      [d9] WIDTH.2   ; 16-bit store, upper half-word  [probe37]
+ 1713  f2      [d9] WIDTH.2   ; 16-bit store, upper half-word  [probe37/70]
+ 1714  f2      [d9] WIDTH.2   ; 16-bit store, upper half-word  [probe37/70]
  1715  88      [d9] P0.page=8   -> A@384 ACCQD0
  1716  c2      [d9] MOV   ACCQD1       -> @724  (c2; probe25)
  1717  c4      [d9] MOV   ACCQD2       -> @724  (c4; probe25)
  1718  c6      [d9] MOV   ACCQD3       -> @724  (c6; probe25)
  1719  dc      [d9] ROUTE -> RAM   M[P2..] @724  (dc; sticky until dd)
- 1720  f3      [d9] WIDTH.3   ; 16-bit store, lower half-word  [probe37]
+ 1720  f3      [d9] WIDTH.3   ; 16-bit store, lower half-word  [probe37/70]
  1721  b9      [d9] P2.bank=1
  1722  ac      [d9] P2.page=c   -> D@448 TEMP29
  1723  f8      [d9] INC  TEMP29 by 1  (f8; probe23)
  1724  d8      ALWAYS  (ends a sticky predicate)
- 1725  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37]
+ 1725  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37/70]
  1726  b2      P0.bank=2
  1727  b6      P1.bank=2
  1728  ba      P2.bank=2
@@ -703,25 +703,25 @@
  1737  de      [d9] CLR  @736 := 0  (in place, no advance)  (de; probe31)
  1738  f4 12   [d9] B.d9 -> 1758
  1740  dd      [d9] ROUTE -> FIFO  (dd; sticky until dc)  [probe16]
- 1741  f3      [d9] WIDTH.3   ; 16-bit store, lower half-word  [probe37]
+ 1741  f3      [d9] WIDTH.3   ; 16-bit store, lower half-word  [probe37/70]
  1742  b1      [d9] P0.bank=1
  1743  87      [d9] P0.page=7   -> A@368 ACCQD4
  1744  b5      [d9] P1.bank=1
  1745  9a      [d9] P1.page=a   -> B@416 Y
  1746  68      [d9] ADD A=ACCQD7       B=B0           -> FIFO16
- 1747  f2      [d9] WIDTH.2   ; 16-bit store, upper half-word  [probe37]
+ 1747  f2      [d9] WIDTH.2   ; 16-bit store, upper half-word  [probe37/70]
  1748  b0      [d9] P0.bank=0
  1749  80      [d9] P0.page=0   -> A@0 PTAT
  1750  c0      [d9] MOV   PTAT         -> @736  (c0; probe25)
  1751  c8      [d9] MOVX  PTAT         -> @736  (c8; probe25)  ; c8-cf: half-words swapped, on both parts (probe54/67)
  1752  c2      [d9] MOV   YGYR         -> @736  (c2; probe25)
  1753  dc      [d9] ROUTE -> RAM   M[P2..] @736  (dc; sticky until dd)
- 1754  f3      [d9] WIDTH.3   ; 16-bit store, lower half-word  [probe37]
+ 1754  f3      [d9] WIDTH.3   ; 16-bit store, lower half-word  [probe37/70]
  1755  b9      [d9] P2.bank=1
  1756  ac      [d9] P2.page=c   -> D@448 TEMP29
  1757  f8      [d9] INC  TEMP29 by 1  (f8; probe23)
  1758  d8      ALWAYS  (ends a sticky predicate)
- 1759  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37]
+ 1759  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37/70]
  1760  b2      P0.bank=2
  1761  b6      P1.bank=2
  1762  ba      P2.bank=2
@@ -736,25 +736,25 @@
  1771  df      [d9] CLR  @740 := 0  (P2 word++ first)  (df; probe23)
  1772  f4 12   [d9] B.d9 -> 1792
  1774  dd      [d9] ROUTE -> FIFO  (dd; sticky until dc)  [probe16]
- 1775  f2      [d9] WIDTH.2   ; 16-bit store, upper half-word  [probe37]
+ 1775  f2      [d9] WIDTH.2   ; 16-bit store, upper half-word  [probe37/70]
  1776  b1      [d9] P0.bank=1
  1777  87      [d9] P0.page=7   -> A@368 ACCQD4
  1778  b5      [d9] P1.bank=1
  1779  9a      [d9] P1.page=a   -> B@416 Y
  1780  68      [d9] ADD A=ACCQD7       B=B0           -> FIFO16
- 1781  f2      [d9] WIDTH.2   ; 16-bit store, upper half-word  [probe37]
+ 1781  f2      [d9] WIDTH.2   ; 16-bit store, upper half-word  [probe37/70]
  1782  b0      [d9] P0.bank=0
  1783  80      [d9] P0.page=0   -> A@0 PTAT
  1784  c4      [d9] MOV   XACC         -> @740  (c4; probe25)
  1785  cc      [d9] MOVX  XACC         -> @740  (cc; probe25)  ; c8-cf: half-words swapped, on both parts (probe54/67)
  1786  c6      [d9] MOV   ZACC         -> @740  (c6; probe25)
  1787  dc      [d9] ROUTE -> RAM   M[P2..] @740  (dc; sticky until dd)
- 1788  f3      [d9] WIDTH.3   ; 16-bit store, lower half-word  [probe37]
+ 1788  f3      [d9] WIDTH.3   ; 16-bit store, lower half-word  [probe37/70]
  1789  b9      [d9] P2.bank=1
  1790  ac      [d9] P2.page=c   -> D@448 TEMP29
  1791  f8      [d9] INC  TEMP29 by 1  (f8; probe23)
  1792  d8      ALWAYS  (ends a sticky predicate)
- 1793  f3      WIDTH.3   ; 16-bit store, lower half-word  [probe37]
+ 1793  f3      WIDTH.3   ; 16-bit store, lower half-word  [probe37/70]
  1794  b2      P0.bank=2
  1795  b6      P1.bank=2
  1796  ba      P2.bank=2
@@ -769,25 +769,25 @@
  1805  de      [d9] CLR  @736 := 0  (in place, no advance)  (de; probe31)
  1806  f4 12   [d9] B.d9 -> 1826
  1808  dd      [d9] ROUTE -> FIFO  (dd; sticky until dc)  [probe16]
- 1809  f3      [d9] WIDTH.3   ; 16-bit store, lower half-word  [probe37]
+ 1809  f3      [d9] WIDTH.3   ; 16-bit store, lower half-word  [probe37/70]
  1810  b1      [d9] P0.bank=1
  1811  87      [d9] P0.page=7   -> A@368 ACCQD4
  1812  b5      [d9] P1.bank=1
  1813  9a      [d9] P1.page=a   -> B@416 Y
  1814  48      [d9] ADD A=ACCQD6       B=B0           -> FIFO16
- 1815  f2      [d9] WIDTH.2   ; 16-bit store, upper half-word  [probe37]
+ 1815  f2      [d9] WIDTH.2   ; 16-bit store, upper half-word  [probe37/70]
  1816  b0      [d9] P0.bank=0
  1817  81      [d9] P0.page=1   -> A@16 ADC2
  1818  c0      [d9] MOV   ADC2         -> @736  (c0; probe25)
  1819  c8      [d9] MOVX  ADC2         -> @736  (c8; probe25)  ; c8-cf: half-words swapped, on both parts (probe54/67)
  1820  c2      [d9] MOV   BIASUNC      -> @736  (c2; probe25)
  1821  dc      [d9] ROUTE -> RAM   M[P2..] @736  (dc; sticky until dd)
- 1822  f3      [d9] WIDTH.3   ; 16-bit store, lower half-word  [probe37]
+ 1822  f3      [d9] WIDTH.3   ; 16-bit store, lower half-word  [probe37/70]
  1823  b9      [d9] P2.bank=1
  1824  ac      [d9] P2.page=c   -> D@448 TEMP29
  1825  f8      [d9] INC  TEMP29 by 1  (f8; probe23)
  1826  d8      ALWAYS  (ends a sticky predicate)
- 1827  f3      WIDTH.3   ; 16-bit store, lower half-word  [probe37]
+ 1827  f3      WIDTH.3   ; 16-bit store, lower half-word  [probe37/70]
  1828  b2      P0.bank=2
  1829  b6      P1.bank=2
  1830  ba      P2.bank=2
@@ -802,25 +802,25 @@
  1839  df      [d9] CLR  @740 := 0  (P2 word++ first)  (df; probe23)
  1840  f4 12   [d9] B.d9 -> 1860
  1842  dd      [d9] ROUTE -> FIFO  (dd; sticky until dc)  [probe16]
- 1843  f2      [d9] WIDTH.2   ; 16-bit store, upper half-word  [probe37]
+ 1843  f2      [d9] WIDTH.2   ; 16-bit store, upper half-word  [probe37/70]
  1844  b1      [d9] P0.bank=1
  1845  87      [d9] P0.page=7   -> A@368 ACCQD4
  1846  b5      [d9] P1.bank=1
  1847  9a      [d9] P1.page=a   -> B@416 Y
  1848  48      [d9] ADD A=ACCQD6       B=B0           -> FIFO16
- 1849  f2      [d9] WIDTH.2   ; 16-bit store, upper half-word  [probe37]
+ 1849  f2      [d9] WIDTH.2   ; 16-bit store, upper half-word  [probe37/70]
  1850  b0      [d9] P0.bank=0
  1851  81      [d9] P0.page=1   -> A@16 ADC2
  1852  c4      [d9] MOV   INVGSF       -> @740  (c4; probe25)
  1853  cc      [d9] MOVX  INVGSF       -> @740  (cc; probe25)  ; c8-cf: half-words swapped, on both parts (probe54/67)
  1854  c6      [d9] MOV   1            -> @740  (c6; probe25)
  1855  dc      [d9] ROUTE -> RAM   M[P2..] @740  (dc; sticky until dd)
- 1856  f3      [d9] WIDTH.3   ; 16-bit store, lower half-word  [probe37]
+ 1856  f3      [d9] WIDTH.3   ; 16-bit store, lower half-word  [probe37/70]
  1857  b9      [d9] P2.bank=1
  1858  ac      [d9] P2.page=c   -> D@448 TEMP29
  1859  f8      [d9] INC  TEMP29 by 1  (f8; probe23)
  1860  d8      ALWAYS  (ends a sticky predicate)
- 1861  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37]
+ 1861  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37/70]
  1862  b0      P0.bank=0
  1863  88      P0.page=8   -> A@128 TMP1A
  1864  b9      P2.bank=1
@@ -831,7 +831,7 @@
  1869  b1      P0.bank=1
  1870  b5      P1.bank=1
  1871  b9      P2.bank=1
- 1872  f3      WIDTH.3   ; 16-bit store, lower half-word  [probe37]
+ 1872  f3      WIDTH.3   ; 16-bit store, lower half-word  [probe37/70]
  1873  ac      P2.page=c   -> D@448 TEMP29
  1874  fa      INC  XACCB_PRE by 1  (P2 word++ first)  (fa; probe23)
  1875  f9      DEC  XACCB_PRE by 1  (f9; probe23)
@@ -839,13 +839,13 @@
  1877  da      IF.GE0   (not N; always after d1; sticky until d8)
  1878  f4 10   [da] B.da -> 1896
  1880  d8      ALWAYS  (ends a sticky predicate)
- 1881  f3      WIDTH.3   ; 16-bit store, lower half-word  [probe37]
+ 1881  f3      WIDTH.3   ; 16-bit store, lower half-word  [probe37/70]
  1882  ac      P2.page=c   -> D@448 TEMP29
  1883  f8      INC  TEMP29 by 1  (f8; probe23)
  1884  f9      DEC  TEMP29 by 1  (f9; probe23)
  1885  d1      TEST  clears N (Z := result == 0 stays): d9 becomes IF.Z, da becomes ALWAYS  [probe19/20, probe68]
  1886  da      IF.GE0   (not N; always after d1; sticky until d8)
- 1887  f1      [da] WIDTH.1   ; 32-bit store  [probe37]
+ 1887  f1      [da] WIDTH.1   ; 32-bit store  [probe37/70]
  1888  b9      [da] P2.bank=1
  1889  aa      [da] P2.page=a   -> D@416 Y
  1890  df      [da] CLR  B0 := 0  (P2 word++ first)  (df; probe23)
@@ -853,7 +853,7 @@
  1893  d9      IF.LE0   (N or Z; IF.Z right after d1; sticky until d8)
  1894  f4 1a   [d9] B.d9 -> 1922
  1896  d8      ALWAYS  (ends a sticky predicate)
- 1897  f3      WIDTH.3   ; 16-bit store, lower half-word  [probe37]
+ 1897  f3      WIDTH.3   ; 16-bit store, lower half-word  [probe37/70]
  1898  ac      P2.page=c   -> D@448 TEMP29
  1899  f8      INC  TEMP29 by 1  (f8; probe23)
  1900  f9      DEC  TEMP29 by 1  (f9; probe23)
@@ -861,7 +861,7 @@
  1902  d9      IF.LE0   (N or Z; IF.Z right after d1; sticky until d8)
  1903  f4 1d   [d9] B.d9 -> 1934
  1905  d8      ALWAYS  (ends a sticky predicate)
- 1906  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37]
+ 1906  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37/70]
  1907  8c      P0.page=c   -> A@448 TEMP29
  1908  ac      P2.page=c   -> D@448 TEMP29
  1909  f8      INC  TEMP29 by 1  (f8; probe23)
@@ -870,7 +870,7 @@
  1912  d9      IF.LE0   (N or Z; IF.Z right after d1; sticky until d8)
  1913  c2      [d9] MOV   XACCB_PRE    -> TEMP29  (c2; probe25)
  1914  d8      ALWAYS  (ends a sticky predicate)
- 1915  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37]
+ 1915  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37/70]
  1916  f9      DEC  TEMP29 by 1  (f9; probe23)
  1917  d9      IF.LE0   (N or Z; IF.Z right after d1; sticky until d8)
  1918  de      [d9] CLR  TEMP29 := 0  (in place, no advance)  (de; probe31)
@@ -878,17 +878,17 @@
  1921  1d      [d9] RSUB A=TEMP29       B=A2           -> XACCB_PRE.hi
  1922  16      [d9] MUL A=TEMP29       B=A1           -> YACCB_PRE.hi
  1923  da      IF.GE0   (not N; always after d1; sticky until d8)
- 1924  f2      [da] WIDTH.2   ; 16-bit store, upper half-word  [probe37]
+ 1924  f2      [da] WIDTH.2   ; 16-bit store, upper half-word  [probe37/70]
  1925  dd      [da] ROUTE -> FIFO  (dd; sticky until dc)  [probe16]
  1926  c6      [da] MOV   ZACCB_PRE    -> YACCB_PRE  (c6; probe25)
  1927  dc      [da] ROUTE -> RAM   M[P2..] YACCB_PRE  (dc; sticky until dd)
  1928  f4 30   [da] B.da -> 1978
- 1930  f1      [da] WIDTH.1   ; 32-bit store  [probe37]
+ 1930  f1      [da] WIDTH.1   ; 32-bit store  [probe37/70]
  1931  b9      [da] P2.bank=1
  1932  aa      [da] P2.page=a   -> D@416 Y
  1933  df      [da] CLR  B0 := 0  (P2 word++ first)  (df; probe23)
  1934  d8      ALWAYS  (ends a sticky predicate)
- 1935  f1      WIDTH.1   ; 32-bit store  [probe37]
+ 1935  f1      WIDTH.1   ; 32-bit store  [probe37/70]
  1936  ab      P2.page=b   -> D@432 SEM1
  1937  fa      INC  SH_TH_X by 1  (P2 word++ first)  (fa; probe23)
  1938  8b      P0.page=b   -> A@432 SEM1
@@ -899,13 +899,13 @@
  1943  f4 07   [d9] B.d9 -> 1952
  1945  06      [d9] MUL A=SEM1         B=SEM1         -> TMP2B
  1946  da      IF.GE0   (not N; always after d1; sticky until d8)
- 1947  f1      [da] WIDTH.1   ; 32-bit store  [probe37]
+ 1947  f1      [da] WIDTH.1   ; 32-bit store  [probe37/70]
  1948  b9      [da] P2.bank=1
  1949  ab      [da] P2.page=b   -> D@432 SEM1
  1950  df      [da] CLR  SH_TH_X := 0  (P2 word++ first)  (df; probe23)
- 1951  fe      [da] SKIP   (vendor: DINAFE; never probed -- label only)
+ 1951  fe      [da] INT   raise DMP_INT and continue  (fe; conditional under a predicate; probe69/70)
  1952  d8      ALWAYS  (ends a sticky predicate)
- 1953  f1      WIDTH.1   ; 32-bit store  [probe37]
+ 1953  f1      WIDTH.1   ; 32-bit store  [probe37/70]
  1954  bb      P2.bank=3
  1955  b3      P0.bank=3
  1956  b7      P1.bank=3
@@ -934,7 +934,7 @@
  1979  97      P1.page=7   -> B@880 @880
  1980  62      MUL A=@796         B=@880         -> @880
  1981  93      P1.page=3   -> B@816 @816
- 1982  f0      WIDTH.0   ; A operand contributes 0 (single-shot)  [probe37]
+ 1982  f0      WIDTH.0   ; 32-bit store; a sum of opposite-sign addends is 1 LSB lower (probe70)  [probe37/70]
  1983  71      RSUB A=@796         B=@824         -> @880
  1984  71      RSUB A=@796         B=@824         -> @880
  1985  60      ADD A=@796         B=@816         -> @880
@@ -946,7 +946,7 @@
  1991  79      RSUB A=@860         B=@844         -> @880
  1992  90      P1.page=0   -> B@768 @768
  1993  a5      P2.page=5   -> D@848 @848
- 1994  f1      WIDTH.1   ; 32-bit store  [probe37]
+ 1994  f1      WIDTH.1   ; 32-bit store  [probe37/70]
  1995  28      ADD A=@852         B=@772         -> @848
  1996  4c      ADD A=@856         B=@772         -> @852
  1997  6c      ADD A=@860         B=@772         -> @856
@@ -968,7 +968,7 @@
  2013  22      MUL A=BLPFMX       B=CTRLSFNL     -> CTRLSFNL
  2014  b7      P1.bank=3
  2015  93      P1.page=3   -> B@816 @816
- 2016  f0      WIDTH.0   ; A operand contributes 0 (single-shot)  [probe37]
+ 2016  f0      WIDTH.0   ; 32-bit store; a sum of opposite-sign addends is 1 LSB lower (probe70)  [probe37/70]
  2017  31      RSUB A=BLPFMX       B=@824         -> CTRLSFNL
  2018  31      RSUB A=BLPFMX       B=@824         -> CTRLSFNL
  2019  20      ADD A=BLPFMX       B=@816         -> CTRLSFNL
@@ -981,7 +981,7 @@
  2026  79      RSUB A=CTRLS4       B=BERR2N       -> CTRLSFNL
  2027  97      P1.page=7   -> B@112 0_5
  2028  ae      P2.page=e   -> D@224 CTRLS1
- 2029  f1      WIDTH.1   ; 32-bit store  [probe37]
+ 2029  f1      WIDTH.1   ; 32-bit store  [probe37/70]
  2030  28      ADD A=CTRLS2       B=0_0          -> CTRLS1
  2031  4c      ADD A=CTRLS3       B=0_0          -> CTRLS2
  2032  6c      ADD A=CTRLS4       B=0_0          -> CTRLS3
@@ -1000,7 +1000,7 @@
  2045  22      MUL A=BLPFMX       B=CTRLSFNL     -> CTRLSFNL
  2046  b7      P1.bank=3
  2047  93      P1.page=3   -> B@816 @816
- 2048  f0      WIDTH.0   ; A operand contributes 0 (single-shot)  [probe37]
+ 2048  f0      WIDTH.0   ; 32-bit store; a sum of opposite-sign addends is 1 LSB lower (probe70)  [probe37/70]
  2049  31      RSUB A=BLPFMX       B=@824         -> CTRLSFNL
  2050  31      RSUB A=BLPFMX       B=@824         -> CTRLSFNL
  2051  20      ADD A=BLPFMX       B=@816         -> CTRLSFNL
@@ -1016,7 +1016,7 @@
  2061  97      P1.page=7   -> B@112 0_5
  2062  ba      P2.bank=2
  2063  a1      P2.page=1   -> D@528 @528
- 2064  f1      WIDTH.1   ; 32-bit store  [probe37]
+ 2064  f1      WIDTH.1   ; 32-bit store  [probe37/70]
  2065  28      ADD A=@532         B=0_0          -> @528
  2066  4c      ADD A=@536         B=0_0          -> @532
  2067  6c      ADD A=@540         B=0_0          -> @536
@@ -1043,7 +1043,7 @@
  2088  02      MUL A=@608         B=@688         -> @688
  2089  b7      P1.bank=3
  2090  93      P1.page=3   -> B@816 @816
- 2091  f0      WIDTH.0   ; A operand contributes 0 (single-shot)  [probe37]
+ 2091  f0      WIDTH.0   ; 32-bit store; a sum of opposite-sign addends is 1 LSB lower (probe70)  [probe37/70]
  2092  11      RSUB A=@608         B=@824         -> @688
  2093  11      RSUB A=@608         B=@824         -> @688
  2094  00      ADD A=@608         B=@816         -> @688
@@ -1057,7 +1057,7 @@
  2102  b4      P1.bank=0
  2103  97      P1.page=7   -> B@112 0_5
  2104  a4      P2.page=4   -> D@576 @576
- 2105  f1      WIDTH.1   ; 32-bit store  [probe37]
+ 2105  f1      WIDTH.1   ; 32-bit store  [probe37/70]
  2106  28      ADD A=@580         B=0_0          -> @576
  2107  4c      ADD A=@584         B=0_0          -> @580
  2108  6c      ADD A=@588         B=0_0          -> @584
@@ -1080,7 +1080,7 @@
  2125  6c      ADD A=@828         B=@772         -> @824
  2126  8a      P0.page=a   -> A@928 @928
  2127  6c      ADD A=@940         B=@772         -> @828
- 2128  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37]
+ 2128  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37/70]
  2129  b0      P0.bank=0
  2130  83      P0.page=3   -> A@48 BLPFMTC
  2131  b4      P1.bank=0
@@ -1091,13 +1091,13 @@
  2136  d9      IF.LE0   (N or Z; IF.Z right after d1; sticky until d8)
  2137  d0      [d9] P2 word += 2 -> D@56 BLPFMY  (d0, mod 4; probe20)
  2138  f8      [d9] INC  BLPFMY by 1  (f8; probe23)
- 2139  f5      [d9] MIN prefix  next ALU op computes signed min(A,B)  [probe29, 16/16]
+ 2139  f5      [d9] LOGIC   ; ALU op field: 0 MIN, 1 compare (flags, no store), 2 AND, 3 XOR; 32-bit store, sticky  [probe29/70]
  2140  8e      [d9] P0.page=e   -> A@224 CTRLS1
  2141  9e      [d9] P1.page=e   -> B@224 CTRLS1
  2142  b9      [d9] P2.bank=1
  2143  a3      [d9] P2.page=3   -> D@304 TMP1B
- 2144  78      [d9] MIN  A=CTRLS4       B=CTRLS4       -> TMP1B.hi
- 2145  f1      [d9] WIDTH.1   ; 32-bit store  [probe37]
+ 2144  78      [d9] MIN  A=CTRLS4       B=CTRLS4       -> TMP1B
+ 2145  f1      [d9] WIDTH.1   ; 32-bit store  [probe37/70]
  2146  b1      [d9] P0.bank=1
  2147  8a      [d9] P0.page=a   -> A@416 Y
  2148  b5      [d9] P1.bank=1
@@ -1113,14 +1113,14 @@
  2158  aa      [d9] P2.page=a   -> D@416 Y
  2159  d0      [d9] P2 word += 2 -> D@424 A1  (d0, mod 4; probe20)
  2160  c6      [d9] MOV   TMP4B        -> A1  (c6; probe25)
- 2161  f5      [d9] MIN prefix  next ALU op computes signed min(A,B)  [probe29, 16/16]
+ 2161  f5      [d9] LOGIC   ; ALU op field: 0 MIN, 1 compare (flags, no store), 2 AND, 3 XOR; 32-bit store, sticky  [probe29/70]
  2162  b2      [d9] P0.bank=2
  2163  81      [d9] P0.page=1   -> A@528 @528
  2164  b6      [d9] P1.bank=2
  2165  91      [d9] P1.page=1   -> B@528 @528
  2166  a3      [d9] P2.page=3   -> D@304 TMP1B
  2167  78      [d9] MIN  A=@540         B=@540         -> TMP1B
- 2168  f1      [d9] WIDTH.1   ; 32-bit store  [probe37]
+ 2168  f1      [d9] WIDTH.1   ; 32-bit store  [probe37/70]
  2169  b1      [d9] P0.bank=1
  2170  8a      [d9] P0.page=a   -> A@416 Y
  2171  b5      [d9] P1.bank=1
@@ -1137,7 +1137,7 @@
  2182  d0      [d9] P2 word += 2 -> D@424 A1  (d0, mod 4; probe20)
  2183  c7      [d9] MOV   TMP4B        -> A2  (P2 word++ first)  (c7; probe25)
  2184  d8      ALWAYS  (ends a sticky predicate)
- 2185  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37]
+ 2185  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37/70]
  2186  b0      P0.bank=0
  2187  83      P0.page=3   -> A@48 BLPFMTC
  2188  b8      P2.bank=0
@@ -1149,7 +1149,7 @@
  2194  9f      P1.page=f   -> B@240 CTRLSFNL
  2195  41      RSUB A=BLPFMY       B=CTRLSFNL     -> BLPFMTC.hi
  2196  d9      IF.LE0   (N or Z; IF.Z right after d1; sticky until d8)
- 2197  f1      [d9] WIDTH.1   ; 32-bit store  [probe37]
+ 2197  f1      [d9] WIDTH.1   ; 32-bit store  [probe37/70]
  2198  b1      [d9] P0.bank=1
  2199  8a      [d9] P0.page=a   -> A@416 Y
  2200  ba      [d9] P2.bank=2
@@ -1169,7 +1169,7 @@
  2214  93      [d9] P1.page=3   -> B@304 TMP1B
  2215  04      [d9] ADD A=TMP1B        B=TMP1B        -> TMP2B
  2216  2c      [d9] ADD A=TMP2B        B=TMP2B        -> TMP3B
- 2217  f3      [d9] WIDTH.3   ; 16-bit store, lower half-word  [probe37]
+ 2217  f3      [d9] WIDTH.3   ; 16-bit store, lower half-word  [probe37/70]
  2218  b8      [d9] P2.bank=0
  2219  a3      [d9] P2.page=3   -> D@48 BLPFMTC
  2220  d0      [d9] P2 word += 2 -> D@56 BLPFMY  (d0, mod 4; probe20)
@@ -1177,7 +1177,7 @@
  2222  f9      [d9] DEC  BLPFMY by 1  (f9; probe23)
  2223  d1      [d9] TEST  clears N (Z := result == 0 stays): d9 becomes IF.Z, da becomes ALWAYS  [probe19/20, probe68]
  2224  db      IF.LE0   (db; same as d9 in every cell)
- 2225  f1      [db] WIDTH.1   ; 32-bit store  [probe37]
+ 2225  f1      [db] WIDTH.1   ; 32-bit store  [probe37/70]
  2226  b6      [db] P1.bank=2
  2227  9c      [db] P1.page=c   -> B@704 @704
  2228  b9      [db] P2.bank=1
@@ -1185,7 +1185,7 @@
  2230  d0      [db] P2 word += 2 -> D@312 TMP3B  (d0, mod 4; probe20)
  2231  56      [db] MUL A=TMP3B        B=@712         -> TMP4B
  2232  d8      ALWAYS  (ends a sticky predicate)
- 2233  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37]
+ 2233  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37/70]
  2234  b0      P0.bank=0
  2235  83      P0.page=3   -> A@48 BLPFMTC
  2236  b4      P1.bank=0
@@ -1194,10 +1194,10 @@
  2239  a3      P2.page=3   -> D@48 BLPFMTC
  2240  41      RSUB A=BLPFMY       B=CTRLSFNL     -> BLPFMTC.hi
  2241  db      IF.LE0   (db; same as d9 in every cell)
- 2242  f3      [db] WIDTH.3   ; 16-bit store, lower half-word  [probe37]
+ 2242  f3      [db] WIDTH.3   ; 16-bit store, lower half-word  [probe37/70]
  2243  97      [db] P1.page=7   -> B@112 0_5
  2244  49      [db] RSUB A=BLPFMY       B=0_0          -> BLPFMTC.lo
- 2245  f1      [db] WIDTH.1   ; 32-bit store  [probe37]
+ 2245  f1      [db] WIDTH.1   ; 32-bit store  [probe37/70]
  2246  b1      [db] P0.bank=1
  2247  83      [db] P0.page=3   -> A@304 TMP1B
  2248  b6      [db] P1.bank=2
@@ -1207,7 +1207,7 @@
  2252  d0      [db] P2 word += 2 -> D@312 TMP3B  (d0, mod 4; probe20)
  2253  5e      [db] MUL A=TMP3B        B=@716         -> TMP4B
  2254  d8      ALWAYS  (ends a sticky predicate)
- 2255  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37]
+ 2255  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37/70]
  2256  b0      P0.bank=0
  2257  83      P0.page=3   -> A@48 BLPFMTC
  2258  b8      P2.bank=0
@@ -1216,12 +1216,12 @@
  2261  9f      P1.page=f   -> B@240 CTRLSFNL
  2262  41      RSUB A=BLPFMY       B=CTRLSFNL     -> BLPFMTC.hi
  2263  d9      IF.LE0   (N or Z; IF.Z right after d1; sticky until d8)
- 2264  f3      [d9] WIDTH.3   ; 16-bit store, lower half-word  [probe37]
+ 2264  f3      [d9] WIDTH.3   ; 16-bit store, lower half-word  [probe37/70]
  2265  a3      [d9] P2.page=3   -> D@48 BLPFMTC
  2266  d0      [d9] P2 word += 2 -> D@56 BLPFMY  (d0, mod 4; probe20)
  2267  de      [d9] CLR  BLPFMY := 0  (in place, no advance)  (de; probe31)
  2268  f8      [d9] INC  BLPFMY by 1  (f8; probe23)
- 2269  f1      [d9] WIDTH.1   ; 32-bit store  [probe37]
+ 2269  f1      [d9] WIDTH.1   ; 32-bit store  [probe37/70]
  2270  b1      [d9] P0.bank=1
  2271  83      [d9] P0.page=3   -> A@304 TMP1B
  2272  b6      [d9] P1.bank=2
@@ -1230,19 +1230,19 @@
  2275  a3      [d9] P2.page=3   -> D@304 TMP1B
  2276  db      IF.LE0   (db; same as d9 in every cell)
  2277  69      [db] RSUB A=TMP4B        B=@612         -> TMP1B
- 2278  f3      [db] WIDTH.3   ; 16-bit store, lower half-word  [probe37]
+ 2278  f3      [db] WIDTH.3   ; 16-bit store, lower half-word  [probe37/70]
  2279  b8      [db] P2.bank=0
  2280  a3      [db] P2.page=3   -> D@48 BLPFMTC
  2281  d0      [db] P2 word += 2 -> D@56 BLPFMY  (d0, mod 4; probe20)
  2282  de      [db] CLR  BLPFMY := 0  (in place, no advance)  (de; probe31)
- 2283  f1      [db] WIDTH.1   ; 32-bit store  [probe37]
+ 2283  f1      [db] WIDTH.1   ; 32-bit store  [probe37/70]
  2284  b3      [db] P0.bank=3
  2285  86      [db] P0.page=6   -> A@864 @864
  2286  ba      [db] P2.bank=2
  2287  a0      [db] P2.page=0   -> D@512 BLPFNMZL+2
  2288  c0      [db] MOV   @864         -> BLPFNMZL+2  (c0; probe25)
  2289  d8      ALWAYS  (ends a sticky predicate)
- 2290  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37]
+ 2290  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37/70]
  2291  b0      P0.bank=0
  2292  83      P0.page=3   -> A@48 BLPFMTC
  2293  b8      P2.bank=0
@@ -1254,7 +1254,7 @@
  2299  d0      [d9] P2 word += 2 -> D@56 BLPFMY  (d0, mod 4; probe20)
  2300  de      [d9] CLR  BLPFMY := 0  (in place, no advance)  (de; probe31)
  2301  d8      ALWAYS  (ends a sticky predicate)
- 2302  f3      WIDTH.3   ; 16-bit store, lower half-word  [probe37]
+ 2302  f3      WIDTH.3   ; 16-bit store, lower half-word  [probe37/70]
  2303  bb      P2.bank=3
  2304  b3      P0.bank=3
  2305  b7      P1.bank=3
@@ -1262,9 +1262,9 @@
  2307  a2      P2.page=2   -> D@800 @800
  2308  82      P0.page=2   -> A@800 @800
  2309  00      ADD A=@800         B=@768         -> @800.lo
- 2310  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37]
+ 2310  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37/70]
  2311  10      ADD A=@800         B=@776         -> @800.hi
- 2312  f1      WIDTH.1   ; 32-bit store  [probe37]
+ 2312  f1      WIDTH.1   ; 32-bit store  [probe37/70]
  2313  b2      P0.bank=2
  2314  82      P0.page=2   -> A@544 @544
  2315  b5      P1.bank=1
@@ -1273,7 +1273,7 @@
  2318  a2      P2.page=2   -> D@544 @544
  2319  d0      P2 word += 2 -> D@552 @552  (d0, mod 4; probe20)
  2320  64      ADD A=@556         B=SEM1         -> @556
- 2321  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37]
+ 2321  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37/70]
  2322  b3      P0.bank=3
  2323  82      P0.page=2   -> A@800 @800
  2324  ab      P2.page=b   -> D@688 @688
@@ -1281,7 +1281,7 @@
  2326  f8      INC  @688 by 1  (f8; probe23)
  2327  f9      DEC  @688 by 1  (f9; probe23)
  2328  d1      TEST  clears N (Z := result == 0 stays): d9 becomes IF.Z, da becomes ALWAYS  [probe19/20, probe68]
- 2329  f1      WIDTH.1   ; 32-bit store  [probe37]
+ 2329  f1      WIDTH.1   ; 32-bit store  [probe37/70]
  2330  b9      P2.bank=1
  2331  a4      P2.page=4   -> D@320 STXG
  2332  d9      IF.LE0   (N or Z; IF.Z right after d1; sticky until d8)
@@ -1289,7 +1289,7 @@
  2334  da      IF.GE0   (not N; always after d1; sticky until d8)
  2335  f8      [da] INC  STXG by 1  (f8; probe23)
  2336  d8      ALWAYS  (ends a sticky predicate)
- 2337  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37]
+ 2337  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37/70]
  2338  bb      P2.bank=3
  2339  af      P2.page=f   -> D@1008 @1008
  2340  80      P0.page=0   -> A@768 @768
@@ -1299,14 +1299,14 @@
  2344  8f      P0.page=f   -> A@1008 @1008
  2345  0d      RSUB A=@1008        B=@804         -> @1012.hi
  2346  db      IF.LE0   (db; same as d9 in every cell)
- 2347  f1      [db] WIDTH.1   ; 32-bit store  [probe37]
+ 2347  f1      [db] WIDTH.1   ; 32-bit store  [probe37/70]
  2348  b1      [db] P0.bank=1
  2349  84      [db] P0.page=4   -> A@320 STXG
  2350  b5      [db] P1.bank=1
  2351  94      [db] P1.page=4   -> B@320 STXG
  2352  21      [db] RSUB A=STYG         B=STXG         -> @1012
  2353  d9      IF.LE0   (N or Z; IF.Z right after d1; sticky until d8)
- 2354  f5      [d9] MIN prefix  next ALU op computes signed min(A,B)  [probe29, 16/16]
+ 2354  f5      [d9] LOGIC   ; ALU op field: 0 MIN, 1 compare (flags, no store), 2 AND, 3 XOR; 32-bit store, sticky  [probe29/70]
  2355  b3      [d9] P0.bank=3
  2356  85      [d9] P0.page=5   -> A@848 @848
  2357  b7      [d9] P1.bank=3
@@ -1314,35 +1314,35 @@
  2359  b9      [d9] P2.bank=1
  2360  a3      [d9] P2.page=3   -> D@304 TMP1B
  2361  78      [d9] MIN  A=@860         B=@860         -> TMP1B
- 2362  f1      [d9] WIDTH.1   ; 32-bit store  [probe37]
+ 2362  f1      [d9] WIDTH.1   ; 32-bit store  [probe37/70]
  2363  b1      [d9] P0.bank=1
  2364  80      [d9] P0.page=0   -> A@256 PREVPTAT
  2365  b5      [d9] P1.bank=1
  2366  90      [d9] P1.page=0   -> B@256 PREVPTAT
  2367  a0      [d9] P2.page=0   -> D@256 PREVPTAT
  2368  1a      [d9] MUL A=PREVPTAT     B=ACCYB+2      -> PREVPTAT
- 2369  f0      [d9] WIDTH.0   ; A operand contributes 0 (single-shot)  [probe37]
+ 2369  f0      [d9] WIDTH.0   ; 32-bit store; a sum of opposite-sign addends is 1 LSB lower (probe70)  [probe37/70]
  2370  93      [d9] P1.page=3   -> B@304 TMP1B
  2371  40      [d9] ADD A=ACCXB        B=TMP1B        -> PREVPTAT
- 2372  f5      [d9] MIN prefix  next ALU op computes signed min(A,B)  [probe29, 16/16]
+ 2372  f5      [d9] LOGIC   ; ALU op field: 0 MIN, 1 compare (flags, no store), 2 AND, 3 XOR; 32-bit store, sticky  [probe29/70]
  2373  b2      [d9] P0.bank=2
  2374  84      [d9] P0.page=4   -> A@576 @576
  2375  b6      [d9] P1.bank=2
  2376  94      [d9] P1.page=4   -> B@576 @576
  2377  a3      [d9] P2.page=3   -> D@304 TMP1B
  2378  78      [d9] MIN  A=@588         B=@588         -> TMP1B
- 2379  f1      [d9] WIDTH.1   ; 32-bit store  [probe37]
+ 2379  f1      [d9] WIDTH.1   ; 32-bit store  [probe37/70]
  2380  b1      [d9] P0.bank=1
  2381  80      [d9] P0.page=0   -> A@256 PREVPTAT
  2382  b5      [d9] P1.bank=1
  2383  90      [d9] P1.page=0   -> B@256 PREVPTAT
  2384  a0      [d9] P2.page=0   -> D@256 PREVPTAT
  2385  3e      [d9] MUL A=ACCZB+2      B=ACCYB+2      -> ACCZB+2
- 2386  f0      [d9] WIDTH.0   ; A operand contributes 0 (single-shot)  [probe37]
+ 2386  f0      [d9] WIDTH.0   ; 32-bit store; a sum of opposite-sign addends is 1 LSB lower (probe70)  [probe37/70]
  2387  93      [d9] P1.page=3   -> B@304 TMP1B
  2388  40      [d9] ADD A=ACCXB        B=TMP1B        -> ACCZB+2
  2389  d8      ALWAYS  (ends a sticky predicate)
- 2390  f1      WIDTH.1   ; 32-bit store  [probe37]
+ 2390  f1      WIDTH.1   ; 32-bit store  [probe37/70]
  2391  b9      P2.bank=1
  2392  a3      P2.page=3   -> D@304 TMP1B
  2393  d0      P2 word += 2 -> D@312 TMP3B  (d0, mod 4; probe20)
@@ -1362,7 +1362,7 @@
  2407  d0      [d9] P2 word += 2 -> D@316 TMP4B  (d0, mod 4; probe20)
  2408  f8      [d9] INC  TMP4B by 1  (f8; probe23)
  2409  d8      ALWAYS  (ends a sticky predicate)
- 2410  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37]
+ 2410  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37/70]
  2411  b3      P0.bank=3
  2412  80      P0.page=0   -> A@768 @768
  2413  b7      P1.bank=3
@@ -1374,7 +1374,7 @@
  2419  8f      P0.page=f   -> A@1008 @1008
  2420  0d      RSUB A=@1008        B=@804         -> @1012.hi
  2421  db      IF.LE0   (db; same as d9 in every cell)
- 2422  f1      [db] WIDTH.1   ; 32-bit store  [probe37]
+ 2422  f1      [db] WIDTH.1   ; 32-bit store  [probe37/70]
  2423  b1      [db] P0.bank=1
  2424  84      [db] P0.page=4   -> A@320 STXG
  2425  b5      [db] P1.bank=1
@@ -1385,7 +1385,7 @@
  2430  d0      [db] P2 word += 2 -> D@312 TMP3B  (d0, mod 4; probe20)
  2431  fa      [db] INC  TMP4B by 1  (P2 word++ first)  (fa; probe23)
  2432  d8      ALWAYS  (ends a sticky predicate)
- 2433  f1      WIDTH.1   ; 32-bit store  [probe37]
+ 2433  f1      WIDTH.1   ; 32-bit store  [probe37/70]
  2434  b9      P2.bank=1
  2435  a3      P2.page=3   -> D@304 TMP1B
  2436  d0      P2 word += 2 -> D@312 TMP3B  (d0, mod 4; probe20)
@@ -1393,7 +1393,7 @@
  2438  f9      DEC  TMP4B by 1  (f9; probe23)
  2439  d1      TEST  clears N (Z := result == 0 stays): d9 becomes IF.Z, da becomes ALWAYS  [probe19/20, probe68]
  2440  d9      IF.LE0   (N or Z; IF.Z right after d1; sticky until d8)
- 2441  f1      [d9] WIDTH.1   ; 32-bit store  [probe37]
+ 2441  f1      [d9] WIDTH.1   ; 32-bit store  [probe37/70]
  2442  b2      [d9] P0.bank=2
  2443  84      [d9] P0.page=4   -> A@576 @576
  2444  bb      [d9] P2.bank=3
@@ -1401,13 +1401,13 @@
  2446  d0      [d9] P2 word += 2 -> D@904 @904  (d0, mod 4; probe20)
  2447  c4      [d9] MOV   @584         -> @904  (c4; probe25)
  2448  c7      [d9] MOV   @588         -> @908  (P2 word++ first)  (c7; probe25)
- 2449  f3      [d9] WIDTH.3   ; 16-bit store, lower half-word  [probe37]
+ 2449  f3      [d9] WIDTH.3   ; 16-bit store, lower half-word  [probe37/70]
  2450  b9      [d9] P2.bank=1
  2451  a4      [d9] P2.page=4   -> D@320 STXG
  2452  d0      [d9] P2 word += 2 -> D@328 STZG  (d0, mod 4; probe20)
  2453  de      [d9] CLR  STZG := 0  (in place, no advance)  (de; probe31)
  2454  da      IF.GE0   (not N; always after d1; sticky until d8)
- 2455  f1      [da] WIDTH.1   ; 32-bit store  [probe37]
+ 2455  f1      [da] WIDTH.1   ; 32-bit store  [probe37/70]
  2456  b3      [da] P0.bank=3
  2457  85      [da] P0.page=5   -> A@848 @848
  2458  bb      [da] P2.bank=3
@@ -1415,7 +1415,7 @@
  2460  d0      [da] P2 word += 2 -> D@904 @904  (d0, mod 4; probe20)
  2461  c4      [da] MOV   @856         -> @904  (c4; probe25)
  2462  c7      [da] MOV   @860         -> @908  (P2 word++ first)  (c7; probe25)
- 2463  f3      [da] WIDTH.3   ; 16-bit store, lower half-word  [probe37]
+ 2463  f3      [da] WIDTH.3   ; 16-bit store, lower half-word  [probe37/70]
  2464  b9      [da] P2.bank=1
  2465  a4      [da] P2.page=4   -> D@320 STXG
  2466  d0      [da] P2 word += 2 -> D@328 STZG  (d0, mod 4; probe20)
@@ -1424,7 +1424,7 @@
  2469  df      [da] CLR  CTRLSFJT2 := 0  (P2 word++ first)  (df; probe23)
  2470  f8      [da] INC  CTRLSFJT2 by 1  (f8; probe23)
  2471  d8      ALWAYS  (ends a sticky predicate)
- 2472  f3      WIDTH.3   ; 16-bit store, lower half-word  [probe37]
+ 2472  f3      WIDTH.3   ; 16-bit store, lower half-word  [probe37/70]
  2473  b1      P0.bank=1
  2474  84      P0.page=4   -> A@320 STXG
  2475  b7      P1.bank=3
@@ -1439,12 +1439,12 @@
  2484  94      [db] P1.page=4   -> B@320 STXG
  2485  11      [db] RSUB A=@768         B=STZG         -> TMP1B.lo
  2486  d9      IF.LE0   (N or Z; IF.Z right after d1; sticky until d8)
- 2487  f2      [d9] WIDTH.2   ; 16-bit store, upper half-word  [probe37]
+ 2487  f2      [d9] WIDTH.2   ; 16-bit store, upper half-word  [probe37/70]
  2488  a4      [d9] P2.page=4   -> D@320 STXG
  2489  d0      [d9] P2 word += 2 -> D@328 STZG  (d0, mod 4; probe20)
  2490  de      [d9] CLR  STZG := 0  (in place, no advance)  (de; probe31)
  2491  d8      ALWAYS  (ends a sticky predicate)
- 2492  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37]
+ 2492  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37/70]
  2493  bb      P2.bank=3
  2494  af      P2.page=f   -> D@1008 @1008
  2495  b7      P1.bank=3
@@ -1456,12 +1456,12 @@
  2501  a2      P2.page=2   -> D@800 @800
  2502  d9      IF.LE0   (N or Z; IF.Z right after d1; sticky until d8)
  2503  26      [d9] MUL A=@772         B=@800         -> @804.hi
- 2504  f3      [d9] WIDTH.3   ; 16-bit store, lower half-word  [probe37]
+ 2504  f3      [d9] WIDTH.3   ; 16-bit store, lower half-word  [probe37/70]
  2505  a7      [d9] P2.page=7   -> D@880 @880
  2506  d0      [d9] P2 word += 2 -> D@888 @888  (d0, mod 4; probe20)
  2507  df      [d9] CLR  @892 := 0  (P2 word++ first)  (df; probe23)
  2508  d8      ALWAYS  (ends a sticky predicate)
- 2509  f1      WIDTH.1   ; 32-bit store  [probe37]
+ 2509  f1      WIDTH.1   ; 32-bit store  [probe37/70]
  2510  af      P2.page=f   -> D@1008 @1008
  2511  89      P0.page=9   -> A@912 @912
  2512  98      P1.page=8   -> B@896 @896
@@ -1482,26 +1482,26 @@
  2527  af      P2.page=f   -> D@1008 @1008
  2528  2e      MUL A=@772         B=@900         -> @1012
  2529  88      P0.page=8   -> A@896 @896
- 2530  f5      MIN prefix  next ALU op computes signed min(A,B)  [probe29, 16/16]
- 2531  75      F5.1 A=@908         B=@904         -> @1016
+ 2530  f5      LOGIC   ; ALU op field: 0 MIN, 1 compare (flags, no store), 2 AND, 3 XOR; 32-bit store, sticky  [probe29/70]
+ 2531  75      CMP  A=@908         B=@904         -> (no store; flags only)
  2532  da      IF.GE0   (not N; always after d1; sticky until d8)
  2533  ff      [da] HALT   disable/terminate (vendor: ends every image; probe26)
  2534  d8      ALWAYS  (ends a sticky predicate)
- 2535  71      RSUB A=@908         B=@904         -> @1016
+ 2535  71      CMP  A=@908         B=@904         -> (no store; flags only)
  2536  80      P0.page=0   -> A@768 @768
  2537  a9      P2.page=9   -> D@912 @912
  2538  da      IF.GE0   (not N; always after d1; sticky until d8)
- 2539  f1      [da] WIDTH.1   ; 32-bit store  [probe37]
+ 2539  f1      [da] WIDTH.1   ; 32-bit store  [probe37/70]
  2540  ff      [da] HALT   disable/terminate (vendor: ends every image; probe26)
  2541  d8      ALWAYS  (ends a sticky predicate)
  2542  82      P0.page=2   -> A@800 @800
  2543  a7      P2.page=7   -> D@880 @880
- 2544  f3      WIDTH.3   ; 16-bit store, lower half-word  [probe37]
+ 2544  f3      WIDTH.3   ; 16-bit store, lower half-word  [probe37/70]
  2545  c1      MOV   @800         -> @884  (P2 word++ first)  (c1; probe25)
- 2546  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37]
+ 2546  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37/70]
  2547  80      P0.page=0   -> A@768 @768
  2548  c2      MOV   @772         -> @884  (c2; probe25)
- 2549  f1      WIDTH.1   ; 32-bit store  [probe37]
+ 2549  f1      WIDTH.1   ; 32-bit store  [probe37/70]
  2550  97      P1.page=7   -> B@880 @880
  2551  86      P0.page=6   -> A@864 @864
  2552  49      RSUB A=@872         B=@884         -> @884
@@ -1517,16 +1517,16 @@
  2562  88      [d9] P0.page=8   -> A@896 @896
  2563  a2      [d9] P2.page=2   -> D@800 @800
  2564  d0      [d9] P2 word += 2 -> D@808 @808  (d0, mod 4; probe20)
- 2565  f3      [d9] WIDTH.3   ; 16-bit store, lower half-word  [probe37]
+ 2565  f3      [d9] WIDTH.3   ; 16-bit store, lower half-word  [probe37/70]
  2566  c0      [d9] MOV   @896         -> @808  (c0; probe25)
  2567  c3      [d9] MOV   @900         -> @812  (P2 word++ first)  (c3; probe25)
- 2568  f1      [d9] WIDTH.1   ; 32-bit store  [probe37]
+ 2568  f1      [d9] WIDTH.1   ; 32-bit store  [probe37/70]
  2569  da      IF.GE0   (not N; always after d1; sticky until d8)
  2570  8f      [da] P0.page=f   -> A@1008 @1008
  2571  96      [da] P1.page=6   -> B@864 @864
  2572  a2      [da] P2.page=2   -> D@800 @800
  2573  d0      [da] P2 word += 2 -> D@808 @808  (d0, mod 4; probe20)
- 2574  f3      [da] WIDTH.3   ; 16-bit store, lower half-word  [probe37]
+ 2574  f3      [da] WIDTH.3   ; 16-bit store, lower half-word  [probe37/70]
  2575  c2      [da] MOV   @1012        -> @808  (c2; probe25)
  2576  c3      [da] MOV   @1012        -> @812  (P2 word++ first)  (c3; probe25)
  2577  82      [da] P0.page=2   -> A@800 @800
@@ -1534,7 +1534,7 @@
  2579  93      [da] P1.page=3   -> B@48 BLPFMTC
  2580  78      [da] ADD A=@812         B=BLPFMZ       -> @812.lo
  2581  78      [da] ADD A=@812         B=BLPFMZ       -> @812.lo
- 2582  f1      [da] WIDTH.1   ; 32-bit store  [probe37]
+ 2582  f1      [da] WIDTH.1   ; 32-bit store  [probe37/70]
  2583  d8      ALWAYS  (ends a sticky predicate)
  2584  80      P0.page=0   -> A@768 @768
  2585  b7      P1.bank=3
@@ -1562,23 +1562,23 @@
  2607  af      P2.page=f   -> D@1008 @1008
  2608  82      P0.page=2   -> A@800 @800
  2609  92      P1.page=2   -> B@800 @800
- 2610  f3      WIDTH.3   ; 16-bit store, lower half-word  [probe37]
+ 2610  f3      WIDTH.3   ; 16-bit store, lower half-word  [probe37/70]
  2611  41      RSUB A=@808         B=@800         -> @1008.lo
  2612  80      P0.page=0   -> A@768 @768
- 2613  f1      WIDTH.1   ; 32-bit store  [probe37]
+ 2613  f1      WIDTH.1   ; 32-bit store  [probe37/70]
  2614  d9      IF.LE0   (N or Z; IF.Z right after d1; sticky until d8)
  2615  2e      [d9] MUL A=@772         B=@804         -> @1012
  2616  d8      ALWAYS  (ends a sticky predicate)
  2617  af      P2.page=f   -> D@1008 @1008
  2618  82      P0.page=2   -> A@800 @800
- 2619  f3      WIDTH.3   ; 16-bit store, lower half-word  [probe37]
+ 2619  f3      WIDTH.3   ; 16-bit store, lower half-word  [probe37/70]
  2620  19      RSUB A=@800         B=@812         -> @1008.lo
  2621  80      P0.page=0   -> A@768 @768
- 2622  f1      WIDTH.1   ; 32-bit store  [probe37]
+ 2622  f1      WIDTH.1   ; 32-bit store  [probe37/70]
  2623  d9      IF.LE0   (N or Z; IF.Z right after d1; sticky until d8)
  2624  2e      [d9] MUL A=@772         B=@804         -> @1012
  2625  d8      ALWAYS  (ends a sticky predicate)
- 2626  f1      WIDTH.1   ; 32-bit store  [probe37]
+ 2626  f1      WIDTH.1   ; 32-bit store  [probe37/70]
  2627  89      P0.page=9   -> A@912 @912
  2628  90      P1.page=0   -> B@768 @768
  2629  af      P2.page=f   -> D@1008 @1008
@@ -1591,27 +1591,27 @@
  2636  db      IF.LE0   (db; same as d9 in every cell)
  2637  89      [db] P0.page=9   -> A@912 @912
  2638  31      [db] RSUB A=@916         B=@920         -> @1008
- 2639  f3      [db] WIDTH.3   ; 16-bit store, lower half-word  [probe37]
+ 2639  f3      [db] WIDTH.3   ; 16-bit store, lower half-word  [probe37/70]
  2640  82      [db] P0.page=2   -> A@800 @800
  2641  92      [db] P1.page=2   -> B@800 @800
  2642  19      [db] RSUB A=@800         B=@812         -> @1008.lo
- 2643  f2      [db] WIDTH.2   ; 16-bit store, upper half-word  [probe37]
+ 2643  f2      [db] WIDTH.2   ; 16-bit store, upper half-word  [probe37/70]
  2644  b1      [db] P0.bank=1
  2645  84      [db] P0.page=4   -> A@320 STXG
  2646  b5      [db] P1.bank=1
  2647  94      [db] P1.page=4   -> B@320 STXG
  2648  71      [db] RSUB A=CTRLSFJT2    B=STZG         -> @1008.hi
  2649  d9      IF.LE0   (N or Z; IF.Z right after d1; sticky until d8)
- 2650  f1      [d9] WIDTH.1   ; 32-bit store  [probe37]
+ 2650  f1      [d9] WIDTH.1   ; 32-bit store  [probe37/70]
  2651  df      [d9] CLR  @1012 := 0  (P2 word++ first)  (df; probe23)
  2652  f9      [d9] DEC  @1012 by 1  (f9; probe23)
- 2653  f2      [d9] WIDTH.2   ; 16-bit store, upper half-word  [probe37]
+ 2653  f2      [d9] WIDTH.2   ; 16-bit store, upper half-word  [probe37/70]
  2654  b9      [d9] P2.bank=1
  2655  a4      [d9] P2.page=4   -> D@320 STXG
  2656  d0      [d9] P2 word += 2 -> D@328 STZG  (d0, mod 4; probe20)
  2657  f8      [d9] INC  STZG by 1  (f8; probe23)
  2658  f8      [d9] INC  STZG by 1  (f8; probe23)
- 2659  f3      [d9] WIDTH.3   ; 16-bit store, lower half-word  [probe37]
+ 2659  f3      [d9] WIDTH.3   ; 16-bit store, lower half-word  [probe37/70]
  2660  df      [d9] CLR  CTRLSFJT2 := 0  (P2 word++ first)  (df; probe23)
  2661  d8      ALWAYS  (ends a sticky predicate)
  2662  b3      P0.bank=3
@@ -1619,12 +1619,12 @@
  2664  bb      P2.bank=3
  2665  82      P0.page=2   -> A@800 @800
  2666  ac      P2.page=c   -> D@960 @960
- 2667  f3      WIDTH.3   ; 16-bit store, lower half-word  [probe37]
+ 2667  f3      WIDTH.3   ; 16-bit store, lower half-word  [probe37/70]
  2668  c0      MOV   @800         -> @960  (c0; probe25)
  2669  a2      P2.page=2   -> D@800 @800
  2670  80      P0.page=0   -> A@768 @768
  2671  22      MUL A=@772         B=@832         -> @800.lo
- 2672  f1      WIDTH.1   ; 32-bit store  [probe37]
+ 2672  f1      WIDTH.1   ; 32-bit store  [probe37/70]
  2673  a9      P2.page=9   -> D@912 @912
  2674  22      MUL A=@772         B=@832         -> @912
  2675  26      MUL A=@772         B=@832         -> @916
@@ -1637,12 +1637,12 @@
  2682  ff      [da] HALT   disable/terminate (vendor: ends every image; probe26)
  2683  d8      ALWAYS  (ends a sticky predicate)
  2684  a2      P2.page=2   -> D@800 @800
- 2685  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37]
+ 2685  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37/70]
  2686  de      CLR  @800 := 0  (in place, no advance)  (de; probe31)
- 2687  f1      WIDTH.1   ; 32-bit store  [probe37]
+ 2687  f1      WIDTH.1   ; 32-bit store  [probe37/70]
  2688  a9      P2.page=9   -> D@912 @912
  2689  df      CLR  @916 := 0  (P2 word++ first)  (df; probe23)
- 2690  f3      WIDTH.3   ; 16-bit store, lower half-word  [probe37]
+ 2690  f3      WIDTH.3   ; 16-bit store, lower half-word  [probe37/70]
  2691  b8      P2.bank=0
  2692  a3      P2.page=3   -> D@48 BLPFMTC
  2693  d0      P2 word += 2 -> D@56 BLPFMY  (d0, mod 4; probe20)
@@ -1652,7 +1652,7 @@
  2697  d9      IF.LE0   (N or Z; IF.Z right after d1; sticky until d8)
  2698  ff      [d9] HALT   disable/terminate (vendor: ends every image; probe26)
  2699  d8      ALWAYS  (ends a sticky predicate)
- 2700  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37]
+ 2700  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37/70]
  2701  b2      P0.bank=2
  2702  b6      P1.bank=2
  2703  ba      P2.bank=2
@@ -1660,7 +1660,7 @@
  2705  d0      P2 word += 2 -> D@552 @552  (d0, mod 4; probe20)
  2706  de      CLR  @552 := 0  (in place, no advance)  (de; probe31)
  2707  f8      INC  @552 by 1  (f8; probe23)
- 2708  f1      WIDTH.1   ; 32-bit store  [probe37]
+ 2708  f1      WIDTH.1   ; 32-bit store  [probe37/70]
  2709  b0      P0.bank=0
  2710  87      P0.page=7   -> A@112 0_5
  2711  90      P1.page=0   -> B@512 BLPFNMZL+2
@@ -1682,18 +1682,18 @@
  2727  82      [db] P0.page=2   -> A@544 @544
  2728  9b      [db] P1.page=b   -> B@688 @688
  2729  79      [db] RSUB A=@556         B=@700         -> @692
- 2730  f3      [db] WIDTH.3   ; 16-bit store, lower half-word  [probe37]
+ 2730  f3      [db] WIDTH.3   ; 16-bit store, lower half-word  [probe37/70]
  2731  b1      [db] P0.bank=1
  2732  84      [db] P0.page=4   -> A@320 STXG
  2733  b4      [db] P1.bank=0
  2734  97      [db] P1.page=7   -> B@112 0_5
  2735  49      [db] RSUB A=STZG         B=0_0          -> @692.lo
- 2736  f2      [db] WIDTH.2   ; 16-bit store, upper half-word  [probe37]
+ 2736  f2      [db] WIDTH.2   ; 16-bit store, upper half-word  [probe37/70]
  2737  a2      [db] P2.page=2   -> D@544 @544
  2738  d0      [db] P2 word += 2 -> D@552 @552  (d0, mod 4; probe20)
  2739  f8      [db] INC  @552 by 1  (f8; probe23)
  2740  d8      ALWAYS  (ends a sticky predicate)
- 2741  f3      WIDTH.3   ; 16-bit store, lower half-word  [probe37]
+ 2741  f3      WIDTH.3   ; 16-bit store, lower half-word  [probe37/70]
  2742  b9      P2.bank=1
  2743  a4      P2.page=4   -> D@320 STXG
  2744  d0      P2 word += 2 -> D@328 STZG  (d0, mod 4; probe20)
@@ -1701,7 +1701,7 @@
  2746  f9      DEC  STZG by 1  (f9; probe23)
  2747  d1      TEST  clears N (Z := result == 0 stays): d9 becomes IF.Z, da becomes ALWAYS  [probe19/20, probe68]
  2748  d9      IF.LE0   (N or Z; IF.Z right after d1; sticky until d8)
- 2749  f2      [d9] WIDTH.2   ; 16-bit store, upper half-word  [probe37]
+ 2749  f2      [d9] WIDTH.2   ; 16-bit store, upper half-word  [probe37/70]
  2750  ba      [d9] P2.bank=2
  2751  a2      [d9] P2.page=2   -> D@544 @544
  2752  d0      [d9] P2 word += 2 -> D@552 @552  (d0, mod 4; probe20)
@@ -1713,13 +1713,13 @@
  2758  97      P1.page=7   -> B@880 @880
  2759  8c      P0.page=c   -> A@960 @960
  2760  af      P2.page=f   -> D@1008 @1008
- 2761  f3      WIDTH.3   ; 16-bit store, lower half-word  [probe37]
+ 2761  f3      WIDTH.3   ; 16-bit store, lower half-word  [probe37/70]
  2762  79      RSUB A=@972         B=@892         -> @1008.lo
  2763  da      IF.GE0   (not N; always after d1; sticky until d8)
- 2764  f1      [da] WIDTH.1   ; 32-bit store  [probe37]
- 2765  f1      [da] WIDTH.1   ; 32-bit store  [probe37]
- 2766  f1      [da] WIDTH.1   ; 32-bit store  [probe37]
- 2767  f1      [da] WIDTH.1   ; 32-bit store  [probe37]
+ 2764  f1      [da] WIDTH.1   ; 32-bit store  [probe37/70]
+ 2765  f1      [da] WIDTH.1   ; 32-bit store  [probe37/70]
+ 2766  f1      [da] WIDTH.1   ; 32-bit store  [probe37/70]
+ 2767  f1      [da] WIDTH.1   ; 32-bit store  [probe37/70]
  2768  b1      [da] P0.bank=1
  2769  88      [da] P0.page=8   -> A@384 ACCQD0
  2770  b9      [da] P2.bank=1
@@ -1727,19 +1727,19 @@
  2772  d0      [da] P2 word += 2 -> D@456 YACCB_PRE  (d0, mod 4; probe20)
  2773  c0      [da] MOV   ACCQD0       -> YACCB_PRE  (c0; probe25)
  2774  b3      [da] P0.bank=3
- 2775  f3      [da] WIDTH.3   ; 16-bit store, lower half-word  [probe37]
- 2776  f3      [da] WIDTH.3   ; 16-bit store, lower half-word  [probe37]
+ 2775  f3      [da] WIDTH.3   ; 16-bit store, lower half-word  [probe37/70]
+ 2776  f3      [da] WIDTH.3   ; 16-bit store, lower half-word  [probe37/70]
  2777  b9      [da] P2.bank=1
  2778  aa      [da] P2.page=a   -> D@416 Y
  2779  fa      [da] INC  B0 by 1  (P2 word++ first)  (fa; probe23)
- 2780  f1      [da] WIDTH.1   ; 32-bit store  [probe37]
+ 2780  f1      [da] WIDTH.1   ; 32-bit store  [probe37/70]
  2781  bb      [da] P2.bank=3
  2782  aa      [da] P2.page=a   -> D@928 @928
  2783  d0      [da] P2 word += 2 -> D@936 @936  (d0, mod 4; probe20)
  2784  f8      [da] INC  @936 by 1  (f8; probe23)
  2785  f4 10   [da] B.da -> 2803
  2787  d8      ALWAYS  (ends a sticky predicate)
- 2788  f3      WIDTH.3   ; 16-bit store, lower half-word  [probe37]
+ 2788  f3      WIDTH.3   ; 16-bit store, lower half-word  [probe37/70]
  2789  a7      P2.page=7   -> D@880 @880
  2790  d0      P2 word += 2 -> D@888 @888  (d0, mod 4; probe20)
  2791  fa      INC  @892 by 1  (P2 word++ first)  (fa; probe23)
@@ -1748,20 +1748,20 @@
  2794  af      P2.page=f   -> D@1008 @1008
  2795  79      RSUB A=@972         B=@892         -> @1008.lo
  2796  da      IF.GE0   (not N; always after d1; sticky until d8)
- 2797  f1      [da] WIDTH.1   ; 32-bit store  [probe37]
+ 2797  f1      [da] WIDTH.1   ; 32-bit store  [probe37/70]
  2798  87      [da] P0.page=7   -> A@880 @880
  2799  9a      [da] P1.page=a   -> B@928 @928
  2800  aa      [da] P2.page=a   -> D@928 @928
  2801  d0      [da] P2 word += 2 -> D@936 @936  (d0, mod 4; probe20)
  2802  70      [da] ADD A=@892         B=@936         -> @936
  2803  d8      ALWAYS  (ends a sticky predicate)
- 2804  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37]
+ 2804  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37/70]
  2805  82      P0.page=2   -> A@800 @800
  2806  92      P1.page=2   -> B@800 @800
  2807  af      P2.page=f   -> D@1008 @1008
  2808  31      RSUB A=@804         B=@808         -> @1008.hi
  2809  d9      IF.LE0   (N or Z; IF.Z right after d1; sticky until d8)
- 2810  f1      [d9] WIDTH.1   ; 32-bit store  [probe37]
+ 2810  f1      [d9] WIDTH.1   ; 32-bit store  [probe37/70]
  2811  de      [d9] CLR  @1008 := 0  (in place, no advance)  (de; probe31)
  2812  b2      [d9] P0.bank=2
  2813  82      [d9] P0.page=2   -> A@544 @544
@@ -1787,14 +1787,14 @@
  2833  92      [db] P1.page=2   -> B@544 @544
  2834  ab      [db] P2.page=b   -> D@688 @688
  2835  39      [db] RSUB A=@548         B=@556         -> @688
- 2836  f3      [db] WIDTH.3   ; 16-bit store, lower half-word  [probe37]
+ 2836  f3      [db] WIDTH.3   ; 16-bit store, lower half-word  [probe37/70]
  2837  b1      [db] P0.bank=1
  2838  84      [db] P0.page=4   -> A@320 STXG
  2839  b4      [db] P1.bank=0
  2840  97      [db] P1.page=7   -> B@112 0_5
  2841  49      [db] RSUB A=STZG         B=0_0          -> @688.lo
  2842  d9      IF.LE0   (N or Z; IF.Z right after d1; sticky until d8)
- 2843  f1      [d9] WIDTH.1   ; 32-bit store  [probe37]
+ 2843  f1      [d9] WIDTH.1   ; 32-bit store  [probe37/70]
  2844  b2      [d9] P0.bank=2
  2845  b6      [d9] P1.bank=2
  2846  80      [d9] P0.page=0   -> A@512 BLPFNMZL+2
@@ -1802,11 +1802,11 @@
  2848  a0      [d9] P2.page=0   -> D@512 BLPFNMZL+2
  2849  d0      [d9] P2 word += 2 -> D@520 @520  (d0, mod 4; probe20)
  2850  5e      [d9] MUL A=@520         B=@524         -> @524
- 2851  f0      [d9] WIDTH.0   ; A operand contributes 0 (single-shot)  [probe37]
+ 2851  f0      [d9] WIDTH.0   ; 32-bit store; a sum of opposite-sign addends is 1 LSB lower (probe70)  [probe37/70]
  2852  92      [d9] P1.page=2   -> B@544 @544
  2853  38      [d9] ADD A=@516         B=@556         -> @524
  2854  d8      ALWAYS  (ends a sticky predicate)
- 2855  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37]
+ 2855  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37/70]
  2856  b3      P0.bank=3
  2857  82      P0.page=2   -> A@800 @800
  2858  b7      P1.bank=3
@@ -1815,7 +1815,7 @@
  2861  af      P2.page=f   -> D@1008 @1008
  2862  31      RSUB A=@804         B=@808         -> @1008.hi
  2863  d9      IF.LE0   (N or Z; IF.Z right after d1; sticky until d8)
- 2864  f1      [d9] WIDTH.1   ; 32-bit store  [probe37]
+ 2864  f1      [d9] WIDTH.1   ; 32-bit store  [probe37/70]
  2865  bb      [d9] P2.bank=3
  2866  ac      [d9] P2.page=c   -> D@960 @960
  2867  de      [d9] CLR  @960 := 0  (in place, no advance)  (de; probe31)
@@ -1825,10 +1825,10 @@
  2871  a2      [d9] P2.page=2   -> D@544 @544
  2872  d0      [d9] P2 word += 2 -> D@552 @552  (d0, mod 4; probe20)
  2873  df      [d9] CLR  @556 := 0  (P2 word++ first)  (df; probe23)
- 2874  f1      [d9] WIDTH.1   ; 32-bit store  [probe37]
+ 2874  f1      [d9] WIDTH.1   ; 32-bit store  [probe37/70]
  2875  ff      [d9] HALT   disable/terminate (vendor: ends every image; probe26)
  2876  d8      ALWAYS  (ends a sticky predicate)
- 2877  f3      WIDTH.3   ; 16-bit store, lower half-word  [probe37]
+ 2877  f3      WIDTH.3   ; 16-bit store, lower half-word  [probe37/70]
  2878  b9      P2.bank=1
  2879  a4      P2.page=4   -> D@320 STXG
  2880  d0      P2 word += 2 -> D@328 STZG  (d0, mod 4; probe20)
@@ -1836,18 +1836,18 @@
  2882  f9      DEC  STZG by 1  (f9; probe23)
  2883  d1      TEST  clears N (Z := result == 0 stays): d9 becomes IF.Z, da becomes ALWAYS  [probe19/20, probe68]
  2884  d9      IF.LE0   (N or Z; IF.Z right after d1; sticky until d8)
- 2885  f2      [d9] WIDTH.2   ; 16-bit store, upper half-word  [probe37]
+ 2885  f2      [d9] WIDTH.2   ; 16-bit store, upper half-word  [probe37/70]
  2886  bb      [d9] P2.bank=3
  2887  a2      [d9] P2.page=2   -> D@800 @800
  2888  fa      [d9] INC  @804 by 1  (P2 word++ first)  (fa; probe23)
  2889  f8      [d9] INC  @804 by 1  (f8; probe23)
  2890  da      IF.GE0   (not N; always after d1; sticky until d8)
- 2891  f2      [da] WIDTH.2   ; 16-bit store, upper half-word  [probe37]
+ 2891  f2      [da] WIDTH.2   ; 16-bit store, upper half-word  [probe37/70]
  2892  bb      [da] P2.bank=3
  2893  a2      [da] P2.page=2   -> D@800 @800
  2894  fa      [da] INC  @804 by 1  (P2 word++ first)  (fa; probe23)
  2895  d8      ALWAYS  (ends a sticky predicate)
- 2896  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37]
+ 2896  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37/70]
  2897  b3      P0.bank=3
  2898  b7      P1.bank=3
  2899  bb      P2.bank=3
@@ -1857,7 +1857,7 @@
  2903  49      RSUB A=@776         B=@804         -> @1008.hi
  2904  d1      TEST  clears N (Z := result == 0 stays): d9 becomes IF.Z, da becomes ALWAYS  [probe19/20, probe68]
  2905  d9      IF.LE0   (N or Z; IF.Z right after d1; sticky until d8)
- 2906  f1      [d9] WIDTH.1   ; 32-bit store  [probe37]
+ 2906  f1      [d9] WIDTH.1   ; 32-bit store  [probe37/70]
  2907  b9      [d9] P2.bank=1
  2908  a4      [d9] P2.page=4   -> D@320 STXG
  2909  de      [d9] CLR  STXG := 0  (in place, no advance)  (de; probe31)
@@ -1865,7 +1865,7 @@
  2911  de      [d9] CLR  PREVPTAT := 0  (in place, no advance)  (de; probe31)
  2912  df      [d9] CLR  ACCZB+2 := 0  (P2 word++ first)  (df; probe23)
  2913  d8      ALWAYS  (ends a sticky predicate)
- 2914  f1      WIDTH.1   ; 32-bit store  [probe37]
+ 2914  f1      WIDTH.1   ; 32-bit store  [probe37/70]
  2915  8c      P0.page=c   -> A@960 @960
  2916  9c      P1.page=c   -> B@960 @960
  2917  bb      P2.bank=3
@@ -1882,11 +1882,11 @@
  2928  92      P1.page=2   -> B@800 @800
  2929  82      P0.page=2   -> A@800 @800
  2930  af      P2.page=f   -> D@1008 @1008
- 2931  f1      WIDTH.1   ; 32-bit store  [probe37]
+ 2931  f1      WIDTH.1   ; 32-bit store  [probe37/70]
  2932  ca      MOVX  @804         -> @1008  (ca; probe25)  ; c8-cf: half-words swapped, on both parts (probe54/67)
- 2933  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37]
+ 2933  f2      WIDTH.2   ; 16-bit store, upper half-word  [probe37/70]
  2934  35      RSUB A=@804         B=@808         -> @1012.hi
- 2935  f1      WIDTH.1   ; 32-bit store  [probe37]
+ 2935  f1      WIDTH.1   ; 32-bit store  [probe37/70]
  2936  96      P1.page=6   -> B@864 @864
  2937  8f      P0.page=f   -> A@1008 @1008
  2938  a6      P2.page=6   -> D@864 @864

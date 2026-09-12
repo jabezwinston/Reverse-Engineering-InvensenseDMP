@@ -20,6 +20,9 @@ big-endian Q30 (2^30 = 1.0), range [-2,+2), addition wraps (modular).
        store (Finding 17; `hi` is accepted as the old spelling). Use `p2inc` (df)
        to reach words 2,3 of the page.
   min   A,B[,inc]                     f5 + ALU: signed min(M[P0+4A], M[P1+4B])
+  and / xor / cmp  A,B[,inc]          f5 + ALU with op 2 / 3 / 1: bitwise AND, XOR, or a
+                                     flags-only compare that stores nothing (probe70)
+  int                                fe: raise DMP_INT and continue (conditional under `if`)
   store                              dc: RAM routing ON  (sticky; every following ALU op stores)
   fifo  (alias store.off)            dd: route results to the FIFO (sticky; the at-rest
                                      routing). Vendor packet emit = dd f1 <ALU ops>
@@ -29,11 +32,11 @@ big-endian Q30 (2^30 = 1.0), range [-2,+2), addition wraps (modular).
        (probe6: dc precedes the op). This is the RAM-store idiom.
   branch N                           f4 (mantis) / fc (3050); target = here+2+N,
                                      forward only, 0 <= N <= 0x7f (Finding 2)
-  fmode N                            f0..f3 store width; applies to RAM as well as the FIFO
-       (Finding 21)  1 = 32-bit, 2 = upper half-word, 3 = lower half-word,
-       0 = the A operand contributes 0 for the next op only
-  min16 A,B[,inc]                    f6 + ALU: signed min, 16-bit store (upper half-word)
-  trunc                              f7: M[P2] &= 0xffff0000, and the next ALU op does not store
+  fmode N                            f0..f7 is ONE sticky 3-bit mode register (probe70):
+       1 = 32-bit store, 2 = upper half-word, 3 = lower half-word, 0 = 32-bit where a sum of
+       opposite-sign addends comes out 1 LSB lower; 5 / 6 / 7 = the MIN/AND/XOR family with
+       the same three widths.  min/min16/and/xor/cmp emit f5/f6 plus the op for you.
+  min16 A,B[,inc]                    f6 + ALU: signed min, upper half-word store
   xchg01 (alias swap)                fc: TOGGLE -- A and MOV sources through P1, B through P0, until the next fc
   xchg02                             fd: TOGGLE -- A and MOV sources through P2, stores into P0's page, until the next fd
   test                               d1: clears N (Z := result == 0 stays)
@@ -51,7 +54,7 @@ big-endian Q30 (2^30 = 1.0), range [-2,+2), addition wraps (modular).
 Legacy FIFO-emit form (stock preambles) still assembles:
   selbank gyro|quat|accel|delay|0x9N
   emit r0..r15 | gyro_x ... | 0xNN
-  nop / skip (fe) / disable (ff, halts) / .db 0x..,0x..
+  nop / int (fe) / disable (ff, halts) / .db 0x..,0x..
 
 A bare ALU op with no `store` and no `dc` emits its result to the FIFO when a
 FIFO mode is active (bench round 10); with `store`/dc it writes RAM instead.
@@ -225,8 +228,8 @@ def assemble(text, lineage="mantis", warn=None):
                 Bw = int(arg, 0)
                 if not 0 <= Bw <= 3: raise AsmError(f"{op} k: k is 0..3 (a P1 word)")
                 out += bytes([0xFC, 0xC0 | Bw, 1 if op == "tnz" else 0])
-            elif op == "int":
-                icm_only("int"); out.append(0xE2)
+            elif op == "int":                    # e2 on DMP3; fe on the MPU (probe69: raises DMP_INT, honours a predicate)
+                out.append(0xE2 if lineage == "icm" else 0xFE)
             elif op == "clr":
                 icm_only("clr"); out.append(0xDE)
             elif op in ("lo", "lo.next"):
@@ -262,15 +265,18 @@ def assemble(text, lineage="mantis", warn=None):
                 out.append(_bank_byte(L, "012".index(op[1]), arg))
 
             # --- ALU (compute; emits to FIFO in fifo mode, else use store) ---
-            elif op == "min16":                  # f6 + ALU byte: signed MIN, 16-bit store
+            elif op == "min16":                  # f6 + ALU byte: signed MIN, upper half-word store (sticky mode)
                 if lineage == "3050":
                     raise AsmError("min16 (f6) is mantis-only")
                 mode4 = False
                 out.append(0xF6); out.append(_alu_byte("add", arg))
-            elif op == "trunc":                  # f7: M[P2] &= 0xffff0000 (Finding 20)
+            elif op in ("and", "xor", "cmp"):    # f5 + ALU byte with op field 2 / 3 / 1 (probe70)
                 if lineage == "3050":
-                    raise AsmError("trunc (f7) is mantis-only")
-                out.append(0xF7); mode4 = False
+                    raise AsmError(f"{op} (f5) is mantis-only")
+                mode4 = False
+                out.append(0xF5); out.append(_alu_byte("add", arg) | {"and": 2, "xor": 3, "cmp": 1}[op])
+            elif op == "trunc":
+                raise AsmError("trunc is withdrawn: f7 is MIN/AND/XOR with a lower half-word store (probe69/70); use `fmode 7` then the op")
             elif op in ("swap", "xchg01"):       # fc: toggle -- A and MOV sources via P1, B via P0 (probe68)
                 if lineage == "3050":
                     raise AsmError("xchg01 (fc) is mantis-only; fc is the 3050 branch")
@@ -331,8 +337,8 @@ def assemble(text, lineage="mantis", warn=None):
                 out.append(L["branch"]); out.append(n)
             elif op == "fmode":
                 n = int(arg, 0)
-                if not 0 <= n <= 3:
-                    raise AsmError("fmode 0..3")
+                if not (0 <= n <= 3 or 5 <= n <= 7):
+                    raise AsmError("fmode 0..3 or 5..7 (4 is the branch / mode 4)")
                 out.append(L["fmode0"] | n); mode4 = False
 
             # --- legacy FIFO-emit form ---
@@ -365,14 +371,14 @@ def assemble(text, lineage="mantis", warn=None):
             elif op == "nop":
                 out.append(NOP)
             elif op == "skip":
-                out.append(SKIP)
+                raise AsmError("skip is withdrawn: fe raises DMP_INT (use `int`)")
             elif op == "disable":
                 out.append(DISABLE)
             else:
                 raise AsmError(
                     f"unknown mnemonic {op!r} (confirmed: p0page/p1page/p2page, "
                     "p0bank/p1bank/p2bank, add/rsub/mul/nmul, store[.op], p2inc, always, if N, branch, "
-                    "fmode, min16, trunc, xchg01/swap, xchg02, selbank, emit, nop, skip, disable, .db; "
+                    "fmode, min16, and, xor, cmp, int, xchg01/swap, xchg02, selbank, emit, nop, disable, .db; "
                     "icm: .org, label:, jump, call, ret, mode4, if f/nf, p0blk/p1blk/p2blk, load, shl, sar, "
                     "lo, lo.next, int, clr, tz, tnz)")
         except AsmError as e:

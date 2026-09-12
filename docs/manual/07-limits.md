@@ -100,9 +100,9 @@ assign-not-accumulate store, and the aliasing case above — all at once.
 sources read through P2, the store lands in P0's page — and it is a toggle, ended by the next
 `fd` **[HW, probe67/68]**. probe31 watched M[P2] and saw nothing, hence "NOSTORE"; the three
 corpus sites are a biquad that takes its state from P2's page and writes into P0's — live
-code, which is what the "dead biquad run" objection here was pointing at. `f7` still stands as
-measured: the next ALU op does not store (probe36); nothing has re-measured its reach past an
-intervening pointer load.
+code, which is what the "dead biquad run" objection here was pointing at. `f7` turned out to be
+the lower-half-word store of the MIN/AND/XOR family, not a truncate-and-suppress: probe36's
+cell computed min(0.5, 0.5), whose low half is 0000 (Finding 29).
 
 ## 7.5 Open: `f0`'s two readings
 

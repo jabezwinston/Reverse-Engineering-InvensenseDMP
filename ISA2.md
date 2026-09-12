@@ -1333,6 +1333,51 @@ and the predicate / flag / exchange rules are one design.  Corrected in the manu
 image change name, no byte changes class) and the assembler (`xchg01`, `xchg02`, `if le0`,
 `if ge0`).
 
+## Finding 29 — the f-family is one mode register: MIN / CMP / AND / XOR at three widths, `f0`'s real effect, and `fe` is the interrupt (HARDWARE CONFIRMED 2026-09-12)
+
+The smaller MPU items of UNKNOWNS.md §3 and §6, `bench/probe69.py`–`probe70.py`, same rig as
+Finding 28 (custom programs at 0x300, pages re-seeded before every cell).
+
+**1. `f5`, `f6`, `f7` are one family, and the ALU byte's op field selects the operation.**
+With A0 = +5, B0 = −5: `f5 00` → −5, `f5 01` → nothing, `f5 02` → +1, `f5 03` → −2 — and
+1 = 5 AND −5, −2 = 5 XOR −5.  Over four operand pairs ((5,−5), (5,3), (−20,30), (12,10)) op0 is
+signed MIN, op2 is **AND**, op3 is **XOR**, op1 stores nothing but sets the flags (after `f5 01`
+on (5, −5) `da` fires and `d9` does not), and op4–7 repeat them with the pre-advance.  `f6`
+and `f7` are the same four operations stored into the upper and the lower half-word (`f6 02`
+over `11110000` → `00000000`, `f7 03` → `1111fffe`, `f7 02` → `11110001`); `f7 40` over the
+seed writes `fffb` = min(7, −5) into the low half — which is what probe36 saw as "clear the low
+half then no store", because its cell was min(0.5, 0.5) whose low half is 0000.  **TRUNC is
+withdrawn.**  The family is **sticky**: `f5 40 40` gives −5 −5, through `d8`, a page load and
+a MOV; `f1` ends it.  The vendor uses it: `f5` with op3 seven times and op0/op4 twenty-nine,
+`f7` with op2 seven — the 3062 image's authentication block at 1044 is `XOR D_AUTH_OUT,
+D_AUTH_B`.
+
+**2. `f0` is the fourth width, and it is not "A contributes 0".**  Ten operand pairs: the
+result changes only when the two addends have opposite signs, and then by exactly one LSB
+downward — `7 + −5` gives 1, `8 + −5` gives 2, `−8 + 3` gives −6, `3 − 6` (RSUB, whose addends
+are B and −A) gives −4; same-sign pairs and zeros are untouched.  Sticky (`f0 40 40` → −1 −1).
+The earlier reading came from a page whose word 1 was 0.0.  So `f0`–`f7` is **one 3-bit sticky
+mode register**: 0–3 the store widths (0 with the sign quirk), 4 the branch (and on DMP3 the
+branch-target mode), 5–7 the MIN/CMP/AND/XOR family at the three widths.
+
+**3. `fe` raises DMP_INT and continues.**  `fe c0 c2 c4`: `T` returns in 238 µs with the
+interrupt counted and all three MOVs emitted; `08 d9 fe c0` under the false predicate raises
+nothing and skips both (the sticky predicate covers it); `08 da fe c0` fires.  DINAFE's
+"disable" patches are interrupts.  `f4` with **bit 6 set and a nonzero low field** does the
+same without branching (`f4 41`, `42`, `44`, `48`: interrupt, all MOVs emitted); `f4 40` alone
+does nothing measurable, `f4 60` emitted one zero word, `f4 20` and `f4 3f` branch.  So the
+branch's displacement field is 6 bits.
+
+**4. Housekeeping.**  A skipped `f4` does nothing further on the MPU (`08 d9 f4 01 c2 c4 d8 87
+c0` reads RAM after the `d8` — no mode 4 here).  A page reload resets the P2 word index
+(`44 a4 40` writes words 1 and 0).  MOVs honour `f2`/`f3` on the FIFO too (`dd f3 c0` emits
+16-bit `0005`s; `f2 c8` emits the swapped word's upper half).  `d6`, `d7` and every `e0`–`ef`
+clear M[P2] in place: an undefined byte in this range is the clear.
+
+Decoder: `LOGIC`/`LOGIC.HI`/`LOGIC.LO` with MIN/CMP/AND/XOR, `WIDTH.0` with its note, `INT`
+for `fe` and for `f4 41`–`7f`, CLR for `d6`/`d7`/`e0`–`ef`; assembler: `and`, `xor`, `cmp`,
+`int`, `fmode 5..7`; `trunc` and `skip` refused.
+
 ## Decoder corrections (2026-09-08, no new hardware)
 
 Three defects found while writing `docs/manual/`, all in `tools/isa/decode.py`:

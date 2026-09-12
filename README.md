@@ -26,12 +26,12 @@ The instruction set in one table (every rule hardware-confirmed; [chapter 2](doc
 | `c0`–`cf` | MOV from P0, `c8`–`cf` with the half-words exchanged; odd values pre-advance the destination |
 | `de` / `df` | clear M[P2] in place / advance the word first, then clear |
 | `f8` `f9` / `fa` `fb` | INC / DEC M[P2], in place / after advancing |
-| `f5` / `f6` | signed MIN, 32-bit / 16-bit store |
-| `f7` | clear the destination's low half-word |
+| `f5` / `f6` / `f7` | the MIN / CMP / AND / XOR family (`op&3`), stored 32-bit / upper half / lower half |
 | `fc` / `fd` | toggles: exchange P0 with P1 (operand sources) / with P2 (sources and the store's page) |
-| `f0`–`f3` | store width: `f1` 32-bit, `f2` upper half, `f3` lower half; `f0` makes A contribute 0 |
+| `f0`–`f3` | store width: `f1` 32-bit, `f2` upper half, `f3` lower half; `f0` 32-bit with opposite-sign sums one LSB lower |
 | `d9` / `da`, `d1` | IF ≤ 0 / IF ≥ 0 on the last result — **sticky** until `d8`; `d1` clears the sign so `d9` becomes IF.Z |
 | `f4 imm` | 7-bit **forward-only** branch; bit 7 set means the byte executes instead |
+| `fe` | raise DMP_INT (conditional); so does `f4` with an immediate of `41`–`7f` |
 | `ff` | halt (conditional — it takes a predicate) |
 
 The DMP is a small but complete **feed-forward computer**: no loops are expressible, so every
@@ -92,7 +92,7 @@ The DMP emits a register selection the stock firmware never produces.
 | `PLAN.md` | the original plan of record (historical) |
 | `corpus/` | 13 unique firmware images (two of them DMP3) + vendor sources, with provenance; `ROSETTA.md` |
 | `tools/` | extraction, analysis, decoder (`isa/decode.py`), lifter (`isa/pseudo.py`), assembler (`dmpasm.py`) |
-| `bench/` | hardware rig: ESP32 bridge (MPU-6050 or ICM-20948, auto-detected), init, 68 probes, `icm.py`, `RESULTS.md` |
+| `bench/` | hardware rig: ESP32 bridge (MPU-6050 or ICM-20948, auto-detected), init, 70 probes, `icm.py`, `RESULTS.md` |
 | `programs/` | example DMP programs |
 | `listings2/` | annotated listings of all 13 corpus images under the current model |
 | `listings/` | listings under the superseded first-pass model (historical) |

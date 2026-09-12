@@ -41,7 +41,9 @@ byte count (§3.6).
 | `mul A,B[,inc]` | | `M[P0+4A] * M[P1+4B]` |
 | `nmul A,B[,inc]` | | `-(M[P0+4A] * M[P1+4B])` |
 | `min A,B[,inc]` | `f5` + ALU | signed `min(M[P0+4A], M[P1+4B])` |
-| `min16 A,B[,inc]` | `f6` + ALU | the same, 16-bit store |
+| `min16 A,B[,inc]` | `f6` + ALU | the same, upper half-word store |
+| `and A,B[,inc]` / `xor A,B[,inc]` | `f5` + ALU (op 2 / 3) | bitwise AND / XOR |
+| `cmp A,B` | `f5` + ALU (op 1) | flags only, nothing stored |
 | `store.add A,B[,inc]` etc. | `dc` + ALU | fused: arm RAM routing, then the op |
 
 `A` and `B` are word indices 0–3 within the pointer's page. The optional third operand `inc`
@@ -60,13 +62,13 @@ redundant.
 | `mov16 k[,inc]` | `c8`+ | the word with its half-words exchanged (MOVX; the vendor's name) |
 | `store` | `dc` | route ALU results to RAM (sticky) |
 | `fifo` (alias `store.off`) | `dd` | route to the FIFO (sticky; the at-rest state) |
-| `fmode N` | `f0`–`f3` | 0 = A contributes 0 (single-shot); 1 = 32-bit; 2 = upper half; 3 = lower half |
+| `fmode N` | `f0`–`f7` | one sticky mode: 1 = 32-bit; 2 = upper half; 3 = lower half; 0 = 32-bit with opposite-sign sums 1 LSB lower; 5/6/7 = MIN/CMP/AND/XOR at those widths |
 | `p2inc [N]` | `df` × N | advance the destination word N times (each also clears the word) |
 | `p2inc2` | `d0` | advance by two words |
 | `clr.next` | `df` | advance, then `M[P2] = 0` |
 | `inc` / `dec` | `f8` / `f9` | `M[P2] += 1` / `-= 1`, one LSB |
 | `inc.next` / `dec.next` | `fa` / `fb` | advance the word first |
-| `trunc` | `f7` | `M[P2] &= 0xffff0000`; the next ALU op does not store |
+| `int` | `fe` | raise DMP_INT and continue (conditional under `if`) |
 | `xchg01` (alias `swap`) | `fc` | toggle: A and MOV sources via P1, B via P0, until the next `fc` |
 | `xchg02` | `fd` | toggle: A and MOV sources via P2, stores into P0's page, until the next `fd` (`nostore` is refused: `fd` never suppressed anything) |
 
@@ -84,7 +86,7 @@ redundant.
 | `always` | `d8` | unconditional (the default) |
 | `branch N` | `f4 N` | jump to `here + 2 + N`, forward only, `0 <= N <= 0x7f` |
 | `disable` | `ff` | halt |
-| `skip` | `fe` | vendor `DINAFE` |
+| `skip` | — | withdrawn: `fe` is `int` |
 | `nop` | `a3` | the vendor's filler — **note it sets `P2.page = 3`** |
 
 `branch` takes a byte count, not a label: count the bytes your instructions assemble to. The

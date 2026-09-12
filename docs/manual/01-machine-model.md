@@ -105,12 +105,10 @@ Beyond the pointers, this is the whole machine:
 | **flags N, Z** | 2 | every ALU op, INC, DEC: N := result < 0, Z := result == 0; `d1` clears N | frozen while a predicate is armed |
 | **predicate** | — | `d9` IF (N ∨ Z) / `da` IF ¬N / `db` = `d9` — **sticky** | until the next `d8`–`db` |
 | **result routing** | 1 | `dc` → RAM, `dd` → FIFO | **sticky**; FIFO is the at-rest state |
-| **store width** | 2 | `f1` 32-bit, `f2` upper half, `f3` lower half | **sticky** |
-| **A-zero** | 1 | `f0` — the A operand contributes 0 | **single-shot**, next ALU op only |
+| **mode** | 3 | `f0`–`f7`: `f1` 32-bit, `f2` upper half, `f3` lower half, `f0` 32-bit with opposite-sign sums 1 LSB lower; `f5`/`f6`/`f7` the MIN/CMP/AND/XOR family at the same three widths | **sticky**; any other `fX` replaces it |
 | **exchange P0/P1** | 1 | `fc` — A and MOV sources via P1, B via P0 | **toggle**: until the next `fc` |
 | **exchange P0/P2** | 1 | `fd` — A and MOV sources via P2, stores into P0's page | **toggle**: until the next `fd` |
-| **store suppress** | 1 | `f7` — the next ALU op does not store | one op |
-| **MIN prefix** | 1 | `f5` / `f6` | single-shot, and only for `op&3 == 0` |
+| **interrupt** | — | `fe`, or `f4` with an immediate of `41`–`7f`: raise `DMP_INT`, continue | — |
 
 Two consequences worth internalising:
 

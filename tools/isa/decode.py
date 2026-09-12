@@ -59,6 +59,7 @@ class Decoder:
         self.img, self.L, self.N = img, lineage, namer
         self.page = [0, 0, 0]; self.bank = [0, 0, 0]; self.blk = [0, 0, 0]
         self.cond = "d8"; self.width = None; self.ram = False   # dc/dd routing, off at start
+        self.logic = None                                        # f5/f6/f7: MIN/CMP/AND/XOR mode (probe70)
         self.mode4 = False                                       # icm: after f4, until f0-f7
         self.base = 0x90 if lineage == "icm" else 0              # image offset -> DMP address
         if lineage in ("mantis", "icm"):
@@ -96,6 +97,11 @@ class Decoder:
             return 1, "MODE4   (f4 alone: pointer loads now address the I/O space; f0-f7 ends it)  [probe47]"
         if b == self.br and i + 1 < len(self.img):
             imm = self.img[i + 1]
+            if 0x40 <= imm < 0x80:
+                # probe69/70: bit 6 with a nonzero low field raises DMP_INT and does not branch
+                # (f4 44, f4 41, f4 42, f4 48); f4 40 alone does nothing; f4 60 emitted a zero word.
+                return 2, (f"INT   raise DMP_INT, no branch  (f4 {imm:02x}; probe69/70)" if imm & 0x1F else
+                           f"f4 {imm:02x}: no branch, no interrupt measured (probe70)")
             if imm < 0x80:
                 return 2, f"{'B' if self.cond=='d8' else 'B.'+self.cond} -> {i+2+imm}"
             # bit 7 set: no branch is taken and the next byte executes normally, so f4
@@ -168,9 +174,13 @@ class Decoder:
             # RAM store writes.  With P2 holding 0x7E7E7E7E and the op computing 1.5:
             #   f1 -> 0x60000000 (32-bit, same as the default)   f2 -> 0x60007E7E (upper half)
             #   f3 -> 0x7E7E0000 (lower half)                    f0 -> the A operand contributes 0
-            note = {0: "A operand contributes 0 (single-shot)", 1: "32-bit store",
+            # probe70: f0 is not "A contributes 0" -- under it a sum whose two addends have
+            # opposite signs comes out one LSB lower (7 + -5 = 1, 3 - 6 = -4), and it is sticky
+            # like the other modes.  The f-family f0..f7 is one 3-bit mode register.
+            self.logic = None
+            note = {0: "32-bit store; a sum of opposite-sign addends is 1 LSB lower (probe70)", 1: "32-bit store",
                     2: "16-bit store, upper half-word", 3: "16-bit store, lower half-word"}[b & 3]
-            return 1, f"WIDTH.{b&3}   ; {note}  [probe37]"
+            return 1, f"WIDTH.{b&3}   ; {note}  [probe37/70]"
         if self.L in ("mantis", "icm") and 0xF8 <= b <= 0xFB:
             if b & 2: self.p2off = (getattr(self, "p2off", 0) + 4) % 16
             verb = "DEC" if b & 1 else "INC"
@@ -180,21 +190,17 @@ class Decoder:
                 # `f9 da f4 <back>` runs a body n + 1 times for a count of n.
                 flag = "  F := result < 0"
             return 1, f"{verb}  {self.N.name(self.ptr(2))} by 1{'  (P2 word++ first)' if b & 2 else ''}{flag}  ({b:02x}; probe23)"
-        if b == 0xF5 and self.L in ("mantis", "icm"):
-            self.minpfx = True
-            return 1, "MIN prefix  next ALU op computes signed min(A,B)  [probe29, 16/16]"
-        if b == 0xF6 and self.L in ("mantis", "icm"):
-            # Same MIN as f5, but the store is 16-bit: only the upper half-word is written and
-            # the destination's low half survives.  probe36, raw hex:
-            #   f5 00 -> 0x20000000     f6 00 -> 0x20007E7E  (7E7E = the seed's low half)
-            self.minpfx = True; self.half = True
-            return 1, "MIN16 prefix  signed min(A,B), 16-bit store (upper half-word)  [probe31/36]"
-        if b == 0xF7 and self.L in ("mantis", "icm"):
-            # probe36 seeded known destinations: 0x12345678 -> 0x12340000, 0x0000FFFF -> 0.
-            # The following ALU op does not store (16/16 sweep cells + 4 seeded cells).
-            self.nostore = True
-            return 1, (f"TRUNC {self.N.name(self.ptr(2))} &= 0xFFFF0000   clear the low half-word"
-                       f"  (the next ALU op does not store)  [probe36]")
+        if 0xF5 <= b <= 0xF7 and self.L in ("mantis", "icm"):
+            # probe69/70 (MPU): f5, f6, f7 are modes 5..7 of the same sticky register as f1..f3.
+            # Under them the ALU byte's op field selects MIN (0), a no-store compare that sets
+            # the flags (1), AND (2) or XOR (3) -- 4 operand pairs each -- and the store width is
+            # 32-bit (f5), the upper half-word (f6) or the lower half-word (f7).  f7 was read as
+            # TRUNC + no-store from a cell where min(0.5, 0.5)'s low half happened to be 0000.
+            # f1 (or any f0..f3) ends the mode; d8, pointer loads and MOVs do not.
+            self.logic = b & 7; self.width = {5: 1, 6: 2, 7: 3}[b & 7]
+            return 1, {5: "LOGIC   ; ALU op field: 0 MIN, 1 compare (flags, no store), 2 AND, 3 XOR; 32-bit store, sticky  [probe29/70]",
+                       6: "LOGIC.HI   ; MIN / compare / AND / XOR, upper half-word store, sticky  [probe36/70]",
+                       7: "LOGIC.LO   ; MIN / compare / AND / XOR, lower half-word store, sticky  [probe69/70]"}[b & 7]
         if b == 0xFC and L == "icm" and i + 2 < len(self.img):
             # Finding 27 (probe57/59/61/63): on DMP3 fc is a THREE-byte instruction, `fc X Y`,
             # that stores nothing and leaves no ALU result (d1 after it always reads zero).
@@ -239,19 +245,19 @@ class Decoder:
             # unconditional (`d8 d8 ff` = CFG_6), and FCFG_1/2/7/3 at 868..936 still have to
             # run -- the vendor's drivers patch them at runtime.
             if b == 0xFF:
-                self.nostore = True
-                return 1, (f"?TRUNC {self.N.name(self.ptr(2))} &= 0xFFFF0000   (the next ALU op does not store)"
-                           f"   ; CONJECTURE: 3050 ff = mantis f7, no MPU-3050 to test")
-            self.minpfx = True
+                self.logic = 7; self.width = 3
+                return 1, "?LOGIC.LO  (MIN/CMP/AND/XOR, lower half-word store)   ; CONJECTURE: 3050 ff = mantis f7, no MPU-3050 to test"
+            self.logic = 5
             if b == 0xFE:
-                self.half = True
-                return 1, ("?MIN16 prefix  signed min(A,B), 16-bit store"
-                           "   ; CONJECTURE: 3050 fe = mantis f6 (the vendor also defines DINAFE = 0xfe here)")
-            return 1, "?MIN prefix  next ALU op computes signed min(A,B)   ; CONJECTURE: 3050 fd = mantis f5"
+                self.logic = 6; self.width = 2
+                return 1, "?LOGIC.HI  (MIN/CMP/AND/XOR, upper half-word store)   ; CONJECTURE: 3050 fe = mantis f6 (the vendor also defines DINAFE = 0xfe here)"
+            return 1, "?LOGIC  (MIN/CMP/AND/XOR, 32-bit store)   ; CONJECTURE: 3050 fd = mantis f5"
         if b == 0xFF:
             return 1, "HALT   disable/terminate (vendor: ends every image; probe26)"
         if b == 0xFE:
-            return 1, "SKIP   (vendor: DINAFE; never probed -- label only)"
+            # probe69/70 (MPU): fe raises DMP_INT and the pass continues; it honours a predicate.
+            # The vendor's DINAFE "disable" patches are therefore interrupts, not skips.
+            return 1, "INT   raise DMP_INT and continue  (fe; conditional under a predicate; probe69/70)"
         if b == 0xD1:
             if L == "icm":
                 return 1, "TEST  F := (last ALU result == 0)  (without d1, F is the result's sign)  [probe52]"
@@ -293,10 +299,10 @@ class Decoder:
             k = (b >> 1) & 3
             return 1, (f"?MOV16 {self.N.name(self.ptr(0) + 4 * k)} -> {self.N.name(self.ptr(2))}"
                        f"   ; CONJECTURE: assumed same as mantis c8-cf, no MPU-3050 to test")
-        if L == "mantis" and b in (0xD2, 0xD3, 0xD4, 0xD5, 0xE7):
+        if L == "mantis" and (b in (0xD2, 0xD3, 0xD4, 0xD5, 0xD6, 0xD7) or 0xE0 <= b <= 0xEF):
             # probe67/68: on the MPU these clear M[P2] in place like de (d2..d5 measured, e7 too);
             # e0 / e2 emit a zero word under FIFO routing.  DMP3 gives them other meanings.
-            return 1, f"CLR  {self.N.name(self.ptr(2))} := 0  (in place; {b:02x} = de on the MPU, probe68)"
+            return 1, f"CLR  {self.N.name(self.ptr(2))} := 0  (in place; {b:02x} = de on the MPU, probe68/69)"
         if b in CONJECTURE and self.L == "mantis":
             return 1, CONJECTURE[b] + "  [UNKNOWNS.md]"
         if b < 0x80:
@@ -309,25 +315,23 @@ class Decoder:
             else:
                 a, bb = self.ptr(0) + 4 * A, self.ptr(1) + 4 * B
             ALU = {0: "ADD", 1: "RSUB", 2: "MUL", 3: "NMUL"}[op & 3]
-            if getattr(self, "minpfx", False):
-                self.minpfx = False
-                if op & 3 == 0: ALU = "MIN "        # only op0 is confirmed under f5
-                else: ALU = f"F5.{op & 3}"
+            logic = getattr(self, "logic", None)
+            if logic:
+                ALU = {0: "MIN ", 1: "CMP ", 2: "AND ", 3: "XOR "}[op & 3]   # probe70: 4 pairs each
             # op&4 PRE-ADVANCES the P2 word (mod 4); it is not a fixed +4 offset.
             # probe32: `44 44 44` writes 0x244/0x248/0x24c, and `00 2c 54 7c`
             # writes four consecutive words -- that is how QT1..QT4 get updated.
             if op & 4: self.p2off = (getattr(self, 'p2off', 0) + 4) % 16
             d = self.ptr(0) if getattr(self, "xchg02", False) else self.ptr(2)
-            if getattr(self, "nostore", False):
+            if getattr(self, "nostore", False) or (logic and op & 3 == 1):
                 self.nostore = False
-                dest = "(discarded)"
+                dest = "(no store; flags only)" if logic else "(discarded)"
             elif self.ram:
                 dest = self.N.name(d)
-                if getattr(self, "half", False) or self.width in (2, 3):
-                    dest += ".hi" if (getattr(self, "half", False) or self.width == 2) else ".lo"
+                if self.width in (2, 3):
+                    dest += ".hi" if self.width == 2 else ".lo"
             else:
                 dest = f"FIFO{ {1: 32, 2: 16, 3: 16}.get(self.width, '') }"
-            self.half = False
             if L == "icm": self.shw = "mul" if op & 2 else "alu"      # the shifter's register follows every ALU op (probe64)
             return 1, f"{ALU} A={self.N.name(a):<12} B={self.N.name(bb):<12} -> {dest}"
         return 1, f"{b:02x}"

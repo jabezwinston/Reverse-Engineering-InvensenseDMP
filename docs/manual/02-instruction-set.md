@@ -147,21 +147,21 @@ relocated from `f8`) and `f8`–`ff` (`DINBF8`, new in this core).
 
 | encoding | instruction | effect |
 |---|---|---|
-| `f0` | `AZERO` | the **A** operand contributes 0 for the next ALU op only, single-shot **[HW, probe37]** |
+| `f0` | `WIDTH.0` | 32-bit store like `f1`, except that a sum whose two addends have opposite signs comes out **one LSB lower** (7 + −5 = 1; 3 − 6 = −4). Sticky **[HW, probe70; withdrawing AZERO]** |
 | `f1` | `WIDTH.32` | 32-bit store. Sticky. The default **[HW, probe37]** |
 | `f2` | `WIDTH.16H` | 16-bit store, **upper** half-word; the low half survives. Sticky **[HW]** |
 | `f3` | `WIDTH.16L` | 16-bit store, **lower** half-word. Sticky **[HW]** |
 | `f4 imm` | `BRANCH` | see below **[HW, probe26/27]** |
-| `f5` | `MIN` | the next ALU op with `op&3 == 0` computes `min(A, B)`, **signed** **[HW, probe28/29, 16/16]** |
-| `f6` | `MIN16` | same, with a 16-bit (upper half-word) store **[HW, probe36]** |
-| `f7` | `TRUNC` | `M[P2] &= 0xFFFF0000`, and the next ALU op does not store **[HW, probe36]** |
+| `f5` | `LOGIC` | **sticky mode**: the ALU byte's `op&3` selects **0 MIN** (signed), **1 CMP** (flags only, nothing stored), **2 AND**, **3 XOR**; 32-bit store **[HW, probe29, probe70: 4 operand pairs each]** |
+| `f6` | `LOGIC.HI` | the same family, upper half-word store **[HW, probe36/70]** |
+| `f7` | `LOGIC.LO` | the same family, lower half-word store (min(0.5, 0.5) has a zero low half, which is what looked like TRUNC) **[HW, probe69/70; withdrawing TRUNC]** |
 | `f8` | `INC` | `M[P2] += 1` (one LSB) **[HW, probe23]** |
 | `f9` | `DEC` | `M[P2] -= 1` **[HW, probe23]** |
 | `fa` | `INC.next` | `p2word++`, then `M[P2] += 1` **[HW]** |
 | `fb` | `DEC.next` | `p2word++`, then `M[P2] -= 1` **[HW]** |
 | `fc` | `XCHG01` | **toggle**: A and MOV sources read through **P1**, B through **P0**, until the next `fc`; stores still go to P2 **[HW, probe35, probe68]** |
 | `fd` | `XCHG02` | **toggle**: A and MOV sources read through **P2** and the store lands in **P0's** page, until the next `fd` **[HW, probe67/68; withdrawing NOSTORE]** |
-| `fe` | `SKIP` | vendor `DINAFE`, used as a disable filler in driver patch pairs. **Never probed** — this is a label, not a measurement **[VENDOR]** |
+| `fe` | `INT` | raises `DMP_INT` and continues; honours a predicate (`d9 fe` is a conditional interrupt). The vendor's `DINAFE` "disable" patches are interrupts **[HW, probe69/70; withdrawing SKIP]** |
 | `ff` | `HALT` | terminates the pass. Takes a predicate, so `d9 ff` is a conditional halt. The last byte of every mantis image **[HW, probe26]** |
 
 ### The branch, in detail
@@ -181,15 +181,18 @@ relocated from `f8`) and `f8`–`ff` (`DINBF8`, new in this core).
   `f4 f8` increments twice **[HW, probe27]**. Reading those 24 corpus sites as two-byte
   instructions was a decoder length bug that corrupted everything downstream of each.
 - Some drivers write `f4 4x` to raise a DMP interrupt (`f4 44 f1` enables the pedometer
-  interrupt) **[VENDOR]**. Under the 7-bit rule that is a branch of 0x44 = 68 bytes; the two
-  readings have not been separated, and `f4 4x` at the probe site breaks the interrupt handshake.
-  Treat immediates ≥ 0x20 with suspicion until you have checked the target.
+  interrupt) **[VENDOR]** — and it is: an immediate with **bit 6 set and a nonzero low field**
+  raises `DMP_INT` and does not branch (`f4 41`, `f4 42`, `f4 44`, `f4 48`); `f4 40` alone does
+  nothing measurable; `f4 20` and `f4 3f` are plain branches **[HW, probe69/70]**. So the
+  displacement field is 6 bits: `f4 00`–`f4 3f` branch, `f4 41`–`f4 7f` interrupt, `f4 8x`+ execute.
 
-### `f0`, stated honestly
+### `f0`, measured
 
-`f0` was measured as "the A operand contributes 0". On the constant page used, word 1 *is* 0.0,
-so **"A forced to zero" and "A index forced to word 1" are indistinguishable** in that data. A
-one-cell experiment on a page whose second word is non-zero would separate them.
+`f0` is the fourth store width, not "A contributes 0": on ten operand pairs it changed a
+result only when the two addends had opposite signs, and then by exactly one LSB downward
+(`7 + −5 = 1`, `8 + −5 = 2`, `3 − 6 = −4`; same-sign and zero operands unchanged) **[HW,
+probe70]**. It is sticky like `f1`–`f3`. The earlier reading came from a page whose word 1 was
+0.0. Its purpose is not established; it precedes 47 multi-store runs in the corpus.
 
 ## 2.7 The complete encoding map
 
@@ -220,9 +223,9 @@ dc ->RAM      dd ->FIFO     de CLR        df CLR +
 e0-ef   ..unused..          (no occurrence anywhere in the MPU-6050-family corpus)
 
 f0 AZERO      f1 WIDTH.32   f2 WIDTH.16H  f3 WIDTH.16L
-f4 BRANCH imm f5 MIN        f6 MIN16      f7 TRUNC
+f4 BRANCH imm f5 LOGIC      f6 LOGIC.HI   f7 LOGIC.LO
 f8 INC        f9 DEC        fa INC +      fb DEC +
-fc XCHG01     fd XCHG02     fe SKIP       ff HALT
+fc XCHG01     fd XCHG02     fe INT        ff HALT
 ```
 
 **48 of the 256 encodings are never executed** in the 11 MPU-6050-family images: `bc`–`bf`,

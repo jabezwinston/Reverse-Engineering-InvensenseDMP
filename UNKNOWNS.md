@@ -47,11 +47,11 @@ see. Reproduce the aliasing analysis with `python3 tools/isa/runs.py`.
 measured (the next ALU op does not store); its reach across an intervening pointer load is
 still unmeasured.
 
-## 3. Two readings of `f0` not yet separated
+## 3. `f0` — closed
 
-`f0` makes the A operand contribute zero. "A forced to zero" and "A index forced to word 1" are
-indistinguishable on the constant page used, because its word 1 *is* 0.0. Separating them needs a
-P0 page whose second word is non-zero — a one-cell experiment.
+Neither reading (Finding 29): `f0` is the fourth store width, whose only measured effect is a
+sum of opposite-sign addends coming out one LSB lower. What it is *for* is open; it precedes 47
+multi-store runs in the corpus.
 
 ## 4. The 3050 lineage's upper f-family
 
@@ -84,13 +84,16 @@ item 4.
 
 | item | status |
 |---|---|
-| `db` (`IF.3`) | follows `Z` in every cell measured and is true at rest; the condition itself is unidentified |
-| `fe` (`SKIP`) | **never probed.** Labelled from `DINAFE` and from driver disable-patch pairs; 6 corpus occurrences |
-| `bc`–`bf`, `d2`–`d7`, `e0`–`ef` | 48 encodings never executed by any MPU-6050-family image. `bc`–`bf` scramble this core when executed; the rest are wholly unattested on the MPU. On DMP3, `bc`–`be`, `e0` and `f4`'s new form are decoded (item 7) |
-| `f4` with `imm >= 0x20` | the drivers' `f4 44` / `f4 41` raise a DMP interrupt. Whether that is a distinct form or a long branch has not been separated |
-| P2 word index reset on `ax` | inferred, never isolated — every measured payload reloads the page first |
-| MOV vs routing and width | every MOV measurement ran with routing on RAM and no width mode set |
-| `f5` with `op != 0` | unresolved: `op1` and `op4`–`op7` store nothing, `op2`/`op3` differ between operand pairs. Rendered `F5.n` |
+| `db` | closed: identical to `d9` on both parts (Findings 27/28) |
+| `fe` | closed: raises `DMP_INT` and continues, honours a predicate (Finding 29) |
+| `bc`–`bf` | scramble this core when executed (MPU); on DMP3 `bc`–`be` are the block field and `bf` sends a P2 store nowhere |
+| `d2`–`d7`, `e0`–`ef` | closed on the MPU: all clear M[P2] in place like `de` (`e0`/`e2` emit a zero word) — undefined bytes fall through to the clear (Findings 28/29). On DMP3 they are the shifter, product, return, interrupt and `e7` |
+| `f4` with `imm >= 0x40` | closed: bit 6 with a nonzero low field is `DMP_INT` without a branch; `f4 40` does nothing; `f4 60` emitted a zero word once (Finding 29) |
+| P2 word index reset on `ax` | closed: it resets, on both parts (probe61, probe69) |
+| MOV vs routing and width | closed: MOVs honour `f2`/`f3` on the FIFO (16-bit emits) as well as in RAM (probe69) |
+| `f5` with `op != 0` | closed: `op&3` = 0 MIN, 1 flags-only compare, 2 AND, 3 XOR; `f6`/`f7` the same at half-word widths (Finding 29) |
+| what `f0` is for | open: see §3 |
+| the same-destination runs | open: see §1 — now to be re-read with `f0` (47 run starts), `fd` (P0/P2 exchange) and the sticky predicates in hand |
 
 ## 7. The ICM-20948 (DMP3), and what it says about the MPU chapters
 
