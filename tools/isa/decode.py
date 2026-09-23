@@ -222,16 +222,16 @@ class Decoder:
             # clear, Y = 1 the complement; Y's op-field low bits modify the test and arbitrary Y
             # (e.g. the vendor's 0x0c) combines selector and op bits in a way only partly mapped.
             # So the feature gates are RAM bit tests, not an external condition.
+            # Finding 35 (probe83b, 2048/2048 cells): it is an IMMEDIATE COMPARE, not a bit test:
+            # F := (P1 word (X&3) & 0x3f) <cond> (Y >> 2), cond = Y & 3: 0 EQ, 1 GT, 2 LT, 3 NE.
+            # The "bit tests" were equalities with one-hot values (Y = 04 is field == 1).  X below
+            # 0xc0 is still three bytes and sets F, but its condition is only partly mapped.
             x, y = self.img[i + 1], self.img[i + 2]
             w = self.N.name(self.ptr(1) + 4 * (x & 3))
-            onehot = {0x04: 0, 0x08: 1, 0x10: 2, 0x20: 3, 0x40: 4, 0x80: 5}
-            if y in onehot:
-                return 3, f"BIT   F := {w} bit {onehot[y]} set   (fc {x:02x} {y:02x}; no store; probe76)"
-            if y == 0x00:
-                return 3, f"BITZ  F := ({w} & 0x3f) == 0   (fc {x:02x} 00; no store; probe76)"
-            if y == 0x01:
-                return 3, f"BITNZ F := ({w} & 0x3f) != 0   (fc {x:02x} 01; no store; probe75)"
-            return 3, f"BIT?  {w}, selector {y:02x}   (fc {x:02x} {y:02x}; bit/field test, Y decode partly mapped; probe76/77)"
+            if x >= 0xC0:
+                c = ["==", ">", "<", "!="][y & 3]
+                return 3, f"CMP   F := ({w} & 0x3f) {c} {y >> 2}   (fc {x:02x} {y:02x}; immediate compare, no store; probe83b)"
+            return 3, f"CMP?  {w}   (fc {x:02x} {y:02x}; X < 0xc0: three bytes, sets F, condition partly mapped; probe83d/e)"
         if b == 0xFC and self.L in ("mantis", "icm"):
             # probe35: the A field indexes P1 and the B field indexes P0.  32/32 cells over two
             # independent operand vectors.  Paired with RSUB (B-A) this gets the opposite

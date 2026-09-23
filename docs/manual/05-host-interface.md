@@ -224,8 +224,9 @@ before you design an experiment, because every one of them looked like a clean m
    the hypothesis.
 5. **A single-instruction test cannot see pre-advance semantics.** 40 clean cells measured
    `op&4` as a fixed +4 offset; it is a pre-advance, and the two are identical for one op.
-6. **Control-guard every cell, and re-init after a poisoning one.** `bc`/`bd` scramble the core;
-   everything measured after one is void.
+6. **Control-guard every cell, and re-init after a poisoning one.** `bc`/`bd` move a pointer's
+   1 KB block and the MPU keeps it across passes (Finding 35), so one stray block byte shifts
+   everything measured after it until `DMP_RST`.
 
 The general rule that follows: run N control steps with a NOP at the test site, keep the bytes
 that are identical across all N as a **stability mask**, and compare only inside the mask. A

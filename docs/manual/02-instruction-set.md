@@ -70,7 +70,7 @@ pointers with P1 / with P2), `f1`/`f2`/`f3` (32-bit / upper-half / lower-half st
 | `b0`–`b3` | `P0.bank = v & 3` | **[HW]** |
 | `b4`–`b7` | `P1.bank = v & 3` | **[HW]** |
 | `b8`–`bb` | `P2.bank = v & 3` | **[HW]** |
-| `bc`–`bf` | *not a mantis instruction* | selector 3 of the bank family. Never appears in any MPU-6050-family image and scrambles the MPU rig when executed at the probe site. On DMP3 `bc`/`bd`/`be` add a 1 KB block to P0/P1/P2 — [chapter 8](08-dmp3-icm20948.md) **[HW, ICM-20948]**. `bf` is unattested everywhere. |
+| `bc`–`be` | P0 / P1 / P2 block | add 1 KB to the pointer, modulo 3 (the 3 KB of RAM), **kept across passes** until `DMP_RST` — so a pass that moves a block must move it back. Never used by an MPU-6050-family image, which is why executing one at a probe site "scrambled" the rig **[HW, probe84/84b]**. On DMP3 it is modulo 4 and reset every pass ([chapter 8](08-dmp3-icm20948.md)). `bf` is undefined here (it corrupts stores); on DMP3 it is the MOV-stores-zero toggle |
 
 `a3` deserves a note: it is `P2.page = 3`, which points the destination at bank 1 page 3 — the
 `TMP1B..TMP4B` scratch page. That is why the vendor uses `a3` as its NOP and why every disabled
@@ -212,7 +212,7 @@ through `f0`; DMP3 reaches the same unit through the shifter (`d4`–`d7`, `fd`)
 a0-af   P2.page = v & 0xf                       (destination page; a3 is the vendor NOP)
 
 b0-b3   P0.bank = 0..3      b4-b7   P1.bank = 0..3      b8-bb   P2.bank = 0..3
-bc-bf   ..unused..                                       (ICM-20948 only; scrambles this core)
+bc-be   P0/P1/P2 block += 1 KB (mod 3, kept across passes)  bf  undefined
 
 c0 MOV  0     c1 MOV  0 +   c2 MOV  1     c3 MOV  1 +
 c4 MOV  2     c5 MOV  2 +   c6 MOV  3     c7 MOV  3 +

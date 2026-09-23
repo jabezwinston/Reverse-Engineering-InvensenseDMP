@@ -101,14 +101,14 @@ assembler prints the byte string, so assembling once and counting is the reliabl
 | `call LABEL` | `f4 hi lo` (bit 14) | call; `ret` (`e0`) returns |
 | `mode4` | `f4` | enter mode 4 without jumping |
 | `if f` / `if nf` | `d9` / `da` | F = sign of the last result (`test` makes it the zero flag); **sticky** until `always` |
-| `p0blk` `p1blk` `p2blk` | `bc` `bd` `be` | add 1 KB (mod 4) to the pointer |
+| `p0blk` `p1blk` `p2blk` | `bc` `bd` `be` | add 1 KB to the pointer: mod 4, reset each pass on DMP3; mod 3 and kept across passes on the MPU |
 | `load k` | `d4`–`d7` | load the 4-word shifter from P0, select word k |
 | `shl s[,adv]` / `sar s[,adv]` | `fd n` | shift the register and store the selected word |
 | `lo` / `lo.next` | `d2` / `d3` | store the low word of the last product |
 | `int` | `e2` | raise DMP_INT1 |
 | `clr` | `de` | clear M[P2] in place |
-| `bit k,n` | `fc ck Y` | F := (P1 word k, bit n) set, n in 0..5 (Y = 4<<n), nothing stored — the feature-flag dispatcher: `bit 0,1` / `if f` / `jump on` |
-| `bitz k` / `bitnz k` | `fc ck 00/01` | F := (P1 word k low 6 bits) all clear / any set |
+| `cmp.eq k,t` `cmp.gt` `cmp.lt` `cmp.ne` | `fc ck Y` | F := (P1 word k & 0x3f) == / > / < / != t, t an immediate 0..63 (Y = t<<2 \| 0..3); nothing stored — the state dispatcher: `cmp.eq 0,3` / `if f` / `jump on` |
+| `bitz k` / `bitnz k` | `fc ck 00/01` | the same with t = 0: field == 0 / != 0. (`bit k,n` is rejected: it was a misreading of `cmp.eq k,2**n`) |
 
 After a `jump`, `call` or `mode4` the machine is in **branch-target mode**: every byte below
 0x80 is read as the high byte of a target until a width byte (`fmode`, `min`, `min16`, `trunc`)

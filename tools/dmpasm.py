@@ -71,7 +71,8 @@ DMP3 / ICM-20948 forms (`.lineage icm`; manual chapter 8, ISA2.md Findings 24-26
   mode4                              a bare f4 (no target): enter mode 4 without jumping
   if f / if nf                       d9 / da on DMP3: F = sign of the last result (== 0 after test)
        Predicates are STICKY on DMP3: a false one skips everything up to the next always/if.
-  p0blk / p1blk / p2blk              bc / bd / be: add 1 KB (mod 4) to that pointer
+  p0blk / p1blk / p2blk              bc / bd / be: add 1 KB to that pointer (icm: mod 4, reset each
+                                     pass; mantis: mod 3, kept across passes -- undo it before the pass ends)
   load k                             d4..d7: load the 4-word shifter from P0, select word k
   shl s[,adv] / sar s[,adv]          fd n: shift the register left by s (1..31, pulling the next
                                      word's fraction in) or arithmetic right by s (1..32) and
@@ -81,11 +82,12 @@ DMP3 / ICM-20948 forms (`.lineage icm`; manual chapter 8, ISA2.md Findings 24-26
   lo / lo.next                       d2 / d3: store the low word of the last product
   int                                e2: raise DMP_INT1
   clr                                de: M[P2] := 0 in place  (e7 is the same)
-  bit k,n                            fc cK Y: F := (P1 word k, bit n) set, n in 0..5 (Y = 4<<n); no store.
-  bitz k / bitnz k                   fc cK 00/01: F := (P1 word k low 6 bits) all clear / any set.
-                                     The feature-flag dispatcher: `bit 0,1` / `if f` / `jump on`.
+  cmp.eq k,t / cmp.gt k,t            fc cK Y: F := (P1 word k & 0x3f) == / > / < / != t, t an
+  cmp.lt k,t / cmp.ne k,t            immediate 0..63 (Y = t<<2 | 0/1/2/3); no store (Finding 35).
+  bitz k / bitnz k                   fc cK 00/01: the same with t = 0: field == 0 / field != 0.
+                                     The state dispatcher: `cmp.eq 0,3` / `if f` / `jump on`.
 The flag F is updated by ALU ops, inc and dec ONLY while no predicate is armed (after
-`always`); `test`, `bit` and `bitz` update it regardless.  So a loop's counter must be decremented
+`always`); `test`, `cmp.*` and `bitz` update it regardless.  So a loop's counter must be decremented
 under `always`: `always` / `dec` / `if nf` / `jump loop` (programs/loop_icm.s).
 Mode 4 rule: after any jump/call/mode4 every byte below 0x80 is a branch target, not an ALU
 op, until a width byte (fmode / f5 / min16 / trunc) ends the mode -- so every jump target and
@@ -226,20 +228,24 @@ def assemble(text, lineage="mantis", warn=None):
                 icm_only("ret"); out.append(0xE0)
             elif op == "mode4":
                 icm_only("mode4"); out.append(0xF4); mode4 = True
-            elif op in ("bit", "bitz", "bitnz", "tz", "tnz"):   # fc cX Y: bit test of P1 word X (probe76/77)
+            elif op == "bit":
+                raise AsmError("bit k,n was a misreading: fc cK (4<<n) tests field == 2**n, not bit n "
+                               "(Finding 35). Use cmp.eq k,t / cmp.gt / cmp.lt / cmp.ne")
+            elif op in ("cmp.eq", "cmp.gt", "cmp.lt", "cmp.ne", "bitz", "bitnz", "tz", "tnz"):
+                # fc cX Y: F := (P1 word X & 0x3f) <cond> Y>>2, cond = Y&3: EQ GT LT NE (probe83b)
                 icm_only(op)
                 toks = [t.strip() for t in arg.split(",")]
                 k = int(toks[0], 0)
-                if not 0 <= k <= 3: raise AsmError(f"{op} k[,n]: k is 0..3 (a P1 word)")
-                if op == "bit":
-                    if len(toks) != 2: raise AsmError("bit k,n: n is the word bit 0..5")
-                    n = int(toks[1], 0)
-                    if not 0 <= n <= 5: raise AsmError("bit k,n: n is 0..5 (fc reaches word bits 0-5)")
-                    y = 0x04 << n
+                if not 0 <= k <= 3: raise AsmError(f"{op} k[,t]: k is 0..3 (a P1 word)")
+                if op.startswith("cmp."):
+                    if len(toks) != 2: raise AsmError(f"{op} k,t: t is the immediate 0..63")
+                    t = int(toks[1], 0)
+                    if not 0 <= t <= 63: raise AsmError(f"{op} k,t: t is 0..63 (fc compares the low 6 bits)")
+                    y = (t << 2) | {"cmp.eq": 0, "cmp.gt": 1, "cmp.lt": 2, "cmp.ne": 3}[op]
                 elif op in ("bitz", "tz"):
-                    y = 0x00                       # low 6 bits all clear
+                    y = 0x00                       # field == 0
                 else:
-                    y = 0x01                       # any low bit set
+                    y = 0x01                       # field > 0, i.e. != 0
                 out += bytes([0xFC, 0xC0 | k, y])
             elif op == "int":                    # e2 on DMP3; fe on the MPU (probe69: raises DMP_INT, honours a predicate)
                 out.append(0xE2 if lineage == "icm" else 0xFE)
@@ -248,7 +254,9 @@ def assemble(text, lineage="mantis", warn=None):
             elif op in ("lo", "lo.next"):
                 icm_only(op); out.append(0xD3 if op.endswith("next") else 0xD2)
             elif op in ("p0blk", "p1blk", "p2blk"):
-                icm_only(op); out.append(0xBC + "012".index(op[1]))
+                # bc/bd/be are the block field on the MPU too (probe84): mod 3 and kept across passes
+                if lineage == "3050": raise AsmError(f"{op} is a mantis/icm instruction")
+                out.append(0xBC + "012".index(op[1]))
             elif op == "load":
                 icm_only("load")
                 k = int(arg, 0)
@@ -393,9 +401,9 @@ def assemble(text, lineage="mantis", warn=None):
                 raise AsmError(
                     f"unknown mnemonic {op!r} (confirmed: p0page/p1page/p2page, "
                     "p0bank/p1bank/p2bank, add/rsub/mul/nmul, store[.op], p2inc, always, if N, branch, "
-                    "fmode, mac, min16, and, xor, cmp, int, xchg01/swap, xchg02, selbank, emit, nop, disable, .db; "
-                    "icm: .org, label:, jump, call, ret, mode4, if f/nf, p0blk/p1blk/p2blk, load, shl, sar, "
-                    "lo, lo.next, int, clr, bit, bitz, bitnz)")
+                    "fmode, mac, min16, and, xor, cmp, int, xchg01/swap, xchg02, selbank, emit, nop, disable, .db, p0blk/p1blk/p2blk; "
+                    "icm: .org, label:, jump, call, ret, mode4, if f/nf, load, shl, sar, "
+                    "lo, lo.next, int, clr, cmp.eq/gt/lt/ne, bitz, bitnz)")
         except AsmError as e:
             raise AsmError(f"line {lineno}: {e}") from None
         except ValueError as e:

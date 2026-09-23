@@ -1601,6 +1601,90 @@ on — readable with `f2`/`f3` half-word moves or as the two halves of a word. C
 (output rate, offsets, configuration) are reached through the I/O space at `4 × (bank*128 +
 reg)`. Both are ordinary memory-mapped accesses; no intrinsics beyond addresses are needed.
 
+## Finding 35 — `fc cX Y` is an immediate compare; the residue of both cores closed (HARDWARE CONFIRMED 2026-09-23)
+
+The last open items that bench time could settle (`bench/probe83.py`–`probe83e.py` on the
+ICM-20948, `probe84.py`/`probe84b.py` on the MPU-6050).
+
+**1. DMP3 `fc cX Y` compares a word against a 6-bit immediate** (probe83 C, probe83b A):
+
+```
+    F := (P1 word (X & 3) & 0x3f)  <cond>  (Y >> 2)        cond = Y & 3:  0 ==   1 >   2 <   3 !=
+```
+
+unsigned, low 6 bits only. The full 256-Y sweep over twelve patterns grouped exactly by that
+rule, and the confirmation — all 64 field values, junk above bit 5, eight thresholds × four
+conditions — came out **2048/2048**. Finding 31's bit test was this compare seen through
+one-hot patterns: `04` is *field == 1*, not *bit 0 set*, so `fc c0 04` on a word holding 3 does
+not fire. The vendor's `fc c0 04 … 08 … 0c … 10` walk at 0x1af5 is a state counter compared with
+1, 2, 3, 4 (a bit test would make `0c` meaningless); `fc c0 28`, `fc c0 1c`, `fc c1 0a` are
+*== 10*, *== 7*, *< 2*. It is DMP3's one immediate operand outside branch targets. The assembler's
+`bit k,n` encoded the misreading and is replaced by `cmp.eq/gt/lt/ne k,t`; the decoder renders
+`CMP`; both DMP3 listings are regenerated (111 sites each, no other line changed).
+
+`fc X Y` with **X below 0xc0** (vendor: `fc 51 00` ×3, `fc 3d 00`, `fc 80 04`, `fc 08 04`) is also
+three bytes — neither X nor Y executes (the same bytes without `fc` store, with it nothing is
+stored, probe83d) — and it sets F, but not by the rule above: in probe83e most such X fire for
+every value tried, X = 80 fires only on a zero word under Y = 00, and one run disagreed with
+another. Left partly mapped.
+
+**2. FSYNC is readable** (probe83 B). With `EXT_SYNC_SET = 1`, bit 0 of RAM 0x0011 (the low byte
+of the hardware-written temperature sample) followed D4 in 6/6 toggles, matching TEMP_OUT_L.
+
+**3. DMP3 `bf` is a MOV-stores-zero toggle** (probe83d/e). After one `bf` every MOV stores 0 —
+whatever P0 points at, loaded before or after, through `dc` — while ALU stores and INC are
+unaffected; a second `bf` restores it. probe54 E's "lands nowhere" was a zero over the marker.
+
+**4. DMP3 I/O writes reach registers that do not read back** (probe83 D): a MOV into I/O
+a = 0x208 set bank-1 register 0x02 to `5a`; the block-2 alias of 0x254 changed nothing.
+
+**5. MPU sensor samples arrive in page 0** (probe84 A), int16 big-endian in the register-burst
+order: accel X/Y/Z at 0x000/0x002/0x004, temperature 0x006, gyro X/Y/Z 0x008/0x00a/0x00c;
+0x00e reads a constant 12. Accel standby froze 0x000–0x005 at exactly the host's ACCEL_OUT
+(−13926 8442 −518); gyro standby zeroed the gyro halves.
+
+**6. `bc`/`bd`/`be` are the block field on the MPU too — modulo 3, and not reset per pass**
+(probe84 B, probe84b B). `bc` makes P0 read 0x470, `bc bc` 0x870, `be` lands stores at 0x640 and
+0xa40, `bd` moves the ADD's B operand the same way; one pass per cell over `bc`×0..6 reads 0x070,
+0x470, 0x870, 0x070, … . Across passes of one run the block keeps accumulating (0x470, 0x870,
+0x070, 0x470 on successive passes with one `bc`), which is the "scramble" of the early probes: a
+stray `bc` in a vendor image moves every later pass's data. So MPU programs can reach all 3 KB,
+provided each pass brings the block back. `bf` on the MPU stores `6b6b6b6b`/`d6d6d6d6` or
+nothing depending on the source — used by no image, recorded as undefined.
+
+## Finding 36 — the 2639 image's FIFO output, predicted from the decode and confirmed; its entry gate (HARDWARE CONFIRMED 2026-09-23)
+
+The one item of chapter 7's "move the needle" list that needed no new part (`bench/probe85.py`).
+The hammerhead kernel driver (`inv_mpu_ring.c`, now in `corpus/sources_kernel/`) enables an
+output by overwriting its `CFG_OUT_x` slot — `f4 12`, a forward skip of 18 bytes over the emit
+block — with `a3 a3`, zeroing the rate `D_ODR_Sx` and its counter; `CFG_FIFO_INT` is `fe`
+(interrupt every pass) or `a3`.
+
+**Prediction.** The accel block at 2166 decodes as `dd` (FIFO) `f3 … 68` (a 16-bit header from
+an ALU store) `f2 b0 80 c0 c8 c2` (upper half of 0x000, the half-swapped 0x000, upper half of
+0x004) — so 8 bytes: a header, then accel X, Y, Z straight from the sample page of Finding 35.
+The gyro block reads words 2–3 the same way; the 6-axis quaternion block emits two 16-bit
+header halves and then words 1–3 of page 0x080 at 32 bits.
+
+**Measured**, at 200 Hz (the driver's `MPU_DEFAULT_DMP_FREQ`):
+
+| output | per interrupt | packet |
+|---|---:|---|
+| accel | 8 B | `4000` + accel X Y Z, e.g. −13896 8346 −480 against host −13640 8228 −506 |
+| gyro | 8 B | `2000` + gyro X Y Z, e.g. −52 30 20 against host −48 36 21 |
+| accel + gyro | 16 B | both, accel first |
+| 6-axis quaternion | 16 B | `0400 0400` + three Q30 words, small and drifting with the uncalibrated gyro |
+| accel, `CFG_FIFO_INT = a3` | — | no interrupt, FIFO still fills (328 B) |
+
+The headers are the driver's own `ACCEL_HDR 0x4000`, `GYRO_HDR 0x2000`, `SIXQUAT_HDR 0x0400`.
+
+**The entry gate.** As shipped, nothing is ever emitted: every pass halts at 1049
+(`f3 b1 86 96 a3 31 d1 da f1 ff`) — the significant-motion block at 0x160 compares two
+half-words and `da f1 ff` ends the pass. It opens when the half-word at **0x16a** (`D_1_106`,
+image default 3) is 0; setting 0x166 or 0x164 instead does not. No driver in the corpus writes
+`D_1_106`, and on the 6050 nothing in the image clears it. The likeliest reading is that 6500
+hardware initialises it, which is the one question here that still needs an MPU-6500.
+
 ## Decoder corrections (2026-09-08, no new hardware)
 
 Three defects found while writing `docs/manual/`, all in `tools/isa/decode.py`:

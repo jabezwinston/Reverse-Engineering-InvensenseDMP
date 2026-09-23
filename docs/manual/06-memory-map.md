@@ -7,11 +7,15 @@ These are routinely conflated and they are not the same size.
 | space | range | reached by |
 |---|---|---|
 | **host-addressable DMP RAM** | `0x000`–`0xBFF`, 3072 B | `BANK_SEL` / `MEM_START_ADDR` / `MEM_R_W` **[HW]** |
-| **program-addressable RAM** | `0x000`–`0x3FF`, **1024 B** | P0 / P1 / P2 **[HW]** |
+| **program-addressable RAM** | `0x000`–`0x3FF`, **1024 B** per block; all 3072 B with the block field | P0 / P1 / P2, `bc`/`bd`/`be` **[HW]** |
 
 A pointer is `bank * 256 + page * 16` with a 4-bit page and a **2-bit bank**, so the largest
-address any pointer can name is `3*256 + 15*16 + 12` = 1020. Everything a DMP program reads or
-writes lives in the first kilobyte.
+address any pointer can name is `3*256 + 15*16 + 12` = 1020 — within one **block**. No MPU
+image uses the block field, but the core has it: `bc`/`bd`/`be` add 1 KB to P0/P1/P2 modulo 3,
+so the program reaches all 3072 bytes **[HW, probe84/84b]**. Unlike DMP3, the block is **not
+reset at the start of a pass**: it accumulates across passes until `DMP_RST`, so a program that
+moves a pointer's block must bring it back (three `bc` in all) before the pass ends. That is
+why a stray `bc` "scrambled" the vendor image in the early probes.
 
 The older 3050 core had a **1-bit** bank field, giving 512 B — and `dmpmap.h`, the vendor's
 symbolic data map, describes exactly 512 bytes. The mantis core widened the field by one bit,
@@ -96,8 +100,13 @@ Three pages you will use constantly:
   it is why `a3` is a safe filler.
 - **Page 8 (address 128) — `TMP1A..TMP4A`**, the other scratch set, used for intermediate terms.
 
-Pages 0, 9, 10 and 25 hold the sensor inputs and their working copies. Page 0's word order
-(`PTAT`, `YGYR`, `XACC`, `ZACC`) mirrors the MPU-6050 sensor register burst.
+Pages 0, 9, 10 and 25 hold the sensor inputs and their working copies. **The hardware writes
+page 0 before every pass**, int16 big-endian in the register-burst order **[HW, probe84]**:
+accel X / Y / Z at `0x000` / `0x002` / `0x004`, temperature at `0x006`, gyro X / Y / Z at
+`0x008` / `0x00a` / `0x00c`; `0x00e` reads a constant 12. Identified by standby: with the
+accel in standby `0x000`–`0x005` freeze at the host's ACCEL_OUT values, with the gyro in
+standby the gyro halves read 0. The vendor's word names (`PTAT`, `YGYR`, `XACC`, `ZACC`) label
+the 32-bit words, each of which holds two of these half-words.
 
 ## 6.4 The bench view of the same thing
 

@@ -9,12 +9,12 @@ These are properties of the machine, established rather than assumed. Design aro
 | **No backward branch** — 64 immediates swept with a re-execution detector, none looped **[HW]** | No loop is expressible. Unroll everything |
 | **Displacement is 7 bits, forward** | A single branch reaches at most 127 bytes ahead |
 | **No call, return or stack** — DMP3's absolute, mode-4 and call forms all re-tested, none jumps **[HW, Finding 33]** | No subroutines. Inline everything |
-| **Pointers reach 1024 B** | All program data lives in `0x000`–`0x3FF` ([§6.1](06-memory-map.md)) |
+| **Pointers reach 1024 B without the block field** — `bc`/`bd`/`be` add 1 KB mod 3, and the block **persists across passes** **[HW, Finding 35]** | Data outside `0x000`–`0x3FF` needs a block adjust that the pass undoes (three `bc` in all), or every later pass reads 1 KB off ([§6.1](06-memory-map.md)) |
 | **Program is ~2270 B and one pass must fit the sample period** **[HW]** | Code size *is* execution time; see [§5.6](05-host-interface.md#56-execution-budget) |
 | **Entry point is fixed by the host, one pass per sample** | No standalone program; you modify a hosted one |
-| **No immediates** | Every constant must be a word in RAM, placed by the host |
+| **No immediates** (DMP3 has one: `fc cX Y` compares against 0–63, Finding 35) | Every constant must be a word in RAM, placed by the host |
 | **Arithmetic wraps** | Clamp by hand ([§4.7](04-idioms.md)) |
-| **No divide, no sqrt, no shift, no logic ops** | Multiply by a stored reciprocal; iterate; double by adding |
+| **No divide, no sqrt, no shift** (MIN, AND and XOR exist, Finding 29) | Multiply by a stored reciprocal; iterate; double by adding |
 | **No indexed or indirect addressing** — every unexecuted byte screened against tagged RAM, none dereferences **[HW, Finding 33]** | An array index must be a compile-time constant or a dispatch over unrolled cases; the same holds on DMP3 |
 | **The store index is walked, not addressed** | The destination is `P2 + 4*p2word`; only the operands index freely |
 | **The program's own code is inside the pointer window in Family A images** | A stray P2 above 768 corrupts the running program |
@@ -125,13 +125,14 @@ The same applies to the twelve 3050 `c8`–`cf` bytes, rendered as `?MOV16` (man
 
 | item | status |
 |---|---|
-| `db` (`IF.3`) | the third predicate. Follows `Z` in every cell measured and is true at rest; the condition itself is unidentified |
-| `fe` (`SKIP`) | **never probed.** Labelled from `DINAFE` and from driver disable-patch pairs. 6 occurrences in the corpus |
-| `bc`–`bf`, `d2`–`d7`, `e0`–`ef` | 48 encodings never executed by any MPU-6050-family image. `bc`–`bf` scramble this core when executed; the rest are wholly unattested |
-| `f4` with `imm >= 0x20` | the drivers' `f4 44` / `f4 41` raise a DMP interrupt. Whether that is a distinct form or just a long branch has not been separated |
-| P2 word index reset on `ax` | **[INFER]** — every measured payload reloads the page first, so it has never been isolated |
-| MOV vs routing and width | every MOV measurement ran with routing on RAM and no width mode set |
-| `f5` with `op != 0` | unresolved: `op1` and `op4`–`op7` store nothing; `op2`/`op3` differ between operand pairs. The decoder marks these `F5.n` rather than guessing |
+| `bf` on the MPU | a MOV after it stored `6b6b6b6b` for two sources and was unaffected for a third; an ADD stored `d6d6d6d6` (probe84b). Used by no MPU image: treat as undefined. On DMP3 it is the MOV-stores-zero toggle (§8.4) |
+| `0x00e` on the MPU | the half-word after the gyro in the hardware-written sample page reads a constant 12 (probe84); unidentified |
+| the 2639 image's entry gate | halts every pass on the 6050 unless the half-word at 0x16a (`D_1_106`, image default 3) is 0; no driver writes it (Finding 36). Probably set by 6500 hardware; needs an MPU-6500 |
+
+Everything else once listed here is closed: `db` is `d9` (Findings 27/28), `fe` raises DMP_INT
+(29), `f4 4x` is the interrupt form (29), the P2 word index resets on `ax` (probe61/69), MOVs
+honour the width modes on both routes (probe69), the `f5` op field is MIN/compare/AND/XOR (29),
+`d2`–`d7` and `e0`–`ef` clear M[P2] on the MPU (28/33), and `bc`–`be` are the block field (35).
 
 ## 7.7 The ICM-20948
 
@@ -148,13 +149,12 @@ as a shift is DMP3-only.
 ## 7.8 What would move the needle most
 
 1. **An MPU-6500 or 9250 breakout.** The native part for the 2639/2634 images. The 2639 image
-   already runs on the 6050 (same ISA) with its symbol table confirmed on silicon — it loads
-   byte-perfect at start 0x0400 and its `D_SMD_EXE_STATE` advances where the decode predicts
-   (Finding 32) — but a 6500 would drive its sensor pipeline natively and validate the FIFO
-   output against the symbol-named emit slots.
+   runs on the 6050 and, with its entry gate cleared, emits exactly the packets its decode
+   predicts, headers matching the driver's (Finding 36) — but on the 6050 the gate never opens
+   by itself. A 6500 would show what sets `D_1_106`.
 2. **An MPU-3050.** Closes §7.5 and the last 13 conjectural bytes.
-3. **The DMP3 open items** (UNKNOWNS.md §7): the non-RAM `fc cX 04` forms (the I/O index map is closed, Finding 34),
-   which need only bench time on the ICM-20948 already on the rig.
+3. **`fc X Y` with X below 0xc0** on DMP3 (UNKNOWNS.md §7): three bytes, sets F, condition
+   partly mapped. Bench time on the ICM-20948 already on the rig; five vendor sites.
 
 The MPU re-measures that this list used to ask for — `fd`, the predicate scope, the flag,
 `c8`–`cf`, `f0`, `fe`, the `f5` family — are **done** (Findings 28–30), and the same-destination

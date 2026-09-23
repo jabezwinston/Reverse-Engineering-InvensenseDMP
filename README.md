@@ -49,7 +49,7 @@ is if-jump, else-jump) and page loads address the chip's registers instead of RA
 published DMP3 image (eMD 1.0, 14290 B) differs from the first by one 11-byte edit and moved
 every target's low byte by exactly 11 — the static proof (ISA2.md Finding 26). It also has a 4-word Q30 shifter
 (`d4`–`d7` + `fd n`) and a double-precision product (`d2`/`d3`), an interrupt instruction
-(`e2`), a three-byte bit test (`fc X Y`, the feature-flag dispatcher), and sticky predicates that read the sign of the last
+(`e2`), a three-byte compare against a 6-bit immediate (`fc cX Y`, the state dispatcher), and sticky predicates that read the sign of the last
 result (or zero, after `d1`) — a flag that ALU ops leave frozen while a predicate is armed, which
 is why every vendor test sits under `d8`. Same ALU, same routing, same widths; a multiply costs the same as an add and the whole machine
 runs ~3× faster.
