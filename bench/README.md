@@ -19,6 +19,7 @@ are `probe42.py`–`probe66.py` and their results are ISA2.md Findings 24–27 a
 `probe102.py` runs the manual's chapter 4 MPU idioms as written (dmpasm source), on silicon and in the emulator: a counted loop with a backward branch, and min by compare-and-skip, including its failure at y = −2.0.
 `probe103.py` sweeps `f5` op 0 (long read as MIN) over 1920 cells per part — value, flag and both lanes — and finds a symmetric clamp of A to [−B, B] with F := clamped (Finding 41).
 `probe104.py` maps the MPU's mode-4 low bytes with a counting sled over all of RAM: a byte below 0x40 is a one-byte branch (to its address + 1 + sext6), predicable, 10 cycles taken (Finding 42).
+`probe105.py` shows that `EXT_SYNC_SET = 1` puts the FSYNC level into the MPU's DMP sample page (temperature bit 0), as on the ICM (Finding 43).
 Two ICM traps: keep `USER_CTRL.FIFO_EN` set while reading the FIFO, and select register bank 0
 before anything else after a reset — the bank survives an ESP32 reset.
 

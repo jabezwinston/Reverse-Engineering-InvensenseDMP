@@ -2074,6 +2074,19 @@ absolute jump on the MPU: its reach stays ±32 bytes. What mode 4 does give is a
 branch after any other `f4`. opendmp's assembler now uses it for every branch in mode 4, its
 hops included.
 
+## Finding 43 — FSYNC reaches the MPU's DMP sample page too (HARDWARE CONFIRMED 2026-09-23)
+
+`bench/probe105.py`. A DMP program emitted sample word 1 (az | temperature) every pass.
+- **With `CONFIG.EXT_SYNC_SET = 0`**, the temperature's bit 0 was the sensor's own: set in 17–22
+  of 40 passes.
+- **With `EXT_SYNC_SET = 1`**, it was 0 in all 40 passes, while the bridge drove D4 both ways.
+  D4 is wired to the ICM rig's FSYNC only, so the MPU's pin was undriven and read low.
+
+So on the MPU, as on the ICM (Finding 35, probe83), `EXT_SYNC_SET = 1` replaces the temperature
+sample's bit 0 with the FSYNC level before the DMP sees it: at RAM 0x007 on the MPU, 0x0011 on
+the ICM. A high level could be observed only on the ICM rig. There opendmp's `s.fsync` counted
+6 edges of a toggled FSYNC line in 181 passes, bit-exact against its emulator.
+
 ## Decoder corrections (2026-09-08, no new hardware)
 
 Three defects found while writing `docs/manual/`, all in `tools/isa/decode.py`:
