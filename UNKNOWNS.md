@@ -14,6 +14,8 @@ Ordered by what it takes to close.
 
 | item | status | experiment |
 |---|---|---|
+| MPU mode-4 jumps | after an `f4` a low byte and the next are a jump (Finding 40): `0c 20` and `14 20` reached 0x420, `04 20` fell through, `08 20` went elsewhere | map the target over hi 0x00–0x7f with marker programs; the vendor 6.12 images use it |
+| MIN's flag | fits no simple rule over 16 cells (probe99) | a denser matrix, including equal operands and the overflow cases |
 | DMP3 `fc X Y` with X < 0xc0 | three bytes, stores nothing, sets F (probe83d); the condition is not the X ≥ 0xc0 compare — most X fire for every value tried, X = 80 only on a zero word under Y = 00, and runs disagreed (probe83c/e). Five vendor sites | hold P0, P1 and the flag state fixed across cells (seed F both ways first), then sweep X's fields one at a time; the run-to-run disagreement suggests hidden state |
 
 ## 2. Open, and it needs a part the bench does not have
@@ -55,6 +57,7 @@ real evidence that the upper half means the same thing in both.
 
 ## 6. Closed since the last revision of this file
 
+- **The flags, again** — `f5` op 1 tests signs only (F := A < 0 ≤ B); RSUB's F is exact except A = −2.0; the MPU's `f4` is a signed 6-bit branch and leaves mode 4 (Finding 40).
 - **MPU `0x00e`** — not written by the hardware; probe84's "constant 12" was its own tag's low
   half. The MPU writes exactly 0x000–0x00d each pass (Finding 39).
 - **A program with no vendor image** runs on both parts from zeroed memory; the RAM the hardware

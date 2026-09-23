@@ -1885,6 +1885,62 @@ was read back. A byte counts as written if it differs from its tag in either run
   starts filling, or the vendor configuration moves the FIFO. That remains open and does not
   matter for a program that owns the part.
 
+## Finding 40 — every f4 leaves mode 4 on the MPU too; its branch is signed; "CMP" only tests signs; RSUB cannot subtract -2.0 (HARDWARE CONFIRMED 2026-09-23)
+
+Found by opendmp's first compiled programs on silicon (`bench/probe92.py`–`probe101.py`, both rigs).
+Its trace builds send each pass's raw sample, so every pass can be replayed in the emulator and
+compared bit for bit. Four behaviours the emulator got wrong surfaced; each was then isolated and
+measured. With them fixed, **all 12 opendmp examples run bit-exact on both parts**: about 3,700
+passes, every packet and every interrupt.
+
+**1. On the MPU-6050 every `f4` leaves mode 4, as on DMP3** (probe95–97).
+- **Which `f4`s:** the branch, the `f4 40` no-op, and the one-byte form, whether taken, not taken
+  or skipped under a false predicate.
+- **What still works in mode 4:** MOV, MOVX, CLR, INC and page loads. The compiled tilt filter's
+  MOVs ran there correctly.
+- **What doesn't:** a byte below 0x80 does not execute as an ALU op. As on DMP3, it and the next
+  byte form a two-byte jump. So after `f4 00`, `14 20` and `0c 20` both landed at 0x420, `44 20`
+  looped, and `04 20` fell through. The address mapping is not worked out.
+- **Consequences:**
+  - **Finding 33's "the MPU has no jump or call" is wrong for this form.**
+  - The vendor's MotionApps 6.12 images use it: the 2639 image jumps into `14 14` at 0x55a, right
+    after an `f4`.
+  - A compiler must set the mode (`f0`–`f7`) after every branch before any ALU op.
+
+**2. The MPU's `f4 d` is a signed 6-bit branch** (probe101, all 64 values of d, taken and
+skipped). `f4 00`–`1f` go forward 0..31 bytes after the instruction, and `f4 20`–`3f` go *back*
+32..1 bytes (d − 64). A skipped `f4 d` costs 2 bytes. The manual's "forward 0..63" (and dmpasm's
+0..0x7f) are wrong from 0x20 up: those branches went backwards into earlier code. **So the MPU can
+loop**, and opendmp's `dmp.loop` is now a real loop on both cores.
+
+**3. `f5` op 1, the "compare", only tests signs** (probe98, 40 cells; probe99, 16 cells; both
+parts identical).
+- **F := A < 0 ≤ B.** Same-sign operands leave F clear however they compare: −1.0 against −0.25
+  and 0.25 against 0.5 both leave it clear, and so does 0 against +x. It stores nothing
+  (probe94). An earlier ADD or MAC makes no difference.
+- **Finding 37's "CMP sets F := a − b < 0" rests on opposite-sign cells.**
+- In the same 16-cell matrix:
+  - ADD sets F := A + B < 0;
+  - RSUB sets F := B − A < 0;
+  - MUL sets F := A·B < 0;
+  - MIN's F fits no simple rule, so it stays unmodelled.
+
+**4. RSUB computes B + (−A) with −A wrapped** (probe100, both parts). So its F is the exact sign
+of B − A (1.5 − (−1.5) = 3 clears F) **except when A = −2.0**: −(−2.0) wraps to −2.0, and B − 2.0
+is what gets tested.
+
+**For a compiler:**
+- **A compare is `rsub` into a scratch word.**
+- **When the subtrahend can be exactly −2.0** (a full-scale negative sample can), guard it with
+  another `rsub` against −2.0 + 1 lsb. That one's subtrahend is safe.
+- **For equality**, put the operand that cannot be −2.0 on the A side, or XOR the two first.
+
+opendmp does all of this, driven by its range analysis. The emulator (opendmp) models 1, 2, 3
+and 4. A low byte in MPU mode 4 raises `Unmodelled` until the jump mapping is measured.
+
+**Also confirmed** (probe92, 98 cells): MOV, MOVX, CLR and INC honour the lanes under every mode
+(`f0`–`f3`, `f5`–`f7`), RAM- and FIFO-routed, on both parts, exactly as modelled.
+
 ## Decoder corrections (2026-09-08, no new hardware)
 
 Three defects found while writing `docs/manual/`, all in `tools/isa/decode.py`:

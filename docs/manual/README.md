@@ -60,6 +60,8 @@ firmware never produces. See [chapter 3](03-assembly-language.md).
 > **Finding 39** (probe91): a program runs with **no vendor image** on both parts, from zeroed
 > memory; the hardware writes only the sample page (MPU 0x000–0x00d, ICM 0x0000–0x0011); and
 > **the ICM's FIFO is DMP RAM 0x3000–0x3fff**. Chapters 6–8 are corrected for it.
+>
+> **Finding 40** (probes 92–101) overturns more: the MPU's `f4` is a **signed** 6-bit branch (−32..+31) and, as on DMP3, **every `f4` leaves mode 4**, where a low byte is a jump. The `f5` op 1 "compare" **only tests signs** (F := A < 0 ≤ B), so compare with RSUB, whose F is exact except for A = −2.0. Chapters 1, 2 and 7 still say otherwise.
 
 ## How to read the status tags
 
