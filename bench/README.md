@@ -16,6 +16,9 @@ are `probe42.py`–`probe66.py` and their results are ISA2.md Findings 24–27 a
 `probe86.py` (MPU) and `probe88.py` (ICM) run every cell on silicon *and* in the opendmp emulator side by side (Finding 37); `probe87.py`/`probe89.py`/`probe90.py` time opcodes (Finding 38) — `probe90` with the bridge's **`W <ms>`** command: like `T`, but it reports the times of the first two interrupt edges, so `INT <body> INT` times the body without start jitter.
 `probe91.py` (either rig) answers opendmp's B1/B2: a program with no vendor image from zeroed memory, the RAM the hardware writes, and where the FIFO lives (Finding 39).
 `probe92.py`–`probe101.py` isolate what opendmp's first compiled programs found on silicon (Finding 40): MOV/CLR/INC under every mode, when CMP stores, MPU mode 4 after `f4`, the CMP/RSUB/ADD/MUL/MIN flag rules over full operand matrices, RSUB at −2.0, and the MPU branch as a signed 6-bit field.
+`probe102.py` runs the manual's chapter 4 MPU idioms as written (dmpasm source), on silicon and in the emulator: a counted loop with a backward branch, and min by compare-and-skip, including its failure at y = −2.0.
+`probe103.py` sweeps `f5` op 0 (long read as MIN) over 1920 cells per part — value, flag and both lanes — and finds a symmetric clamp of A to [−B, B] with F := clamped (Finding 41).
+`probe104.py` maps the MPU's mode-4 low bytes with a counting sled over all of RAM: a byte below 0x40 is a one-byte branch (to its address + 1 + sext6), predicable, 10 cycles taken (Finding 42).
 Two ICM traps: keep `USER_CTRL.FIFO_EN` set while reading the FIFO, and select register bank 0
 before anything else after a reset — the bank survives an ESP32 reset.
 

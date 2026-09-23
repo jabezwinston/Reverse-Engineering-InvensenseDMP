@@ -1,7 +1,9 @@
 # 3. Assembly language
 
 `tools/dmpasm.py` assembles the confirmed instruction set. It refuses anything it cannot emit
-correctly, and gives you `.db` as the deliberate escape hatch.
+correctly, and gives you `.db` as the deliberate escape hatch. (For whole programs, the sibling
+project opendmp (`~/Git_repos/opendmp`) has a second assembler. It supports data directives,
+labels throughout and cycle counts, and assembles `examples/emu/tilt.s` to the same bytes.)
 
 ```bash
 python3 tools/dmpasm.py prog.s                                   # assemble, print the bytes
@@ -13,8 +15,9 @@ python3 tools/dmpasm.py prog.s --lineage 3050                    # the older cor
 ## 3.1 Syntax
 
 One instruction per line. `;` starts a comment. Operands are separated by commas; numbers accept
-`0x` and decimal. Mnemonics are case-insensitive. There are **no labels** — the branch takes a
-byte count (§3.6).
+`0x` and decimal. Mnemonics are case-insensitive. A **label** (`name:`, on its own line or before
+an instruction) is a `branch` target in the mantis lineage and a `jump`/`call` target in the icm
+one (§3.6).
 
 ## 3.2 Directives
 
@@ -40,10 +43,10 @@ byte count (§3.6).
 | `rsub A,B[,inc]` | | `M[P1+4B] - M[P0+4A]` |
 | `mul A,B[,inc]` | | `M[P0+4A] * M[P1+4B]` |
 | `nmul A,B[,inc]` | | `-(M[P0+4A] * M[P1+4B])` |
-| `min A,B[,inc]` | `f5` + ALU | signed `min(M[P0+4A], M[P1+4B])` |
-| `min16 A,B[,inc]` | `f6` + ALU | the same, upper half-word store |
-| `and A,B[,inc]` / `xor A,B[,inc]` | `f5` + ALU (op 2 / 3) | bitwise AND / XOR |
-| `cmp A,B` | `f5` + ALU (op 1) | flags only, nothing stored |
+| `clamp A,B[,inc]` (alias `min`) | `f5` + ALU (op 0) | `M[P0+4A]` clamped to ±`M[P1+4B]`: A ≥ 0 ? min(A, B) : max(A, −B); F := it was clamped (Finding 41). Earlier editions' MIN, which it only is for A ≥ 0 |
+| `min16 A,B[,inc]` | `f6` + ALU | the same clamp on the high 16-bit lane |
+| `and A,B[,inc]` / `xor A,B[,inc]` | `f5` + ALU (op 2 / 3) | bitwise AND / XOR; F unchanged |
+| `cmp A,B` | `f5` + ALU (op 1) | **a sign test**, not a compare: F := A < 0 ≤ B, nothing stored (Finding 40). Compare with `rsub` into a scratch word ([§4.6](04-idioms.md#46-compare-and-branch--measured)) |
 | `store.add A,B[,inc]` etc. | `dc` + ALU | fused: arm RAM routing, then the op |
 
 `A` and `B` are word indices 0–3 within the pointer's page. The optional third operand `inc`
@@ -62,11 +65,12 @@ redundant.
 | `mov16 k[,inc]` | `c8`+ | the word with its half-words exchanged (MOVX; the vendor's name) |
 | `store` | `dc` | route ALU results to RAM (sticky) |
 | `fifo` (alias `store.off`) | `dd` | route to the FIFO (sticky; the at-rest state) |
-| `fmode N` / `mac` | `f0`–`f7` | one sticky mode: 0 (`mac`) = multiply-accumulate; 1 = 32-bit store; 2 = upper half; 3 = lower half; 5/6/7 = MIN/CMP/AND/XOR at those widths |
+| `fmode N` / `mac` | `f0`–`f7` | one sticky mode: 0 (`mac`) = multiply-accumulate; 1 = 32-bit; 2 = high 16-bit lane; 3 = low lane; 5/6/7 = CLAMP/sign test/AND/XOR at those widths. Also the way out of mode 4 after a `branch` |
 | `p2inc [N]` | `df` × N | advance the destination word N times (each also clears the word) |
 | `p2inc2` | `d0` | advance by two words |
+| `clr` | `de` | `M[P2] = 0` in place |
 | `clr.next` | `df` | advance, then `M[P2] = 0` |
-| `inc` / `dec` | `f8` / `f9` | `M[P2] += 1` / `-= 1`, one LSB |
+| `inc` / `dec` | `f8` / `f9` | `M[P2] += 1` / `-= 1`, one LSB of the lane; F := the exact result < 0 |
 | `inc.next` / `dec.next` | `fa` / `fb` | advance the word first |
 | `int` | `fe` | raise DMP_INT and continue (conditional under `if`) |
 | `xchg01` (alias `swap`) | `fc` | toggle: A and MOV sources via P1, B via P0, until the next `fc` |
@@ -80,17 +84,39 @@ redundant.
 
 | mnemonic | bytes | effect |
 |---|---|---|
-| `test` | `d1` | clears N: `d9` becomes IF.Z, `da` always |
-| `if le0` / `if ge0` (aliases `if z` / `if nz`) | `d9` / `da` | **sticky**: run everything up to the next `always`/`if` while the last result was ≤ 0 / ≥ 0 (after `test`: == 0 / always) |
+| `test` | `d1` | F := (last result == 0) |
+| `if f` / `if nf` | `d9` / `da` | **sticky**: run everything up to the next `always`/`if` while F / while ¬F. F is the sign of the exact last result, or == 0 after `test` |
+| `if le0` / `if ge0`, `if z` / `if nz` | `d9` / `da` | the old names for the same bytes, from the withdrawn N/Z reading (`d9` is "< 0", not "≤ 0") |
 | `if 3` | `db` | same as `d9` |
 | `always` | `d8` | unconditional (the default) |
-| `branch N` | `f4 N` | jump to `here + 2 + N`, forward only, `0 <= N <= 0x7f` |
-| `disable` | `ff` | halt |
+| `branch LABEL` / `branch N` | `f4 d` | to `here + 2 + d`, **d signed: −32 ≤ d ≤ 31** (Finding 40). A label is resolved and its reach checked; a number is the displacement itself, so `branch -8` goes back |
+| `branch1 LABEL` / `branch1 N` | `d` | the one-byte branch, only in mode 4 (right after another branch): to `here + 1 + d` (Finding 42) |
+| `disable` | `ff` | end of the pass |
 | `skip` | — | withdrawn: `fe` is `int` |
 | `nop` | `a3` | the vendor's filler — **note it sets `P2.page = 3`** |
 
-`branch` takes a byte count, not a label: count the bytes your instructions assemble to. The
-assembler prints the byte string, so assembling once and counting is the reliable method.
+Prefer a label; with a number, count the bytes your instructions assemble to (the assembler
+prints them). `branch 32` to `63` used to be accepted as long forward branches. They are backward
+branches on silicon, so they are now refused, as are the interrupt immediates `0x41`–`0x7f` (use
+`int`).
+
+**After a `branch` the machine is in mode 4** (every `f4`, taken or not; [§2.6](02-instruction-set.md#26-modes-and-control--0xf00xff)).
+An ALU byte there would be read as a one-byte branch. So `dmpasm` tracks the fall-through: after a
+`branch` it refuses an ALU op, `emit` or a low `.db` byte until an `fmode`, `mac`, `min`, `min16`,
+`and`, `xor` or `cmp` ends the mode. It cannot see the target's side, so start every target with
+`always` and an `fmode`:
+
+```
+        rsub    1,0,inc         ; t := x - y; F := x < y
+        if f
+        branch  keep            ; f4 04
+        always
+        p2page  2
+        p2inc2
+        mov     1               ; MOV is fine in mode 4
+keep:   always                  ; the target: end the predicate ...
+        fmode   1               ; ... and leave mode 4
+```
 
 ### DMP3 (ICM-20948) control flow — `.lineage icm`
 
@@ -189,8 +215,8 @@ See [chapter 5](05-host-interface.md) for where the sites are and how to run the
 
 - **No pseudo-instructions.** `min` and `min16` emit their prefix plus one ALU byte; nothing else
   expands to more than the bytes you wrote.
-- **No relocation, no linking.** You are patching a fixed image at a fixed address. Labels exist
-  only in the `icm` lineage, where `jump`/`call` need 16-bit addresses.
+- **No relocation, no linking.** You are patching a fixed image at a fixed address. Mantis labels
+  are relative (`branch`); icm labels are absolute (`jump`/`call`, placed by `.org`).
 - **No constant pool.** The machine has no immediates; put your constants in data RAM from the
   host before the run ([chapter 6](06-memory-map.md)).
 - **No range checking on pointers.** Nothing stops you aiming P2 at the constant page and

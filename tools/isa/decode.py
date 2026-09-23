@@ -6,18 +6,19 @@
     ax  P2.page = x
     low byte v = 0 AA BB ooo :  A-word = P0 + 4*AA, B-word = P1 + 4*BB, op = ooo
                                  (bench: emitted value = M[B-word] + M[A-word] in FIFO mode)
-    f4 imm (mantis) / fc imm (3050): forward branch to site+2+imm, 7-bit displacement.
-        imm>=0x80 does NOT branch and is not an operand: the byte executes  [probe27, HW]
-    d1: TEST Z := (result == 0).  d8 always; d9 IF.Z; da IF.NZ; db IF.3 (true at rest):
-        single-shot conditional prefixes on the NEXT instruction        [probe10/19/20, HW]
+    f4 d (mantis) / fc d (3050): branch to site+2+d, d a SIGNED 6-bit field (-32..+31)
+        [probe101, HW; 3050 by analogy]; f4 41-7f raise DMP_INT; imm>=0x80 does NOT branch and
+        is not an operand: the byte executes  [probe27, HW].  Every f4 leaves mode 4 [probe95-97]
+    F: the sign of the exact last result; d1 TEST makes it result == 0.  d8 always; d9/db IF F;
+        da IF not F; sticky until the next d8-db; F frozen while armed   [Findings 27, 37]
     P2 word index (2 bits, mod 4): df/fa/fb/odd-cx pre-advance 1, d0 += 2; op&4 pre-advances 1
     f8/f9: INC/DEC M[P2] by 1 LSB; fa/fb: same after advancing         [probe23, HW]
     de: M[P2] := 0 in place; df: advance the word first, then clear    [probe23/31, HW]
     c0..cf (mantis): MOV M[P0 + 4*(x>>1)] -> M[P2]; x&1 pre-advances P2;
-                     x&8 = MOV16 (upper half-word, zero-extended)        [probe25, HW]
+                     x&8 = MOVX (the half-words exchanged)               [probe25/54/67, HW]
     dc/dd: result routing RAM/FIFO (sticky two-way switch; FIFO at rest)          [probe9-16, HW]
-    f5: prefix -- the next ALU op with op field 0 computes signed MIN(A,B)  [probe29, HW]
-    f0..f3 (mantis) / f8..fb (3050): FIFO width/mode        [bench]
+    f5/f6/f7: modes: op field 0 CLAMP A to +-B, 1 sign test (F := A<0<=B), 2 AND, 3 XOR  [probe70/98/103]
+    f0..f3 (mantis) / f8..fb (3050): MAC, 32-bit, high 16-bit lane, low 16-bit lane  [Finding 37]
 
 Usage: decode.py <image.bin> [--start N] [--end N] [--symbols dmpmap|emd|hammerhead|none]
 """
@@ -59,9 +60,9 @@ class Decoder:
         self.img, self.L, self.N = img, lineage, namer
         self.page = [0, 0, 0]; self.bank = [0, 0, 0]; self.blk = [0, 0, 0]
         self.cond = "d8"; self.width = None; self.ram = False   # dc/dd routing, off at start
-        self.logic = None                                        # f5/f6/f7: MIN/CMP/AND/XOR mode (probe70)
+        self.logic = None                                        # f5/f6/f7: CLAMP/CMP/AND/XOR mode (probe70/103)
         self.mac = False                                         # f0: multiply-accumulate mode (probe74)
-        self.mode4 = False                                       # icm: after f4, until f0-f7
+        self.mode4 = False                                       # after any f4, until f0-f3/f5-f7 (both cores)
         self.base = 0x90 if lineage == "icm" else 0              # image offset -> DMP address
         if lineage in ("mantis", "icm"):
             self.br = 0xF4; self.bankfam = 0xB; self.fmode = range(0xF0, 0xF4)
@@ -71,7 +72,7 @@ class Decoder:
         # icm: bc/bd/be add a 1 KB block (mod 4) above bank/page -- a 12-bit pointer (probe47)
         return self.blk[p] * 1024 + self.bank[p] * 256 + self.page[p] * 16 + (getattr(self, "p2off", 0) if p == 2 else 0)
     def io(self):
-        return "  ; I/O space: pointer loaded under mode 4 (probe47/48)" if self.mode4 else ""
+        return "  ; I/O space: pointer loaded under mode 4 (probe47/48)" if self.mode4 and self.L == "icm" else ""
     def step(self, i):
         b = self.img[i]; L = self.L
         if L == "icm" and self.mode4 and b < 0x80 and i + 1 < len(self.img):
@@ -84,6 +85,15 @@ class Decoder:
             verb = "CALL" if t & 0x4000 else "JUMP"
             if self.cond != "d8": verb += "." + self.cond
             return 2, f"{verb} -> {t & 0x3FFF:#06x}   (target under mode 4, no f4 of its own)"
+        if L == "mantis" and self.mode4 and b < 0x80:
+            # Finding 42 (probe104): in mode 4 the MPU reads a byte below 0x40 as a ONE-byte
+            # branch, the f4's displacement without the f4: to i + 1 + sext6(b).  0x40-0x7f do
+            # not branch or interrupt; what else they do is unmeasured.  (A linear decode assumes
+            # the fall-through's mode; a branch target can be reached in another.)
+            if b < 0x40:
+                t = i + 1 + (b if b < 0x20 else b - 64)
+                return 1, f"{'B1' if self.cond == 'd8' else 'B1.' + self.cond} -> {t}   (one-byte branch under mode 4)"
+            return 1, f"?M4 {b:02x}   (under mode 4: no branch, no interrupt; the rest unmeasured, probe104)"
         if L == "icm" and b == 0xF4 and i + 2 < len(self.img):
             # DMP3: f4 hi lo is a 16-bit absolute jump when hi < 0x80; bit 14 makes it a
             # call (e0 returns).  Every f4 also enters mode 4, which the vendor leaves with
@@ -98,13 +108,16 @@ class Decoder:
             return 1, "MODE4   (f4 alone: pointer loads now address the I/O space; f0-f7 ends it)  [probe47]"
         if b == self.br and i + 1 < len(self.img):
             imm = self.img[i + 1]
+            if L == "mantis":
+                self.mode4 = True                  # every f4 [Finding 40, probe95-97]
             if 0x40 <= imm < 0x80:
                 # probe69/70: bit 6 with a nonzero low field raises DMP_INT and does not branch
                 # (f4 44, f4 41, f4 42, f4 48); f4 40 alone does nothing; f4 60 emitted a zero word.
                 return 2, (f"INT   raise DMP_INT, no branch  (f4 {imm:02x}; probe69/70)" if imm & 0x1F else
                            f"f4 {imm:02x}: no branch, no interrupt measured (probe70)")
-            if imm < 0x80:
-                return 2, f"{'B' if self.cond=='d8' else 'B.'+self.cond} -> {i+2+imm}"
+            if imm < 0x80:                     # signed 6 bits [probe101, Finding 40]
+                t = i + 2 + (imm if imm < 0x20 else imm - 64)
+                return 2, f"{'B' if self.cond=='d8' else 'B.'+self.cond} -> {t}{'  (back)' if imm >= 0x20 else ''}"
             # bit 7 set: no branch is taken and the next byte executes normally, so f4
             # consumes only itself here (probe26/27).
             return 1, "NOBR   (f4 with bit7 set in the displacement: no jump)  [probe27]"
@@ -161,13 +174,13 @@ class Decoder:
                 # loop's DEC must run under d8 (Finding 27).
                 return 1, {0xD8: "ALWAYS  (re-arms: ends a sticky predicate; ALU/INC/DEC update F only under d8)", 0xD9: "IF.F   (F = result<0, or ==0 right after d1; sticky until d8; F frozen while armed)",
                            0xDA: "IF.NOT-F   (sticky until d8; F frozen while armed)", 0xDB: "IF.F   (db; identical to d9 in every DMP3 cell, probe52/54)"}[b]
-            # probe67/68 (MPU-6050, 2026-09-12): every ALU op / INC / DEC sets N := result < 0 and
-            # Z := result == 0; d9 = IF (N or Z), da = IF not N, db = d9; d1 clears N, so after
-            # d1 d9 is IF.Z and da is always taken.  Sticky until the next d8..db, and the flags
-            # are frozen while a predicate is armed -- the same machine as DMP3 (Finding 28).
-            return 1, {0xD8: "ALWAYS  (ends a sticky predicate)", 0xD9: "IF.LE0   (N or Z; IF.Z right after d1; sticky until d8)",
-                       0xDA: "IF.GE0   (not N; always after d1; sticky until d8)", 0xDB: "IF.LE0   (db; same as d9 in every cell)"}[b]
-        if L == "icm" and 0xF0 <= b <= 0xF7 and b != 0xF4:
+            # Finding 37 (probe86, MPU-6050): one flag F, as on DMP3 -- the sign of the exact
+            # result, or result == 0 after d1; d9 = db = IF F, da = IF not F.  Sticky until the
+            # next d8..db, and F is frozen while a predicate is armed.  (Finding 28's N/Z reading
+            # was a zero result's own FIFO emit read as the marker.)
+            return 1, {0xD8: "ALWAYS  (ends a sticky predicate)", 0xD9: "IF.F   (F = exact result < 0, or == 0 right after d1; sticky until d8)",
+                       0xDA: "IF.NOT-F   (sticky until d8)", 0xDB: "IF.F   (db; same as d9 in every cell)"}[b]
+        if L in ("icm", "mantis") and 0xF0 <= b <= 0xF7 and b != 0xF4:
             self.mode4 = False
         if b in self.fmode:
             self.width = b & 3
@@ -184,28 +197,27 @@ class Decoder:
                 return 1, "MAC   ; multiply-accumulate: acc +=/-= A*B (op&1), store/emit acc; reset per pass  [probe74]"
             self.mac = False
             note = {0: "32-bit store (icm; f0 on the MPU is MAC)", 1: "32-bit store",
-                    2: "16-bit store, upper half-word", 3: "16-bit store, lower half-word"}[b & 3]
+                    2: "high 16-bit lane: the ALU computes on the upper half-words",
+                    3: "low 16-bit lane: the ALU computes on the sign-extended lower half-words"}[b & 3]
             return 1, f"WIDTH.{b&3}   ; {note}  [probe37]"
         if self.L in ("mantis", "icm") and 0xF8 <= b <= 0xFB:
             if b & 2: self.p2off = (getattr(self, "p2off", 0) + 4) % 16
             verb = "DEC" if b & 1 else "INC"
-            flag = ""
-            if L == "icm":
-                # probe52/54/55: INC and DEC set F := result < 0 like the ALU, so
-                # `f9 da f4 <back>` runs a body n + 1 times for a count of n.
-                flag = "  F := result < 0"
+            # probe52/54/55, probe86: INC and DEC set F := result < 0 like the ALU on both
+            # cores, so `f9 da f4 <back>` runs a body n + 1 times for a count of n.
+            flag = "  F := result < 0"
             return 1, f"{verb}  {self.N.name(self.ptr(2))} by 1{'  (P2 word++ first)' if b & 2 else ''}{flag}  ({b:02x}; probe23)"
         if 0xF5 <= b <= 0xF7 and self.L in ("mantis", "icm"):
             # probe69/70 (MPU): f5, f6, f7 are modes 5..7 of the same sticky register as f1..f3.
-            # Under them the ALU byte's op field selects MIN (0), a no-store compare that sets
+            # Under them the ALU byte's op field selects CLAMP (0, long read as MIN), a no-store test that sets
             # the flags (1), AND (2) or XOR (3) -- 4 operand pairs each -- and the store width is
             # 32-bit (f5), the upper half-word (f6) or the lower half-word (f7).  f7 was read as
             # TRUNC + no-store from a cell where min(0.5, 0.5)'s low half happened to be 0000.
             # f1 (or any f0..f3) ends the mode; d8, pointer loads and MOVs do not.
             self.logic = b & 7; self.width = {5: 1, 6: 2, 7: 3}[b & 7]; self.mac = False
-            return 1, {5: "LOGIC   ; ALU op field: 0 MIN, 1 compare (flags, no store), 2 AND, 3 XOR; 32-bit store, sticky  [probe29/70]",
-                       6: "LOGIC.HI   ; MIN / compare / AND / XOR, upper half-word store, sticky  [probe36/70]",
-                       7: "LOGIC.LO   ; MIN / compare / AND / XOR, lower half-word store, sticky  [probe69/70]"}[b & 7]
+            return 1, {5: "LOGIC   ; ALU op field: 0 CLAMP A to +-B, 1 sign test (F := A<0<=B, no store), 2 AND, 3 XOR; sticky  [probe29/70/98/103]",
+                       6: "LOGIC.HI   ; CLAMP / sign test / AND / XOR on the high 16-bit lane, sticky  [probe36/70/103]",
+                       7: "LOGIC.LO   ; CLAMP / sign test / AND / XOR on the low 16-bit lane, sticky  [probe69/70/103]"}[b & 7]
         if b == 0xFC and L == "icm" and i + 2 < len(self.img):
             # Finding 27 (probe57/59/61/63): on DMP3 fc is a THREE-byte instruction, `fc X Y`,
             # that stores nothing and leaves no ALU result (d1 after it always reads zero).
@@ -257,12 +269,12 @@ class Decoder:
             # run -- the vendor's drivers patch them at runtime.
             if b == 0xFF:
                 self.logic = 7; self.width = 3
-                return 1, "?LOGIC.LO  (MIN/CMP/AND/XOR, lower half-word store)   ; CONJECTURE: 3050 ff = mantis f7, no MPU-3050 to test"
+                return 1, "?LOGIC.LO  (CLAMP/CMP/AND/XOR, lower half-word store)   ; CONJECTURE: 3050 ff = mantis f7, no MPU-3050 to test"
             self.logic = 5
             if b == 0xFE:
                 self.logic = 6; self.width = 2
-                return 1, "?LOGIC.HI  (MIN/CMP/AND/XOR, upper half-word store)   ; CONJECTURE: 3050 fe = mantis f6 (the vendor also defines DINAFE = 0xfe here)"
-            return 1, "?LOGIC  (MIN/CMP/AND/XOR, 32-bit store)   ; CONJECTURE: 3050 fd = mantis f5"
+                return 1, "?LOGIC.HI  (CLAMP/CMP/AND/XOR, upper half-word store)   ; CONJECTURE: 3050 fe = mantis f6 (the vendor also defines DINAFE = 0xfe here)"
+            return 1, "?LOGIC  (CLAMP/CMP/AND/XOR, 32-bit store)   ; CONJECTURE: 3050 fd = mantis f5"
         if b == 0xFF:
             return 1, "HALT   disable/terminate (vendor: ends every image; probe26)"
         if b == 0xFE:
@@ -272,7 +284,7 @@ class Decoder:
         if b == 0xD1:
             if L == "icm":
                 return 1, "TEST  F := (last ALU result == 0)  (without d1, F is the result's sign)  [probe52]"
-            return 1, "TEST  clears N (Z := result == 0 stays): d9 becomes IF.Z, da becomes ALWAYS  [probe19/20, probe68]"
+            return 1, "TEST  F := (last ALU result == 0)  (without d1, F is the exact result's sign)  [Finding 37]"
         if b == 0xD0:
             self.p2off = (getattr(self, "p2off", 0) + 8) % 16
             return 1, f"P2 word += 2 -> D@{self.ptr(2)} {self.N.name(self.ptr(2))}  (d0, mod 4; probe20)"
@@ -329,7 +341,9 @@ class Decoder:
             logic = getattr(self, "logic", None)
             mac = getattr(self, "mac", False)
             if logic:
-                ALU = {0: "MIN ", 1: "CMP ", 2: "AND ", 3: "XOR "}[op & 3]   # probe70: 4 pairs each
+                # probe70/98/103: op 0 clamps A to [-B, B] (F := clamped; long read as MIN,
+                # Finding 41), op 1 only tests signs (F := A < 0 <= B, Finding 40)
+                ALU = {0: "CLAMP", 1: "SGN ", 2: "AND ", 3: "XOR "}[op & 3]
             elif mac:
                 ALU = "MAC-" if op & 1 else "MAC+"                            # probe74: acc +/- A*B
             # op&4 PRE-ADVANCES the P2 word (mod 4); it is not a fixed +4 offset.

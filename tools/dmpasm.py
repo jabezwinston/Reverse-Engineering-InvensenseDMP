@@ -2,7 +2,7 @@
 """dmpasm - assembler for the recovered InvenSense DMP ISA (2026-09-08).
 
 The DMP is a Q30 fixed-point machine with pointer-addressed load/store, a small
-ALU, and a forward branch (ISA2.md, Findings 1-7, hardware-confirmed). This
+ALU, and a short relative branch (ISA2.md, Findings 1-40, hardware-confirmed). This
 assembler emits only instructions verified on silicon; use `.db` for anything else.
 
 Machine model
@@ -19,9 +19,12 @@ big-endian Q30 (2^30 = 1.0), range [-2,+2), addition wraps (modular).
        `inc` sets op&4, which pre-advances the P2 word index by one before the
        store (Finding 17; `hi` is accepted as the old spelling). Use `p2inc` (df)
        to reach words 2,3 of the page.
-  min   A,B[,inc]                     f5 + ALU: signed min(M[P0+4A], M[P1+4B])
+  clamp A,B[,inc]  (alias min)        f5 + ALU op 0: M[P0+4A] clamped to [-M[P1+4B], M[P1+4B]];
+                                     F := it was clamped (Finding 41; long read as signed MIN)
   and / xor / cmp  A,B[,inc]          f5 + ALU with op 2 / 3 / 1: bitwise AND, XOR, or a
-                                     flags-only compare that stores nothing (probe70)
+                                     flags-only SIGN TEST that stores nothing: F := A < 0 <= B.
+                                     It is not a compare (Finding 40): compare with rsub into a
+                                     scratch word, which sets F := B - A < 0 exactly (A != -2.0)
   int                                fe: raise DMP_INT and continue (conditional under `if`)
   store                              dc: RAM routing ON  (sticky; every following ALU op stores)
   fifo  (alias store.off)            dd: route results to the FIFO (sticky; the at-rest
@@ -30,22 +33,36 @@ big-endian Q30 (2^30 = 1.0), range [-2,+2), addition wraps (modular).
   store.add / store.rsub / .mul / .nmul  A,B[,inc]
        fused: emits `dc` THEN the ALU byte, the order confirmed on hardware
        (probe6: dc precedes the op). This is the RAM-store idiom.
-  branch N                           f4 (mantis) / fc (3050); target = here+2+N,
-                                     forward only, 0 <= N <= 0x7f (Finding 2)
+  branch1 LABEL|N                    (mantis, mode 4 only) the one-byte branch: d alone, to here+1+d
+                                     (Finding 42); a branch right after another needs no f4
+  label: / branch LABEL              (mantis) a label on its own line or before an instruction;
+                                     the assembler computes the displacement and checks the reach
+  branch N                           f4 (mantis) / fc (3050); target = here+2+N, N a SIGNED
+                                     6-bit displacement, -32 <= N <= 31 (Finding 40, probe101):
+                                     `branch -8` loops back.  f4 41-7f is the interrupt (`int`
+                                     is fe), f4 40 does nothing.  Every f4 leaves mode 4, where a
+                                     low byte is a jump: set `fmode` before the next ALU op, on
+                                     the fall-through and at the target.  (3050: unmeasured,
+                                     0..0x7f accepted as before.)
   mac                                f0: multiply-accumulate mode -- every following ALU op does
        acc += / -= A*B (op&1) and stores the running accumulator (a dot product), reset per pass.
   fmode N                            f0..f7 is ONE sticky 3-bit mode register (probe70/74):
-       0 = mac (above), 1 = 32-bit store, 2 = upper half-word, 3 = lower half-word;
+       0 = mac (above), 1 = 32-bit, 2 = high 16-bit lane, 3 = low 16-bit lane (the ALU
+       computes on that half-word and stores it, Finding 37);
        5 / 6 / 7 = the MIN/AND/XOR family at those three widths.  min/min16/and/xor/cmp/mac
        emit the mode byte plus the op for you.
-  min16 A,B[,inc]                    f6 + ALU: signed min, upper half-word store
+  min16 A,B[,inc]                    f6 + ALU: the clamp on the high 16-bit lane
   xchg01 (alias swap)                fc: TOGGLE -- A and MOV sources through P1, B through P0, until the next fc
   xchg02                             fd: TOGGLE -- A and MOV sources through P2, stores into P0's page, until the next fd
-  test                               d1: clears N (Z := result == 0 stays)
-  if le0 / if ge0 (= if z / if nz)   d9 / da: STICKY -- run everything up to the next always/if
-                                     while the last result was <= 0 / >= 0 (after test: == 0 / always)
+  test                               d1: F := (last result == 0)
+  if f / if nf                       d9 / da: STICKY -- run everything up to the next always/if
+                                     while F / while not F.  F is the sign of the EXACT last result
+                                     (before it wraps), or == 0 after `test` (Finding 37).
+                                     `if le0` / `if z` = d9 and `if ge0` / `if nz` = da are the old
+                                     names, from the withdrawn N/Z reading: d9 is really "< 0".
   always / if 3                      d8 / db (db = d9)
-  Every ALU op, inc and dec sets N and Z -- but not while a predicate is armed (probe67/68).
+  Every ALU op, inc and dec sets F -- but not while a predicate is armed (probe67/68).
+  clr                                de: M[P2] := 0 in place
   clr.next                           df: P2 word++, then M[P2] := 0   (p2inc [N] = N of these)
   inc / dec                          f8 / f9: M[P2] += 1 / -= 1 (one LSB)
   inc.next / dec.next                fa / fb: P2 word++, then INC / DEC
@@ -178,9 +195,10 @@ def assemble(text, lineage="mantis", warn=None):
             raise AsmError(f"{what} is a DMP3 (icm) form; add `.lineage icm`")
 
     def low_byte(what):
-        if lineage == "icm" and mode4:
+        if mode4 and lineage != "3050":
             raise AsmError(f"{what} while mode 4 is armed: bytes below 0x80 are branch targets here; "
-                           "put an fmode/min/trunc first (the vendor's `d8 f1` at every target)")
+                           "put an fmode/min/trunc first (the vendor's `d8 f1` at every target; "
+                           "on the MPU every branch leaves mode 4 too, Finding 40)")
 
     for lineno, raw in enumerate(text.splitlines(), 1):
         line = raw.split(";")[0].strip()
@@ -188,7 +206,8 @@ def assemble(text, lineage="mantis", warn=None):
             continue
         m = re.match(r"([A-Za-z_]\w*):\s*(.*)", line)
         if m and m.group(1).lower() not in ("store", "if"):
-            icm_only("labels")
+            if lineage == "3050":
+                raise AsmError(f"line {lineno}: labels are for `jump`/`call` (icm) and `branch` (mantis)")
             if m.group(1) in labels:
                 raise AsmError(f"line {lineno}: duplicate label {m.group(1)!r}")
             labels[m.group(1)] = len(out)
@@ -249,8 +268,9 @@ def assemble(text, lineage="mantis", warn=None):
                 out += bytes([0xFC, 0xC0 | k, y])
             elif op == "int":                    # e2 on DMP3; fe on the MPU (probe69: raises DMP_INT, honours a predicate)
                 out.append(0xE2 if lineage == "icm" else 0xFE)
-            elif op == "clr":
-                icm_only("clr"); out.append(0xDE)
+            elif op == "clr":                    # de: M[P2] := 0 in place (probe31; DMP3 too)
+                if lineage == "3050": raise AsmError("clr (de) is a mantis/icm instruction")
+                out.append(0xDE)
             elif op in ("lo", "lo.next"):
                 icm_only(op); out.append(0xD3 if op.endswith("next") else 0xD2)
             elif op in ("p0blk", "p1blk", "p2blk"):
@@ -274,7 +294,7 @@ def assemble(text, lineage="mantis", warn=None):
                     if not 1 <= sh <= 32: raise AsmError("sar s: s is 1..32")
                     n = 0x20 | (32 - sh)
                 out += bytes([0xFD, n | adv])
-            elif op == "if" and lineage == "icm" and arg.lower() in ("f", "nf"):
+            elif op == "if" and arg.lower() in ("f", "nf"):
                 out.append(0xD9 if arg.lower() == "f" else 0xDA)
             elif op == "branch" and lineage == "icm":
                 raise AsmError("branch (7-bit relative) does not exist on DMP3; use jump LABEL")
@@ -310,13 +330,13 @@ def assemble(text, lineage="mantis", warn=None):
                 out.append(0xFD)
             elif op == "nostore":
                 raise AsmError("nostore is withdrawn: fd never suppressed a store, it exchanges P0 and P2 (xchg02); use trunc (f7) for a one-op no-store")
-            elif op == "min":                    # f5 + ALU byte with op field 0
+            elif op in ("min", "clamp"):         # f5 + op 0: A clamped to [-B, B] (Finding 41)
                 mode4 = False
                 out.append(0xF5); out.append(_alu_byte("add", arg))
             elif op in ALU_OPS:
                 low_byte(f"{op} {arg}")
                 out.append(_alu_byte(op, arg))
-            elif op == "test":                   # d1: Z := (last ALU result == 0)
+            elif op == "test":                   # d1: F := (last ALU result == 0)
                 out.append(0xD1)
             elif op == "if" and arg.lower() in ("z", "nz", "le0", "ge0"):
                 out.append(0xD9 if arg.lower() in ("z", "le0") else 0xDA)
@@ -352,10 +372,34 @@ def assemble(text, lineage="mantis", warn=None):
 
             # --- control / fifo ---
             elif op == "branch":
-                n = int(arg, 0)
-                if not 0 <= n <= 0x7F:
-                    raise AsmError(f"branch imm {n:#x} must be 0..0x7f (forward only)")
-                out.append(L["branch"]); out.append(n)
+                n = int(arg, 0) if not re.fullmatch(r"[A-Za-z_]\w*", arg) else None
+                if lineage == "3050":            # unmeasured: the old forward reading
+                    if n is None or not 0 <= n <= 0x7F:
+                        raise AsmError(f"branch imm {n:#x} must be 0..0x7f (3050)")
+                    out.append(L["branch"]); out.append(n)
+                elif re.fullmatch(r"[A-Za-z_]\w*", arg):   # a label: resolved at the end
+                    fixups.append((len(out) + 1, arg, lineno, "branch"))
+                    out.append(L["branch"]); out.append(0)
+                    mode4 = True
+                else:                            # signed 6 bits [HW, probe101, Finding 40]
+                    if not -32 <= n <= 31:
+                        raise AsmError(f"branch {n}: the displacement is a signed 6-bit field, -32..31 "
+                                       "(f4 20-3f go BACK 32..1 bytes; f4 41-7f raise DMP_INT: use `int`)")
+                    out.append(L["branch"]); out.append(n & 0x3F)
+                    mode4 = True                 # every f4 leaves mode 4 [HW, probe95-97]
+            elif op == "branch1":                # mantis, mode 4 only: the one-byte branch (Finding 42)
+                if lineage in ("3050", "icm"):
+                    raise AsmError("branch1 is the MPU's mode-4 one-byte branch (mantis)")
+                if not mode4:
+                    raise AsmError("branch1 needs mode 4 (right after a branch): otherwise the byte is an ALU op")
+                if re.fullmatch(r"[A-Za-z_]\w*", arg):
+                    fixups.append((len(out), arg, lineno, "branch"))
+                    out.append(0)
+                else:
+                    n = int(arg, 0)
+                    if not -32 <= n <= 31:
+                        raise AsmError(f"branch1 {n}: the displacement is -32..31")
+                    out.append(n & 0x3F)
             elif op == "mac":                    # f0: multiply-accumulate mode (probe74)
                 out.append(L["fmode0"]); mode4 = False
             elif op == "fmode":
@@ -411,6 +455,13 @@ def assemble(text, lineage="mantis", warn=None):
     for off, name, lineno, op in fixups:
         if name not in labels:
             raise AsmError(f"line {lineno}: undefined label {name!r}")
+        if op == "branch":                        # here + 2 + d, d signed 6 bits
+            d = labels[name] - (off + 1)
+            if not -32 <= d <= 31:
+                raise AsmError(f"line {lineno}: branch to {name} is {d:+d} bytes; the reach is -32..+31 "
+                               "(chain two branches)")
+            out[off] = d & 0x3F
+            continue
         t = org + labels[name]
         if not 0 <= t <= 0x3FFF:
             raise AsmError(f"line {lineno}: {name} = {t:#x} is outside the 16 KB")

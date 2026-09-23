@@ -8,14 +8,18 @@ the program through pointers.
 | property | value | source |
 |---|---|---|
 | total DMP memory | 4096 B | `MEMORY_SIZE 1024*4` in `ml_load_dmp.c` **[VENDOR]** |
-| output FIFO | top 1024 B | `FIFO_SIZE 1024` **[VENDOR]** |
+| output FIFO | 1024 B, **not** in the host-visible 3 KB | `FIFO_SIZE 1024` **[VENDOR]**; emits write no DMP RAM **[HW, probe91]** |
 | reserved | 32 B | `RESERVED_SIZE 32` **[VENDOR]** |
 | addressable by a program | `0x000`–`0xBFF` = **3072 B** | bench read/write sweep **[HW]** |
 | bank | 256 B | loader paging; `BANK_SEL` **[VENDOR]** |
 | word | **4 bytes, big-endian** | **[HW]** |
 
-The firmware image is loaded at address 0 and occupies the low part of that space. Everything
-above it is ordinary data RAM.
+A vendor firmware image is loaded at address 0 and occupies the low part of that space.
+Everything above it is ordinary data RAM. **No vendor image is needed**, though: a program of
+your own, loaded into zeroed memory with a minimal register set, runs by itself, and the
+hardware writes nothing but the sample page (`0x000`–`0x00d`) before each pass
+**[HW, probe91, ISA2.md Finding 39]**. [Chapter 5 §5.3](05-host-interface.md#53-loading-and-starting-a-program)
+has the sequence.
 
 **Free RAM above the image is executable.** A 2120-byte program written at the entry point
 spans 768–2887, i.e. 958 bytes past the end of the 1929-byte stock image, and its terminating
@@ -41,12 +45,18 @@ Every arithmetic word is **32-bit Q30 fixed point, big-endian, two's complement*
 | `0xA0000000` | −1.5 |
 
 **Arithmetic wraps; it does not saturate** **[HW]**. `1.0 + 1.5` stores `-1.5`, and `1.5 + 1.5`
-stores `-1.0`. The shipped firmware does every clamp by hand, with compare-and-replace ladders —
-see [chapter 4](04-idioms.md).
+stores `-1.0`. The flag, though, sees the **exact** result: after `1.0 + 1.5` it says
+"not negative" (§1.5). The shipped firmware does every clamp by hand, with compare-and-replace
+ladders — see [chapter 4](04-idioms.md).
 
-Half-word stores write the **upper** or **lower** 16 bits of the destination and leave the other
-half untouched (`f2` / `f3`); the 16-bit MOV form (`c8`–`cf`) reads a source's upper half-word
-and zero-extends it.
+**`f2` and `f3` are 16-bit lanes**, not only store widths **[HW, probe86, Finding 37]**:
+- **Under `f3`** the ALU computes on the sign-extended **low** half-words, as integers, so a MUL
+  there is `(lo·lo) >> 30`.
+- **Under `f2`** it computes on the **high** half-words, with the low halves taken as zero.
+
+Either way the result goes into that half of the destination and the other half is untouched;
+routed to the FIFO, it is 2 bytes. INC, DEC and CLR act on the lane too. MOVX (`c8`–`cf`) copies
+a word with its half-words exchanged, which is how a low half-word reaches an upper one.
 
 ## 1.3 The three pointers
 
@@ -71,9 +81,8 @@ words directly; the destination does not — it uses a separate word index (§1.
     destination = M[ address(P2) + 4*p2word ]
 ```
 
-Page and bank are set independently and are sticky until reloaded. Loading a page (`ax`) also
-resets P2's word index to 0 **[INFER]** — every measured payload reloads the page before use, so
-this has never been isolated on the bench; the bank byte is not modelled as resetting it.
+Page and bank are set independently and are sticky until reloaded. Loading P2's page (`ax`) also
+resets its word index to 0 **[HW, probe61/69]**; the bank byte does not.
 
 ## 1.4 The destination word index
 
@@ -85,7 +94,7 @@ pre-advances it, then the access happens.*
 |---|---|
 | +1 word | `op&4` of any ALU byte, `df`, `fa`, `fb`, odd `c1 c3 c5 c7 c9 cb cd cf` |
 | +2 words | `d0` |
-| reset to 0 | `ax` (P2 page load) **[INFER]** |
+| reset to 0 | `ax` (P2 page load) **[HW, probe61/69]** |
 
 This is the single most error-prone rule in the ISA, and it was got wrong once: a *single* ALU op
 starting from word 0 cannot distinguish "store at P2+4" from "advance, then store". Two of them
@@ -93,8 +102,8 @@ can — `44 44 44` writes three consecutive words, and the firmware idiom `00 2c
 **[HW]**. Read `op&4` as `inc`, never as a fixed offset.
 
 The store **assigns**; it does not accumulate. A run of ALU ops with `op&4` clear all target the
-same word and the last one wins **[HW]**. (This is also the ISA's one credibility problem — see
-[chapter 7](07-limits.md).)
+same word and the last one wins **[HW]** — except under `f0`, where each op adds a product to a
+running sum and the run is a dot product ([chapter 7 §7.2](07-limits.md#72-closed-the-same-destination-runs-are-dot-products)).
 
 ## 1.5 The rest of the machine state
 
@@ -102,22 +111,34 @@ Beyond the pointers, this is the whole machine:
 
 | state | width | set by | cleared / changed by |
 |---|---|---|---|
-| **MAC accumulator** | 1 word | in `f0` mode every ALU op does `acc <op> A*B`; reset each pass | replaced by any non-`f0` ALU op |
-| **flags N, Z** | 2 | every ALU op, INC, DEC: N := result < 0, Z := result == 0; `d1` clears N | frozen while a predicate is armed |
-| **predicate** | — | `d9` IF (N ∨ Z) / `da` IF ¬N / `db` = `d9` — **sticky** | until the next `d8`–`db` |
+| **MAC accumulator** | exact (Q60) | in `f0` mode every ALU op adds `±A*B` and stores the sum floored to Q30; reset each pass | replaced by any non-`f0` ALU op; a fresh sum starts whenever the destination moves (`op&4`, a P2 page load, `d0`, `df`, an advancing MOV) **[HW, probe86]** |
+| **flag F** | 1 | ADD, RSUB, MUL, NMUL, MAC, INC, DEC: F := the **exact** result < 0, before it wraps; `d1`: F := last result == 0; `f5` op 1: F := A < 0 ≤ B (a sign test) **[HW, Findings 37, 40]** | frozen while a predicate is armed; AND and XOR leave it; CLAMP (`f5` op 0) sets it when it clamped |
+| **predicate** | — | `d9` / `db` IF F, `da` IF ¬F — **sticky** | until the next `d8`–`db` |
 | **result routing** | 1 | `dc` → RAM, `dd` → FIFO | **sticky**; FIFO is the at-rest state |
-| **mode** | 3 | `f0`–`f7`: `f0` multiply-accumulate, `f1` 32-bit store, `f2` upper half, `f3` lower half; `f5`/`f6`/`f7` the MIN/CMP/AND/XOR family at those three widths | **sticky**; any other `fX` replaces it |
-| **exchange P0/P1** | 1 | `fc` — A and MOV sources via P1, B via P0 | **toggle**: until the next `fc` |
-| **exchange P0/P2** | 1 | `fd` — A and MOV sources via P2, stores into P0's page | **toggle**: until the next `fd` |
+| **mode** | 3 | `f0`–`f7`: `f0` multiply-accumulate, `f1` 32-bit, `f2` high 16-bit lane, `f3` low lane, **`f4` mode 4 — entered by every `f4`** (§1.6), `f5`/`f6`/`f7` the CLAMP/sign-test/AND/XOR family at those three widths | **sticky**; any other `fX` replaces it |
+| **exchange P0/P1** | 1 | `fc` — A and MOV sources via P1, B via P0 | **toggle** until the next `fc`; cleared at the start of each pass |
+| **exchange P0/P2** | 1 | `fd` — A and MOV sources via P2, stores into P0's page | **toggle** until the next `fd`; cleared at the start of each pass |
 | **interrupt** | — | `fe`, or `f4` with an immediate of `41`–`7f`: raise `DMP_INT`, continue | — |
 
-Two consequences worth internalising:
+There is **no Z and no N** on the MPU: one flag, as on DMP3. An earlier reading (N and Z,
+`d9` = IF (N ∨ Z)) was a zero result's own FIFO emit read as the test marker (ISA2.md
+Finding 37). Because F is the sign of the exact result, `1.0 + 1.5` leaves it clear, and RSUB's
+F is the true sign of `B − A` — with one exception, A = −2.0, which RSUB adds instead of
+subtracting (−(−2.0) wraps to −2.0) **[HW, probe100]**.
+
+**What survives from one pass to the next** **[HW, probe86]**: the pointers, the P2 word index,
+the route, the mode register and F. The exchanges and the accumulator do not. The block field
+does, which is its own trap ([§6.1](06-memory-map.md#61-two-different-address-spaces)).
+
+Three consequences worth internalising:
 
 - **Routing is at rest on FIFO.** A bare ALU byte with no `dc` in scope emits to the FIFO. This
   is why the earliest bench rounds saw values appear in packets and never saw a RAM write: the
   standard probe site sits after the vendor's `dd f1` quaternion block. If you want RAM, you must
   say `dc`, and it stays on until a `dd`.
 - **Nothing is a one-shot commit.** `dc` arms *every* following ALU op in the block, not one.
+- **There is no compare instruction that compares.** `f5`'s op 1 only tests signs. A compare is
+  an RSUB into a scratch word, read through F ([§4.6](04-idioms.md#46-compare-and-branch--measured)).
 
 ## 1.6 Execution model
 
@@ -127,22 +148,38 @@ Two consequences worth internalising:
         v
   entry point (host writes it to PRGM_START, register 0x70/0x71)
         |
-        +--> straight-line code, forward branches only
+        +--> code; f4 branches reach -32..+31 bytes, forward or back
         |
         v
-  ff  -- halt, and wait for the next sample
+  ff  -- end of the pass: wait for the next sample
 ```
 
 - The program is **re-run from the top on every sample**, at the rate `SMPLRT_DIV` selects.
-  There is no scheduler, no task, no internal interrupt.
-- Control flow is `f4 imm` (forward, ≤ 127 bytes), optionally under `d9`/`da`, plus `ff` (halt,
-  which itself takes a predicate). There is **no backward branch, no call, no return, no stack**
-  **[HW]** — 64 immediates were swept with an explicit re-execution detector and none looped.
-- Therefore **no loop is expressible**, and every array-shaped computation in the vendor firmware
-  is fully unrolled. That is a sensible property for code that must complete inside one sample
-  period, not an accident.
+  There is no scheduler, no task, no internal interrupt. A pass starts 110 DMP cycles after the
+  sample tick, and if it overruns the period the next pass waits for the next tick
+  ([§5.6](05-host-interface.md#56-execution-budget)).
+- **The branch is `f4 d`, a signed 6-bit relative branch** **[HW, probe101, Finding 40]**:
+  - `f4 00`–`1f` go forward 0..31 bytes past the instruction;
+  - `f4 20`–`3f` go **back** 32..1 bytes;
+  - under `d9`/`da` it is conditional;
+  - `ff` ends the pass, and takes a predicate too.
+- **So the MPU can loop**: a counter, a DEC, and a branch back while the counter has not gone
+  negative ([§4.14](04-idioms.md#414-a-counted-loop--measured)). The vendor's eMD 6.12 images do
+  exactly that, to fill the FIFO in batch mode. A loop must still finish inside the sample
+  period, and nothing checks that it does. A target farther than 32 bytes needs a chain of
+  branches.
+- **Every `f4` leaves the mode register at 4** **[HW, probe95–97]**: taken, not taken, skipped
+  by a false predicate, `f4 40`, and the one-byte form. In mode 4 a byte below 0x40 is not an ALU
+  op but a **one-byte branch**, the same signed displacement with the `f4` implied
+  **[HW, probe104, Finding 42]**. MOV, MOVX, CLR, INC and page loads work normally.
+  **After every branch, write a mode byte (`f0`–`f3`, `f5`–`f7`) before the next ALU op**, on the
+  fall-through and at the target.
+- There is **no call, no return and no stack** **[HW, Finding 33]**.
 - The MotionApps / mlsdk images (1024, 1923, 1929, 1962) contain **no branch at all**. Branches
   appear from the eMD 6.12 generation onward.
+- The earlier editions' "forward only, no loop" came from a sweep of the immediates with bit 7
+  set, which are one-byte forms (Finding 15). The displacements 0x20–0x3f were classed as "plain
+  branches" without anyone checking where they landed.
 
 ## 1.7 Image layout
 
@@ -156,7 +193,10 @@ An image is not pure code. It is data, then code, and the boundary is a per-part
 
 The entry address is not inferred: MotionApps20 writes `0x03 0x00` to registers 0x70/0x71,
 i2cdevlib writes `0x04 0x00` for the Family B images, and the SparkFun ICM-20948 driver writes
-`0x10 0x00` to bank 2 register 0x50 after loading the image at 0x90 **[VENDOR]**.
+`0x10 0x00` to bank 2 register 0x50 after loading the image at 0x90 **[VENDOR]**. The entry can
+be any address **[HW, Findings 23, 24, 39]**. A program that owns the part may put code and data
+anywhere in `0x00e`–`0xbff` on the MPU. On the ICM-20948 it must stay below `0x3000`, where the
+FIFO lives.
 
 The data region holds the Q30 constants the program reads (there are no immediates — see
 [chapter 6](06-memory-map.md)), the filter coefficients and thresholds the host tunes, and the

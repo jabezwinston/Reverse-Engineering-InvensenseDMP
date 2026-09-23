@@ -7,27 +7,40 @@ names are vendor ground truth (`dmpmap.h` from the ics-mr0 mlsdk, which is writt
 as a named algorithm, is inference from those names plus the arithmetic. Where a claim rests on
 inference rather than a decoded instruction it says so.
 
+> **Reading the conditions (2026-09-23).** `pseudo.py` predates ISA2.md Findings 27–40, and the
+> pseudo-code below keeps its notation:
+> - **`if (Z)`** is `d9`, which is really *IF F*: the last result, computed exactly, was
+>   negative, or zero right after a `d1`.
+> - **`if (!Z)`** is `da`, which is really *IF ¬F*.
+> - **Scope.** Each predicate stays in force until the next `d8`, not just for one line.
+>
+> Where a comment names a condition's sense ("above the clamp?"), it was written under the older
+> N/Z reading. Check it against the decode (`listings2/`) before relying on it. §3.3 and §3.4 are
+> corrected.
+
 ## 1. The execution model
 
-The DMP is a **feed-forward pipeline that is re-run from the top on every sample interrupt**.
+The DMP program is a **pipeline that is re-run from the top on every sample interrupt**.
 
 The MotionApps / mlsdk images (1923, 1929, 1962, 1024) contain **no branch instructions at all**
 (`f4` count = 0). Execution is a single straight line from the entry point to the terminating
-`ff`. The eMD 6.12 generation (3062, 2634, 2639, 2943, 3035, 3065) adds forward branches, and
-uses them for if/else and for early exit:
+`ff`. The eMD 6.12 generation (3062, 2634, 2639, 2943, 3035, 3065) adds branches, and uses
+them for if/else and for early exit:
 
 ```
-1332  f4 18   if (Z) goto L1358;      <- eMD 6.12, ae42d0be801847e5_3062
+1332  f4 18   if (F) goto L1358;      <- eMD 6.12, ae42d0be801847e5_3062
       ...                                else-body
 1356  f4 01   goto L1359;
-L1358:                                   then-body
+L1358:                                   a one-byte hop (14, in mode 4) on to 1379, then 1408
 L1359:
-2778  ff      if (!Z) halt();         <- `ff` is a *conditional* terminate, not just a footer
+2778  ff      if (!F) end_pass();     <- `ff` is a *conditional* terminate, not just a footer
 ```
 
-Because the displacement is 7 bits and forward-only ([Finding 15](ISA2.md)), **no loop can be
-expressed**. Every array-shaped computation in the firmware is fully unrolled, which is why a
-1.9 kB image spends 1.1 kB on straight-line code.
+The displacement is a signed 6-bit field ([Finding 40](ISA2.md)), so a loop *can* be expressed,
+but only four images have one. 2634, 2639, 2943 and 3035 each fill the FIFO in batch mode with
+one short loop closed by a backward `da f4 30`/`31` (Finding 40 item 5). Everything else that is
+array-shaped is fully unrolled, which is why a 1.9 kB image spends 1.1 kB on straight-line
+code.
 
 There are no registers in the usual sense. The entire machine state is:
 
@@ -35,9 +48,10 @@ There are no registers in the usual sense. The entire machine state is:
 |---|---|
 | P0, P1, P2 (page + bank) | `8x` / `9x` / `ax`, `bx` |
 | P2 word index, 2 bits mod 4 | `op&4`, `df`, `fa`, `fb`, odd `cx` (+1); `d0` (+2) |
-| Z flag | `d1` (TEST), consumed single-shot by `d9`/`da`/`db` |
-| result routing latch | `dc` -> RAM, `dd` -> FIFO (sticky); `fd`/`f7` suppress the store |
-| store width | `f1` 32-bit, `f2` upper half-word, `f3` lower half-word (sticky); applies to RAM as well as the FIFO |
+| flag F | the sign of every ALU/INC/DEC result, computed exactly; `d1` makes it result == 0; read by `d9`/`db` (IF F) and `da` (IF ¬F), **sticky** until `d8` (Findings 27, 37) |
+| result routing latch | `dc` -> RAM, `dd` -> FIFO (sticky) |
+| mode | `f0` multiply-accumulate, `f1` 32-bit, `f2`/`f3` the high/low 16-bit lane (applies to RAM and the FIFO), `f5`–`f7` CLAMP/sign test/AND/XOR; every `f4` leaves mode 4 (Findings 29, 30, 37, 40) |
+| exchanges | `fc` P0↔P1 and `fd` P0↔P2 operand toggles, reset each pass (Findings 28, 37) |
 | operand-pointer swap | `fc`, for one ALU op: A reads through P1, B through P0 |
 
 Everything else is data RAM. There are also **no immediate operands** anywhere except the branch
@@ -125,27 +139,34 @@ Because the ALU wraps, the update is then clamped by an explicit ladder repeated
 filter words, comparing against `BERR2` and its negative `BERR2N`:
 
 ```
-BLPFSX  = BLPFSX - BERR2;                  // above the positive clamp?
-if (!Z) BLPFSTC = 0H2 * BLPFSX;
-        BLPFSTC = BERR2 + BLPFSX;
-        BLPFSTC = BLPFSX - BERR2N;         // below the negative clamp?
-if (Z)  BLPFSTC = 0H2 * BLPFSX;
-        BLPFSTC = BERR2N + BLPFSX;
+BLPFSX = BLPFSX - BERR2;                   // F := BLPFSX - BERR2 < 0, exactly
+if (!F) BLPFSX = 0H2 * BLPFSX;             // at or above the positive clamp: zero the excess
+BLPFSX = BERR2 + BLPFSX;                   // add the limit back: min(x, BERR2)
+BLPFSX = BLPFSX - BERR2N;                  // F := BLPFSX - BERR2N < 0
+if (F)  BLPFSX = 0H2 * BLPFSX;             // below the negative clamp
+BLPFSX = BERR2N + BLPFSX;                  // max(x, BERR2N)
 ```
+
+(Each `if` covers one op, ended by a `d8`. The destination is `BLPFSX` throughout, per the
+decode at 1180–1189. `0H2` is 0.0. Manual §4.7 walks through the bytes.)
 
 ### 3.4 Gyro dead-zone (1423-1440)
 
-The one place `f5` (signed MIN) is used in this image:
+The one place `f5` is used in this image. It is a symmetric CLAMP, not MIN (Finding 41):
 
 ```
-TMP1A = min(XGC, DZ);      if (!Z) XGC = 0;       // `df` -- advance, then clear
-TMP1A = YGC + DZ;          if (!Z) YGC = 0;       // `de` -- clear in place
-TMP1A = ZGC + DZ;          if (!Z) ZGC = 0;       // `df` -- advance, then clear
+TMP1A = clamp(XGC, ±DZ);   if (!F) XGC = 0;       // `df` -- advance, then clear
+TMP1A = clamp(YGC, ±DZ);   if (!F) YGC = 0;       // `d0 de` -- clear in place
+TMP1A = clamp(ZGC, ±DZ);   if (!F) ZGC = 0;       // `d0 df` -- advance, then clear
 ```
 
-This block is also the clearest firmware-side corroboration of [Finding 18](ISA2.md): the axes are
-cleared by an alternating `df` / `de` / `df`, and if `de` did nothing -- as eight rounds of probing
-concluded -- the Y axis would simply never be zeroed.
+(`f5` is a sticky mode, so all three are clamps. F is set when the axis was clamped, that is
+when |axis| > DZ, so `if (!F)` zeroes every axis whose magnitude is within the dead zone: a
+symmetric gyro dead zone.)
+
+This block is also the clearest firmware-side corroboration of [Finding 18](ISA2.md). Each axis
+reloads P2's page and walks to its word; the Y axis is reached by `d0` and cleared in place by
+`de`. If `de` did nothing, as eight rounds of probing concluded, the Y axis would never be zeroed.
 
 ### 3.5 Quaternion integration (1448-1567)
 
@@ -186,7 +207,7 @@ if (Z) TMP22 = TMP22 - 1HB;
 
 ### 3.7 Accel-delta shift register (1759-1769)
 
-An eight-deep history, unrolled because there are no loops:
+An eight-deep history, unrolled (the MotionApps images never loop):
 
 ```
 ACCQD0 = 0 + ACCQD1;                       // ACCQD[i] = ACCQD[i+1]
@@ -260,7 +281,8 @@ conjecture -- see [UNKNOWNS.md](UNKNOWNS.md). The normative instruction referenc
 ## 6. What this firmware is *not*
 
 * Not interrupt-driven internally: one pass, top to bottom, per sample. No scheduler, no tasks.
-* No subroutines. `f4` is a forward jump only; there is no call, no return, no stack.
+* No subroutines. `f4` is a short relative branch (−32..+31 bytes); there is no call, no
+  return, no stack.
 * No division and no square root. The one place a reciprocal is needed (quaternion
   normalisation) uses a single Newton step against the constant 1.5.
 * No dynamic addressing. Every operand address is fixed at assembly time by the pointer bytes;

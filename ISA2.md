@@ -482,6 +482,11 @@ Remaining in the 6050 family: `de` (186), `f5` (81), `f7` (31), `f4 imm>=0x80` (
 
 ## Finding 15 — the branch displacement is 7 bits; there is no backward branch (CONFIRMED)
 
+> **Corrected by Finding 40 (2026-09-23).** The field is 6 bits and **signed**: `f4 20`–`3f`
+> branch *back* 32..1 bytes (probe101), so the MPU can loop, and the vendor's eMD 6.12 images
+> do (Finding 40 item 5). What follows is right about bit 7 (a one-byte `f4`) and wrong about
+> the rest. The sweep below covered only immediates ≥ 0x80.
+
 `f4` with `imm >= 0x80` (24 sites in the 6050 corpus) was the last open control-flow question,
 and the one that would have decided whether the DMP can loop. It does not.
 
@@ -520,6 +525,9 @@ must complete inside one sample period.
 `f5` (81), `f7` (31), `f6` (22), `fc` (19).
 
 ## Finding 16 — `f5` computes signed MIN (HARDWARE CONFIRMED 2026-09-08)
+
+> **Corrected by Finding 41.** It computes A clamped to [−B, B], which is the minimum whenever
+> A ≥ 0 — true of the cells below.
 
 probe28 swept all 16 `(A,B)` pairs of `f5 <alu>` with P0 and P1 on **different** pages — the
 control Finding 12 lacked. Thirteen cells returned the B operand, three did not, and the
@@ -1367,7 +1375,9 @@ does nothing measurable, `f4 60` emitted one zero word, `f4 20` and `f4 3f` bran
 branch's displacement field is 6 bits.
 
 **4. Housekeeping.**  A skipped `f4` does nothing further on the MPU (`08 d9 f4 01 c2 c4 d8 87
-c0` reads RAM after the `d8` — no mode 4 here).  A page reload resets the P2 word index
+c0` reads RAM after the `d8` — no mode 4 here). *(Corrected by Finding 40: it does enter mode 4.
+This cell could not show it, because a page load and a MOV work in mode 4 on the MPU; only a low
+byte reveals it.)*  A page reload resets the P2 word index
 (`44 a4 40` writes words 1 and 0).  MOVs honour `f2`/`f3` on the FIFO too (`dd f3 c0` emits
 16-bit `0005`s; `f2 c8` emits the swapped word's upper half).  `d6`, `d7` and every `e0`–`ef`
 clear M[P2] in place: an undefined byte in this range is the clear.
@@ -1492,6 +1502,11 @@ MPU-6500 would still be worth having — it is the native part for this image an
 differential pair — but the symbol-table ground truth is now anchored on hardware.
 
 ## Finding 33 — the compiler limits: DMP3's return stack is 4 deep and circular; neither core has indirect addressing; the MPU has no jump or call form (HARDWARE CONFIRMED 2026-09-23)
+
+> **Corrected by Findings 40 and 42.** Items 1–3 stand. Item 4 does not, in part: every MPU `f4`
+> leaves mode 4, where a byte below 0x40 is a **one-byte relative branch** (Finding 42). The
+> `f4 a5 03 06` cells below did branch: `03` went 4 bytes on. The MPU still has no call, and its relative branch is signed (probe101). The verdict
+> "only a straight-line dataflow language" is withdrawn: opendmp compiles loops for the MPU.
 
 The question was whether a C compiler can target either DMP. Chapters 7 and 8 left three facts
 that decide it unmeasured: how deep DMP3 calls nest ("at least two"), whether any unexecuted byte
@@ -1723,7 +1738,10 @@ low halves cleared). It stores the lane and sets F from the lane's exact result.
 is signed: `0 − 8000` under `f3` leaves F clear. Clears honour the lane: `de` under `f3` on
 12345678 → 12340000 (B7). MOV was already known to move halves (Finding 29).
 
-**4. The logic family's flags.** **MIN** sets F := (a > b) and leaves `b − a` for `d1`
+**4. The logic family's flags.** *(Corrected by Findings 40 and 41: CMP is a sign test,
+F := A < 0 ≤ B, and "MIN" is a symmetric clamp of A to [−B, B] with F := clamped. The CMP cells
+below all had operands of opposite sign; the MIN cells mostly had A ≥ 0, where the clamp is the
+minimum.)* **MIN** sets F := (a > b) and leaves `b − a` for `d1`
 (MIN(5, 5) then `d1` fires `d9`). **CMP** sets F := (a − b < 0) and leaves 0 for `d1`. **AND
 and XOR leave F untouched** and leave 0 for `d1`: F set, then AND → +1, still fires `d9`.
 MIN's value has one anomaly, the same at all three widths: **when `b − a` overflows
@@ -1941,6 +1959,121 @@ and 4. A low byte in MPU mode 4 raises `Unmodelled` until the jump mapping is me
 **Also confirmed** (probe92, 98 cells): MOV, MOVX, CLR and INC honour the lanes under every mode
 (`f0`–`f3`, `f5`–`f7`), RAM- and FIFO-routed, on both parts, exactly as modelled.
 
+**5. The vendor's own MPU code has a loop, and it reads correctly only with item 2** (static,
+found while the decoder was brought up to date). Each eMD 6.12 image (2634, 2639, 2943, 3035)
+holds exactly one `f4` with a displacement in 0x20–0x3f, and each sits in the same batch-mode
+block. In the 2639 image:
+
+```
+2329  d8 f2        head: always; high lane
+2331  f9           DEC @448 (D_BM_NUMWORD_TOFILL's working count)   F := count < 0
+2332  d9 de        if F: clear it,
+2334  f4 09           and branch out to 2345
+2336  13           (never executed: jumped over or under a false predicate)
+2337  da f2 dd c6  if not F: emit a word to the FIFO,
+2341  dc f4 31        and branch to 2344 + (0x31 - 64) = 2329: the head
+2345  d8 f2        the way out: always; high lane
+```
+
+Read as a forward branch, `f4 31` landed at 2393, in the middle of an unrelated pointer setup,
+skipping the pedometer. Read as signed, it is a FIFO-fill loop that emits the batch words one
+per trip until the count goes negative. It is the shape `dmp.loop` compiles to: a `d8` then a
+mode byte at the head and at the exit, because every `f4` left mode 4. The 2943/3035 images
+have the same loop at 1914–1929 (`f4 30`). Finding 15's "no image loops" and the manual's
+"branches are forward" were wrong about the vendor's firmware too.
+
+**6. The manual's MPU idioms, run as written** (probe102). They were assembled by `dmpasm.py`
+from the manual's source and run on silicon and in the emulator; all cells match.
+- **The counted loop** (§4.14): a tally of N for N = 1, 2, 8, 30.
+- **min(x, y) by compare-and-skip with RSUB** (§4.15): right for every pair tried, and wrong in
+  exactly the predicted way for y = −2.0. min(0.5, −2.0) gives 0.5, because the RSUB adds −2.0
+  instead of subtracting it.
+
+## Finding 41 — `f5` op 0 is not MIN: it clamps A to [−B, B], and F says whether it did (HARDWARE CONFIRMED 2026-09-23)
+
+`bench/probe103.py`, both parts. opendmp wanted to compile `min()` to the one-byte "MIN" where
+range analysis proves it safe, so the value was swept first. It covered random 32-bit pairs,
+pairs straddling the old model's overflow boundary, close pairs and the extremes: 640 cells for
+the value, 640 for the value and F (each op emitting its result and then an F marker), and 640
+on the 16-bit lanes (`f6`, `f7`). The old model (the signed minimum, −1 when B − A overflows
+positively) missed **271 of 640** value cells, identically on both parts. One rule fits **every
+cell on both parts, 1920 of 1920**:
+
+```
+    r = wrap( A >= 0 ? min(A, B) : max(A, -B) )      -B exact: B = -2.0 gives +2.0, which wraps to -2.0
+    F := the exact result != A                       A was clamped; A = B = -2.0 sets it
+```
+
+For B ≥ 0 this is **A clamped to [−B, B]**: a symmetric saturate, with F saying whether it bit.
+On a lane the same rule runs on the lane's values (the low half-word sign-extended as an
+integer, or the high half-word in place), and only that half of the destination is written.
+
+It explains everything recorded about "MIN" before:
+- **Finding 37's anomaly.** "Returns −1 when B − A overflows positively" was the cell
+  A = 0x80000000, B = 1: max(−2.0, −1 lsb) = −1 lsb. The other cells of probe86 had A ≥ 0,
+  where the clamp is the minimum.
+- **probe99's flag.** "MIN's F fits no simple rule" (Finding 40). All 16 cells fit F := clamped.
+- **The vendor's dead zone** (the 1923 image at 1422–1440, manual §4.8). `f5`, then
+  `TMP1A = CLAMP(XGC, DZ)`, then `da` clears XGC. That zeroes each gyro axis whose magnitude is
+  at most the dead zone `DZ`, symmetrically, as a dead zone should.
+
+What `d1` reads after it is measured for one cell only (A = B = 5 leaves 0); the emulator refuses
+`d1` after a CLAMP. The cost is ADD's: 28 cycles on the MPU, 26 on the ICM.
+
+**For a compiler:**
+- `dmp.clamp(x, -c, c)` with c ≥ 0 is **one** instruction, for every x.
+- `min(x, c)` is one CLAMP when x ≥ 0 is known, and the value range decides whether an
+  asymmetric clamp can be shifted to a symmetric one.
+- The old compare-and-skip remains for the rest.
+
+The emulator (opendmp) models the value and F; the assembler spells it `clamp`, with `min` kept
+as an alias.
+
+## Finding 42 — the MPU's mode 4: a byte below 0x40 is a one-byte branch (HARDWARE CONFIRMED 2026-09-23)
+
+`bench/probe104.py`, MPU-6050. Finding 40 left open where a low byte jumps in the MPU's mode 4:
+`14 20` and `0c 20` had reached 0x420, and `04 20` had fallen through. Mapping it might have
+given the MPU an absolute jump.
+
+**The rig.** A counting sled of INC (`f8`, which runs in mode 4) filled 0x010–0xbdb and ended in
+`d8 fe ff`. It counted into the low half-word of 0x00c, which the hardware never writes (Finding
+39). A harness at 0xbe0 cleared the count, entered mode 4 with `f4 00`, and executed the byte
+under test. A landing at X leaves the count at 0xbdc − X. The first attempt, with the sled from
+0x100 and the counter in page 0x0f, landed in zeroed memory and in the sample page, where it
+could measure nothing.
+
+**1. In mode 4, a byte b below 0x40 is a one-byte branch to (b's address) + 1 + sext6(b).** It is
+`f4 d`'s signed displacement with the `f4` implied. All 52 bytes placed in the sled landed
+exactly there, and the byte after b does not matter (`25 00`, `25 20`, `25 81`, `25 ff` all went
+to the same place). The old two-byte reading was this one-byte branch landing on the second
+byte: `14` at 0x40b goes to 0x420.
+
+**2. It is predicable.** Under a false `d9` it is skipped (one byte, 5 cycles); under a true `da`
+it is taken. **Taken, it costs 10 cycles**; `f4 d` costs 15. Measured with `W` like probe90.
+
+**3. 0x40–0x7f in mode 4 neither branch nor interrupt.** All 64 fall through at 5 cycles, with no
+extra DMP_INT (the `f4 41`–`7f` form does interrupt). Any other effect is unmeasured.
+
+**4. The vendor's compiler used it.** The eMD 6.12 images chain their long branches through
+one-byte hops, which a straight path steps over with `f4 01`. Image 3062:
+
+```
+1331  d9 f4 18       if F: branch to 1358
+...
+1356  f4 01          (fall-through: step over the hop)
+1358  14             hop: to 1379
+1359  f1             ...
+1377  d9 f4 1c       ...
+1379  1c             hop: to 1408
+...
+1408  d8 f1          the target: always; a mode byte
+```
+
+The target begins with `d8` and a mode byte, the discipline Finding 40 asks for. So there is no
+absolute jump on the MPU: its reach stays ±32 bytes. What mode 4 does give is a one-byte short
+branch after any other `f4`. opendmp's assembler now uses it for every branch in mode 4, its
+hops included.
+
 ## Decoder corrections (2026-09-08, no new hardware)
 
 Three defects found while writing `docs/manual/`, all in `tools/isa/decode.py`:
@@ -2006,3 +2139,16 @@ assemble writes into constant pages.
 - "branch distance unmeasured": **resolved** (Finding 2).
 - "low byte = EMIT register": correct in FIFO mode, but it is one case of the general ALU form.
 - "a3 = NOP": correct in effect; it is `P2.page = 3`.
+- "the store widths `f0`–`f3`" (Finding 21): `f0` is the MAC (Finding 30) and `f2`/`f3` are 16-bit
+  **lanes** the ALU computes in (Finding 37).
+- "N and Z; `d9` = IF (N ∨ Z)" (Finding 28): **withdrawn**. One flag F, the exact result's sign
+  (Finding 37).
+- "the timing model 0.58 / 2.0 / 3.9 / 7.9 µs + 56 µs" (Finding 23, probe38/40): **superseded** by
+  integer cycle counts (Finding 38).
+- "0x00e reads a constant 12" (probe84): **withdrawn**. It was probe84's own tag (Finding 39).
+- "forward-only branch, no loop" (Findings 2, 15, 33): **withdrawn**. The MPU branch is signed
+  6-bit, and the eMD 6.12 images loop (Finding 40).
+- "CMP sets F := a − b < 0" (Finding 37 item 4): **withdrawn**. It is a sign test (Finding 40).
+- "`f5` op 0 is signed MIN" (Findings 16, 29, 37): **withdrawn**. It clamps A to [−B, B] (Finding 41).
+- "the MPU's mode-4 jump" (Finding 40): **resolved**. In mode 4 a byte below 0x40 is a one-byte
+  relative branch; there is no absolute jump (Finding 42).

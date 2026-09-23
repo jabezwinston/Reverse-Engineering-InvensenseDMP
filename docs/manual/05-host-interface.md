@@ -35,8 +35,42 @@ on — if you can write DMP RAM and read it back, you can run an instruction and
 
 ## 5.3 Loading and starting a program
 
+There are two ways to start the DMP: with your own program only, or with the vendor's image.
+
+### Your program alone — **[HW, probe91, Finding 39]**
+
+A program needs no vendor image. This is the whole init, as opendmp's runtime
+(`opendmp/host/rig.py`) and `bench/probe91.py` do it:
+
+```python
+    wr(PWR_MGMT_1, 0x80); sleep(0.1)        # device reset -- it does NOT clear DMP memory
+    wr(PWR_MGMT_1, 0x01); sleep(0.02)       # wake; PLL on the X gyro
+    wr(USER_CTRL, 0x00)
+    wr(SMPLRT_DIV, 1000 // rate - 1)        # one pass per sample
+    wr(CONFIG, 0x03)                        # DLPF 42 Hz
+    wr(GYRO_CONFIG, fs_sel << 3); wr(ACCEL_CONFIG, afs_sel << 3)
+    wr(INT_ENABLE, 0x02)                    # DMP_INT
+
+    mem_write(0, bytes(0xC00))              # zero ALL of DMP memory, then write the program
+    mem_write(0, image)                     # code and data; read back and compare
+    wr(DMP_CFG_1, entry >> 8); wr(DMP_CFG_2, entry & 0xff)
+
+    wr(USER_CTRL, 0x4C)                     # FIFO_EN | DMP_RESET | FIFO_RESET
+    wr(USER_CTRL, 0xC0)                     # DMP_EN | FIFO_EN: running
+```
+
+What this skips: the firmware load, the FIFO-rate patch, i2cdevlib's I²C-master dance,
+`XG_OFFS_TC`, and the motion thresholds. The pass counter of probe91's test program ran 1, 2,
+3, … with no gap, one pass per sample, and its packets matched the emulator bit for bit.
+**Zero the memory yourself**: a device reset keeps it, so a previous program's data would
+otherwise still be there. The hardware then writes only the sample page, `0x000`–`0x00d`,
+before each pass ([§6.3](06-memory-map.md#63-the-data-map)). The ICM-20948 version is the same
+in outline, with its banked registers ([chapter 8](08-dmp3-icm20948.md)).
+
+### With the vendor's image
+
 The sequence below is the i2cdevlib `dmpInitialize()` for MotionApps20, which is what the bench
-uses (`bench/dmpinit.py`). It matters that it is faithful: an earlier minimal init produced a
+uses for vendor-image work (`bench/dmpinit.py`). It matters that it is faithful: an earlier minimal init produced a
 plausible quaternion while leaving the clock on the X gyro and `DMP_CFG_1` at the MotionApps612
 value, so the configuration data below the entry point was never consumed the way the firmware
 expects.
@@ -107,16 +141,18 @@ you can make before the run** — which is exactly how a custom program is verif
 ## 5.5 Where to put your code
 
 DMP program memory is **volatile RAM**. There is no flash and no way to brick the part — a power
-cycle restores it to stock. Every bench operation that patches also restores.
+cycle loses whatever was loaded (a device reset does not). Every bench operation that patches also restores.
 
-There are two ways in. **Authoring the whole program** is the larger one: overwrite the code
-region from the entry point and keep the stock image's data and config below it. A custom
-program written that way runs, and it may extend past the end of the original image
-**[HW, probe38]** — see §5.6 for how much room that is.
-
-**Patching in place** is the smaller, safer one: write into the vendor's own runtime-patch
-slots, the `a3`-padded runs that `dmp_enable_feature` writes into. In the 1929-byte
-MotionApps20 image:
+There are three ways in:
+- **Own the part** (§5.3): no vendor image at all. Your code and data may use all of
+  `0x00e`–`0xbff`, and the entry may be anywhere. This is what opendmp does.
+- **Author the whole program over a vendor image**: overwrite the code region from the entry
+  point and keep the stock image's data and config below it. A custom program written that way
+  runs, and it may extend past the end of the original image **[HW, probe38]**. §5.6 says how
+  much room that is.
+- **Patch in place**, the smallest and safest: write into the vendor's own runtime-patch
+  slots, the `a3`-padded runs that `dmp_enable_feature` writes into. In the 1929-byte
+  MotionApps20 image:
 
 | address | `a3` run | notes |
 |---|---:|---|
@@ -134,42 +170,62 @@ quaternion — repurposable, at the cost of whatever feature lived there.
 
 ## 5.6 Execution budget
 
-Because the PC only moves forward, **every byte executes at most once per pass, so code size is
-execution time**. WCET analysis is free: your program's worst case *is* its length. What it
-costs depends on the opcode, and the spread is more than tenfold **[HW, probe40]**:
+**The DMP runs on a clock, and every instruction costs a whole number of cycles**
+**[HW, probe87/89/90, Finding 38]**. The bridge's `W` command timestamps two interrupts inside
+one pass, which isolates a body's cost from start jitter. On this bench's MPU-6050 the clock is
+**8.199 MHz** (0.12196 µs a cycle):
 
-| instruction | memory traffic | µs each |
-|---|---|---:|
-| `d8`, pointer loads, modes, predicates | none | **0.6** |
-| `c0`–`cf` MOV | 1 read + 1 write | **~2.0** |
-| ALU `add` / `rsub` | 2 reads + 1 write | **3.9** |
-| ALU `mul` / `nmul` | 2 reads + 1 write + multiply | **7.9** |
+| cycles | instructions |
+|---:|---|
+| 5 | `d8`–`db`, page and bank loads, mode bytes, `dc` `dd` `d0` `d1`, `fc`, a one-byte `f4`; **every skipped byte** (a skipped `f4 d` = 10) |
+| 12 | `de` `df` |
+| 15 | a taken branch (the bytes it jumps over cost nothing) |
+| 17 | `f5` op 1 (the sign test) |
+| 18 | MOV, MOVX (RAM or FIFO) |
+| 22 | ADD under `f2` |
+| 23 | AND, INC |
+| 28 | ADD, RSUB, CLAMP (RAM or FIFO) |
+| 52 | MUL under `f3` |
+| 58 | MUL, NMUL |
+| 60 | MAC (an op under `f0`) |
 
-plus **~56 µs of fixed per-pass overhead**. That is ~1.3 µs per memory access with the
-multiplier costing a further ~4 µs — a plain memory-to-memory machine with no cache to think
-about. **Budgeting from instruction count alone overstates real code by about 6×.**
+- **Start latency.** A pass starts **110 cycles** (13.4 µs) after the sample tick.
+- **Sample writes stall a long pass.** Each sample write that lands inside a running pass stalls
+  it by 14–28 cycles.
+- **Straight-line cost.** Without a backward branch every byte executes at most once per pass,
+  so the worst case is the sum over the longest path.
+- **Loops.** With a loop (§4.14), add each trip's cost times its bound.
+- **opendmp.** Its emulator and `build` listing print these counts per instruction.
+
+The old model (0.6 / 2.0 / 3.9 / 7.9 µs plus 56 µs a pass, from probe38/40) fitted the same rate
+cliffs. Its fixed term was the start latency plus the sample-write stalls folded together.
 
 A pass can only start on a sample tick, so if it overruns the sample period the DMP drops whole
 samples — the rate falls to an exact integer submultiple. The failure is graceful and
 quantised: never a hang, never a corrupt result, just a slower output rate **[HW, probe38]**.
 
-| sample rate | period | budget (all-`add` code) | budget (mixed, ~2.2 µs avg) |
-|---|---:|---:|---:|
-| 1000 Hz | 1000 µs | ~240 | ~430 |
-| 500 Hz | 2000 µs | ~495 | ~880 |
-| **200 Hz** (vendor default) | 5000 µs | ~1260 | ~2250 |
-| 100 Hz | 10000 µs | ~2530 | ~4520 |
+| sample rate | period | cycles after the start | budget (all-`add` code) | budget (the stock image's mix, ~17.6 cycles a byte) |
+|---|---:|---:|---:|---:|
+| 1000 Hz | 1000 µs | 8,089 | ~290 | ~460 |
+| 500 Hz | 2000 µs | 16,288 | ~580 | ~925 |
+| **200 Hz** (vendor default) | 5000 µs | 40,885 | ~1460 | ~2320 |
+| 100 Hz | 10000 µs | 81,880 | ~2920 | ~4650 |
 
-The address space caps the program at **~2270 bytes** (768–3040; start at 1024 instead and get
-2016 bytes with all of `0x000`–`0x3FF` left free for data). So at 100–200 Hz **space and time
-run out at about the same point**, and below 200 Hz you are limited by address space alone.
+Space runs out at about the same point:
+- **Over a vendor image**, the address space caps a program at **~2270 bytes** (768–3040). Start
+  at 1024 instead and get 2016 bytes, with all of `0x000`–`0x3FF` left free for data.
+- **Owning the part** (§5.3), code and data share `0x00e`–`0xbff`, about 3 KB.
 
-The model is validated against the shipping firmware with no free parameters: the stock
-MotionApps20 opcode mix predicts a 2537 µs pass, hence `rate = sample_rate / ceil(2537/period)`
-— a non-monotonic curve, since 500 Hz should be *slower* than both 1000 Hz and 333 Hz. Measured
-at five rates: 333.5 / 251.8 / 333.6 / 200.2 / 99.4 passes per second against 333 / 250 / 333 /
-200 / 100 predicted **[HW, probe41]**. It also explains the vendor's choice of 200 Hz — the
-stock program uses 51 % of that period and does not fit at 500 Hz.
+So at 100–200 Hz space and time run out together, and below 200 Hz you are limited by address
+space alone.
+
+**Validation against the shipping firmware.** The stock MotionApps20 pass is 20,465 cycles
+= 2496 µs at these costs, hence `rate = sample_rate / ceil(2496/period)`. That is a
+non-monotonic curve: 500 Hz should be *slower* than both 1000 Hz and 333 Hz. Measured at five
+rates: 333.5 / 251.8 / 333.6 / 200.2 / 99.4 passes per second, against 333.3 / 250 / 333.3 /
+200 / 100 predicted **[HW, probe41, Finding 38]**. This also explains the vendor's choice of
+200 Hz: the stock program uses half of that period and does not fit at 500 Hz. The opendmp
+emulator replays the whole image at these costs and reproduces the same rates.
 
 ## 5.7 End to end
 
@@ -197,18 +253,27 @@ of emits, and every emitted word must equal the corresponding stock field in the
 
 ## 5.8 The bench rig
 
-MPU-6050 on an ESP32 — `SDA = D21`, `SCL = D22`, `INT = D5`, part at 0x68, host at
-`/dev/ttyUSB0`. The ESP32 runs `bench/esp32_dmp_bridge/` and contains **no experiment logic**: it
-exposes register access (`G`/`S`), DMP memory (`M`/`N`), FIFO (`F`/`R`) and the interrupt counter
-(`I`/`Z`) over serial, so iterating an experiment never needs a reflash. Everything else is
-host-side Python in `bench/`.
+Two rigs, each an ESP32 bridge — `SDA = D21`, `SCL = D22`, `INT = D5`:
+- the MPU-6050 at 0x68, host at `/dev/ttyUSB0`;
+- the ICM-20948 at `/dev/ttyUSB1`.
+
+The ESP32 runs `bench/esp32_dmp_bridge/` and contains **no experiment logic**. It auto-detects
+the part and exposes, over serial:
+- register access (`G`/`S`);
+- DMP memory (`M`/`N`);
+- the FIFO (`F`/`R`);
+- the interrupt counter (`I`/`Z`);
+- timed runs: `T <ms>` counts interrupts, and `W <ms>` also timestamps the first two.
+
+So iterating an experiment never needs a reflash. Everything else is host-side Python in
+`bench/`. opendmp's `opendmp.host.Rig` drives the same protocol.
 
 For a remote rig, `bench/rfc2217_server.py` bridges the serial port over the network; RFC2217
 carries DTR/RTS so the auto-reset still works, which plain `socket://` does not.
 
 ## 5.9 Measurement discipline
 
-Six specific traps in this project produced confident, wrong results. They are worth reading
+Eight specific traps in this project produced confident, wrong results. They are worth reading
 before you design an experiment, because every one of them looked like a clean measurement:
 
 1. **Validate the instrument first.** A FIFO negative means nothing without a passing bare-emit
@@ -227,6 +292,14 @@ before you design an experiment, because every one of them looked like a clean m
 6. **Control-guard every cell, and re-init after a poisoning one.** `bc`/`bd` move a pointer's
    1 KB block and the MPU keeps it across passes (Finding 35), so one stray block byte shifts
    everything measured after it until `DMP_RST`.
+
+7. **Opposite-sign operands hide a sign test.** Every early cell of the `f5` "compare" had
+   operands of opposite sign, where F := A < 0 ≤ B and F := A − B < 0 agree. It was recorded as
+   a compare for two findings, until a compiled program disagreed with the emulator on silicon
+   (Finding 40). Choose operands on which the candidate rules disagree.
+8. **Sweep the whole field, and look at where it lands.** "Forward only, no loop" came from
+   sweeping the branch immediates with bit 7 set. Nobody located the landing point of
+   `f4 20`–`3f`, which branch backwards (Findings 15, 40).
 
 The general rule that follows: run N control steps with a NOP at the test site, keep the bytes
 that are identical across all N as a **stability mask**, and compare only inside the mask. A

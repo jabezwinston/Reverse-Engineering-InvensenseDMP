@@ -24,9 +24,9 @@ header confirmed it **[VENDOR]**.
 
 Consequences worth stating plainly:
 
-- **Free RAM above the image is host-addressable but not program-addressable**, and not
-  executable either. The 1143 free bytes in the 1929-byte host image are storage for the host,
-  not memory for the DMP program.
+- **Free RAM above `0x3FF` is executable** (§1.1, probe38) **and reachable as data only through
+  the block field.** The 1143 free bytes above the 1929-byte host image can hold code directly.
+  As data they need a `bc`/`bd`/`be` adjust that the pass undoes.
 - In **Family B** images (code from 1024) the pointer window and the code region do not overlap:
   all 1024 addressable bytes are data.
 - In **Family A** images (code from 768) the pointer window covers `768`–`1023` — **a quarter of
@@ -134,7 +134,9 @@ There is no allocator and no linker. To give your program a word:
 
 1. Pick a page inside `0x000`–`0x3FF` that the host firmware does not use. The bench uses
    **bank 2, page 4 = address 0x240 = 576** as its scratch page. Check your own host image:
-   in a Family A image, keep well below 768 or you will be writing into code.
+   in a Family A image, keep well below 768 or you will be writing into code. With no vendor
+   image ([§5.3](05-host-interface.md#53-loading-and-starting-a-program)) everything from
+   `0x00e` up is yours. opendmp packs its words from `0x010` and its code from `0x400`.
 2. Write initial values from the host **after** the image load and **before** starting the DMP
    ([chapter 5](05-host-interface.md)). This is also how you supply constants the constant page
    does not have.
