@@ -49,6 +49,18 @@ The DMP is a **Q30 fixed-point, feed-forward, pointer-addressed machine with a m
 That fragment, patched into a stock image, makes the DMP emit a field selection the vendor
 firmware never produces. See [chapter 3](03-assembly-language.md).
 
+> **2026-09-23: Findings 37–38 supersede parts of chapters 1, 2, 5 and 8, which are not yet
+> rewritten.** The MPU has **no Z flag**: one flag F on both cores, the sign of the *exact*
+> result (`d9` = IF F, `da` = IF ¬F, `d1` makes F = result == 0). `f2`/`f3` (and `f6`/`f7`) are
+> **16-bit lane modes**, not only store widths. The MAC restarts on any destination move on
+> the MPU and only on `op&4` on DMP3. DMP3's `f0` is the MAC. Timing is in **integer cycles**
+> (8.199 / 20.975 MHz), replacing the 0.58/2.0/3.9/7.9 µs + 56 µs model. See ISA2.md, and the
+> opendmp emulator (`~/Git_repos/opendmp`), which encodes all of it.
+>
+> **Finding 39** (probe91): a program runs with **no vendor image** on both parts, from zeroed
+> memory; the hardware writes only the sample page (MPU 0x000–0x00d, ICM 0x0000–0x0011); and
+> **the ICM's FIFO is DMP RAM 0x3000–0x3fff**. Chapters 6–8 are corrected for it.
+
 ## How to read the status tags
 
 Reverse engineering earns claims; it does not assume them. Every statement in this manual carries

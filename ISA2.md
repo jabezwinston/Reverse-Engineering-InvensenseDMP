@@ -1685,6 +1685,206 @@ image default 3) is 0; setting 0x166 or 0x164 instead does not. No driver in the
 `D_1_106`, and on the 6050 nothing in the image clears it. The likeliest reading is that 6500
 hardware initialises it, which is the one question here that still needs an MPU-6500.
 
+## Finding 37 — one exact-sign flag, no Z; `f2`/`f3` are 16-bit lanes; what restarts the MAC; DMP3 `f0` is the MAC (HARDWARE CONFIRMED 2026-09-23)
+
+Measured for the opendmp emulator (`~/Git_repos/opendmp`), `bench/probe86.py` (MPU-6050, 120
+cells) and `bench/probe88.py` (ICM-20948, 36 cells). Every cell runs on silicon and in the
+emulator side by side; with the model below, **all 156 match**. Each cell is one pass from
+DMP_RST (a `T` stopped by the `fe`/`e2` at the end). A predicate observer after the op under
+test emits one of two distinct marker words (`0d9d9d9d` if `d9` fires, `0dadadad` if `da`
+does), so no emitted result can be mistaken for a marker.
+
+**1. One flag on the MPU too, and no Z.** Across every cell exactly one of `d9`/`da` fired. A
+result of exactly zero fires `da` only: under RAM or FIFO routing, for ADD, RSUB, MUL, INC to
+zero and an equal CMP. After `d1`, a zero result fires `d9` only and a non-zero one `da` only.
+So the MPU is DMP3's machine: **F := result < 0; `d1` makes F := result == 0; `d9`/`db` = IF F,
+`da` = IF ¬F.** Finding 28's "`d9` fires on 0" and "after `d1` `da` is always taken" were the
+zero-result op's own FIFO emit (a 0 word) read as the `c6` marker, which also emits 0.
+
+**2. F is the sign of the exact result, not of the wrapped word.** `1.0 + 1.5` stores −1.5
+(`a0000000`) with F clear; `−1.5 − 1.0` stores +1.5 with F set; INC of `7fffffff` gives F
+clear; DEC of `80000000` gives F set; CMP of 1.5 and −1.5 (A − B = 3.0) gives F clear, and of
+−1.5 and 1.5 gives F set. **A compare never overflows.** Same on DMP3.
+
+**3. `f2`/`f3` are 16-bit lane modes, not only store widths.**
+
+| cell | 32-bit arithmetic | measured |
+|---|---|---|
+| `f3` MUL, 1.0 × 0x00012345 | stores low half 2345 | **0000** |
+| `f3` MUL, lo c000 × lo 2345 | — | **ffff**, F set: (−16384 × 9029) >> 30 = −1 |
+| `f2` RSUB, B = 0x00010000, A = 1 | 0000ffff, upper half 0000 | **0001**: no borrow from the low half |
+| `f2` MUL, 0x0000ffff × 0x7fff0000 | 0x0001fffd, upper half 0001 | **0000**: the low half does not take part |
+| `f3` INC of 8000ffff | 80010000 | **80000000**: wraps within the low half |
+| `f2` INC of 8000ffff | 80010000 | **8001ffff**: +1 in the upper half |
+
+Under `f3`/`f7` the ALU works on the **sign-extended low half-words as integers** (so MUL
+there is `(lo·lo) >> 30`). Under `f2`/`f6` it works on the **high half-words in place** (the
+low halves cleared). It stores the lane and sets F from the lane's exact result. The low lane
+is signed: `0 − 8000` under `f3` leaves F clear. Clears honour the lane: `de` under `f3` on
+12345678 → 12340000 (B7). MOV was already known to move halves (Finding 29).
+
+**4. The logic family's flags.** **MIN** sets F := (a > b) and leaves `b − a` for `d1`
+(MIN(5, 5) then `d1` fires `d9`). **CMP** sets F := (a − b < 0) and leaves 0 for `d1`. **AND
+and XOR leave F untouched** and leave 0 for `d1`: F set, then AND → +1, still fires `d9`.
+MIN's value has one anomaly, the same at all three widths: **when `b − a` overflows
+positively it returns −1** (0x80000000 vs 1 → ffffffff; lane 8000 vs 0001 and 8001 vs 0001 →
+ffff; `f6` 80000000 vs 00010000 → ffff). All other pairs select the minimum, including 1 vs
+8000 and 7fff vs 8000.
+
+**5. What restarts the multiply-accumulator: the two cores differ.** A = B = 0.5:
+
+| cell | MPU-6050 | ICM-20948 |
+|---|---|---|
+| `f0 04 04` (op&4, twice) | 0.25, 0.25 | 0.25, 0.25 |
+| `f0 00 a4 00` (P2 page reload, same page) | 0.25 | **0.5** |
+| `f0 00 d0 00` / `df` / `c5` (advance by d0, clear, MOV) | 0.25 | **0.5** |
+| `f0 00 ab 00` (another page) | — | **0.5** |
+| `f0 00 00 04 00` | — | 0.5, 0.5 |
+
+On the MPU **any move of the destination starts a fresh sum**. That is what the 1929 image's
+rotation terms need: its `04 28 51 79 / 1d 30 / 14 38` MAC runs each open with an `op&4` byte
+or a page load, and `2c 50 50 78 78` doubles TMP3A/TMP4A as a rotation row requires only if
+each sum was fresh. On DMP3 **only an ALU op's own `op&4` restarts it**. Precision (both):
+A = ±1 LSB, B = 0.5, four MAC ops emit 0, 1, 1, 2 and −1, −1, −2, −2. The products are summed
+exactly and floored once, not floored per term. Rounding: MUL 7×5 → 0, NMUL 7×5 → −1,
+MUL 7×−5 → −1, NMUL 7×−5 → 0 (floor of the exact product).
+
+**6. DMP3 `f0` is the multiply-accumulator** (B6): `f0 00 00` → 0.25 then 0.5; `f0 01` →
+−0.25; the precision cells match the MPU. The shared ALU extends to the `f5` family on DMP3:
+MIN, CMP, AND, XOR, the flag rules and the MIN anomaly all match item 4.
+
+**7. What survives from pass to pass (MPU,** 20 ms windows at 1 kHz): pointers, the P2 word
+index, the route, the mode register and F all carry into the next pass. The `fc` exchange does
+not (a pass that ends in `fc` starts the next un-exchanged). State also leaks across DMP_RST
+between cells, which is why every probe cell here begins by setting what it relies on.
+
+**8. The stock MotionApps20 image, end to end.** With items 1–5 in the emulator, the 1929 image
+emits its 42-byte packets every 1, 2, 3, 4 passes for FIFO-rate dividers 0, 1, 2, 3. Silicon
+gives 200.3, 100.2, 66.8, 49.9 interrupts/s at 200 Hz. The gate at 1841–1847 (INC SEM1 under
+`f3`, RSUB against the divider's low half, `d9`) yields the documented period of divider + 1
+only with the lane arithmetic and the exact-sign F; under the old model the image never
+emitted.
+
+## Finding 38 — the DMP runs on a clock: every instruction is an integer number of cycles (HARDWARE CONFIRMED 2026-09-23)
+
+`bench/probe87.py`, `probe89.py`, `probe90.py`. The bridge gained **`W <ms>`** (the sketch in
+`bench/esp32_dmp_bridge/`, both ESP32s reflashed). It is `T`, except it timestamps the first
+**two** interrupt edges in the ISR. A program `INT <N x filler> d8 INT` then times its body as
+t2 − t1, free of the start jitter (the enable falls anywhere in the sample period) and of ISR
+latency. Two N give a filler's cost; spread 0–2 µs over 1000–3000 fillers.
+
+**MPU-6050**, at 100 Hz so no sample write lands inside the pass: **every cost is an integer
+multiple of 0.12196 µs (8.199 MHz)**.
+
+| cycles | instructions |
+|---:|---|
+| 5 | `d8`–`db`, page/bank loads, `f0`–`f7` mode bytes, `dc` `dd` `d0` `d1`, `fc`, `f4` with bit 7 set; **a skipped instruction, per byte** (a skipped `f4 00` = 10) |
+| 12 | `de` `df` |
+| 15 | taken `f4 00` / `f4 01` (the bytes jumped over cost nothing) |
+| 17 | CMP (`f5 01`) |
+| 18 | MOV, MOVX (with or without advance; RAM or FIFO) |
+| 22 | ADD under `f2` (lane) |
+| 23 | AND (`f5 02`), INC |
+| 28 | ADD, RSUB, ADD+advance, MIN (RAM or FIFO) |
+| 52 | MUL under `f3` (lane) |
+| 58 | MUL, NMUL |
+| 60 | MAC (`00` under `f0`) |
+
+**ICM-20948**: **every cost is an integer multiple of 0.047675 µs (20.975 MHz)**.
+
+| cycles | instructions |
+|---:|---|
+| 4 | `d8`, page loads, mode bytes; a skipped instruction, per byte (a skipped `f4 hi lo` = 12) |
+| 11 | `de`, `d2` |
+| 13 | taken jump `f4 hi lo` (jump + `f1` = 17); call + `e0` = 18 together |
+| 15 | shifter load `d4`, shift `fd n` |
+| 17 | MOV, MOVX |
+| 19 | `fc c0 00` |
+| 20 | ADD under `f3` (lane) |
+| 21 | INC |
+| 25 | MUL |
+| 26 | ADD, RSUB, MIN |
+| 27 | MAC (`00` under `f0`) |
+
+**Sample writes stall the MPU.** The same body at 8 kHz, 1 kHz and 100 Hz: 2000 `d8` =
+1254 / 1224 / 1220 µs, 500 ADD = 1732 / 1710 / 1708, 500 MOV = 1121 / 1102 / 1099. Each sample
+write that lands inside a running pass costs about 28 (`d8`), 20 (MOV) or 14 (ADD) cycles. The
+ICM shows none (1145 / 1146 / 1146 µs). This is why probe87's `T` costs, measured at 8 kHz,
+ran ~2% high, and it is part of why probe38's rate-cliff fit put 0.58 µs on `d8` and 56 µs on
+the fixed term.
+
+**Tick to first instruction** (the sensor's data-ready edge against an INT after k `d8`,
+linear in k): **13.4 µs = 110 cycles on the MPU, ~6.2 µs = 130 cycles on the ICM.** Replayed
+at these costs, the stock 1929 image's pass is 20,465 cycles = 2496 µs. That reproduces
+probe41's measured pass rates at 1000/500/333/200/100 Hz (333.3/250/333.3/200/100 against
+333.5/251.8/333.6/200.2/99.4), including the non-monotonic 500 Hz dip. The old model's 2537 µs
+reproduced them too, so probe41 could not tell the two apart.
+
+The clock is these parts', against the ESP32's crystal; another part will differ by its
+oscillator tolerance. The MPU was on PLL/Z-gyro (`PWR_MGMT_1 = 0x03`).
+
+## Finding 39 — no vendor image needed; the RAM the hardware writes; the ICM's FIFO is DMP RAM 0x3000–0x3fff (HARDWARE CONFIRMED 2026-09-23)
+
+`bench/probe91.py`, both rigs, measured for opendmp (its PLAN.md B1/B2).
+
+**1. A program runs with no vendor image at all (B1).** The init was a device reset plus a
+minimal register set:
+- **MPU:** clock, SMPLRT_DIV, CONFIG, the full scales, INT_ENABLE = DMP_INT, DMP_CFG_1/2 = the
+  entry.
+- **ICM:** wake, the sample-rate dividers and full scales, INT_ENABLE = DMP_INT1, FIFO_EN_1/2 = 0,
+  PRGM_START.
+
+It skipped the firmware load, the FIFO-rate patch, i2cdevlib's I2C-master dance, XG_OFFS_TC and
+the motion thresholds. **All** of DMP memory was zeroed and verified (MPU 0x000–0xbff, ICM
+0x0000–0x3fff), and then the only thing written was an 18/21-byte program. The program counts
+passes in RAM, emits the sample page and the count, and interrupts.
+
+On both parts:
+- The count ran **1, 2, 3 … with no gap**, one interrupt per pass.
+- `W` put consecutive passes one sample period apart: **10,003 µs at 100 Hz on the MPU**, 8795 µs
+  on the ICM at divider 9.
+- The fields followed the host's sensor registers.
+- The opendmp emulator, started from zeroed memory and fed the samples the packets carry,
+  produced **26/26 (MPU) and 29/29 (ICM) packets bit-identical**.
+
+The ICM ran the same with and without the two registers the vendor driver writes after its
+image load (HW_FIX_DISABLE = 0x48, SINGLE_FIFO_PRIORITY_SEL = 0xe4). **A device reset
+(PWR_MGMT_1 = 0x80) keeps DMP memory on both parts**, so a loader must clear it itself.
+
+**2. What the hardware writes (B2).** All memory except the program was tagged, twice
+(M[a] = `5a000000|a`, then its complement). The DMP ran ~150 ms of passes, and then everything
+was read back. A byte counts as written if it differs from its tag in either run.
+
+| | written by the hardware | not written |
+|---|---|---|
+| MPU-6050 | **0x000–0x00d**, every pass: ax ay az temp gx gy gz, int16 big-endian | everything else in 0x000–0xbff, including **0x00e–0x00f** |
+| ICM-20948 | **0x0000–0x0011**, every pass (0–3 cleared, then ax ay az gx gy gz temp); and **every FIFO byte, into 0x3000–0x3fff** | everything else in 0x0000–0x2fff |
+
+- **Only while the DMP runs.** With DMP_EN clear and the sensors running, neither part writes a
+  byte of DMP memory.
+- **The MPU's "constant 12 at 0x00e" (probe84, UNKNOWNS.md) was probe84's own tag.** Its tag word
+  at 0x00c is `5a00000c`. The hardware overwrote gz at 0x00c–0x00d and left the tag's low half,
+  0x000c, at 0x00e. With the memory zeroed, 0x00e reads 0 under all 11 configurations tried
+  (DLPF 0/3/6, divider 0/9/49, 250/2000 dps, 2/16 g, EXT_SYNC 1/4, three clock sources).
+  **0x00e–0x00f are free RAM.**
+- **Emitting and interrupting write nothing else on the MPU.** A program that emits 68 B per
+  pass changes nothing in 0x000–0xbff outside 0x000–0x00d, even when it fills the FIFO to
+  overflow. The memory port's fourth KB (banks 12–15, 0xc00–0xfff) reads 0 and ignores writes,
+  so the MPU's 1 KB FIFO, wherever it lives, is not in host-visible DMP memory.
+- **On the ICM the FIFO is DMP RAM.** The same program's packets appear verbatim from 0x3000
+  up. After 21 passes 1428 B were emitted, FIFO_COUNT read 1428, and the writes spanned
+  0x3000–0x3593. After 48 passes it was 3264 B, spanning 0x3000–0x3cbf. After 103 passes
+  (7004 B) FIFO_COUNT read 4096 and the writes stayed inside **0x3000–0x3fff**. The fill starts
+  at 0x3000 after a FIFO reset. Where overflowing bytes go inside the window, overwriting the
+  oldest or dropping the newest, is not settled.
+
+**For a toolchain:**
+- **MPU:** code and data may use all of 0x000–0xbff except the 14 sample bytes.
+- **ICM:** code and data must stay **below 0x3000**; code at 0x1000–0x2fff is 8 KB, not 12. The
+  vendor's 14301-byte image runs to 0x386d, so either its tail is never needed after the FIFO
+  starts filling, or the vendor configuration moves the FIFO. That remains open and does not
+  matter for a program that owns the part.
+
 ## Decoder corrections (2026-09-08, no new hardware)
 
 Three defects found while writing `docs/manual/`, all in `tools/isa/decode.py`:

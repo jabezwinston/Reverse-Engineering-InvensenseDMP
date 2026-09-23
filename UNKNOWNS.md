@@ -15,7 +15,6 @@ Ordered by what it takes to close.
 | item | status | experiment |
 |---|---|---|
 | DMP3 `fc X Y` with X < 0xc0 | three bytes, stores nothing, sets F (probe83d); the condition is not the X ≥ 0xc0 compare — most X fire for every value tried, X = 80 only on a zero word under Y = 00, and runs disagreed (probe83c/e). Five vendor sites | hold P0, P1 and the flag state fixed across cells (seed F both ways first), then sweep X's fields one at a time; the run-to-run disagreement suggests hidden state |
-| MPU `0x00e` | the half-word after gyro Z in the hardware-written sample page reads a constant 12 (probe84) | vary FIFO rate, DLPF and FSYNC configuration and watch it |
 
 ## 2. Open, and it needs a part the bench does not have
 
@@ -56,6 +55,17 @@ real evidence that the upper half means the same thing in both.
 
 ## 6. Closed since the last revision of this file
 
+- **MPU `0x00e`** — not written by the hardware; probe84's "constant 12" was its own tag's low
+  half. The MPU writes exactly 0x000–0x00d each pass (Finding 39).
+- **A program with no vendor image** runs on both parts from zeroed memory; the RAM the hardware
+  writes; **the ICM's FIFO is DMP RAM 0x3000–0x3fff** (Finding 39).
+- **The flags** — one exact-sign F on both cores, no Z; the logic family's flags; `d1` after
+  MIN/CMP/AND (Finding 37).
+- **`f2`/`f3`/`f6`/`f7`** — 16-bit lane modes, not only store widths (Finding 37).
+- **What restarts the MAC**, its precision, DMP3 `f0` = MAC; what survives between passes
+  (Finding 37).
+- **Timing** — integer cycle counts at 8.199 / 20.975 MHz, sample-write stalls on the MPU,
+  tick-to-first-instruction latency (Finding 38).
 - **Same-destination runs** — dot products under the `f0` MAC mode (Finding 30).
 - **`fd`, `f7`, `f0`** — the P0/P2 exchange, the lower-half logic mode, the MAC mode (Findings 28–30).
 - **Control flow and addressing limits** — DMP3's return stack is 4 deep and circular; no indirect

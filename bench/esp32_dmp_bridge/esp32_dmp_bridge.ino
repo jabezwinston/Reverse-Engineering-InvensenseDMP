@@ -55,7 +55,8 @@ static const Part *part = &PART_MPU;
 static const uint8_t RA_REG_BANK_SEL = 0x7F;   // ICM only
 
 volatile uint32_t intCount = 0;
-void IRAM_ATTR onInt() { intCount++; }
+volatile uint32_t intAt[2] = {0, 0};   // micros() of the first two edges, for W
+void IRAM_ATTR onInt() { if (intCount < 2) intAt[intCount] = micros(); intCount++; }
 
 static bool wrReg(uint8_t reg, const uint8_t *d, size_t n) {
   Wire.beginTransmission(MPU);
@@ -289,6 +290,20 @@ void handle(char *s) {
       uint32_t dt = micros() - t0;
       uint32_t n = intCount;
       Serial.print("OK "); Serial.print(n); Serial.print(' '); Serial.println(dt);
+      return;
+    }
+    case 'W': {                          // W <ms>: as T, but time the first TWO interrupt edges.
+      unsigned ms = 600;                 // A program `int <body> int` gives the body's duration
+      sscanf(s + 1, "%u", &ms);          // as t2 - t1, free of start jitter and ISR latency.
+      if (!bank0() || !wr1(part->user_ctrl, 0x00)) { Serial.println("ERR i2c"); return; }
+      intCount = 0;
+      if (!wr1(part->user_ctrl, part->t_reset) || !wr1(part->user_ctrl, 0xC0)) { Serial.println("ERR i2c"); return; }
+      uint32_t t0 = micros();
+      while (intCount < 2 && (micros() - t0) < ms * 1000UL) { }
+      wr1(part->user_ctrl, 0x00);
+      uint32_t n = intCount;
+      Serial.print("OK "); Serial.print(n); Serial.print(' ');
+      Serial.print(n > 0 ? intAt[0] - t0 : 0); Serial.print(' '); Serial.println(n > 1 ? intAt[1] - t0 : 0);
       return;
     }
   }

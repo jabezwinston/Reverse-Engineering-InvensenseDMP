@@ -126,7 +126,6 @@ The same applies to the twelve 3050 `c8`–`cf` bytes, rendered as `?MOV16` (man
 | item | status |
 |---|---|
 | `bf` on the MPU | a MOV after it stored `6b6b6b6b` for two sources and was unaffected for a third; an ADD stored `d6d6d6d6` (probe84b). Used by no MPU image: treat as undefined. On DMP3 it is the MOV-stores-zero toggle (§8.4) |
-| `0x00e` on the MPU | the half-word after the gyro in the hardware-written sample page reads a constant 12 (probe84); unidentified |
 | the 2639 image's entry gate | halts every pass on the 6050 unless the half-word at 0x16a (`D_1_106`, image default 3) is 0; no driver writes it (Finding 36). Probably set by 6500 hardware; needs an MPU-6500 |
 
 Everything else once listed here is closed: `db` is `d9` (Findings 27/28), `fe` raises DMP_INT

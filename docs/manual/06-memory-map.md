@@ -103,7 +103,9 @@ Three pages you will use constantly:
 Pages 0, 9, 10 and 25 hold the sensor inputs and their working copies. **The hardware writes
 page 0 before every pass**, int16 big-endian in the register-burst order **[HW, probe84]**:
 accel X / Y / Z at `0x000` / `0x002` / `0x004`, temperature at `0x006`, gyro X / Y / Z at
-`0x008` / `0x00a` / `0x00c`; `0x00e` reads a constant 12. Identified by standby: with the
+`0x008` / `0x00a` / `0x00c`, and nothing else: `0x00e`–`0x00f` are not written (probe84's
+"constant 12" there was its own tag; **[HW, probe91]**, ISA2.md Finding 39). The writes happen
+only while the DMP runs. Identified by standby: with the
 accel in standby `0x000`–`0x005` freeze at the host's ACCEL_OUT values, with the gyro in
 standby the gyro halves read 0. The vendor's word names (`PTAT`, `YGYR`, `XACC`, `ZACC`) label
 the 32-bit words, each of which holds two of these half-words.
