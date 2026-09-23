@@ -79,7 +79,7 @@ images decode to **100 %**. What remains, each with the experiment that would se
 
 | item | status | experiment |
 |---|---|---|
-| the I/O space index map | [INFER]. Not the host register file (probe56: host registers invisible, a store through it changes none); index 0 = `ea`, live bytes at 0x1d0 and 0x250–0x2a4 | the same sweep with the sensors in known states (gyro standby, accel standby, a known FSYNC level) and the FIFO at known fill; then match the live bytes to the raw sensor words in the FIFO |
+| the I/O space index map | **closed** (Finding 34): address a is host register a/4 (banks end to end), reads and writes; sensor samples arrive in RAM 0x0004–0x0011 | none needed |
 | `fc cX Y` full Y decode | **closed in kind** (Finding 31): `fc cX Y` is a bit test of P1 word X — `04`/`08`/`10`/`20`/`40`/`80` test word bits 0–5, `00`/`01` the low-6-bits zero/nonzero. The op-field bits crossed with the selector (the vendor's `0c`) and reach above bit 5 are the only residue | bench time on the ICM: sweep Y's op-field bits 0–1 against each one-hot selector |
 | `bf` | P0/P1 unaffected; a P2 store after it lands nowhere (probe54 E). Unattested | none needed |
 | FSYNC | wired to D4; reaches the chip (`TEMP_OUT_L` bit 0). `e7` and `db` do not read it | if any instruction reads it, the candidates left are the I/O space indices |

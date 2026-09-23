@@ -1491,6 +1491,116 @@ the symbol-named emit slots; execution and addressing are confirmed without it. 
 MPU-6500 would still be worth having — it is the native part for this image and for the 2634/2639
 differential pair — but the symbol-table ground truth is now anchored on hardware.
 
+## Finding 33 — the compiler limits: DMP3's return stack is 4 deep and circular; neither core has indirect addressing; the MPU has no jump or call form (HARDWARE CONFIRMED 2026-09-23)
+
+The question was whether a C compiler can target either DMP. Chapters 7 and 8 left three facts
+that decide it unmeasured: how deep DMP3 calls nest ("at least two"), whether any unexecuted byte
+dereferences a pointer, and whether the MPU — whose no-loop verdict (Finding 15) predates
+everything learned about DMP3's `f4` — has DMP3's absolute jump or call under another encoding.
+Rig: MPU-6050 on `/dev/ttyUSB0`, ICM-20948 on `/dev/ttyUSB1`, one ESP32 bridge each
+(`bench/probe80.py`, `probe80b.py`, `probe81.py`, `probe81b.py`).
+
+**1. DMP3's return stack holds exactly four return addresses** (probe80 A/B). A chain of N
+routines, each emitting a word after its callee returns, unwinds exactly for N = 1–4 (8, 12, 16,
+20 B/pass, every sequence exact) and runs away from N = 5 on. Self-recursion through a RAM
+counter agrees: main plus three recursive levels unwinds (28 B/pass), a fourth level runs away.
+
+**2. It is circular: a fifth call silently overwrites the oldest entry** (probe80b A). Each
+routine counted its own returns in RAM over a 2 ms window:
+
+| N | main | R1 | R2 | R3 | R4 | R5 | R6–R9 |
+|---|---:|---:|---:|---:|---:|---:|---|
+| 4 | 3 | 3 | 3 | 3 | 3 | | |
+| 5 | 0 | 845 | 845 | 845 | 846 | 1 | |
+| 6 | 0 | 0 | 572 | 573 | 573 | 573 | R6 = 1 |
+| 9 | 0 | 0 | 0 | 0 | 0 | 570 | R6–R8 ≈ 571, R9 = 1 |
+
+After overflow the machine cycles through the returns of the four newest callers forever and
+never finishes the pass. There is no fault, no halt and no watchdog — the runaway lasted the whole
+window.
+
+**3. No byte in either core reads an address from data** (probe80 C, probe80b B, probe81 B,
+probe81b B). The data region was tagged `M[a] = 5a000000 | a`, P0's page seeded with small
+values that would be addresses if anything dereferenced them, and each never-executed byte
+(`e1`, `e3`–`e6`, `e8`–`ef`) was run before MOVs of P0's four words, an ADD through P1, and a
+RAM-routed store through P2. On both cores, and for all three pointers, every result matched the
+control: no tag appeared in place of a seed, and the store always landed on P2's page. The bytes
+emit one zero word under FIFO routing (all of them on the MPU; all but `e3` on DMP3, where `e3`
+emits nothing) — the `e0`/`e2`/`e7` behaviour of Finding 28 — and none of them loops. With `bf`
+(probe54 E) and the fully decoded rest, **every pointer on both cores is loaded only from an
+immediate in the code**: neither has indexed or indirect addressing. The vendor's own DMP3 code
+shows the workaround — at 0x1af5–0x1b21 it walks a state word with `fc c0 04/08/0c/10` and
+branches to an unrolled copy per case.
+
+**4. The MPU has no jump or call form** (probe81 A, probe81b A). The loop counter was placed so
+that no MPU instruction could store into it and `DMP_INT` was masked. Every DMP3 form ran exactly
+one INC per pass (30 in 30 ms):
+
+| cell | on DMP3 | MPU |
+|---|---|---|
+| `f4 03 06` | absolute jump back to the INC | forward skip (Finding 15) |
+| `f4 a5 03 06` | one-byte `f4`, then mode-4 target 0x0306 | `a5` and two ALU ops, no loop |
+| `f4 a5 d8 03 06` | the same with a predicate in between | no loop |
+| `f4 43 a5` + routine `a4 dc f8 e0` at 0x3a5 | CALL, then 2 INC/pass | interrupt form, 1 INC/pass |
+
+Together with Finding 15's sweep, the MPU's control flow is exactly the 7-bit forward skip: no
+backward target, no mode 4, no call, no return.
+
+**What it means for a compiler.** DMP3 supports a C subset with static storage, four levels of
+call nesting (checked by the compiler over the call graph — overflow is a silent hang), no
+recursion, and array indices only as compile-time constants or switch dispatch. The MPU supports
+only a straight-line dataflow language: fully unrolled loops, inlined functions, forward `if`.
+
+## Finding 34 — the DMP3 I/O space is the host register file at a/4, and the sensor samples arrive in RAM at 0x0004 (HARDWARE CONFIRMED 2026-09-23)
+
+The last DMP3 unknown a compiler needs: how a program reaches the sensors (`bench/probe82.py`,
+`probe82b.py`, ICM-20948 on `/dev/ttyUSB1`).
+
+**1. I/O word address a is host register k = a/4, banks laid end to end** (REG_BANK_SEL =
+k >> 7, register k & 0x7f), so blocks 0–1 (a = 0x000–0x7ff) cover user banks 0–3 and blocks
+2–3 read 0. probe56's "not the host register file" compared a with register a; at a/4
+**every non-zero word read matches**:
+
+| a | reads | host register |
+|---|---|---|
+| 0x000 | `ea` | bank 0 0x00 WHO_AM_I |
+| 0x1c0 | `0f00` (dynamic, 16 bits) | bank 0 0x70 FIFO_COUNTH |
+| 0x1d0 | `03` | bank 0 0x74 DATA_RDY_STATUS |
+| 0x250–0x2a4 | `f6 00 00 fe 6e 00 fd b4 0f … fc 03 0d 14` | bank 1 0x14–0x29, the accel offset/trim registers, byte for byte |
+| 0x404 | `07` | bank 2 0x01 GYRO_CONFIG_1 |
+| 0x450 | `03` | bank 2 0x14 ACCEL_CONFIG |
+
+**Writes go the same way.** A RAM-routed MOV through P2 at a = 0x254 (the vendor's
+`f4 <P2 load> c1 f1` shape) set host bank-1 register 0x15 (XA_OFFS_L) to `a5`, then `5a`,
+exactly; probe56 had aimed at a = 0x14 (register 5). Restored afterwards.
+
+Not every register is readable, though: the sensor outputs (bank 0 0x2d–0x3a), PWR_MGMT_1,
+INT_ENABLE/INT_ENABLE_2, 0x26, HW_FIX_DISABLE (0x75), 0x77/0x78, bank 1 0x00–0x13 and bank 2
+0x54 read 0 through the I/O space while the host reads them non-zero. The readable set is
+configuration and trim; the live sample registers are not in it.
+
+**2. The samples are delivered into DMP RAM instead.** With RAM tagged `5a000000 | a` and a
+program that does nothing (`d8 f1 ff`), the hardware overwrites exactly 0x0000–0x0011 every
+pass:
+
+| RAM | contents |
+|---|---|
+| 0x0000–0x0003 | cleared to 0 |
+| 0x0004 / 0x0006 / 0x0008 | accel X / Y / Z, int16 big-endian |
+| 0x000a / 0x000c / 0x000e | gyro X / Y / Z |
+| 0x0010 | temperature (TEMP_OUT) |
+
+Field identity is settled by standby: with the accel in standby RAM 0x04–0x09 freeze at exactly
+the host's ACCEL_XOUT..ZOUT (−196 −2016 −7948) while the gyro halves keep moving, and with the
+gyro in standby 0x0a–0x0f freeze at the host's GYRO values (−18 −3 −26). The decoder's
+`icm_20948_Quat9_Bytes+2` label at 16 is the symbol table's name for that address in its own
+layout, not this.
+
+**For a compiler:** sensor input is a set of fixed half-words in RAM — `ACCEL_X` at 0x0004 and so
+on — readable with `f2`/`f3` half-word moves or as the two halves of a word. Chip registers
+(output rate, offsets, configuration) are reached through the I/O space at `4 × (bank*128 +
+reg)`. Both are ordinary memory-mapped accesses; no intrinsics beyond addresses are needed.
+
 ## Decoder corrections (2026-09-08, no new hardware)
 
 Three defects found while writing `docs/manual/`, all in `tools/isa/decode.py`:

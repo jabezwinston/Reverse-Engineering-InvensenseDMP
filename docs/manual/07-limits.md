@@ -8,13 +8,14 @@ These are properties of the machine, established rather than assumed. Design aro
 |---|---|
 | **No backward branch** — 64 immediates swept with a re-execution detector, none looped **[HW]** | No loop is expressible. Unroll everything |
 | **Displacement is 7 bits, forward** | A single branch reaches at most 127 bytes ahead |
-| **No call, return or stack** | No subroutines. Inline everything |
+| **No call, return or stack** — DMP3's absolute, mode-4 and call forms all re-tested, none jumps **[HW, Finding 33]** | No subroutines. Inline everything |
 | **Pointers reach 1024 B** | All program data lives in `0x000`–`0x3FF` ([§6.1](06-memory-map.md)) |
 | **Program is ~2270 B and one pass must fit the sample period** **[HW]** | Code size *is* execution time; see [§5.6](05-host-interface.md#56-execution-budget) |
 | **Entry point is fixed by the host, one pass per sample** | No standalone program; you modify a hosted one |
 | **No immediates** | Every constant must be a word in RAM, placed by the host |
 | **Arithmetic wraps** | Clamp by hand ([§4.7](04-idioms.md)) |
 | **No divide, no sqrt, no shift, no logic ops** | Multiply by a stored reciprocal; iterate; double by adding |
+| **No indexed or indirect addressing** — every unexecuted byte screened against tagged RAM, none dereferences **[HW, Finding 33]** | An array index must be a compile-time constant or a dispatch over unrolled cases; the same holds on DMP3 |
 | **The store index is walked, not addressed** | The destination is `P2 + 4*p2word`; only the operands index freely |
 | **The program's own code is inside the pointer window in Family A images** | A stray P2 above 768 corrupts the running program |
 
@@ -152,7 +153,7 @@ as a shift is DMP3-only.
    (Finding 32) — but a 6500 would drive its sensor pipeline natively and validate the FIFO
    output against the symbol-named emit slots.
 2. **An MPU-3050.** Closes §7.5 and the last 13 conjectural bytes.
-3. **The DMP3 open items** (UNKNOWNS.md §7): the non-RAM `fc cX 04` forms and the I/O index map,
+3. **The DMP3 open items** (UNKNOWNS.md §7): the non-RAM `fc cX 04` forms (the I/O index map is closed, Finding 34),
    which need only bench time on the ICM-20948 already on the rig.
 
 The MPU re-measures that this list used to ask for — `fd`, the predicate scope, the flag,

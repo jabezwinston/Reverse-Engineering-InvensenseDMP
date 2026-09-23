@@ -12,7 +12,7 @@ differs: the ICM's banked registers, its `MEM_BANK_SEL`/`MEM_START_ADDR`/`MEM_R_
 `K mpu|icm` picks the profile by hand, `Y 0|1` drives FSYNC on D4. ICM-side helpers (register map, banked `rd`/`wr`, image
 load, DMP start, the `Rig` class the custom-program probes use) are in `icm.py`; the ICM probes
 are `probe42.py`–`probe66.py` and their results are ISA2.md Findings 24–27 and manual chapter 8;
-`probe67.py`–`probe74.py` are the MPU-6050 re-measures (Findings 28–30); `probe75.py`–`probe77.py` decode the DMP3 `fc` bit test (Finding 31); `probe78.py`/`probe79.py` run the 2639 image on the 6050 (Finding 32).
+`probe67.py`–`probe74.py` are the MPU-6050 re-measures (Findings 28–30); `probe75.py`–`probe77.py` decode the DMP3 `fc` bit test (Finding 31); `probe78.py`/`probe79.py` run the 2639 image on the 6050 (Finding 32). `probe80.py`/`probe80b.py` (ICM) and `probe81.py`/`probe81b.py` (MPU) measure the compiler limits: return-stack depth, indirect addressing, MPU jump/call forms (Finding 33); `probe82.py`/`probe82b.py` map the DMP3 I/O space and the sensor-sample RAM (Finding 34). With two rigs, the MPU-6050 bridge is `/dev/ttyUSB0` and the ICM-20948 bridge `/dev/ttyUSB1`.
 Two ICM traps: keep `USER_CTRL.FIFO_EN` set while reading the FIFO, and select register bank 0
 before anything else after a reset — the bank survives an ESP32 reset.
 
