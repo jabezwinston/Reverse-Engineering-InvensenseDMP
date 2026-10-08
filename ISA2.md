@@ -2284,6 +2284,43 @@ lane `inc`/`dec`, still routed to the FIFO, then a second marker.
 opendmp: the emulator emits a new item on the MPU and refuses the DMP3 lane case; facts
 `incdec.fifo.mpu` and `incdec.fifo.icm`.
 
+## Finding 51 — the state a pass starts with: RAM routing after DMP_RST, R carries over, DMP3 resets its pointers (HARDWARE CONFIRMED 2026-10-08)
+
+`bench/probe113.py`, both parts, memory tagged (every word = 5a000000 | its address).
+
+**After DMP_RST** (the bridge's `T`):
+- **The route is RAM, not the FIFO.** A first `mov 0` stored to P2; aimed at a tagged page it
+  landed there, and only after `dd` did a MOV reach the FIFO. The old reading that "FIFO is the
+  at-rest route" (probe16) was wrong. Stores to the reset P2 land on the sample page, which the
+  hardware overwrites at the next tick, so they looked like nothing.
+- **P0 = P1 = P2 = 0x000, word 0.** P0 is the sample page: the MPU's `mov 0` returned ax|ay, the
+  ICM's returned the cleared word 0. The ICM's P1 read the cleared word 0.
+- **The mode is a 32-bit width, not mode 4.** MPU byte 00 ran as an add, and an ICM two-byte
+  target ran as two adds.
+- **F is clear and R = 0.**
+
+**Carried into the next pass** (four passes from DMP_RST, each opening with the same readout):
+
+| state | MPU-6050 | ICM-20948 |
+|---|---|---|
+| route | kept | kept |
+| mode (`f3` set at the end of a pass) | kept | kept (mode 4 too, probe54b) |
+| F | kept | kept |
+| R, and a MAC sum | **kept**: one MAC per pass emits 0.25, 0.5, 0.75, 1.0 | **kept**, the same |
+| P0–P2 and P2's word index | kept (0x250, 0x278) | **reset to 0x0000, word 0** every pass |
+| return stack | — | kept (Finding 47) |
+
+"The accumulator is reset at the start of every pass" (Finding 30, probe74) is wrong: probe74's
+cells loaded P2 first, which on the MPU zeroes R (Finding 45).
+
+**ICM, outside the DMP:** a device reset (PWR_MGMT_1 = 0x80) writes 8 bytes of part-specific
+data at DMP RAM 0x0080–0x0087 (053b00e0 3c50010d on this part). DMP_RST and DMP_EN do not.
+A loader must write its image after the reset, as `Rig.load` does.
+
+opendmp: the emulator's DMP_RST state is RAM routing, R carries across passes (Model.carry
+gains "acc"), and DMP3 restarts its pointers every pass. Facts `reset.state`, `reset.icm_0x80`,
+`route.sticky`, `pass.carry.*`, and `tests/test_mpu.py::test_probe113_pass_carry`.
+
 ## Decoder corrections (2026-09-08, no new hardware)
 
 Three defects found while writing `docs/manual/`, all in `tools/isa/decode.py`:

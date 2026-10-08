@@ -28,6 +28,7 @@ are `probe42.py`–`probe66.py` and their results are ISA2.md Findings 24–27 a
 `probe108.py` checks the memory limits: the MPU's top 32 bytes are ordinary code and data, 0xc00 on reads 0, and ICM code runs from 0x0100 up to 0x2fff (Finding 48).
 `probe111.py` times every remaining cycle class with `W` (lanes, logic, clear aliases, interrupts, call/ret, bare mode-4 targets, ICM end-to-next-pass) (Finding 49).
 `probe112.py` routes INC/DEC to the FIFO: the MPU emits M[P2] ± 1 as a new item, DMP3 changes the last word (Finding 50).
+`probe113.py` reads the state a pass starts with: after DMP_RST (RAM routing, pointers at 0, a 32-bit mode, F clear, R = 0) and carried between passes (route, mode, F and R on both; pointers on the MPU only), and finds the ICM's device reset writing 0x0080–0x0087 (Finding 51).
 Two ICM traps: keep `USER_CTRL.FIFO_EN` set while reading the FIFO, and select register bank 0
 before anything else after a reset — the bank survives an ESP32 reset.
 
