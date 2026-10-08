@@ -168,7 +168,7 @@ def check_asm() -> int:
 # --------------------------------------------------------------------------- banned terms
 BANNED = [
     (r"\b(1024|1923|1929|1962|2634|2639|2943|3035|3062|3065|14290|14301)[- ]?(B|byte)?\s*image", "a stock image"),
-    (r"\bimages?\b(?! (of|load))", "firmware images"),
+    (r"(?<!memory )\bimages?\b", "firmware images"),
     (r"Family [AB]\b", "image families"),
     (r"MotionApps|\beMD\b|mlsdk|dmpmap|dmpKey|DINA[0-9A-F]|DINB|i2cdevlib|SparkFun|ml_load_dmp|"
      r"\binv_|DMP_FEATURE|dmpDefault", "vendor software"),
