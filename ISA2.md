@@ -2087,6 +2087,34 @@ sample's bit 0 with the FSYNC level before the DMP sees it: at RAM 0x007 on the 
 the ICM. A high level could be observed only on the ICM rig. There opendmp's `s.fsync` counted
 6 edges of a toggled FSYNC line in 181 passes, bit-exact against its emulator.
 
+## Finding 44 — the multiplier at its edges: MUL wraps, and the MAC register is 64 bits (HARDWARE CONFIRMED 2026-10-08)
+
+`bench/probe106.py` (with the new shared harness `bench/cells.py`) ran 588 cells per part, the
+same on the MPU-6050 and the ICM-20948. Each cell emitted its result and then F as a marker.
+Every earlier cell had a product below 2.0 in magnitude.
+
+- **MUL and NMUL** under `f1`, over extremes (±2.0, ±1.5, max), random words and products of
+  1.0 to 4.0, 128 cells each: the stored word is ⌊A·B / 2³⁰⌋ wrapped mod 2³² (never saturated),
+  and F is the sign of the unwrapped value. This held in all 41 cells whose value overflowed;
+  in those the wrapped word's sign is wrong in all but one.
+- **The lanes:** `f2`, high halves in place, 64 cells; `f3`, low halves as integers, 64 cells.
+  The emitted half is that half of the same wrapped value, and F is the exact sign. Under `f2`,
+  14 cells overflowed.
+- **MUL by 2^(30−k)** of negative odd x gives ⌊x / 2^k⌋: an exact arithmetic right shift.
+- **MAC and MACN:** 19 pairs, runs of 4 and 8 ops, each sum emitted (76 cells).
+  - Every stored word is the exact running sum, floored and wrapped mod 2³².
+  - F is the exact sign in only 27 of the 56 cells whose sum left [−2, 2), and the wrapped
+    word's sign in only 23.
+  - **F is the sign bit of the sum wrapped mod 2⁶⁴** in all 76: four MACs of 1.5·1.5 = +9.0 set
+    F, and −9.0 clears it.
+  - So the accumulator is a 64-bit register holding Q60 in [−8, 8), wrapping. The word a store
+    takes is its bits 61:30, and F is bit 63.
+  - A single product never reaches 2⁶³, which is why MUL's F is the exact sign.
+
+opendmp's emulator now wraps the accumulator at 64 bits (`machine.py`, facts `alu.mul_floor`
+and `mac.precision`, `tests/test_mpu.py::test_probe106_mac_register_is_64_bit`). With that
+change it agrees with silicon on every cell on both parts.
+
 ## Decoder corrections (2026-09-08, no new hardware)
 
 Three defects found while writing `docs/manual/`, all in `tools/isa/decode.py`:

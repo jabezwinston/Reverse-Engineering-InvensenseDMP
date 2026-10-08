@@ -20,6 +20,8 @@ are `probe42.py`–`probe66.py` and their results are ISA2.md Findings 24–27 a
 `probe103.py` sweeps `f5` op 0 (long read as MIN) over 1920 cells per part — value, flag and both lanes — and finds a symmetric clamp of A to [−B, B] with F := clamped (Finding 41).
 `probe104.py` maps the MPU's mode-4 low bytes with a counting sled over all of RAM: a byte below 0x40 is a one-byte branch (to its address + 1 + sext6), predicable, 10 cycles taken (Finding 42).
 `probe105.py` shows that `EXT_SYNC_SET = 1` puts the FSYNC level into the MPU's DMP sample page (temperature bit 0), as on the ICM (Finding 43).
+`cells.py` is the shared harness from probe106 on: one pass of an opendmp-assembly program on a rig and in the emulator, side by side, with probe100's F markers.
+`probe106.py` takes the multiplier past 2.0: MUL/NMUL wrap mod 2³² with F the exact sign, and the MAC register is 64 bits (Q60 in [−8, 8), F its sign bit) (Finding 44).
 Two ICM traps: keep `USER_CTRL.FIFO_EN` set while reading the FIFO, and select register bank 0
 before anything else after a reset — the bank survives an ESP32 reset.
 
