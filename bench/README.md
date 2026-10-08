@@ -24,6 +24,7 @@ are `probe42.py`–`probe66.py` and their results are ISA2.md Findings 24–27 a
 `probe106.py` takes the multiplier past 2.0: MUL/NMUL wrap mod 2³² with F the exact sign, and the MAC register is 64 bits (Q60 in [−8, 8), F its sign bit) (Finding 44).
 `probe107.py` asks what `test` reads: the result register R (the MAC accumulator), at the lane in force; which ops write R (CLAMP writes its compare), which leave it, and the MPU's P2 moves zeroing it (Finding 45).
 `probe110.py` (ICM) multiplies integers with `mul` + `shl 30`, and shows that every op that writes R loads the shifter from it and that `lo` reads R's low bits (Finding 46).
+`probe109.py` is about pass control: mode bytes under a false predicate, overrunning and endless passes (no vector; DMP_EN does not stop a running pass, DMP_RST does), the sample page rewritten under a long pass, DMP3's return stack across passes, and DMP3 `fe` (Finding 47).
 Two ICM traps: keep `USER_CTRL.FIFO_EN` set while reading the FIFO, and select register bank 0
 before anything else after a reset — the bank survives an ESP32 reset.
 

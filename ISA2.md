@@ -2178,6 +2178,40 @@ bits. After a MUL, R holds the whole product, unfloored; after an ADD its low bi
 opendmp's emulator now derives the shifter and `lo` from R (`machine.py`, facts `shift.icm`,
 `lo.icm`, `tests/test_icm.py::test_probe110_*`) and agrees with every cell.
 
+## Finding 47 — nothing preempts a pass; DMP_EN does not stop one; the sample page moves under it; DMP3's return stack outlives `end` (HARDWARE CONFIRMED 2026-10-08)
+
+`bench/probe109.py`, both parts unless marked. Each variant ran after a device reset.
+
+- **A. Mode bytes under a false predicate act** (`f3`, `f5`, `f0`): the next ALU byte ran in
+  the new mode on both parts. This confirms probe64/70 on the MPU.
+- **B. An overrunning pass runs on**, with 50 Hz ticks and 1 s of continuous running:
+  - **A pass of about 50 ms just finishes.** MPU: 17 passes/s, a pass starting on every third
+    tick. ICM: 19 passes/s, the next pass starting as soon as one ends. Entries equalled exits.
+  - **A pass that never ends** (`branch`/`jump` to itself) entered once and raised no interrupt
+    in that second: there is no vector, and no restart on a tick.
+  - **Clearing DMP_EN does not stop a running pass.** With DMP_EN cleared, a counting endless
+    loop went on counting (≈ 155 000/s on the MPU and 455 000/s on the ICM, which is the cycle
+    model's rate for its body), and an unfinished long pass ran to its `end`.
+  - **Setting DMP_RST** (USER_CTRL bit 3) froze it.
+  - An earlier probe run here also showed the hazard: code written while a runaway pass was
+    still executing got executed.
+- **C. The sample page is rewritten at every tick, even under a running pass.** In a pass of
+  about 65 ms, sample word 0 copied at the start and again at the end differed in 6/6 passes
+  on both parts; in a short pass the copies were identical (6/6). A pass longer than one period
+  sees newer samples part-way through.
+- **D. ICM: the return stack outlives `end`.** Pass 1 called two deep and ended inside the
+  inner call. Each later pass began with a `ret`:
+  - The second pass returned into the inner caller, the third into main.
+  - The pops then went on cycling through the four-entry circular stack (Finding 33): 7 returns
+    into each caller and 15 interrupts in 0.5 s.
+  - Neither the stack nor its pointer is reset between passes.
+- **E. ICM: `fe` raises no interrupt**, predicated or not; `e2` does. The emulator had assumed
+  that it did.
+
+opendmp: the emulator keeps DMP3's stack across passes, treats DMP3 `fe` as unmodelled, and
+drops the `int.fe` mnemonic. New facts `pass.no_vector`, `pass.dmp_en`, `ram.sample.rewrite`,
+`call.across_passes` and `int.icm_fe`, and `tests/test_icm.py::test_probe109_*`.
+
 ## Decoder corrections (2026-09-08, no new hardware)
 
 Three defects found while writing `docs/manual/`, all in `tools/isa/decode.py`:
