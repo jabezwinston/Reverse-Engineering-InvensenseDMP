@@ -2228,6 +2228,46 @@ drops the `int.fe` mnemonic. New facts `pass.no_vector`, `pass.dmp_en`, `ram.sam
 
 opendmp facts `ram.top.mpu`, `code.where.icm`.
 
+## Finding 49 — every cycle class measured: the lanes are cheaper, the clear aliases dearer (HARDWARE CONFIRMED 2026-10-08)
+
+`bench/probe111.py` uses probe90's `W` method: two interrupt edges in one pass, with N₁ and N₂
+fillers. It timed every class the cycle model still borrowed, and every variant that shared a
+class untimed. All results are whole cycles to within 0.03.
+
+| class | MPU-6050 | ICM-20948 | instructions timed |
+|---|---:|---:|---|
+| cheap bytes | 5 | 4 | `d0 d1 dc dd`, banks, pages, blocks, `bf`, `fd fd` (MPU), `f4 40` = 2 × 5 |
+| sign test, lane | 13 | 12 | `cmp` under `f7` |
+| sign test | 17 | 16 | `cmp` under `f5` |
+| AND/XOR, lane | 17 | 16 | `and` under `f6`/`f7` |
+| AND/XOR | 23 | 22 | `and`, `xor` under `f5` |
+| CLAMP, lane | 22 | 20 | `clamp` under `f6`/`f7` |
+| INC/DEC, lane | 19 | 17 | `inc` under `f3`, `dec` under `f2` |
+| INC/DEC | 23 | 21 | `inc dec inc.next dec.next` |
+| clear aliases | 28 | 26 | MPU `d2`–`d7`, `e0`–`ef`; ICM `e7` (`de`/`df` stay 12 / 11) |
+| ADD, lane | 22 | 20 | `add` under `f2` and `f3` |
+| MUL, lane | 52 | 19 | `mul`/`nmul` under `f2` and `f3` |
+| NMUL, MACN | = MUL 58, MAC 60 | = MUL 25, MAC 27 | |
+| interrupt | 5 (`fe`) | ≈ 4 (`e2`) | intercepts of two edges, 25 runs; the ICM's ±5 |
+| `f4 41`–`7f` | 10 | — | as `f4 40`; its edge falls about 3 cycles in |
+| jump / call | — | 13 / 13, ret 5 | call S where S jumps back = 26 |
+| bare target in mode 4 | 10 (one-byte branch) | 9 jump, 9 call | |
+| shift `fd n`, `fc` compare | — | 15, 19 | `fd 7f`, `fc c0 01`, `fc c1 0b` |
+
+Notes on the table:
+
+- On the ICM, `lo.next` costs 11 and `load 1` costs 15; MOV and MOVX into the FIFO cost the same
+  as into RAM.
+- **ICM pass to pass:** with a tick pending, the next pass's first instruction comes about 150
+  cycles (7.2 µs, ±5 cycles) after `end`, counting from the last interrupt. That is close to the
+  130-cycle tick-to-first-instruction latency plus `end`.
+- **One trap:** the clear aliases cost as much as an ALU op. Clear with `de`/`df`, never an alias.
+
+opendmp's `chips.py` has every class measured. New keys: `clamp16`, `logic16`, `cmp16`,
+`inc16`, `clrx`, and the ICM's bare `branch1`/`call1`. `cost_key` and the emulator charge them
+by lane. The remaining "unmeasured" rows are bytes the part does not have, plus `end`, which
+nothing can time inside a pass.
+
 ## Decoder corrections (2026-09-08, no new hardware)
 
 Three defects found while writing `docs/manual/`, all in `tools/isa/decode.py`:
