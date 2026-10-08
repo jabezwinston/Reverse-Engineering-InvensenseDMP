@@ -22,6 +22,7 @@ are `probe42.py`–`probe66.py` and their results are ISA2.md Findings 24–27 a
 `probe105.py` shows that `EXT_SYNC_SET = 1` puts the FSYNC level into the MPU's DMP sample page (temperature bit 0), as on the ICM (Finding 43).
 `cells.py` is the shared harness from probe106 on: one pass of an opendmp-assembly program on a rig and in the emulator, side by side, with probe100's F markers.
 `probe106.py` takes the multiplier past 2.0: MUL/NMUL wrap mod 2³² with F the exact sign, and the MAC register is 64 bits (Q60 in [−8, 8), F its sign bit) (Finding 44).
+`probe107.py` asks what `test` reads: the result register R (the MAC accumulator), at the lane in force; which ops write R (CLAMP writes its compare), which leave it, and the MPU's P2 moves zeroing it (Finding 45).
 Two ICM traps: keep `USER_CTRL.FIFO_EN` set while reading the FIFO, and select register bank 0
 before anything else after a reset — the bank survives an ESP32 reset.
 

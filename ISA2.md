@@ -2115,6 +2115,46 @@ opendmp's emulator now wraps the accumulator at 64 bits (`machine.py`, facts `al
 and `mac.precision`, `tests/test_mpu.py::test_probe106_mac_register_is_64_bit`). With that
 change it agrees with silicon on every cell on both parts.
 
+## Finding 45 — `test` reads the result register, which is the MAC accumulator (HARDWARE CONFIRMED 2026-10-08)
+
+`bench/probe107.py` ran 79 cells on the MPU-6050 and 89 on the ICM-20948. Each cell set "the last
+result" to 1.0 or to 0, ran one instruction, then either ran `test` and emitted F, or ran a MAC
+of a zero product to read back what the accumulator held. Both parts agree everywhere except
+where they differ by core, as noted below.
+
+**There is one result register R.** It is the 64-bit MAC accumulator of Finding 44, and `d1`
+tests it: F := (R's 32-bit word == 0), masked to the lane in force *when `d1` runs*. After a
+low-lane add of 8000 + 8000, `test` sets F under `f3` but clears it under `f1`.
+
+**Which instructions write R:**
+- **ADD, RSUB, MUL, NMUL and MAC** write their exact result. A result that wraps to exactly 0
+  is therefore zero to `test` (−2 + −2, −2·−2, an `f2`/`f3` lane overflow), but F keeps the
+  exact sign.
+- **INC and DEC** write their result: a MAC after an INC continues from 1.0 + 1 LSB.
+- **CLAMP** writes its internal compare D, not its result: D = B − A when A ≥ 0, A + B when
+  A < 0.
+  - Clamp 5 to ±7, clamp −5 to ±7, and clamp 9 to ±7 leave R = 2, 2 and −2.
+  - F := D < 0, which is exactly "A was clamped" (Finding 41).
+  - So `test` after CLAMP asks whether A sat on its bound.
+- **DMP3 `load k`** writes the selected word; **`shl`/`sar`** write the stored word. Neither
+  touches F.
+
+**These leave R alone:**
+- AND, XOR and the `f5` sign test. They do not zero it, as was believed; a test after them
+  repeats the previous answer.
+- MOV, MOVX and CLR.
+- DMP3 `lo` and the `fc` compare.
+- Mode bytes, predicates, routing bytes, and P0/P1 page and bank loads.
+
+**A P2 move:**
+- **MPU:** a P2 page or bank load, `d0`, `df` and an advancing MOV all zero R. This is the same
+  event that restarts a MAC sum (Finding 37); the restart *is* R being zeroed.
+- **DMP3:** none of these touch R. Only an ALU op's own op&4 restarts its sum.
+
+opendmp's emulator drops its separate "last result" and its "d1 after CLAMP is unmodelled"
+case, and reads R instead (`machine.py`, facts `flag.test`, `alu.clamp`, `mac.restart.*`,
+`tests/test_mpu.py::test_probe107_*`). It now agrees with every cell on both parts.
+
 ## Decoder corrections (2026-09-08, no new hardware)
 
 Three defects found while writing `docs/manual/`, all in `tools/isa/decode.py`:
