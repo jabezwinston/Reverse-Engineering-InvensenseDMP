@@ -2321,6 +2321,20 @@ opendmp: the emulator's DMP_RST state is RAM routing, R carries across passes (M
 gains "acc"), and DMP3 restarts its pointers every pass. Facts `reset.state`, `reset.icm_0x80`,
 `route.sticky`, `pass.carry.*`, and `tests/test_mpu.py::test_probe113_pass_carry`.
 
+## Finding 52 — the FIFO keeps the newest bytes (HARDWARE CONFIRMED 2026-10-08)
+
+`bench/probe114.py`: one pass emitted distinct tagged words past the FIFO's size.
+
+- **MPU-6050:** 1200 bytes emitted. FIFO_COUNT read 1024, and the 1024 bytes read back were
+  the *last* 256 words (emits 44–299). The FIFO holds 1 KB, and overflow discards the oldest.
+- **ICM-20948:** 4400 bytes emitted. FIFO_COUNT read 4096; the read returned the newest 1024
+  words (emits 76–1099); and DMP RAM 0x3000–0x3fff held them as a ring, emits 1024–1099 at
+  0x3000 followed by 76–1023. It is the same policy at 4 KB.
+- The only differing words were copies of 0x0010, which the hardware rewrites with the
+  temperature sample.
+
+opendmp fact `fifo.overflow`.
+
 ## Decoder corrections (2026-09-08, no new hardware)
 
 Three defects found while writing `docs/manual/`, all in `tools/isa/decode.py`:
