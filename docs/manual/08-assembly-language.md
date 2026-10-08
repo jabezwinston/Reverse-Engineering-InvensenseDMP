@@ -153,5 +153,5 @@ every block, runs it in the emulator and compares the result with its comments:
 
 - It does not lay out data. Words go where `.org` and `.dw` put them, and pointer loads name pages
   by number.
-- It does not insert hops for MPU branches out of range; it reports them (§9.11 shows the hop).
+- It does not insert hops for MPU branches out of range; it reports them (§9.12 shows the hop).
 - It does not check timing. `python -m opendmp asm` prints the cycle count of the straight path.

@@ -191,10 +191,24 @@ What starts a sum:
 
 | Event | MPU-6050 | ICM-20948 |
 |---|---|---|
-| A non-MAC arithmetic op (`add`, `mul`, ...) | replaces R | replaces R |
+| An op that writes R: `add`, `rsub`, `mul`, `nmul`, `inc`, `dec`, `clamp` (its compare D), DMP3 `load` and shifts | replaces R | replaces R |
 | A P2 move: page or bank load, `p2inc2`, `clr.next`, any advancing form | R := 0 | R kept |
 | A MAC op with `adv` | R := 0, then ± A·B | R := ± A·B |
 | The end of a pass | R kept | R kept |
+
+On the MPU-6050 the move's R := 0 is the whole restart. A MAC after a move and then an `inc`,
+`dec` or `clamp` adds to their result:
+
+```asm mpu6050
+        ; given 0x100 = 0.5q
+        ; given 0x110 = 0.5q
+        ; given 0x120 = 1.0q
+        p2page  2               ; a move: R := 0
+        inc                     ; R := 1.0 + 1 lsb, stored
+        fmode   0
+        mac     0,0             ; R := R + 0.25
+        ; expect 0x120 = 50000001
+```
 
 The safe way to begin a sum on either core is to compute its first term with `mul`. MUL replaces R
 with the whole product, and the following MACs add to it exactly:

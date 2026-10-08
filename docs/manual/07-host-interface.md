@@ -161,6 +161,22 @@ m.entry = prog.entry
 result = m.run_pass(Sample(ax=100, gz=-5))    # FIFO bytes, interrupts and cycles of one pass
 ```
 
+From the command line, the emulator runs a program over one fixed sample or a sensor file, and
+`opendmp run` runs it on a bench rig (§7.8):
+
+```text
+    python -m opendmp.emu --load prog.asm --sample ax=100,gz=-5 --passes 3 --fifo out.bin
+    python -m opendmp.emu --load prog.asm --sensors walk.csv --rate 200 --log passes.csv
+    python -m opendmp run prog.asm --port /dev/ttyUSB0 --passes 3 --poke 0x100=0x0f0f0f0f \
+        --dump 0x200:16 --verify
+```
+
+`opendmp run` resets the part, loads the program alone over zeroed memory, sets the entry point,
+runs one pass (or `--passes N`, or `--seconds`) and prints the FIFO and the `--dump` ranges.
+`--verify` replays the same bytes in the emulator, which gives every pass the `--sample` values
+(zeros by default), and reports any difference. A program that reads sensor data on the rig
+differs from that replay by nature.
+
 ## 7.8 The Bench Rigs
 
 Two rigs, one per part. Each is an ESP32 bridge with the sensor on SDA = D21 and SCL = D22, INT on
