@@ -2212,6 +2212,22 @@ opendmp: the emulator keeps DMP3's stack across passes, treats DMP3 `fe` as unmo
 drops the `int.fe` mnemonic. New facts `pass.no_vector`, `pass.dmp_en`, `ram.sample.rewrite`,
 `call.across_passes` and `int.icm_fe`, and `tests/test_icm.py::test_probe109_*`.
 
+## Finding 48 — the whole of each code space is usable; nothing is reserved at the top (HARDWARE CONFIRMED 2026-10-08)
+
+`bench/probe108.py`:
+
+- **MPU-6050, 0xbe0–0xbff** (the 32 bytes the vendor's loader calls reserved):
+  - A host write read back intact.
+  - A program placed to end exactly at 0xbff ran.
+  - A DMP store reached 0xbf0 through the block field (P2: two blocks, bank 3, page 15).
+  - Host reads of 0xc00–0xc0f return 0.
+  - So the MPU's DMP memory is 3 KB, 0x000–0xbff, all of it usable for code and data. The
+    1 KB FIFO is separate.
+- **ICM-20948:** a program ending exactly at 0x2fff (just below the FIFO at 0x3000) ran, and so
+  did one entered at 0x0100, inside the pointer-reachable data window.
+
+opendmp facts `ram.top.mpu`, `code.where.icm`.
+
 ## Decoder corrections (2026-09-08, no new hardware)
 
 Three defects found while writing `docs/manual/`, all in `tools/isa/decode.py`:
