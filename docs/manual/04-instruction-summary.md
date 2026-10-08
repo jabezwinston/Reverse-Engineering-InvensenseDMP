@@ -52,7 +52,7 @@ tolerance.
 | [`clr`](05-instruction-definitions.md#i-clr) | M[P2] := 0 | 1 | 12 | 11 | — | — |
 | [`clr.d2 … clr.d7 (MPU), clr.e0 … clr.ef (MPU), clr.e7 (DMP3)`](05-instruction-definitions.md#i-clr) | clear aliases | 1 | 28 | 26 | — | — |
 | [`clr.next`](05-instruction-definitions.md#i-clr-next) | P2.w += 1; M[P2] := 0 | 1 | 12 | 11 | — | MPU: zeroed |
-| [`movz`](05-instruction-definitions.md#i-movz) (DMP3) | toggle: MOV stores 0 | 1 | — | 4 | — | — |
+| [`movz`](05-instruction-definitions.md#i-movz) (DMP3) | toggle: MOV stores a FIFO-dependent value (do not use) | 1 | — | 4 | — | — |
 | [`lo / lo.next`](05-instruction-definitions.md#i-lo) (DMP3) | store R's low 30 bits, sign-extended | 1 | — | 11 | — | — |
 | [`load k`](05-instruction-definitions.md#i-load) (DMP3) | shifter := P0's page; select word k | 1 | — | 15 | — | the word |
 | [`shl s[,adv] / sar s[,adv]`](05-instruction-definitions.md#i-shift) (DMP3) | shift the shifter; store the selected word | 2 | — | 15 | — | the word |

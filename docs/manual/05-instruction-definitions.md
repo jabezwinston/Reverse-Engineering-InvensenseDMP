@@ -1097,25 +1097,20 @@ shift's store, and makes that word R.
 <a id="i-movz"></a>
 ## MOVZ
 
-**Function:** Toggle MOV-stores-zero.
+**Function:** Toggle the MOV substitution latch.
 **Cores:** ICM-20948.
 **Syntax:** `movz`
 
 **Description.**
-- Toggles a latch. While it is set, every MOV and MOVX stores 0 instead of its source.
+- Toggles a latch. While it is set, a MOV or MOVX stores, instead of its source, a value that
+  depends on the FIFO:
+  - 0 when nothing has been emitted since the FIFO was reset;
+  - otherwise a word from the FIFO, such as the last word emitted in the same pass.
 - ALU stores and INC are unaffected.
+- **The stored value is not reliable. Do not use `movz`.**
 - On the MPU-6050 the byte (0xBF) is reserved.
 
 **Flags.** None.
-
-```asm icm20948
-        ; given 0x100 = 12345678
-        movz
-        mov     0
-        movz
-        mov     0,inc
-        ; expect 0x120 = 0, 12345678
-```
 
 <!-- BEGIN generated:enc-movz -->
 <table>
@@ -1129,7 +1124,7 @@ shift's store, and makes that word R.
 | Cycles | — | 4 |
 <!-- END generated:enc-movz -->
 
-**Operation.** `movz := not movz`
+**Operation.** `movz := not movz;  while set, MOV stores a FIFO-dependent value`
 
 ---
 

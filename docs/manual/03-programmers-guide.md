@@ -386,7 +386,8 @@ the low half, and a lane routed to the FIFO is 2 bytes. Neither one touches F or
 - **The clear aliases.** `clr` (0xDE) and `clr.next` (0xDF) are the clear instructions. The MPU-6050
   also clears on 0xD2–0xD7 and 0xE0–0xEF, and the ICM-20948 on 0xE7. Those aliases cost as much as
   an add.
-- **`movz` (DMP3)** toggles a latch. While it is set, every MOV stores 0 instead of its source.
+- **`movz` (DMP3)** toggles a latch. While it is set, a MOV stores a value that depends on the
+  FIFO instead of its source. That value is not reliable, so do not use `movz`.
 
 ```asm both
         ; given 0x100 = 0.25q

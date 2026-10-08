@@ -223,7 +223,7 @@ ENTRIES = {
                  cycles={MPU: "28", ICM: "26"})],
     "clr.next": [Form("clr.next", ["1 1 0 1 1 1 1 1"], Insn("clr.next"), desc="P2.w += 1; M[P2] := 0",
                       r="MPU: zeroed")],
-    "movz": [Form("movz", ["1 0 1 1 1 1 1 1"], Insn("movz"), cores=(ICM,), desc="toggle: MOV stores 0")],
+    "movz": [Form("movz", ["1 0 1 1 1 1 1 1"], Insn("movz"), cores=(ICM,), desc="toggle: MOV stores a FIFO-dependent value (do not use)")],
     "lo": [Form("lo / lo.next", ["1 1 0 1 0 0 1 next"], Insn("lo"), cores=(ICM,),
                 desc="store R's low 30 bits, sign-extended", r="—")],
     "load": [Form("load k", ["1 1 0 1 0 1 k:2"], Insn("load", (0,)), cores=(ICM,),

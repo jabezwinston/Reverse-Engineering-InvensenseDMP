@@ -235,7 +235,8 @@ code.
    page without a pointer reload, and the destination walks the four words of its page.
 2. **Recommended layout.**
    - MPU-6050: data from 0x010 to 0x3FF, code from 0x400.
-   - ICM-20948: data from 0x0010 to 0x0FFF, code from 0x1000, everything below 0x3000.
+   - ICM-20948: data from 0x0020 to 0x0FFF (the sample page reaches 0x0011), code from 0x1000,
+     everything below 0x3000.
 3. **Data beyond block 0** (MPU 0x400–0xBFF, ICM blocks 1–3) is reached with `p0blk`, `p1blk` or
    `p2blk`. On the MPU-6050 the block field persists across passes, so a pass that moves a block
    must move it back: three `pNblk` in all.

@@ -30,6 +30,7 @@ are `probe42.py`–`probe66.py` and their results are ISA2.md Findings 24–27 a
 `probe112.py` routes INC/DEC to the FIFO: the MPU emits M[P2] ± 1 as a new item, DMP3 changes the last word (Finding 50).
 `probe113.py` reads the state a pass starts with: after DMP_RST (RAM routing, pointers at 0, a 32-bit mode, F clear, R = 0) and carried between passes (route, mode, F and R on both; pointers on the MPU only), and finds the ICM's device reset writing 0x0080–0x0087 (Finding 51).
 `probe114.py` overfills the FIFO: 1 KB on the MPU, a 4 KB ring on the ICM, the newest bytes kept (Finding 52).
+`probe115.py` runs every example in `docs/manual` on silicon and checks it against its comments: all pass on both parts; `movz` turned out FIFO-dependent (Finding 53).
 Two ICM traps: keep `USER_CTRL.FIFO_EN` set while reading the FIFO, and select register bank 0
 before anything else after a reset — the bank survives an ESP32 reset.
 

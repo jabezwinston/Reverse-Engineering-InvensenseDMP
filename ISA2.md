@@ -2335,6 +2335,25 @@ gains "acc"), and DMP3 restarts its pointers every pass. Facts `reset.state`, `r
 
 opendmp fact `fifo.overflow`.
 
+## Finding 53 — every example in the manual runs on silicon as stated; `movz` is not "stores zero" (HARDWARE CONFIRMED 2026-10-08)
+
+`bench/probe115.py` runs every example in `docs/manual` (the rewritten manual) on a rig, one pass
+per `T`, and checks memory, the FIFO and F against the example's own comments.
+`tools/manual_check.py` runs the same blocks in the emulator.
+
+- **Results.** All 62 MPU-6050 examples and all 69 ICM-20948 examples pass, and all 132 emulator
+  runs agree.
+- **ICM sample page.** The first run caught a counter placed at ICM 0x0010, inside the sample page,
+  whose temperature half-word the hardware rewrites. Manual §2.8 now starts ICM data at 0x0020.
+- **`movz` (ICM 0xBF).** A MOV under the latch stores not 0 but a value that depends on the FIFO.
+  - It stores 0 when nothing has been emitted since the FIFO was reset.
+  - It stores the last word emitted, when the same pass has emitted one.
+  - It stores a stale FIFO word after an emit in an earlier pass. This is how the manual's own
+    `movz` example failed when it ran after a FIFO example.
+  - Finding 35's "MOV-stores-zero" saw only the first case.
+
+  The manual now says not to use it, and opendmp's emulator refuses a MOV under it.
+
 ## Decoder corrections (2026-09-08, no new hardware)
 
 Three defects found while writing `docs/manual/`, all in `tools/isa/decode.py`:

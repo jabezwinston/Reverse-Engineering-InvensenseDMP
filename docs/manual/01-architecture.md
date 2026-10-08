@@ -76,7 +76,7 @@ DMP3 adds three units:
 | R | 64 bits | arithmetic, `clamp`, INC, DEC; DMP3 `load`, `shl`, `sar` | 0 | kept | kept |
 | Predicate | armed / not, and its sense | `always`, `if f`, `if nf` | — | — | — |
 | Exchanges (MPU) | two toggles | `xchg01`, `xchg02` | off | off | — |
-| MOV-stores-zero (DMP3) | toggle | `movz` | off | — | — |
+| MOV substitution (DMP3) | toggle | `movz` | off | — | — |
 | Shifter (DMP3) | 4 words | every op that writes R, `load k` | empty: a shift stores 0 | — | — |
 | Return stack (DMP3) | 4 addresses and a pointer | `call`, `ret` | — | — | kept |
 

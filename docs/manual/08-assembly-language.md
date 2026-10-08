@@ -105,18 +105,19 @@ count:  .dw     0i
         ; expect ints = 1
 ```
 
-The same program for the ICM-20948. Its sample page holds gyro X in the low half of word 2:
+The same program for the ICM-20948. Its sample page reaches 0x0011, so the count goes at
+0x0020, and word 2 of the sample page holds accel Z and gyro X:
 
 ```asm icm20948
         .chip   icm20948
         .entry  0x1000
-        .org    0x010
+        .org    0x020
 count:  .dw     0i
         .org    0x1000
         fmode   1
         always
         store
-        p2page  1               ; P2 -> 0x0010 (the pointers start each pass at 0)
+        p2page  2               ; P2 -> 0x0020 (the pointers start each pass at 0)
         inc
         fifo
         mov     2               ; emit accel Z | gyro X
@@ -124,7 +125,7 @@ count:  .dw     0i
         end
         ; sample az=7 gx=5
         ; passes 3
-        ; expect 0x010 = 3i
+        ; expect 0x020 = 3i
         ; expect fifo = 00070005
 ```
 

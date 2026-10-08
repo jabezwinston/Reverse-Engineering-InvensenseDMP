@@ -126,4 +126,5 @@ The A, B and adv fields mean the same in every mode.
 | ICM-20948 | FC with a second byte below 0xC0 | an undefined condition |
 | ICM-20948 | FD with bit 7 set, or bits 5–0 clear | no defined effect |
 | ICM-20948 | INC or DEC routed to the FIFO under a lane mode | undefined result |
+| ICM-20948 | MOV or MOVX while `movz` (0xBF) is set | stores a FIFO-dependent value |
 | both | `ret` with nothing pushed since DMP_RST | returns to an undefined address |
