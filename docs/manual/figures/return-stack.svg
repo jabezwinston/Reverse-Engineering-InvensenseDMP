@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 260" width="760" height="260" role="img" aria-labelledby="t d">
+<title id="t">The DMP3 return stack</title>
+<desc id="d">Four return-address slots used as a ring by call and ret; a fifth nested call overwrites the oldest, and the stack survives the end of a pass.</desc>
+<style>
+  .bg { fill: #ffffff; }
+  .box { fill: #f6f8fa; stroke: #1f2328; stroke-width: 1.4; }
+  .hot { fill: #ddf4ff; stroke: #0969da; stroke-width: 1.4; }
+  .warm { fill: #fff8c5; stroke: #9a6700; stroke-width: 1.4; }
+  .dmp3 { fill: #ffffff; stroke: #8250df; stroke-width: 1.4; stroke-dasharray: 5 4; }
+  .ln { stroke: #1f2328; stroke-width: 1.4; fill: none; }
+  .lnd { stroke: #1f2328; stroke-width: 1.2; fill: none; stroke-dasharray: 4 3; }
+  .mk { fill: #1f2328; }
+  .t { font: 13px system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; fill: #1f2328; }
+  .tb { font: 600 13px system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; fill: #1f2328; }
+  .m { font: 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #1f2328; }
+  .s { font: 11px system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; fill: #59636e; }
+  .p { font: 11px system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; fill: #8250df; }
+  @media (prefers-color-scheme: dark) {
+    .bg { fill: #0d1117; }
+    .box { fill: #161b22; stroke: #e6edf3; }
+    .hot { fill: #0c2d6b; stroke: #4493f8; }
+    .warm { fill: #3d2e00; stroke: #d29922; }
+    .dmp3 { fill: #0d1117; stroke: #ab7df8; }
+    .ln, .lnd { stroke: #e6edf3; }
+    .mk { fill: #e6edf3; }
+    .t, .tb, .m { fill: #e6edf3; }
+    .s { fill: #9198a1; }
+    .p { fill: #ab7df8; }
+  }
+</style>
+<defs>
+  <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path class="mk" d="M0,0 L10,5 L0,10 z"/>
+  </marker>
+</defs>
+<rect class="bg" x="0" y="0" width="760" height="260"/>
+<rect class="hot" x="144.0" y="52.0" width="92" height="36" rx="4"/>
+<text class="m" x="190.0" y="75.0" text-anchor="middle">slot 0</text>
+<rect class="hot" x="224.0" y="132.0" width="92" height="36" rx="4"/>
+<text class="m" x="270.0" y="155.0" text-anchor="middle">slot 1</text>
+<rect class="hot" x="144.0" y="212.0" width="92" height="36" rx="4"/>
+<text class="m" x="190.0" y="235.0" text-anchor="middle">slot 2</text>
+<rect class="hot" x="64.0" y="132.0" width="92" height="36" rx="4"/>
+<text class="m" x="110.0" y="155.0" text-anchor="middle">slot 3</text>
+<path class="ln" d="M 232.0 77.3 A 84 84 0 0 1 262.7 108.0" marker-end="url(#ah)"/>
+<path class="ln" d="M 262.7 192.0 A 84 84 0 0 1 232.0 222.7" marker-end="url(#ah)"/>
+<path class="ln" d="M 148.0 222.7 A 84 84 0 0 1 117.3 192.0" marker-end="url(#ah)"/>
+<path class="ln" d="M 117.3 108.0 A 84 84 0 0 1 148.0 77.3" marker-end="url(#ah)"/>
+<text class="tb" x="190" y="146" text-anchor="middle">sp</text>
+<text class="s" x="190" y="164" text-anchor="middle">next slot</text>
+<text class="m" x="330" y="70" text-anchor="start">call t: slot[sp] := return address; sp := sp + 1 (mod 4)</text>
+<text class="m" x="330" y="96" text-anchor="start">ret:    sp := sp − 1 (mod 4); PC := slot[sp]</text>
+<text class="s" x="330" y="136" text-anchor="start">A fifth nested call overwrites the oldest entry: the</text>
+<text class="s" x="330" y="152" text-anchor="start">returns then cycle through the four newest callers.</text>
+<text class="s" x="330" y="182" text-anchor="start">The stack and sp survive end: a ret in a later pass</text>
+<text class="s" x="330" y="198" text-anchor="start">pops what an earlier pass pushed.</text>
+</svg>

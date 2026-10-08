@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 310" width="760" height="310" role="img" aria-labelledby="t d">
+<title id="t">The mode register</title>
+<desc id="d">fmode sets one of seven ALU modes. Every F4 byte, whatever it does and even when a predicate skips it, puts the machine in mode 4, where low bytes are branch targets rather than ALU operations; an fmode ends mode 4.</desc>
+<style>
+  .bg { fill: #ffffff; }
+  .box { fill: #f6f8fa; stroke: #1f2328; stroke-width: 1.4; }
+  .hot { fill: #ddf4ff; stroke: #0969da; stroke-width: 1.4; }
+  .warm { fill: #fff8c5; stroke: #9a6700; stroke-width: 1.4; }
+  .dmp3 { fill: #ffffff; stroke: #8250df; stroke-width: 1.4; stroke-dasharray: 5 4; }
+  .ln { stroke: #1f2328; stroke-width: 1.4; fill: none; }
+  .lnd { stroke: #1f2328; stroke-width: 1.2; fill: none; stroke-dasharray: 4 3; }
+  .mk { fill: #1f2328; }
+  .t { font: 13px system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; fill: #1f2328; }
+  .tb { font: 600 13px system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; fill: #1f2328; }
+  .m { font: 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #1f2328; }
+  .s { font: 11px system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; fill: #59636e; }
+  .p { font: 11px system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; fill: #8250df; }
+  @media (prefers-color-scheme: dark) {
+    .bg { fill: #0d1117; }
+    .box { fill: #161b22; stroke: #e6edf3; }
+    .hot { fill: #0c2d6b; stroke: #4493f8; }
+    .warm { fill: #3d2e00; stroke: #d29922; }
+    .dmp3 { fill: #0d1117; stroke: #ab7df8; }
+    .ln, .lnd { stroke: #e6edf3; }
+    .mk { fill: #e6edf3; }
+    .t, .tb, .m { fill: #e6edf3; }
+    .s { fill: #9198a1; }
+    .p { fill: #ab7df8; }
+  }
+</style>
+<defs>
+  <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path class="mk" d="M0,0 L10,5 L0,10 z"/>
+  </marker>
+</defs>
+<rect class="bg" x="0" y="0" width="760" height="310"/>
+<rect class="hot" x="30" y="40" width="88" height="52" rx="4"/>
+<text class="m" x="74" y="62" text-anchor="middle">f0</text>
+<text class="s" x="74" y="80" text-anchor="middle">MAC</text>
+<rect class="hot" x="130" y="40" width="88" height="52" rx="4"/>
+<text class="m" x="174" y="62" text-anchor="middle">f1</text>
+<text class="s" x="174" y="80" text-anchor="middle">32-bit</text>
+<rect class="hot" x="230" y="40" width="88" height="52" rx="4"/>
+<text class="m" x="274" y="62" text-anchor="middle">f2</text>
+<text class="s" x="274" y="80" text-anchor="middle">high lane</text>
+<rect class="hot" x="330" y="40" width="88" height="52" rx="4"/>
+<text class="m" x="374" y="62" text-anchor="middle">f3</text>
+<text class="s" x="374" y="80" text-anchor="middle">low lane</text>
+<rect class="hot" x="430" y="40" width="88" height="52" rx="4"/>
+<text class="m" x="474" y="62" text-anchor="middle">f5</text>
+<text class="s" x="474" y="80" text-anchor="middle">logic</text>
+<rect class="hot" x="530" y="40" width="88" height="52" rx="4"/>
+<text class="m" x="574" y="62" text-anchor="middle">f6</text>
+<text class="s" x="574" y="80" text-anchor="middle">logic, high</text>
+<rect class="hot" x="630" y="40" width="88" height="52" rx="4"/>
+<text class="m" x="674" y="62" text-anchor="middle">f7</text>
+<text class="s" x="674" y="80" text-anchor="middle">logic, low</text>
+<text class="t" x="380" y="24" text-anchor="middle">fmode m: the ALU byte's meaning (sticky, kept across passes; DMP_RST gives f1)</text>
+<rect class="warm" x="200" y="170" width="360" height="120" rx="4"/>
+<text class="tb" x="380" y="192" text-anchor="middle">mode 4</text>
+<text class="s" x="380" y="214" text-anchor="middle">MPU-6050: byte 00–3F = one-byte branch (branch.m4)</text>
+<text class="s" x="380" y="230" text-anchor="middle">40–7F reserved; MOV, CLR, INC, page loads run</text>
+<text class="s" x="380" y="252" text-anchor="middle">ICM-20948: byte 00–7F = two-byte jump/call target</text>
+<text class="s" x="380" y="268" text-anchor="middle">page loads address the I/O space</text>
+<path class="ln" d="M 150 92 C 150 140, 220 150, 260 170" marker-end="url(#ah)"/>
+<text class="s" x="140" y="140" text-anchor="end">from any mode, any F4: branch,</text>
+<text class="s" x="140" y="154" text-anchor="end">jump, call; taken, not or skipped</text>
+<path class="ln" d="M 520 170 C 560 150, 620 140, 620 92" marker-end="url(#ah)"/>
+<text class="s" x="632" y="140" text-anchor="start">fmode m ends it</text>
+</svg>

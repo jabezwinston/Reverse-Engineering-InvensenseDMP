@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 300" width="760" height="300" role="img" aria-labelledby="t d">
+<title id="t">The DMP3 shifter</title>
+<desc id="d">A four-word register loaded from R by every operation that writes R (word 0 R's word, word 1 R's low 30 bits) or from P0's page by load; shl and sar shift all four words and store the selected one.</desc>
+<style>
+  .bg { fill: #ffffff; }
+  .box { fill: #f6f8fa; stroke: #1f2328; stroke-width: 1.4; }
+  .hot { fill: #ddf4ff; stroke: #0969da; stroke-width: 1.4; }
+  .warm { fill: #fff8c5; stroke: #9a6700; stroke-width: 1.4; }
+  .dmp3 { fill: #ffffff; stroke: #8250df; stroke-width: 1.4; stroke-dasharray: 5 4; }
+  .ln { stroke: #1f2328; stroke-width: 1.4; fill: none; }
+  .lnd { stroke: #1f2328; stroke-width: 1.2; fill: none; stroke-dasharray: 4 3; }
+  .mk { fill: #1f2328; }
+  .t { font: 13px system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; fill: #1f2328; }
+  .tb { font: 600 13px system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; fill: #1f2328; }
+  .m { font: 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #1f2328; }
+  .s { font: 11px system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; fill: #59636e; }
+  .p { font: 11px system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; fill: #8250df; }
+  @media (prefers-color-scheme: dark) {
+    .bg { fill: #0d1117; }
+    .box { fill: #161b22; stroke: #e6edf3; }
+    .hot { fill: #0c2d6b; stroke: #4493f8; }
+    .warm { fill: #3d2e00; stroke: #d29922; }
+    .dmp3 { fill: #0d1117; stroke: #ab7df8; }
+    .ln, .lnd { stroke: #e6edf3; }
+    .mk { fill: #e6edf3; }
+    .t, .tb, .m { fill: #e6edf3; }
+    .s { fill: #9198a1; }
+    .p { fill: #ab7df8; }
+  }
+</style>
+<defs>
+  <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path class="mk" d="M0,0 L10,5 L0,10 z"/>
+  </marker>
+</defs>
+<rect class="bg" x="0" y="0" width="760" height="300"/>
+<rect class="hot" x="16" y="40" width="180" height="50" rx="4"/>
+<text class="tb" x="106" y="62" text-anchor="middle">R (64-bit)</text>
+<text class="s" x="106" y="80" text-anchor="middle">after mul: the product</text>
+<line class="ln" x1="196" y1="65" x2="300" y2="65" marker-end="url(#ah)"/>
+<text class="s" x="248" y="57" text-anchor="middle">every op</text>
+<text class="s" x="248" y="82" text-anchor="middle">writing R</text>
+<rect class="box" x="300" y="40" width="104" height="50" rx="4"/>
+<text class="tb" x="352" y="62" text-anchor="middle">word 0</text>
+<text class="s" x="352" y="80" text-anchor="middle">R's word</text>
+<rect class="box" x="410" y="40" width="104" height="50" rx="4"/>
+<text class="tb" x="462" y="62" text-anchor="middle">word 1</text>
+<text class="s" x="462" y="80" text-anchor="middle">R's low 30 bits</text>
+<rect class="box" x="520" y="40" width="104" height="50" rx="4"/>
+<text class="tb" x="572" y="62" text-anchor="middle">word 2</text>
+<text class="s" x="572" y="80" text-anchor="middle">0</text>
+<rect class="box" x="630" y="40" width="104" height="50" rx="4"/>
+<text class="tb" x="682" y="62" text-anchor="middle">word 3</text>
+<text class="s" x="682" y="80" text-anchor="middle">0</text>
+<rect class="warm" x="300" y="120" width="434" height="40" rx="4"/>
+<text class="t" x="517" y="145" text-anchor="middle">load k: the four words of P0's page; select word k</text>
+<text class="m" x="30" y="200" text-anchor="start">shl s</text>
+<text class="s" x="110" y="200" text-anchor="start">each word := (word &lt;&lt; s) | the top s bits of the next word's 30-bit fraction</text>
+<text class="m" x="30" y="224" text-anchor="start">sar s</text>
+<text class="s" x="110" y="224" text-anchor="start">each word := word &gt;&gt; s, arithmetic</text>
+<text class="m" x="30" y="248" text-anchor="start">then</text>
+<text class="s" x="110" y="248" text-anchor="start">store the selected word through the route; R := that word</text>
+<text class="m" x="30" y="282" text-anchor="start">mul a,b; shl 30</text>
+<text class="s" x="170" y="282" text-anchor="start">stores a·b mod 2³²: the integer product</text>
+</svg>

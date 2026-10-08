@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 384" width="760" height="384" role="img" aria-labelledby="t d">
+<title id="t">When a pass runs</title>
+<desc id="d">A sample tick starts a pass about 110 (MPU) or 130 (ICM) cycles later; the pass runs to end. On the MPU a pass that overruns the period waits for the next tick, so the rate drops to a whole fraction of the sample rate; on the ICM the next pass starts as soon as the previous one ends. The hardware rewrites the sample page at every tick, even under a running pass.</desc>
+<style>
+  .bg { fill: #ffffff; }
+  .box { fill: #f6f8fa; stroke: #1f2328; stroke-width: 1.4; }
+  .hot { fill: #ddf4ff; stroke: #0969da; stroke-width: 1.4; }
+  .warm { fill: #fff8c5; stroke: #9a6700; stroke-width: 1.4; }
+  .dmp3 { fill: #ffffff; stroke: #8250df; stroke-width: 1.4; stroke-dasharray: 5 4; }
+  .ln { stroke: #1f2328; stroke-width: 1.4; fill: none; }
+  .lnd { stroke: #1f2328; stroke-width: 1.2; fill: none; stroke-dasharray: 4 3; }
+  .mk { fill: #1f2328; }
+  .t { font: 13px system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; fill: #1f2328; }
+  .tb { font: 600 13px system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; fill: #1f2328; }
+  .m { font: 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #1f2328; }
+  .s { font: 11px system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; fill: #59636e; }
+  .p { font: 11px system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; fill: #8250df; }
+  @media (prefers-color-scheme: dark) {
+    .bg { fill: #0d1117; }
+    .box { fill: #161b22; stroke: #e6edf3; }
+    .hot { fill: #0c2d6b; stroke: #4493f8; }
+    .warm { fill: #3d2e00; stroke: #d29922; }
+    .dmp3 { fill: #0d1117; stroke: #ab7df8; }
+    .ln, .lnd { stroke: #e6edf3; }
+    .mk { fill: #e6edf3; }
+    .t, .tb, .m { fill: #e6edf3; }
+    .s { fill: #9198a1; }
+    .p { fill: #ab7df8; }
+  }
+</style>
+<defs>
+  <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path class="mk" d="M0,0 L10,5 L0,10 z"/>
+  </marker>
+</defs>
+<rect class="bg" x="0" y="0" width="760" height="384"/>
+<text class="tb" x="16" y="30" text-anchor="start">MPU-6050: a pass shorter than the period</text>
+<line class="ln" x1="40" y1="84" x2="744" y2="84"/>
+<line class="ln" x1="70" y1="76" x2="70" y2="92"/>
+<text class="s" x="70" y="106" text-anchor="middle">tick</text>
+<line class="ln" x1="270" y1="76" x2="270" y2="92"/>
+<text class="s" x="270" y="106" text-anchor="middle">tick</text>
+<line class="ln" x1="470" y1="76" x2="470" y2="92"/>
+<text class="s" x="470" y="106" text-anchor="middle">tick</text>
+<line class="ln" x1="670" y1="76" x2="670" y2="92"/>
+<text class="s" x="670" y="106" text-anchor="middle">tick</text>
+<rect class="hot" x="84" y="50" width="110" height="26" rx="4"/>
+<text class="t" x="139" y="68" text-anchor="middle">pass</text>
+<rect class="hot" x="284" y="50" width="110" height="26" rx="4"/>
+<text class="t" x="339" y="68" text-anchor="middle">pass</text>
+<rect class="hot" x="484" y="50" width="110" height="26" rx="4"/>
+<text class="t" x="539" y="68" text-anchor="middle">pass</text>
+<text class="s" x="210" y="68" text-anchor="start">idle</text>
+<text class="tb" x="16" y="140" text-anchor="start">MPU-6050: a pass that overruns the period</text>
+<line class="ln" x1="40" y1="194" x2="744" y2="194"/>
+<line class="ln" x1="70" y1="186" x2="70" y2="202"/>
+<text class="s" x="70" y="216" text-anchor="middle">tick</text>
+<line class="ln" x1="270" y1="186" x2="270" y2="202"/>
+<text class="s" x="270" y="216" text-anchor="middle">tick</text>
+<line class="ln" x1="470" y1="186" x2="470" y2="202"/>
+<text class="s" x="470" y="216" text-anchor="middle">tick</text>
+<line class="ln" x1="670" y1="186" x2="670" y2="202"/>
+<text class="s" x="670" y="216" text-anchor="middle">tick</text>
+<rect class="hot" x="84" y="160" width="246" height="26" rx="4"/>
+<text class="t" x="207" y="178" text-anchor="middle">pass</text>
+<line class="lnd" x1="270" y1="154" x2="270" y2="186"/>
+<text class="s" x="270" y="152" text-anchor="middle">samples rewritten</text>
+<text class="s" x="338" y="178" text-anchor="start">waits for a tick</text>
+<rect class="hot" x="484" y="160" width="246" height="26" rx="4"/>
+<text class="t" x="607" y="178" text-anchor="middle">next pass</text>
+<text class="tb" x="16" y="250" text-anchor="start">ICM-20948: a pass that overruns the period</text>
+<line class="ln" x1="40" y1="304" x2="744" y2="304"/>
+<line class="ln" x1="70" y1="296" x2="70" y2="312"/>
+<text class="s" x="70" y="326" text-anchor="middle">tick</text>
+<line class="ln" x1="270" y1="296" x2="270" y2="312"/>
+<text class="s" x="270" y="326" text-anchor="middle">tick</text>
+<line class="ln" x1="470" y1="296" x2="470" y2="312"/>
+<text class="s" x="470" y="326" text-anchor="middle">tick</text>
+<line class="ln" x1="670" y1="296" x2="670" y2="312"/>
+<text class="s" x="670" y="326" text-anchor="middle">tick</text>
+<rect class="hot" x="88" y="270" width="246" height="26" rx="4"/>
+<text class="t" x="211" y="288" text-anchor="middle">pass</text>
+<rect class="hot" x="350" y="270" width="246" height="26" rx="4"/>
+<text class="t" x="473" y="288" text-anchor="middle">next pass</text>
+<text class="s" x="342" y="262" text-anchor="middle">~150 cycles</text>
+<text class="s" x="16" y="372" text-anchor="start">The first instruction runs 110 cycles (MPU) or 130 cycles (ICM) after its tick.</text>
+</svg>

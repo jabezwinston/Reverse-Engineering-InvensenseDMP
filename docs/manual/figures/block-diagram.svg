@@ -1,0 +1,108 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 764 436" width="764" height="436" role="img" aria-labelledby="t d">
+<title id="t">DMP programmer's model</title>
+<desc id="d">Three pointers address one memory. Operands A and B feed the ALU, whose result goes into the result register R and sets the flag F, then through the route latch to memory at P2 or to the FIFO. A predicate gates every instruction; the mode register selects the ALU's operation set. DMP3 adds a return stack, a shifter and a register I/O space (dashed).</desc>
+<style>
+  .bg { fill: #ffffff; }
+  .box { fill: #f6f8fa; stroke: #1f2328; stroke-width: 1.4; }
+  .hot { fill: #ddf4ff; stroke: #0969da; stroke-width: 1.4; }
+  .warm { fill: #fff8c5; stroke: #9a6700; stroke-width: 1.4; }
+  .dmp3 { fill: #ffffff; stroke: #8250df; stroke-width: 1.4; stroke-dasharray: 5 4; }
+  .ln { stroke: #1f2328; stroke-width: 1.4; fill: none; }
+  .lnd { stroke: #1f2328; stroke-width: 1.2; fill: none; stroke-dasharray: 4 3; }
+  .mk { fill: #1f2328; }
+  .t { font: 13px system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; fill: #1f2328; }
+  .tb { font: 600 13px system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; fill: #1f2328; }
+  .m { font: 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #1f2328; }
+  .s { font: 11px system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; fill: #59636e; }
+  .p { font: 11px system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; fill: #8250df; }
+  @media (prefers-color-scheme: dark) {
+    .bg { fill: #0d1117; }
+    .box { fill: #161b22; stroke: #e6edf3; }
+    .hot { fill: #0c2d6b; stroke: #4493f8; }
+    .warm { fill: #3d2e00; stroke: #d29922; }
+    .dmp3 { fill: #0d1117; stroke: #ab7df8; }
+    .ln, .lnd { stroke: #e6edf3; }
+    .mk { fill: #e6edf3; }
+    .t, .tb, .m { fill: #e6edf3; }
+    .s { fill: #9198a1; }
+    .p { fill: #ab7df8; }
+  }
+</style>
+<defs>
+  <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path class="mk" d="M0,0 L10,5 L0,10 z"/>
+  </marker>
+</defs>
+<rect class="bg" x="0" y="0" width="764" height="436"/>
+<rect class="box" x="16" y="70" width="170" height="50" rx="4"/>
+<text class="tb" x="101" y="91" text-anchor="middle">P0</text>
+<text class="s" x="101" y="109" text-anchor="middle">A operand · MOV source</text>
+<line class="ln" x1="186" y1="95" x2="226" y2="95" marker-end="url(#ah)"/>
+<rect class="box" x="16" y="136" width="170" height="50" rx="4"/>
+<text class="tb" x="101" y="157" text-anchor="middle">P1</text>
+<text class="s" x="101" y="175" text-anchor="middle">B operand</text>
+<line class="ln" x1="186" y1="161" x2="226" y2="161" marker-end="url(#ah)"/>
+<rect class="box" x="16" y="202" width="170" height="50" rx="4"/>
+<text class="tb" x="101" y="223" text-anchor="middle">P2  + word w</text>
+<text class="s" x="101" y="241" text-anchor="middle">destination</text>
+<line class="ln" x1="186" y1="227" x2="226" y2="227" marker-end="url(#ah)"/>
+<text class="s" x="101" y="60" text-anchor="middle">block · bank · page</text>
+<text class="s" x="101" y="284" text-anchor="middle">MPU: xchg01 / xchg02 exchange</text>
+<text class="s" x="101" y="298" text-anchor="middle">P0 with P1 / with P2</text>
+<rect class="box" x="16" y="316" width="170" height="46" rx="4"/>
+<text class="tb" x="101" y="335" text-anchor="middle">PC</text>
+<text class="s" x="101" y="352" text-anchor="middle">from PRGM_START, every pass</text>
+<rect class="dmp3" x="16" y="374" width="170" height="46" rx="4"/>
+<text class="t" x="101" y="393" text-anchor="middle">return stack (DMP3)</text>
+<text class="s" x="101" y="410" text-anchor="middle">4 entries, circular</text>
+<rect class="box" x="226" y="40" width="150" height="380" rx="4"/>
+<text class="tb" x="301" y="64" text-anchor="middle">DMP memory</text>
+<text class="s" x="301" y="84" text-anchor="middle">code and data</text>
+<text class="s" x="301" y="104" text-anchor="middle">MPU-6050: 3 KB</text>
+<text class="s" x="301" y="120" text-anchor="middle">ICM-20948: 16 KB</text>
+<text class="s" x="301" y="380" text-anchor="middle">sample page: rewritten</text>
+<text class="s" x="301" y="395" text-anchor="middle">by the hardware</text>
+<text class="s" x="301" y="410" text-anchor="middle">at every tick</text>
+<rect class="warm" x="436" y="16" width="170" height="44" rx="4"/>
+<text class="tb" x="521" y="35" text-anchor="middle">predicate</text>
+<text class="s" x="521" y="51" text-anchor="middle">if f · if nf · always</text>
+<line class="ln" x1="521" y1="60" x2="521" y2="84" marker-end="url(#ah)"/>
+<rect class="hot" x="436" y="84" width="170" height="88" rx="4"/>
+<text class="tb" x="521" y="110" text-anchor="middle">ALU</text>
+<text class="s" x="521" y="129" text-anchor="middle">32-bit, or a 16-bit lane</text>
+<text class="s" x="521" y="145" text-anchor="middle">add rsub mul nmul mac</text>
+<text class="s" x="521" y="161" text-anchor="middle">clamp cmp and xor</text>
+<line class="ln" x1="376" y1="110" x2="436" y2="110" marker-end="url(#ah)"/>
+<text class="m" x="406" y="103" text-anchor="middle">A</text>
+<line class="ln" x1="376" y1="150" x2="436" y2="150" marker-end="url(#ah)"/>
+<text class="m" x="406" y="143" text-anchor="middle">B</text>
+<rect class="box" x="640" y="96" width="108" height="64" rx="4"/>
+<text class="tb" x="694" y="120" text-anchor="middle">mode</text>
+<text class="tb" x="694" y="138" text-anchor="middle">register</text>
+<text class="m" x="694" y="153" text-anchor="middle">f0–f7</text>
+<line class="ln" x1="640" y1="128" x2="606" y2="128" marker-end="url(#ah)"/>
+<line class="ln" x1="521" y1="172" x2="521" y2="204" marker-end="url(#ah)"/>
+<rect class="hot" x="436" y="204" width="170" height="56" rx="4"/>
+<text class="tb" x="521" y="226" text-anchor="middle">R</text>
+<text class="s" x="521" y="244" text-anchor="middle">64-bit result · MAC sum</text>
+<line class="ln" x1="606" y1="232" x2="640" y2="232" marker-end="url(#ah)"/>
+<rect class="box" x="640" y="204" width="108" height="56" rx="4"/>
+<text class="tb" x="694" y="226" text-anchor="middle">F</text>
+<text class="s" x="694" y="244" text-anchor="middle">the one flag</text>
+<line class="ln" x1="521" y1="260" x2="521" y2="292" marker-end="url(#ah)"/>
+<rect class="warm" x="436" y="292" width="170" height="50" rx="4"/>
+<text class="tb" x="521" y="313" text-anchor="middle">route</text>
+<text class="s" x="521" y="330" text-anchor="middle">store · fifo</text>
+<line class="ln" x1="436" y1="317" x2="376" y2="317" marker-end="url(#ah)"/>
+<text class="s" x="406" y="309" text-anchor="middle">M[P2]</text>
+<line class="ln" x1="606" y1="317" x2="640" y2="317" marker-end="url(#ah)"/>
+<rect class="box" x="640" y="292" width="108" height="50" rx="4"/>
+<text class="tb" x="694" y="313" text-anchor="middle">FIFO</text>
+<text class="s" x="694" y="330" text-anchor="middle">1 KB · 4 KB</text>
+<rect class="dmp3" x="436" y="370" width="170" height="50" rx="4"/>
+<text class="t" x="521" y="391" text-anchor="middle">shifter (DMP3)</text>
+<text class="s" x="521" y="408" text-anchor="middle">4 words, loaded from R</text>
+<rect class="dmp3" x="640" y="370" width="108" height="50" rx="4"/>
+<text class="t" x="694" y="391" text-anchor="middle">I/O space</text>
+<text class="s" x="694" y="408" text-anchor="middle">mode 4 (DMP3)</text>
+</svg>

@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 420" width="760" height="420" role="img" aria-labelledby="t d">
+<title id="t">MPU-6050 DMP memory map</title>
+<desc id="d">3 KB of DMP memory, 0x000 to 0xBFF. The sample page at 0x000 to 0x00D is rewritten every tick. Block 0 (0x000 to 0x3FF) is what a pointer reaches without the block field; 0x400 to 0xBFF holds the code, and data through the block field. The 1 KB FIFO is not in the map.</desc>
+<style>
+  .bg { fill: #ffffff; }
+  .box { fill: #f6f8fa; stroke: #1f2328; stroke-width: 1.4; }
+  .hot { fill: #ddf4ff; stroke: #0969da; stroke-width: 1.4; }
+  .warm { fill: #fff8c5; stroke: #9a6700; stroke-width: 1.4; }
+  .dmp3 { fill: #ffffff; stroke: #8250df; stroke-width: 1.4; stroke-dasharray: 5 4; }
+  .ln { stroke: #1f2328; stroke-width: 1.4; fill: none; }
+  .lnd { stroke: #1f2328; stroke-width: 1.2; fill: none; stroke-dasharray: 4 3; }
+  .mk { fill: #1f2328; }
+  .t { font: 13px system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; fill: #1f2328; }
+  .tb { font: 600 13px system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; fill: #1f2328; }
+  .m { font: 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #1f2328; }
+  .s { font: 11px system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; fill: #59636e; }
+  .p { font: 11px system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; fill: #8250df; }
+  @media (prefers-color-scheme: dark) {
+    .bg { fill: #0d1117; }
+    .box { fill: #161b22; stroke: #e6edf3; }
+    .hot { fill: #0c2d6b; stroke: #4493f8; }
+    .warm { fill: #3d2e00; stroke: #d29922; }
+    .dmp3 { fill: #0d1117; stroke: #ab7df8; }
+    .ln, .lnd { stroke: #e6edf3; }
+    .mk { fill: #e6edf3; }
+    .t, .tb, .m { fill: #e6edf3; }
+    .s { fill: #9198a1; }
+    .p { fill: #ab7df8; }
+  }
+</style>
+<defs>
+  <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path class="mk" d="M0,0 L10,5 L0,10 z"/>
+  </marker>
+</defs>
+<rect class="bg" x="0" y="0" width="760" height="420"/>
+<rect class="hot" x="250" y="30.0" width="150" height="120.0" rx="4"/>
+<rect class="box" x="250" y="150.0" width="150" height="240.0" rx="4"/>
+<rect class="warm" x="250" y="30.0" width="150" height="14" rx="4"/>
+<text class="s" x="325.0" y="41.0" text-anchor="middle">sample page</text>
+<text class="tb" x="325.0" y="90.0" text-anchor="middle">block 0</text>
+<text class="s" x="325.0" y="108.0" text-anchor="middle">pointer window</text>
+<text class="tb" x="325.0" y="270.0" text-anchor="middle">blocks 1–2</text>
+<text class="s" x="325.0" y="288.0" text-anchor="middle">code</text>
+<text class="m" x="240" y="34.0" text-anchor="end">0x000</text>
+<text class="m" x="240" y="154.0" text-anchor="end">0x400</text>
+<text class="m" x="240" y="393.8828125" text-anchor="end">0xBFF</text>
+<line class="lnd" x1="400" y1="37.0" x2="424" y2="37.0"/>
+<text class="s" x="430" y="41.0" text-anchor="start">0x000–0x00D: ax ay az temp gx gy gz, int16, written every tick</text>
+<line class="lnd" x1="400" y1="90.0" x2="424" y2="90.0"/>
+<text class="s" x="430" y="94.0" text-anchor="start">data: every pointer reaches it without a block</text>
+<line class="lnd" x1="400" y1="164.0" x2="424" y2="164.0"/>
+<text class="s" x="430" y="168.0" text-anchor="start">default entry: code here is out of P2's reach</text>
+<line class="lnd" x1="400" y1="270.0" x2="424" y2="270.0"/>
+<text class="s" x="430" y="274.0" text-anchor="start">code and data; data through p0blk / p1blk / p2blk</text>
+<line class="lnd" x1="400" y1="389.8828125" x2="424" y2="389.8828125"/>
+<text class="s" x="430" y="393.8828125" text-anchor="start">the last byte of code or data</text>
+<rect class="box" x="16" y="300" width="190" height="60" rx="4"/>
+<text class="tb" x="111" y="322" text-anchor="middle">FIFO, 1024 B</text>
+<text class="s" x="111" y="340" text-anchor="middle">outside this map:</text>
+<text class="s" x="111" y="354" text-anchor="middle">read through FIFO_R_W</text>
+<text class="s" x="325.0" y="412" text-anchor="middle">0xC00–0xFFF: not memory (reads 0)</text>
+</svg>
