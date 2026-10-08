@@ -2155,6 +2155,29 @@ opendmp's emulator drops its separate "last result" and its "d1 after CLAMP is u
 case, and reads R instead (`machine.py`, facts `flag.test`, `alu.clamp`, `mac.restart.*`,
 `tests/test_mpu.py::test_probe107_*`). It now agrees with every cell on both parts.
 
+## Finding 46 — DMP3 multiplies integers in two instructions; the shifter and `lo` read R (HARDWARE CONFIRMED 2026-10-08)
+
+`bench/probe110.py`, ICM-20948:
+
+- **`mul a,b` then `shl 30` stores a·b mod 2³²**, the integer product of two integer words, in
+  96 of 96 cells (extremes, small integers, random words). **`nmul` then `shl 30`** stores
+  −a·b mod 2³² (96/96).
+- **`lo` after `mul`** stores the product's low 30 bits, sign-extended from bit 29 (48/48).
+- **What loads the shifter** (read back with `shl 1` and `shl 30`):
+  - **A MAC run** loads it with the *sum*, not the last product: `shl 30` after two MACs is the
+    integer sum of the two products mod 2³². `lo` after a MAC run is the sum's low 30 bits.
+  - **CLAMP** loads word 0 with its compare D (Finding 45), not its result.
+  - **INC** loads its result.
+  - **AND, XOR and the sign test** load nothing; the shifter keeps the previous R.
+
+**One rule covers all of it:** every op that writes R (Finding 45) loads the shifter from R.
+Word 0 is R's word, word 1 is R's low 30 bits, and words 2–3 are 0. `lo` stores R's low 30
+bits. After a MUL, R holds the whole product, unfloored; after an ADD its low bits are 0.
+`load k` and the shifts write R themselves (Finding 45) but keep their own four words.
+
+opendmp's emulator now derives the shifter and `lo` from R (`machine.py`, facts `shift.icm`,
+`lo.icm`, `tests/test_icm.py::test_probe110_*`) and agrees with every cell.
+
 ## Decoder corrections (2026-09-08, no new hardware)
 
 Three defects found while writing `docs/manual/`, all in `tools/isa/decode.py`:
