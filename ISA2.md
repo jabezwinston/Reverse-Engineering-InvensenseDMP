@@ -2354,6 +2354,44 @@ per `T`, and checks memory, the FIFO and F against the example's own comments.
 
   The manual now says not to use it, and opendmp's emulator refuses a MOV under it.
 
+## Finding 54 — on the MPU the move's zeroing of R is the whole MAC restart (HARDWARE CONFIRMED 2026-10-08)
+
+`bench/probe116.py`. Finding 45 left one sequence untested: a P2 move, then an op that writes R,
+then a MAC. probe107's INC cell had an ADD in between.
+
+- **The cells (A).**
+  - R := 1.0 by an ADD.
+  - A P2 page load.
+  - An op X.
+  - `fmode 0; mac 2,2`, a zero product.
+
+  The stored word is R as X left it:
+
+  | X | MPU-6050 | ICM-20948 |
+  |---|---|---|
+  | nothing, `mov`, `and` | 0 (the move zeroed R) | 1.0 (the move keeps R) |
+  | `add 0,0` (3 + 3) | 6 | 6 |
+  | `inc`, `dec`, `inc; inc` | 1.0 + 1, 1.0 − 1, 1.0 + 2 lsb | the same |
+  | `clamp` (D = ±2) | D | D |
+  | ICM `load 0`, `load 0; shl 1` | | 3, 7 |
+
+  So on the MPU a P2 move zeroes R, and nothing else restarts the sum: no latch armed by the move
+  survives an INC, DEC or CLAMP. On DMP3 only a MAC's own `op&4` restarts it (probe88). The
+  emulator matched every cell after `opendmp` dropped its "fresh sum" latch. The compiler had
+  assumed that an INC or DEC after a move left the next MAC starting from 0. It now counts INC
+  and DEC as writes of R.
+- **Stopping (B).** `Rig.stop()` now pulses DMP_RST:
+  - a runaway pass stops (its counter frozen 0.2 s later on both parts);
+  - the FIFO keeps its bytes.
+- **Compiled edges (C).** One program covers:
+  - an Int × Int product (MUL then `shl 30` on DMP3, shift-and-add on the MPU);
+  - a xorshift with shifts by 13, 17 and 5, and by 31 both ways;
+  - an INC then a MAC into the same word;
+  - `==` at −2.0, now RSUB then `test` with no XOR fallback.
+
+  It ran as a trace build under `opendmp.host.verify`, about 200 passes per part: BIT-EXACT on both,
+  10,408 cycles a pass on the MPU and 1,207 on the ICM.
+
 ## Decoder corrections (2026-09-08, no new hardware)
 
 Three defects found while writing `docs/manual/`, all in `tools/isa/decode.py`:
