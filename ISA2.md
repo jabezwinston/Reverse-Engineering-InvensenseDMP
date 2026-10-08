@@ -2268,6 +2268,22 @@ opendmp's `chips.py` has every class measured. New keys: `clamp16`, `logic16`, `
 by lane. The remaining "unmeasured" rows are bytes the part does not have, plus `end`, which
 nothing can time inside a pass.
 
+## Finding 50 — INC and DEC under FIFO routing: a new item on the MPU, the last word on DMP3 (HARDWARE CONFIRMED 2026-10-08)
+
+`bench/probe112.py`: a marker word was emitted, then `inc`, `dec`, `inc.next`, `dec.next`, or a
+lane `inc`/`dec`, still routed to the FIFO, then a second marker.
+
+- **MPU-6050:** each one reads M[P2], computes ± 1 LSB of the lane, and **emits the result as a
+  new FIFO item** of the lane's width (2 bytes under `f2`/`f3`). RAM is unchanged, and the first
+  marker is untouched. Two `inc`s emit the same value twice. The `.next` forms advance P2 first.
+  With P2 on known words, all seven cells equal the emulator.
+- **ICM-20948:** each one **changes the last word already in the FIFO** (probe52), as a whole
+  word under `f1`: 0000ffff + 1 = 00010000. Under a lane mode the result is irregular:
+  0000ffff + 1 under `f3` gave ffff0001. Treat that as undefined.
+
+opendmp: the emulator emits a new item on the MPU and refuses the DMP3 lane case; facts
+`incdec.fifo.mpu` and `incdec.fifo.icm`.
+
 ## Decoder corrections (2026-09-08, no new hardware)
 
 Three defects found while writing `docs/manual/`, all in `tools/isa/decode.py`:
