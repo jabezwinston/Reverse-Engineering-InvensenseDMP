@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""P7.1 -- can a C compiler target DMP3?  The two limits chapter 8 leaves open.
+"""P7.1 -- can a C compiler target DMP3?  The two limits the 2026-09 manual's chapter 8 left open.
 
   A  return-stack depth.  A chain of N routines at 0x2000 + 0x20*k; R_k calls R_k+1 and
      emits w0 after the return, the innermost emits w1, main emits w3 after its call:

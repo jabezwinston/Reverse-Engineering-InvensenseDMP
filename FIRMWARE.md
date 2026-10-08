@@ -148,7 +148,7 @@ BLPFSX = BERR2N + BLPFSX;                  // max(x, BERR2N)
 ```
 
 (Each `if` covers one op, ended by a `d8`. The destination is `BLPFSX` throughout, per the
-decode at 1180–1189. `0H2` is 0.0. Manual §4.7 walks through the bytes.)
+decode at 1180–1189. `0H2` is 0.0. The manual's §9.6 is the same technique, self-contained.)
 
 ### 3.4 Gyro dead-zone (1423-1440)
 
@@ -276,7 +276,7 @@ python3 tools/isa/pseudo.py <image> --check                             # agreem
 MPU-6050-family images now has a hardware-confirmed meaning except thirteen: the twelve
 3050-lineage `c8`..`cf` in image 1024 and that image's single `ff`, all rendered as marked
 conjecture -- see [UNKNOWNS.md](UNKNOWNS.md). The normative instruction reference is
-[docs/manual/02-instruction-set.md](docs/manual/02-instruction-set.md).
+[docs/manual/05-instruction-definitions.md](docs/manual/05-instruction-definitions.md).
 
 ## 6. What this firmware is *not*
 

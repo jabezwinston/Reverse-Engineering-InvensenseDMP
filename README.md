@@ -9,14 +9,15 @@ disassembler and assembler for it.
 MPU-3050 to test and are rendered as marked conjecture), **and 100 % of the ICM-20948's
 DMP3 code** (both published images, 10349 + 10338 bytes, measured on an ICM-20948).
 
-> **Start here: [docs/manual/](docs/manual/) — the programmer's manual.** Machine model,
-> complete instruction reference, assembly language, idioms, host interface, memory map, and the
-> open questions. Everything you need to write a DMP program.
+> **Start here: [docs/manual/](docs/manual/) — the programmer's manual,** for both cores:
+> architecture, memory and data types, a programmer's guide with the instruction formats, the
+> instruction summary and definitions, opcode maps, the host interface, the assembly language
+> and programming techniques. Everything you need to write a DMP program.
 
 The project's closing conclusion — that the DMP's working registers are not RAM-mapped — was
 wrong, and everything here follows from reopening it.
 
-The instruction set in one table (every rule hardware-confirmed; [chapter 2](docs/manual/02-instruction-set.md)):
+The instruction set in one table (every rule hardware-confirmed; [chapter 3](docs/manual/03-programmers-guide.md)):
 
 | bytes | meaning |
 |---|---|
@@ -45,7 +46,7 @@ assembly language run on real MPU-6050 silicon exactly as predicted. The sibling
 programs run bit-exact on both parts, against a cycle-accurate emulator built from these
 findings.
 
-**The ICM-20948's DMP3 is the same machine, grown up** ([manual chapter 8](docs/manual/08-dmp3-icm20948.md),
+**The ICM-20948's DMP3 is the same machine, grown up** ([the manual's cores compared](docs/manual/01-architecture.md#11-introduction),
 ISA2.md Finding 24): 16 KB of memory, a 12-bit data pointer with a 1 KB block field (`bc`/`bd`/`be`),
 `f4 hi lo` as a 16-bit absolute **jump**, bit 14 for **call** and `e0` for **return** — so loops
 and subroutines exist — and a **branch-target mode** that every `f4` enters and any width byte
@@ -64,7 +65,7 @@ Every instruction costs a whole number of DMP clock cycles (8.199 MHz on this be
 20.975 MHz on its ICM-20948). On the MPU that is 5 per pointer/mode byte, 18 per MOV, 28 per add,
 58 per multiply and 60 per MAC, plus 110 from the sample tick to the first instruction.
 Replaying the shipping firmware at those costs reproduces its pass rate at five sample rates
-(ISA2.md Findings 38–39, [manual §5.6](docs/manual/05-host-interface.md#56-execution-budget)).
+(ISA2.md Findings 38–39, [manual §7.5](docs/manual/07-host-interface.md#budget)).
 
 ## What works today
 
@@ -113,7 +114,7 @@ cycle restores stock, and every patch is reverted after use.
 
 See `bench/README.md` for the protocol, `bench/RESULTS.md` for all experiment rounds including
 every correction and false start, and
-[manual §5.9](docs/manual/05-host-interface.md#59-measurement-discipline) for the measurement
+[the bench notes](bench/README.md#measurement-discipline) for the measurement
 discipline these results depend on.
 
 ## Why it stopped, and why it restarted
@@ -130,7 +131,7 @@ Several confident-looking results in this project turned out to be measurement a
 packet offsets that broke when packet length changed, detectors never validated against a null
 control, and silent I2C failures that produced clean-looking false negatives. Each is documented
 where it occurred, and the eight that produced false findings are collected in
-[manual §5.9](docs/manual/05-host-interface.md#59-measurement-discipline).
+[the bench notes](bench/README.md#measurement-discipline).
 **Validate the instrument before trusting the measurement.**
 
 ## Licensing

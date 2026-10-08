@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""The manual's chapter 4 idioms for the MPU, run as written (dmpasm source) on silicon and in the
+"""The 2026-09 manual's chapter 4 idioms for the MPU, run as written (dmpasm source) on silicon and in the
 opendmp emulator side by side: a counted loop (a backward branch), and min(x, y) by compare-and-skip
 with RSUB -- including the one input that breaks it, y = -2.0.
 

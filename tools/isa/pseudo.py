@@ -22,7 +22,7 @@ the comment says CONJECTURE):
 NOTE (2026-09-23): this lifter predates Findings 27-40 and has not been brought up to date.
 It renders predicates as single-shot tests of a Z flag; they are sticky until the next d8-db
 and test one flag F (the exact result's sign, or == 0 after d1), and `f4` 0x20-0x3f branch
-backwards.  decode.py is current; read this file's output against manual chapter 2.
+backwards.  decode.py is current; read this file's output against the manual's chapter 5.
 """
 import argparse, collections, pathlib, sys
 

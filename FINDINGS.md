@@ -236,4 +236,4 @@ Driver patch pairs in `inv_mpu_misc.c` give direct semantics: `fe` and `ff` are 
 features in place.
 
 The full table that this pass produced (`OPCODES.md`) was superseded by ISA2.md and
-removed; the current instruction reference is [docs/manual/02-instruction-set.md](docs/manual/02-instruction-set.md).
+removed; the current instruction reference is [docs/manual/05-instruction-definitions.md](docs/manual/05-instruction-definitions.md).

@@ -78,7 +78,7 @@ Legacy FIFO-emit form (stock preambles) still assembles:
 A bare ALU op with no `store` and no `dc` emits its result to the FIFO when a
 FIFO mode is active (bench round 10); with `store`/dc it writes RAM instead.
 
-DMP3 / ICM-20948 forms (`.lineage icm`; manual chapter 8, ISA2.md Findings 24-26)
+DMP3 / ICM-20948 forms (`.lineage icm`; ISA2.md Findings 24-26)
 ------------------------------------------------------------------------------
   .org ADDR                          where the code will live (default 0x1000, the entry point)
   label:                             a code label (its own line, or before an instruction)

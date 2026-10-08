@@ -132,7 +132,7 @@ auto-detects it), so P6 is run as P4 was: confirm, don't explore.
 | P6.8 | `fc` under mode 4; the loop hazard; the shifter after an ALU op | `probe57`–`probe66` | done: `fc X Y` is a three-byte compare; F is frozen under an armed predicate (Finding 27) |
 
 Steps are ordered so that each result is a prerequisite for the next. All six were completed on
-2026-09-12; the record is ISA2.md Findings 24–27 and manual chapter 8, the open items UNKNOWNS.md §7.
+2026-09-12; the record is ISA2.md Findings 24–27 and the manual's per-core notes, the open items UNKNOWNS.md §7.
 
 ## Honest odds
 
