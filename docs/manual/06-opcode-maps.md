@@ -10,6 +10,7 @@ A dash marks a reserved byte, which a program must not execute.
 *Table 6-1. MPU-6050 opcode map, `fmode 1`*
 
 <!-- BEGIN generated:opmap-mpu6050 -->
+
 | | x0 | x1 | x2 | x3 | x4 | x5 | x6 | x7 | x8 | x9 | xA | xB | xC | xD | xE | xF |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | **0x** | add 0,0 | rsub 0,0 | mul 0,0 | nmul 0,0 | add 0,0+ | rsub 0,0+ | mul 0,0+ | nmul 0,0+ | add 0,1 | rsub 0,1 | mul 0,1 | nmul 0,1 | add 0,1+ | rsub 0,1+ | mul 0,1+ | nmul 0,1+ |
@@ -28,6 +29,7 @@ A dash marks a reserved byte, which a program must not execute.
 | **Dx** | p2inc2 | test | clr.d2 | clr.d3 | clr.d4 | clr.d5 | clr.d6 | clr.d7 | always | if f | if nf | if f.alt | store | fifo | clr | clr.next |
 | **Ex** | clr.e0 | clr.e1 | clr.e2 | clr.e3 | clr.e4 | clr.e5 | clr.e6 | clr.e7 | clr.e8 | clr.e9 | clr.ea | clr.eb | clr.ec | clr.ed | clr.ee | clr.ef |
 | **Fx** | fmode 0 | fmode 1 | fmode 2 | fmode 3 | F4 prefix | fmode 5 | fmode 6 | fmode 7 | inc | dec | inc.next | dec.next | xchg01 | xchg02 | int | end |
+
 <!-- END generated:opmap-mpu6050 -->
 
 - **F4** is the branch prefix: F4 00–3F is `branch`, F4 41–7F is `int.f4`, and F4 40 is
@@ -40,6 +42,7 @@ A dash marks a reserved byte, which a program must not execute.
 *Table 6-2. ICM-20948 opcode map, `fmode 1`*
 
 <!-- BEGIN generated:opmap-icm20948 -->
+
 | | x0 | x1 | x2 | x3 | x4 | x5 | x6 | x7 | x8 | x9 | xA | xB | xC | xD | xE | xF |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | **0x** | add 0,0 | rsub 0,0 | mul 0,0 | nmul 0,0 | add 0,0+ | rsub 0,0+ | mul 0,0+ | nmul 0,0+ | add 0,1 | rsub 0,1 | mul 0,1 | nmul 0,1 | add 0,1+ | rsub 0,1+ | mul 0,1+ | nmul 0,1+ |
@@ -58,6 +61,7 @@ A dash marks a reserved byte, which a program must not execute.
 | **Dx** | p2inc2 | test | lo | lo.next | load 0 | load 1 | load 2 | load 3 | always | if f | if nf | if f.alt | store | fifo | clr | clr.next |
 | **Ex** | ret | — | int | — | — | — | — | clr.e7 | — | — | — | — | — | — | — | — |
 | **Fx** | fmode 0 | fmode 1 | fmode 2 | fmode 3 | F4 prefix | fmode 5 | fmode 6 | fmode 7 | inc | dec | inc.next | dec.next | cmp.cond | shl/sar | — | end |
+
 <!-- END generated:opmap-icm20948 -->
 
 - **F4** is the jump and call prefix: F4 followed by a byte below 0x80 is a three-byte `jump` or
@@ -73,12 +77,14 @@ A dash marks a reserved byte, which a program must not execute.
 *Table 6-3. Bytes 0x00–0x7F: the operation in bits 1–0, by mode*
 
 <!-- BEGIN generated:opmap-alu -->
+
 | op field | `fmode 0` | `fmode 1`–`3` | `fmode 5`–`7` |
 |---|---|---|---|
 | 0 (`00`) | mac | add | clamp |
 | 1 (`01`) | macn | rsub | cmp |
 | 2 (`10`) | mac.m | mul | and |
 | 3 (`11`) | macn.m | nmul | xor |
+
 <!-- END generated:opmap-alu -->
 
 The A, B and adv fields mean the same in every mode.
@@ -88,11 +94,13 @@ The A, B and adv fields mean the same in every mode.
 *Table 6-4. Bytes in mode 4*
 
 <!-- BEGIN generated:opmap-mode4 -->
+
 | Bytes in mode 4 | MPU-6050 | ICM-20948 |
 |---|---|---|
 | 00–3F | `branch.m4`: one byte, to its address + 1 + d (d = the byte, signed 6-bit) | `jump.m4`: the high byte of a two-byte absolute target |
 | 40–7F | reserved: no branch, no interrupt | `call.m4`: the high byte of a two-byte call target |
 | 80–FF | as in any mode | as in any mode, except that `p0page`/`p1page`/`p2page` select the I/O space |
+
 <!-- END generated:opmap-mode4 -->
 
 ## 6.5 Bytes That Differ by Core

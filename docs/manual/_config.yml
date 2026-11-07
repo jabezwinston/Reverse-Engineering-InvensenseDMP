@@ -1,0 +1,27 @@
+# Jekyll configuration for the manual's GitHub Pages site.
+# Built by .github/workflows/gh-pages.yml with docs/manual as the source.
+title: The DMP Programmer's Manual
+description: >-
+  The Digital Motion Processor in the InvenSense MPU-6050 family (MPU-6050,
+  MPU-6500, MPU-9150, MPU-9250) and, as DMP3, in the ICM-20948: its
+  architecture, memory, instruction set, host interface and assembly language.
+
+theme: jekyll-theme-midnight     # a GitHub Pages supported theme (dark)
+
+plugins:
+  - jekyll-optional-front-matter   # chapters have no front matter
+  - jekyll-readme-index            # README.md becomes index.html
+  - jekyll-relative-links          # links to *.md resolve to the built pages
+  - jekyll-titles-from-headings    # page title = first "# " heading
+  - jekyll-default-layout
+
+markdown: kramdown
+highlighter: rouge
+kramdown:
+  input: GFM
+  hard_wrap: false
+  toc_levels: 2..2
+
+relative_links:
+  enabled: true
+  collections: false

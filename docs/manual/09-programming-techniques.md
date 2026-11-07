@@ -266,7 +266,7 @@ Each step is a few additions and one predicated block. A 32-bit quotient takes 3
 The DMP has no divide and no square root. Renormalize a quaternion that is already close to unit
 length with one Newton step:
 
-q := q · (1.5 − 0.5 · |q|²)
+q := q · (1.5 − 0.5 · \|q\|²)
 
 ```asm both
         ; q at 0x100; scratch {s, k} at 0x120; constants {0.5, 1.5} at 0x130

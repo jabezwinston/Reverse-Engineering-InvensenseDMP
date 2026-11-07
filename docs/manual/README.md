@@ -77,4 +77,4 @@ k:      .dw     0.25q, 0.5q             ; constants are words the host loads
         ; expect fifo = 30000000
 ```
 
-The measurements behind this manual are recorded in [ISA2.md](../../ISA2.md).
+The measurements behind this manual are recorded in [ISA2.md](https://github.com/jabezwinston/Reverse-Engineering-InvensenseDMP/blob/main/ISA2.md).

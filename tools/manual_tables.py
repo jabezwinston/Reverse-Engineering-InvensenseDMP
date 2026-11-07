@@ -440,7 +440,9 @@ def process(check: bool) -> int:
             if name not in gens:
                 errors.append(f"{path.name}: unknown generated block {name!r}")
                 return m.group(0)
-            return m.group(1) + gens[name]() + "\n" + m.group(4)
+            # blank lines inside the markers: kramdown (the Pages site) needs one
+            # between an HTML comment and a table
+            return m.group(1) + "\n" + gens[name]() + "\n\n" + m.group(4)
         new = BLOCK.sub(repl, text)
         if new != text:
             stale.append(path.name)

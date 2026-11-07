@@ -26,6 +26,7 @@ call target, or an interrupt code) and, on DMP3, the FC compare and the FD shift
 *Table 3-1. Instruction formats*
 
 <!-- BEGIN generated:formats -->
+
 <table>
 <tr><th>Class</th><th>Format</th><th>7</th><th>6</th><th>5</th><th>4</th><th>3</th><th>2</th><th>1</th><th>0</th><th>Hex</th><th>Instructions</th></tr>
 <tr><td rowspan="3">Arithmetic and logic</td><td>ALU</td><td>0</td><td colspan="2">A</td><td colspan="2">B</td><td>adv</td><td colspan="2">op</td><td>00–7F</td><td>under f1–f3: add rsub mul nmul · f0: mac macn · f5–f7: clamp cmp and xor</td></tr>
@@ -41,11 +42,13 @@ call target, or an interrupt code) and, on DMP3, the FC compare and the FD shift
 <tr><td>increment</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>0</td><td>adv</td><td>dec</td><td>F8–FB</td><td>inc dec inc.next dec.next</td></tr>
 <tr><td>system</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td colspan="2">fn</td><td>FC–FF</td><td>MPU: xchg01 xchg02 int · DMP3: the cmp.cond and shift prefixes · end (FF) on both</td></tr>
 </table>
+
 <!-- END generated:formats -->
 
 *Table 3-1a. Multi-byte forms*
 
 <!-- BEGIN generated:formats-multibyte -->
+
 <table>
 <tr><th>Core</th><th>Instruction</th><th>Byte</th><th>7</th><th>6</th><th>5</th><th>4</th><th>3</th><th>2</th><th>1</th><th>0</th><th>Hex</th><th>Meaning</th></tr>
 <tr><td rowspan="2">MPU-6050</td><td rowspan="2">branch</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>0</td><td>1</td><td>0</td><td>0</td><td rowspan="2">F4 00–3F</td><td rowspan="2">to the F4's address + 2 + d, d a signed 6-bit displacement</td></tr>
@@ -63,6 +66,7 @@ call target, or an interrupt code) and, on DMP3, the FC compare and the FD shift
 <tr><td rowspan="2">ICM-20948</td><td rowspan="2">shl / sar</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>0</td><td>1</td><td rowspan="2">FD 01–7F</td><td rowspan="2">r = 0: shl s (s = 1–31); r = 1: sar 32 − s (s = 0 gives sar 32)</td></tr>
 <tr><td>2</td><td>0</td><td>adv</td><td>r</td><td colspan="5">s</td></tr>
 </table>
+
 <!-- END generated:formats-multibyte -->
 
 ### The ALU byte
@@ -77,12 +81,14 @@ A byte below 0x80 is an ALU instruction, except in mode 4 (§3.8). Its fields:
 *Table 3-2. The ALU byte's operation, by mode*
 
 <!-- BEGIN generated:opmap-alu -->
+
 | op field | `fmode 0` | `fmode 1`–`3` | `fmode 5`–`7` |
 |---|---|---|---|
 | 0 (`00`) | mac | add | clamp |
 | 1 (`01`) | macn | rsub | cmp |
 | 2 (`10`) | mac.m | mul | and |
 | 3 (`11`) | macn.m | nmul | xor |
+
 <!-- END generated:opmap-alu -->
 
 Under `fmode 0`, op 2 and op 3 repeat op 0 and op 1. The assembler names them `mac.m` and

@@ -17,6 +17,7 @@ tolerance.
 ## 4.1 Arithmetic
 
 <!-- BEGIN generated:summary-arith -->
+
 | Mnemonic | Operation | Bytes | Cycles MPU | Cycles ICM | F | R |
 |---|---|---:|---|---|---|---|
 | [`add A,B[,inc]`](05-instruction-definitions.md#i-add) | R := A + B; store or emit | 1 | 28, lane 22 | 26, lane 20 | exact sign | written |
@@ -27,11 +28,13 @@ tolerance.
 | [`macn A,B[,inc]`](05-instruction-definitions.md#i-macn) | R := R − A·B; store ⌊R / 2³⁰⌋ | 1 | 60 | 27 | sign of R | accumulated |
 | [`inc / inc.next`](05-instruction-definitions.md#i-inc) | M[P2] + 1 LSB of the lane, through the route | 1 | 23, lane 19 | 21, lane 17 | exact sign | written |
 | [`dec / dec.next`](05-instruction-definitions.md#i-dec) | M[P2] − 1 LSB of the lane, through the route | 1 | 23, lane 19 | 21, lane 17 | exact sign | written |
+
 <!-- END generated:summary-arith -->
 
 ## 4.2 Logic and Compare
 
 <!-- BEGIN generated:summary-logic -->
+
 | Mnemonic | Operation | Bytes | Cycles MPU | Cycles ICM | F | R |
 |---|---|---:|---|---|---|---|
 | [`clamp A,B[,inc]`](05-instruction-definitions.md#i-clamp) | A clamped to [−B, B]; store | 1 | 28, lane 22 | 26, lane 20 | A was clamped | the compare D |
@@ -40,11 +43,13 @@ tolerance.
 | [`xor A,B[,inc]`](05-instruction-definitions.md#i-xor) | A XOR B; store | 1 | 23, lane 17 | 22, lane 16 | — | — |
 | [`test`](05-instruction-definitions.md#i-test) | F := (R's word == 0), at the lane | 1 | 5 | 4 | R == 0 | — |
 | [`cmp.eq / gt / lt / ne k,t`](05-instruction-definitions.md#i-cmp-cond) (DMP3) | F := (P1 word k & 0x3F) cond t | 3 | — | 19 | the compare | — |
+
 <!-- END generated:summary-logic -->
 
 ## 4.3 Data Transfer
 
 <!-- BEGIN generated:summary-transfer -->
+
 | Mnemonic | Operation | Bytes | Cycles MPU | Cycles ICM | F | R |
 |---|---|---:|---|---|---|---|
 | [`mov k[,inc]`](05-instruction-definitions.md#i-mov) | P0 word k, through the route | 1 | 18 | 17 | — | — |
@@ -56,11 +61,13 @@ tolerance.
 | [`lo / lo.next`](05-instruction-definitions.md#i-lo) (DMP3) | store R's low 30 bits, sign-extended | 1 | — | 11 | — | — |
 | [`load k`](05-instruction-definitions.md#i-load) (DMP3) | shifter := P0's page; select word k | 1 | — | 15 | — | the word |
 | [`shl s[,adv] / sar s[,adv]`](05-instruction-definitions.md#i-shift) (DMP3) | shift the shifter; store the selected word | 2 | — | 15 | — | the word |
+
 <!-- END generated:summary-transfer -->
 
 ## 4.4 Pointer Control
 
 <!-- BEGIN generated:summary-pointer -->
+
 | Mnemonic | Operation | Bytes | Cycles MPU | Cycles ICM | F | R |
 |---|---|---:|---|---|---|---|
 | [`p0page n / p1page n / p2page n`](05-instruction-definitions.md#i-page) | Pn.page := n (p2page also sets P2.w := 0) | 1 | 5 | 4 | — | MPU p2page: zeroed |
@@ -69,22 +76,26 @@ tolerance.
 | [`p2inc2`](05-instruction-definitions.md#i-p2inc2) | P2.w += 2 | 1 | 5 | 4 | — | MPU: zeroed |
 | [`xchg01`](05-instruction-definitions.md#i-xchg01) (MPU) | toggle: A and MOV through P1, B through P0 | 1 | 5 | — | — | — |
 | [`xchg02`](05-instruction-definitions.md#i-xchg02) (MPU) | toggle: A and MOV through P2, store through P0 | 1 | 5 | — | — | — |
+
 <!-- END generated:summary-pointer -->
 
 ## 4.5 Routing and Predicates
 
 <!-- BEGIN generated:summary-route -->
+
 | Mnemonic | Operation | Bytes | Cycles MPU | Cycles ICM | F | R |
 |---|---|---:|---|---|---|---|
 | [`store`](05-instruction-definitions.md#i-store) | route := RAM | 1 | 5 | 4 | — | — |
 | [`fifo`](05-instruction-definitions.md#i-fifo) | route := FIFO | 1 | 5 | 4 | — | — |
 | [`always`](05-instruction-definitions.md#i-always) | disarm the predicate | 1 | 5 | 4 | — | — |
 | [`if f / if nf / if f.alt`](05-instruction-definitions.md#i-if) | arm: run while F / while not F | 1 | 5 | 4 | — | — |
+
 <!-- END generated:summary-route -->
 
 ## 4.6 Modes and Program Flow
 
 <!-- BEGIN generated:summary-flow -->
+
 | Mnemonic | Operation | Bytes | Cycles MPU | Cycles ICM | F | R |
 |---|---|---:|---|---|---|---|
 | [`fmode m`](05-instruction-definitions.md#i-fmode) | mode := m (m ≠ 4) | 1 | 5 | 4 | — | — |
@@ -101,6 +112,7 @@ tolerance.
 | [`int`](05-instruction-definitions.md#i-int) (DMP3) | raise DMP_INT1 | 1 | — | 4 | — | — |
 | [`int.f4 n`](05-instruction-definitions.md#i-int) (MPU) | raise DMP_INT; mode := 4 | 2 | 10 | — | — | — |
 | [`end`](05-instruction-definitions.md#i-end) | end the pass | 1 | — | — | — | — |
+
 <!-- END generated:summary-flow -->
 
 ## 4.7 Flags and the Result Register
@@ -137,6 +149,7 @@ which set it anyway.
 *Table 4-1. Instructions per sample period, after the start latency*
 
 <!-- BEGIN generated:budget -->
+
 | Sample rate | Period | MPU-6050: cycles | ADDs | MOVs | ICM-20948: cycles | ADDs | MOVs |
 |---|---:|---:|---:|---:|---:|---:|---:|
 | 1000 Hz | 1 ms | 8,089 | 288 | 449 | 20,845 | 801 | 1,226 |
@@ -144,6 +157,7 @@ which set it anyway.
 | 200 Hz | 5 ms | 40,885 | 1,460 | 2,271 | 104,745 | 4,028 | 6,161 |
 | 100 Hz | 10 ms | 81,880 | 2,924 | 4,548 | 209,620 | 8,062 | 12,330 |
 | 50 Hz | 20 ms | 163,870 | 5,852 | 9,103 | 419,370 | 16,129 | 24,668 |
+
 <!-- END generated:budget -->
 
 A pass that does not fit its period delays the next one (§1.4). On the MPU-6050 the pass rate then

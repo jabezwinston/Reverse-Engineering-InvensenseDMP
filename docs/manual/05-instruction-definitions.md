@@ -57,6 +57,7 @@ The examples run in the definitions harness of Chapter 3: P0 = 0x100, P1 = 0x110
 ```
 
 <!-- BEGIN generated:enc-add -->
+
 <table>
 <tr><th>add A,B[,inc]</th><th>7</th><th>6</th><th>5</th><th>4</th><th>3</th><th>2</th><th>1</th><th>0</th></tr>
 <tr><td>byte 1</td><td>0</td><td colspan="2">A</td><td colspan="2">B</td><td>adv</td><td>0</td><td>0</td></tr>
@@ -66,6 +67,7 @@ The examples run in the definitions harness of Chapter 3: P0 = 0x100, P1 = 0x110
 |---|---|---|
 | Bytes | 1 | 1 |
 | Cycles | 28, lane 22 | 26, lane 20 |
+
 <!-- END generated:enc-add -->
 
 **Operation.**
@@ -100,6 +102,7 @@ conditional block ends with `always`.
 ```
 
 <!-- BEGIN generated:enc-always -->
+
 <table>
 <tr><th>always</th><th>7</th><th>6</th><th>5</th><th>4</th><th>3</th><th>2</th><th>1</th><th>0</th></tr>
 <tr><td>byte 1</td><td>1</td><td>1</td><td>0</td><td>1</td><td>1</td><td>0</td><td>0</td><td>0</td></tr>
@@ -109,6 +112,7 @@ conditional block ends with `always`.
 |---|---|---|
 | Bytes | 1 | 1 |
 | Cycles | 5 | 4 |
+
 <!-- END generated:enc-always -->
 
 **Operation.** `predicate := none`
@@ -135,6 +139,7 @@ conditional block ends with `always`.
 ```
 
 <!-- BEGIN generated:enc-and -->
+
 <table>
 <tr><th>and A,B[,inc]</th><th>7</th><th>6</th><th>5</th><th>4</th><th>3</th><th>2</th><th>1</th><th>0</th></tr>
 <tr><td>byte 1</td><td>0</td><td colspan="2">A</td><td colspan="2">B</td><td>adv</td><td>1</td><td>0</td></tr>
@@ -144,6 +149,7 @@ conditional block ends with `always`.
 |---|---|---|
 | Bytes | 1 | 1 |
 | Cycles | 23, lane 17 | 22, lane 16 |
+
 <!-- END generated:enc-and -->
 
 **Operation.** `if (inc) P2.w := P2.w + 1;  DEST := lane(A) AND lane(B)`
@@ -181,6 +187,7 @@ over:   always
 ```
 
 <!-- BEGIN generated:enc-branch -->
+
 <table>
 <tr><th>branch t</th><th>7</th><th>6</th><th>5</th><th>4</th><th>3</th><th>2</th><th>1</th><th>0</th></tr>
 <tr><td>byte 1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>0</td><td>1</td><td>0</td><td>0</td></tr>
@@ -201,6 +208,7 @@ over:   always
 |---|---|---|
 | Bytes | 1 | — |
 | Cycles | 10 taken, 5 skipped | — |
+
 <!-- END generated:enc-branch -->
 
 **Operation.**
@@ -240,6 +248,7 @@ sub:    always
 ```
 
 <!-- BEGIN generated:enc-call -->
+
 <table>
 <tr><th>call t</th><th>7</th><th>6</th><th>5</th><th>4</th><th>3</th><th>2</th><th>1</th><th>0</th></tr>
 <tr><td>byte 1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>0</td><td>1</td><td>0</td><td>0</td></tr>
@@ -262,6 +271,7 @@ sub:    always
 |---|---|---|
 | Bytes | — | 2 |
 | Cycles | — | 9 |
+
 <!-- END generated:enc-call -->
 
 **Operation.** `stack[sp] := PC + 3 (call.m4: + 2);  sp := sp + 1 mod 4;  PC := target;  mode := 4`
@@ -295,6 +305,7 @@ A < 0.
 ```
 
 <!-- BEGIN generated:enc-clamp -->
+
 <table>
 <tr><th>clamp A,B[,inc]</th><th>7</th><th>6</th><th>5</th><th>4</th><th>3</th><th>2</th><th>1</th><th>0</th></tr>
 <tr><td>byte 1</td><td>0</td><td colspan="2">A</td><td colspan="2">B</td><td>adv</td><td>0</td><td>0</td></tr>
@@ -304,6 +315,7 @@ A < 0.
 |---|---|---|
 | Bytes | 1 | 1 |
 | Cycles | 28, lane 22 | 26, lane 20 |
+
 <!-- END generated:enc-clamp -->
 
 **Operation.**
@@ -337,6 +349,7 @@ A < 0.
 ```
 
 <!-- BEGIN generated:enc-clr -->
+
 <table>
 <tr><th>clr</th><th>7</th><th>6</th><th>5</th><th>4</th><th>3</th><th>2</th><th>1</th><th>0</th></tr>
 <tr><td>byte 1</td><td>1</td><td>1</td><td>0</td><td>1</td><td>1</td><td>1</td><td>1</td><td>0</td></tr>
@@ -356,6 +369,7 @@ A < 0.
 |---|---|---|
 | Bytes | 1 | 1 |
 | Cycles | 28 | 26 |
+
 <!-- END generated:enc-clr -->
 
 **Operation.** `DEST := 0` (in the lane)
@@ -384,6 +398,7 @@ clears a page.
 ```
 
 <!-- BEGIN generated:enc-clr.next -->
+
 <table>
 <tr><th>clr.next</th><th>7</th><th>6</th><th>5</th><th>4</th><th>3</th><th>2</th><th>1</th><th>0</th></tr>
 <tr><td>byte 1</td><td>1</td><td>1</td><td>0</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td></tr>
@@ -393,6 +408,7 @@ clears a page.
 |---|---|---|
 | Bytes | 1 | 1 |
 | Cycles | 12 | 11 |
+
 <!-- END generated:enc-clr.next -->
 
 **Operation.** `P2.w := P2.w + 1;  DEST := 0`
@@ -421,6 +437,7 @@ clears a page.
 ```
 
 <!-- BEGIN generated:enc-cmp -->
+
 <table>
 <tr><th>cmp A,B</th><th>7</th><th>6</th><th>5</th><th>4</th><th>3</th><th>2</th><th>1</th><th>0</th></tr>
 <tr><td>byte 1</td><td>0</td><td colspan="2">A</td><td colspan="2">B</td><td>adv</td><td>0</td><td>1</td></tr>
@@ -430,6 +447,7 @@ clears a page.
 |---|---|---|
 | Bytes | 1 | 1 |
 | Cycles | 17, lane 13 | 16, lane 12 |
+
 <!-- END generated:enc-cmp -->
 
 **Operation.** `F := lane(A) < 0 and lane(B) >= 0`
@@ -457,6 +475,7 @@ clears a page.
 ```
 
 <!-- BEGIN generated:enc-cmp.cond -->
+
 <table>
 <tr><th>cmp.eq / gt / lt / ne k,t</th><th>7</th><th>6</th><th>5</th><th>4</th><th>3</th><th>2</th><th>1</th><th>0</th></tr>
 <tr><td>byte 1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>0</td><td>0</td></tr>
@@ -468,6 +487,7 @@ clears a page.
 |---|---|---|
 | Bytes | — | 3 |
 | Cycles | — | 19 |
+
 <!-- END generated:enc-cmp.cond -->
 
 **Operation.** `F := (M[P1 + 4k] AND 0x3F) {==, >, <, !=} t`, with the condition from bits 1–0 of the third byte
@@ -497,6 +517,7 @@ clears a page.
 ```
 
 <!-- BEGIN generated:enc-dec -->
+
 <table>
 <tr><th>dec / dec.next</th><th>7</th><th>6</th><th>5</th><th>4</th><th>3</th><th>2</th><th>1</th><th>0</th></tr>
 <tr><td>byte 1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>0</td><td>next</td><td>1</td></tr>
@@ -506,6 +527,7 @@ clears a page.
 |---|---|---|
 | Bytes | 1 | 1 |
 | Cycles | 23, lane 19 | 21, lane 17 |
+
 <!-- END generated:enc-dec -->
 
 **Operation.** `if (.next) P2.w := P2.w + 1;  R := lane(M[P2 + 4·P2.w]) - 1;  F := R < 0;  DEST := wrap(R)`
@@ -536,6 +558,7 @@ clears a page.
 ```
 
 <!-- BEGIN generated:enc-end -->
+
 <table>
 <tr><th>end</th><th>7</th><th>6</th><th>5</th><th>4</th><th>3</th><th>2</th><th>1</th><th>0</th></tr>
 <tr><td>byte 1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td></tr>
@@ -545,6 +568,7 @@ clears a page.
 |---|---|---|
 | Bytes | 1 | 1 |
 | Cycles | — | — |
+
 <!-- END generated:enc-end -->
 
 **Operation.** `pass ends`
@@ -574,6 +598,7 @@ clears a page.
 ```
 
 <!-- BEGIN generated:enc-fifo -->
+
 <table>
 <tr><th>fifo</th><th>7</th><th>6</th><th>5</th><th>4</th><th>3</th><th>2</th><th>1</th><th>0</th></tr>
 <tr><td>byte 1</td><td>1</td><td>1</td><td>0</td><td>1</td><td>1</td><td>1</td><td>0</td><td>1</td></tr>
@@ -583,6 +608,7 @@ clears a page.
 |---|---|---|
 | Bytes | 1 | 1 |
 | Cycles | 5 | 4 |
+
 <!-- END generated:enc-fifo -->
 
 **Operation.** `route := FIFO`
@@ -612,6 +638,7 @@ clears a page.
 ```
 
 <!-- BEGIN generated:enc-fmode -->
+
 <table>
 <tr><th>fmode m</th><th>7</th><th>6</th><th>5</th><th>4</th><th>3</th><th>2</th><th>1</th><th>0</th></tr>
 <tr><td>byte 1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>0</td><td colspan="3">m</td></tr>
@@ -621,6 +648,7 @@ clears a page.
 |---|---|---|
 | Bytes | 1 | 1 |
 | Cycles | 5 | 4 |
+
 <!-- END generated:enc-fmode -->
 
 **Operation.** `mode := m`
@@ -652,6 +680,7 @@ clears a page.
 ```
 
 <!-- BEGIN generated:enc-if -->
+
 <table>
 <tr><th>if f / if nf / if f.alt</th><th>7</th><th>6</th><th>5</th><th>4</th><th>3</th><th>2</th><th>1</th><th>0</th></tr>
 <tr><td>byte 1</td><td>1</td><td>1</td><td>0</td><td>1</td><td>1</td><td>0</td><td colspan="2">c</td></tr>
@@ -661,6 +690,7 @@ clears a page.
 |---|---|---|
 | Bytes | 1 | 1 |
 | Cycles | 5 | 4 |
+
 <!-- END generated:enc-if -->
 
 **Operation.** `predicate := F` (if f), `not F` (if nf)
@@ -690,6 +720,7 @@ clears a page.
 ```
 
 <!-- BEGIN generated:enc-inc -->
+
 <table>
 <tr><th>inc / inc.next</th><th>7</th><th>6</th><th>5</th><th>4</th><th>3</th><th>2</th><th>1</th><th>0</th></tr>
 <tr><td>byte 1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>0</td><td>next</td><td>0</td></tr>
@@ -699,6 +730,7 @@ clears a page.
 |---|---|---|
 | Bytes | 1 | 1 |
 | Cycles | 23, lane 19 | 21, lane 17 |
+
 <!-- END generated:enc-inc -->
 
 **Operation.** `if (.next) P2.w := P2.w + 1;  R := lane(M[P2 + 4·P2.w]) + 1;  F := R < 0;  DEST := wrap(R)`
@@ -725,6 +757,7 @@ clears a page.
 ```
 
 <!-- BEGIN generated:enc-int -->
+
 <table>
 <tr><th>int</th><th>7</th><th>6</th><th>5</th><th>4</th><th>3</th><th>2</th><th>1</th><th>0</th></tr>
 <tr><td>byte 1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>0</td></tr>
@@ -755,6 +788,7 @@ clears a page.
 |---|---|---|
 | Bytes | 2 | — |
 | Cycles | 10 | — |
+
 <!-- END generated:enc-int -->
 
 **Operation.** `DMP_INT := 1`
@@ -786,6 +820,7 @@ over:   always
 ```
 
 <!-- BEGIN generated:enc-jump -->
+
 <table>
 <tr><th>jump t</th><th>7</th><th>6</th><th>5</th><th>4</th><th>3</th><th>2</th><th>1</th><th>0</th></tr>
 <tr><td>byte 1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>0</td><td>1</td><td>0</td><td>0</td></tr>
@@ -808,6 +843,7 @@ over:   always
 |---|---|---|
 | Bytes | — | 2 |
 | Cycles | — | 9 |
+
 <!-- END generated:enc-jump -->
 
 **Operation.** `PC := target;  mode := 4`
@@ -834,6 +870,7 @@ shift's store, and makes that word R.
 ```
 
 <!-- BEGIN generated:enc-load -->
+
 <table>
 <tr><th>load k</th><th>7</th><th>6</th><th>5</th><th>4</th><th>3</th><th>2</th><th>1</th><th>0</th></tr>
 <tr><td>byte 1</td><td>1</td><td>1</td><td>0</td><td>1</td><td>0</td><td>1</td><td colspan="2">k</td></tr>
@@ -843,6 +880,7 @@ shift's store, and makes that word R.
 |---|---|---|
 | Bytes | — | 1 |
 | Cycles | — | 15 |
+
 <!-- END generated:enc-load -->
 
 **Operation.** `shifter[0..3] := M[P0 .. P0 + 12];  select := k;  R := M[P0 + 4k]`
@@ -872,6 +910,7 @@ shift's store, and makes that word R.
 ```
 
 <!-- BEGIN generated:enc-lo -->
+
 <table>
 <tr><th>lo / lo.next</th><th>7</th><th>6</th><th>5</th><th>4</th><th>3</th><th>2</th><th>1</th><th>0</th></tr>
 <tr><td>byte 1</td><td>1</td><td>1</td><td>0</td><td>1</td><td>0</td><td>0</td><td>1</td><td>next</td></tr>
@@ -881,6 +920,7 @@ shift's store, and makes that word R.
 |---|---|---|
 | Bytes | — | 1 |
 | Cycles | — | 11 |
+
 <!-- END generated:enc-lo -->
 
 **Operation.** `if (.next) P2.w := P2.w + 1;  DEST := sext30(R[29:0])`
@@ -912,6 +952,7 @@ shift's store, and makes that word R.
 ```
 
 <!-- BEGIN generated:enc-mac -->
+
 <table>
 <tr><th>mac A,B[,inc]</th><th>7</th><th>6</th><th>5</th><th>4</th><th>3</th><th>2</th><th>1</th><th>0</th></tr>
 <tr><td>byte 1</td><td>0</td><td colspan="2">A</td><td colspan="2">B</td><td>adv</td><td>x</td><td>0</td></tr>
@@ -921,6 +962,7 @@ shift's store, and makes that word R.
 |---|---|---|
 | Bytes | 1 | 1 |
 | Cycles | 60 | 27 |
+
 <!-- END generated:enc-mac -->
 
 **Operation.**
@@ -953,6 +995,7 @@ shift's store, and makes that word R.
 ```
 
 <!-- BEGIN generated:enc-macn -->
+
 <table>
 <tr><th>macn A,B[,inc]</th><th>7</th><th>6</th><th>5</th><th>4</th><th>3</th><th>2</th><th>1</th><th>0</th></tr>
 <tr><td>byte 1</td><td>0</td><td colspan="2">A</td><td colspan="2">B</td><td>adv</td><td>x</td><td>1</td></tr>
@@ -962,6 +1005,7 @@ shift's store, and makes that word R.
 |---|---|---|
 | Bytes | 1 | 1 |
 | Cycles | 60 | 27 |
+
 <!-- END generated:enc-macn -->
 
 **Operation.** `R := wrap64(R - A * B);  F := R < 0;  DEST := word(R)`
@@ -995,6 +1039,7 @@ shift's store, and makes that word R.
 ```
 
 <!-- BEGIN generated:enc-mode4 -->
+
 <table>
 <tr><th>mode4 (DMP3), nop.f4 (MPU)</th><th>7</th><th>6</th><th>5</th><th>4</th><th>3</th><th>2</th><th>1</th><th>0</th></tr>
 <tr><td>byte 1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>0</td><td>1</td><td>0</td><td>0</td></tr>
@@ -1015,6 +1060,7 @@ shift's store, and makes that word R.
 |---|---|---|
 | Bytes | 2 | — |
 | Cycles | 10 | — |
+
 <!-- END generated:enc-mode4 -->
 
 **Operation.** `mode := 4`
@@ -1043,6 +1089,7 @@ shift's store, and makes that word R.
 ```
 
 <!-- BEGIN generated:enc-mov -->
+
 <table>
 <tr><th>mov k[,inc]</th><th>7</th><th>6</th><th>5</th><th>4</th><th>3</th><th>2</th><th>1</th><th>0</th></tr>
 <tr><td>byte 1</td><td>1</td><td>1</td><td>0</td><td>0</td><td>0</td><td colspan="2">k</td><td>adv</td></tr>
@@ -1052,6 +1099,7 @@ shift's store, and makes that word R.
 |---|---|---|
 | Bytes | 1 | 1 |
 | Cycles | 18 | 17 |
+
 <!-- END generated:enc-mov -->
 
 **Operation.** `if (inc) P2.w := P2.w + 1;  DEST := M[P0 + 4k]` (in the lane)
@@ -1079,6 +1127,7 @@ shift's store, and makes that word R.
 ```
 
 <!-- BEGIN generated:enc-movx -->
+
 <table>
 <tr><th>movx k[,inc]</th><th>7</th><th>6</th><th>5</th><th>4</th><th>3</th><th>2</th><th>1</th><th>0</th></tr>
 <tr><td>byte 1</td><td>1</td><td>1</td><td>0</td><td>0</td><td>1</td><td colspan="2">k</td><td>adv</td></tr>
@@ -1088,6 +1137,7 @@ shift's store, and makes that word R.
 |---|---|---|
 | Bytes | 1 | 1 |
 | Cycles | 18 | 17 |
+
 <!-- END generated:enc-movx -->
 
 **Operation.** `if (inc) P2.w := P2.w + 1;  DEST := swap16(M[P0 + 4k])` (in the lane)
@@ -1113,6 +1163,7 @@ shift's store, and makes that word R.
 **Flags.** None.
 
 <!-- BEGIN generated:enc-movz -->
+
 <table>
 <tr><th>movz</th><th>7</th><th>6</th><th>5</th><th>4</th><th>3</th><th>2</th><th>1</th><th>0</th></tr>
 <tr><td>byte 1</td><td>1</td><td>0</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td></tr>
@@ -1122,6 +1173,7 @@ shift's store, and makes that word R.
 |---|---|---|
 | Bytes | — | 1 |
 | Cycles | — | 4 |
+
 <!-- END generated:enc-movz -->
 
 **Operation.** `movz := not movz;  while set, MOV stores a FIFO-dependent value`
@@ -1154,6 +1206,7 @@ shift's store, and makes that word R.
 ```
 
 <!-- BEGIN generated:enc-mul -->
+
 <table>
 <tr><th>mul A,B[,inc]</th><th>7</th><th>6</th><th>5</th><th>4</th><th>3</th><th>2</th><th>1</th><th>0</th></tr>
 <tr><td>byte 1</td><td>0</td><td colspan="2">A</td><td colspan="2">B</td><td>adv</td><td>1</td><td>0</td></tr>
@@ -1163,6 +1216,7 @@ shift's store, and makes that word R.
 |---|---|---|
 | Bytes | 1 | 1 |
 | Cycles | 58, lane 52 | 25, lane 19 |
+
 <!-- END generated:enc-mul -->
 
 **Operation.** `R := lane(A) * lane(B);  F := R < 0;  DEST := wrap(floor(R / 2^30))`
@@ -1189,6 +1243,7 @@ shift's store, and makes that word R.
 ```
 
 <!-- BEGIN generated:enc-nmul -->
+
 <table>
 <tr><th>nmul A,B[,inc]</th><th>7</th><th>6</th><th>5</th><th>4</th><th>3</th><th>2</th><th>1</th><th>0</th></tr>
 <tr><td>byte 1</td><td>0</td><td colspan="2">A</td><td colspan="2">B</td><td>adv</td><td>1</td><td>1</td></tr>
@@ -1198,6 +1253,7 @@ shift's store, and makes that word R.
 |---|---|---|
 | Bytes | 1 | 1 |
 | Cycles | 58, lane 52 | 25, lane 19 |
+
 <!-- END generated:enc-nmul -->
 
 **Operation.** `R := -(lane(A) * lane(B));  F := R < 0;  DEST := wrap(floor(R / 2^30))`
@@ -1222,6 +1278,7 @@ shift's store, and makes that word R.
 ```
 
 <!-- BEGIN generated:enc-p2inc2 -->
+
 <table>
 <tr><th>p2inc2</th><th>7</th><th>6</th><th>5</th><th>4</th><th>3</th><th>2</th><th>1</th><th>0</th></tr>
 <tr><td>byte 1</td><td>1</td><td>1</td><td>0</td><td>1</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
@@ -1231,6 +1288,7 @@ shift's store, and makes that word R.
 |---|---|---|
 | Bytes | 1 | 1 |
 | Cycles | 5 | 4 |
+
 <!-- END generated:enc-p2inc2 -->
 
 **Operation.** `P2.w := P2.w + 2`
@@ -1260,6 +1318,7 @@ shift's store, and makes that word R.
 ```
 
 <!-- BEGIN generated:enc-blk -->
+
 <table>
 <tr><th>p0blk / p1blk / p2blk</th><th>7</th><th>6</th><th>5</th><th>4</th><th>3</th><th>2</th><th>1</th><th>0</th></tr>
 <tr><td>byte 1</td><td>1</td><td>0</td><td>1</td><td>1</td><td>1</td><td>1</td><td colspan="2">P</td></tr>
@@ -1269,6 +1328,7 @@ shift's store, and makes that word R.
 |---|---|---|
 | Bytes | 1 | 1 |
 | Cycles | 5 | 4 |
+
 <!-- END generated:enc-blk -->
 
 **Operation.** `Pn.block := Pn.block + 1` (MPU modulo 3, DMP3 modulo 4)
@@ -1294,6 +1354,7 @@ shift's store, and makes that word R.
 ```
 
 <!-- BEGIN generated:enc-bank -->
+
 <table>
 <tr><th>p0bank n / p1bank n / p2bank n</th><th>7</th><th>6</th><th>5</th><th>4</th><th>3</th><th>2</th><th>1</th><th>0</th></tr>
 <tr><td>byte 1</td><td>1</td><td>0</td><td>1</td><td>1</td><td colspan="2">P</td><td colspan="2">bank</td></tr>
@@ -1303,6 +1364,7 @@ shift's store, and makes that word R.
 |---|---|---|
 | Bytes | 1 | 1 |
 | Cycles | 5 | 4 |
+
 <!-- END generated:enc-bank -->
 
 **Operation.** `Pn.bank := n`
@@ -1331,6 +1393,7 @@ shift's store, and makes that word R.
 ```
 
 <!-- BEGIN generated:enc-page -->
+
 <table>
 <tr><th>p0page n / p1page n / p2page n</th><th>7</th><th>6</th><th>5</th><th>4</th><th>3</th><th>2</th><th>1</th><th>0</th></tr>
 <tr><td>byte 1</td><td>1</td><td>0</td><td colspan="2">P</td><td colspan="4">page</td></tr>
@@ -1340,6 +1403,7 @@ shift's store, and makes that word R.
 |---|---|---|
 | Bytes | 1 | 1 |
 | Cycles | 5 | 4 |
+
 <!-- END generated:enc-page -->
 
 **Operation.** `Pn.page := n;  if (n = 2) P2.w := 0`
@@ -1370,6 +1434,7 @@ s:      ret
 ```
 
 <!-- BEGIN generated:enc-ret -->
+
 <table>
 <tr><th>ret</th><th>7</th><th>6</th><th>5</th><th>4</th><th>3</th><th>2</th><th>1</th><th>0</th></tr>
 <tr><td>byte 1</td><td>1</td><td>1</td><td>1</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
@@ -1379,6 +1444,7 @@ s:      ret
 |---|---|---|
 | Bytes | — | 1 |
 | Cycles | — | 5 |
+
 <!-- END generated:enc-ret -->
 
 **Operation.** `sp := sp - 1 mod 4;  PC := stack[sp]`
@@ -1408,6 +1474,7 @@ s:      ret
 ```
 
 <!-- BEGIN generated:enc-rsub -->
+
 <table>
 <tr><th>rsub A,B[,inc]</th><th>7</th><th>6</th><th>5</th><th>4</th><th>3</th><th>2</th><th>1</th><th>0</th></tr>
 <tr><td>byte 1</td><td>0</td><td colspan="2">A</td><td colspan="2">B</td><td>adv</td><td>0</td><td>1</td></tr>
@@ -1417,6 +1484,7 @@ s:      ret
 |---|---|---|
 | Bytes | 1 | 1 |
 | Cycles | 28, lane 22 | 26, lane 20 |
+
 <!-- END generated:enc-rsub -->
 
 **Operation.** `R := lane(B) + wrap(-lane(A));  F := R < 0;  DEST := wrap(R)`
@@ -1449,6 +1517,7 @@ s:      ret
 ```
 
 <!-- BEGIN generated:enc-shift -->
+
 <table>
 <tr><th>shl s[,adv] / sar s[,adv]</th><th>7</th><th>6</th><th>5</th><th>4</th><th>3</th><th>2</th><th>1</th><th>0</th></tr>
 <tr><td>byte 1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>0</td><td>1</td></tr>
@@ -1459,6 +1528,7 @@ s:      ret
 |---|---|---|
 | Bytes | — | 2 |
 | Cycles | — | 15 |
+
 <!-- END generated:enc-shift -->
 
 **Operation.**
@@ -1493,6 +1563,7 @@ s:      ret
 ```
 
 <!-- BEGIN generated:enc-store -->
+
 <table>
 <tr><th>store</th><th>7</th><th>6</th><th>5</th><th>4</th><th>3</th><th>2</th><th>1</th><th>0</th></tr>
 <tr><td>byte 1</td><td>1</td><td>1</td><td>0</td><td>1</td><td>1</td><td>1</td><td>0</td><td>0</td></tr>
@@ -1502,6 +1573,7 @@ s:      ret
 |---|---|---|
 | Bytes | 1 | 1 |
 | Cycles | 5 | 4 |
+
 <!-- END generated:enc-store -->
 
 **Operation.** `route := RAM`
@@ -1531,6 +1603,7 @@ s:      ret
 ```
 
 <!-- BEGIN generated:enc-test -->
+
 <table>
 <tr><th>test</th><th>7</th><th>6</th><th>5</th><th>4</th><th>3</th><th>2</th><th>1</th><th>0</th></tr>
 <tr><td>byte 1</td><td>1</td><td>1</td><td>0</td><td>1</td><td>0</td><td>0</td><td>0</td><td>1</td></tr>
@@ -1540,6 +1613,7 @@ s:      ret
 |---|---|---|
 | Bytes | 1 | 1 |
 | Cycles | 5 | 4 |
+
 <!-- END generated:enc-test -->
 
 **Operation.** `F := lane(word(R)) = 0`
@@ -1571,6 +1645,7 @@ s:      ret
 ```
 
 <!-- BEGIN generated:enc-xchg01 -->
+
 <table>
 <tr><th>xchg01</th><th>7</th><th>6</th><th>5</th><th>4</th><th>3</th><th>2</th><th>1</th><th>0</th></tr>
 <tr><td>byte 1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>0</td><td>0</td></tr>
@@ -1580,6 +1655,7 @@ s:      ret
 |---|---|---|
 | Bytes | 1 | — |
 | Cycles | 5 | — |
+
 <!-- END generated:enc-xchg01 -->
 
 **Operation.** `xchg01 := not xchg01`
@@ -1610,6 +1686,7 @@ s:      ret
 ```
 
 <!-- BEGIN generated:enc-xchg02 -->
+
 <table>
 <tr><th>xchg02</th><th>7</th><th>6</th><th>5</th><th>4</th><th>3</th><th>2</th><th>1</th><th>0</th></tr>
 <tr><td>byte 1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>0</td><td>1</td></tr>
@@ -1619,6 +1696,7 @@ s:      ret
 |---|---|---|
 | Bytes | 1 | — |
 | Cycles | 5 | — |
+
 <!-- END generated:enc-xchg02 -->
 
 **Operation.** `xchg02 := not xchg02`
@@ -1647,6 +1725,7 @@ s:      ret
 ```
 
 <!-- BEGIN generated:enc-xor -->
+
 <table>
 <tr><th>xor A,B[,inc]</th><th>7</th><th>6</th><th>5</th><th>4</th><th>3</th><th>2</th><th>1</th><th>0</th></tr>
 <tr><td>byte 1</td><td>0</td><td colspan="2">A</td><td colspan="2">B</td><td>adv</td><td>1</td><td>1</td></tr>
@@ -1656,6 +1735,7 @@ s:      ret
 |---|---|---|
 | Bytes | 1 | 1 |
 | Cycles | 23, lane 17 | 22, lane 16 |
+
 <!-- END generated:enc-xor -->
 
 **Operation.** `if (inc) P2.w := P2.w + 1;  DEST := lane(A) XOR lane(B)`
